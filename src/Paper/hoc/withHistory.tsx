@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
-import assign from 'object-assign'
-import update from 'immutability-helper'
+import * as React from 'react';
+import Layer = paper.Layer;
+import Item = paper.Item;
+import update = require('immutability-helper');
 
-function getInitialId(data, id = 1) {
-  data.forEach(item => {
+function getInitialId(data: any, id = 1) {
+  data.forEach((item: any) => {
     if (item.id > id) {
       id = item.id + 1
     }
@@ -14,11 +15,31 @@ function getInitialId(data, id = 1) {
   return id
 }
 
-export default function withHistory(WrappedComponent) {
+export interface WithHistoryNeededProps {
+  initialData: any[]
+}
 
-  return class extends Component {
+export interface WithHistoryInjectedProps {
+  data: any
+  addItem: (layer: Layer, data: any) => void
+  updateItem: (a: any, b: any) => void
+  removeItem: (item: any) => void
+  deselectItem: () => void
+  canUndo: boolean
+  canRedo: boolean
+  undo: () => void
+  redo: () => void
+  clearHistory: () => void
+}
 
-    constructor(props) {
+type WithHistoryProps = WithHistoryNeededProps & WithHistoryInjectedProps
+
+export default function withHistory(WrappedComponent: React.ComponentClass<WithHistoryProps>) {
+
+  return class extends React.Component<WithHistoryProps, any> {
+    private _id: number;
+
+    constructor(props: WithHistoryProps) {
       super(props)
       this.state = {
         historyIndex: 0,
@@ -27,7 +48,7 @@ export default function withHistory(WrappedComponent) {
       this._id = getInitialId(props.initialData)
     }
 
-    keyDown = (e) => {
+    keyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
         this.undo()
       } else if (e.key === 'ArrowRight') {
@@ -35,10 +56,10 @@ export default function withHistory(WrappedComponent) {
       }
     }
 
-    addItem = (layer, data) => {
+    addItem = (layer: Layer, data: any) => {
       const history = this.getPrevHistory()
-      const layerIndex = history.findIndex(l => l.id === layer.data.id)
-      const nextItem = assign(data, { id: this._id })
+      const layerIndex = history.findIndex((l: any) => l.id === layer.data.id)
+      const nextItem = Object.assign(data, { id: this._id })
       const nextHistory = update(history, {
         [layerIndex]: { children: { $push: [nextItem] } }
       })
@@ -47,12 +68,12 @@ export default function withHistory(WrappedComponent) {
       return nextItem
     }
 
-    updateItem = (item, data) => {
+    updateItem = (item: Item, data: any) => {
       const history = this.getPrevHistory()
-      const layerIndex = history.findIndex(l => l.id === item.layer.data.id)
+      const layerIndex = history.findIndex((l: any)  => l.id === item.layer.data.id)
       const children = history[layerIndex].children
-      const itemIndex = children.findIndex(i => i.id === item.data.id)
-      const nextItem = assign({}, children[itemIndex], data)
+      const itemIndex = children.findIndex((i: any) => i.id === item.data.id)
+      const nextItem = Object.assign({}, children[itemIndex], data)
       const nextHistory = update(history, {
         [layerIndex]: { children: { [itemIndex]: { $set: nextItem } } }
       })
@@ -60,18 +81,18 @@ export default function withHistory(WrappedComponent) {
       return nextItem
     }
 
-    removeItem = (item) => {
+    removeItem = (item: Item) => {
       const history = this.getPrevHistory()
-      const layerIndex = history.findIndex(l => l.id === item.layer.data.id)
+      const layerIndex = history.findIndex((l: any) => l.id === item.layer.data.id)
       const children = history[layerIndex].children
-      const itemIndex = children.findIndex(i => i.id === item.data.id)
+      const itemIndex = children.findIndex((i: any) => i.id === item.data.id)
       const nextHistory = update(history, {
         [layerIndex]: { children: { $splice: [[itemIndex, 1]] } }
       })
       this.addHistory(nextHistory)
     }
 
-    addHistory = (nextHistory) => {
+    addHistory = (nextHistory: any) => {
       const historyIndex = this.state.historyIndex+1
       const history = [
         ...this.state.history.slice(0, historyIndex),

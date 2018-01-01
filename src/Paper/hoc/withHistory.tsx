@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Layer = paper.Layer;
 import Item = paper.Item;
-import update = require('immutability-helper');
+import * as update from 'immutability-helper';
 
 function getInitialId(data: any, id = 1) {
   data.forEach((item: any) => {

@@ -1,12 +1,43 @@
-import React, { Component } from 'react'
+import {View, Rectangle, Raster, ToolEvent, Point, Size} from 'paper'
+import * as React from 'react';
 
 const ZOOM_FACTOR = 1.1
 
-export default function withMoveTool(WrappedComponent) {
+export interface WithMoveToolInjectedProps {
+  fitImage: (image: Raster) => void
+  moveToolMouseWheel: (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => void
+  moveToolMouseDown: (e: ToolEvent) => void
+  moveToolMouseDrag: (e: ToolEvent) => void
+  moveToolMouseUp: (e: ToolEvent) => void
+}
 
-  return class extends Component {
+export interface WithMoveToolNeededProps {
+  imageWidth: number
+  imageHeight: number
+  width: number
+  height: number
+}
 
-    constructor(props) {
+export interface WithMoveToolState {
+  sx: number  // scale center x
+  sy: number  // scale center y
+  tx: number  // translate x
+  ty: number  // translate y
+  x: number
+  y: number
+  zoom: number
+}
+
+export type WithMoveToolProps = WithMoveToolInjectedProps & WithMoveToolNeededProps
+
+export default function withMoveTool(WrappedComponent: React.ComponentClass<WithMoveToolProps>) {
+
+  return class extends React.Component<WithMoveToolProps, WithMoveToolState> {
+
+    private _pan: any
+    private _imageLoaded: boolean
+
+    constructor(props: WithMoveToolProps) {
       super(props)
       this.state = {
         sx: 0, // scale center x
@@ -18,7 +49,6 @@ export default function withMoveTool(WrappedComponent) {
         zoom: 1,
       }
       this._pan = null
-      this._pinch = null
     }
 
     /**
@@ -26,10 +56,10 @@ export default function withMoveTool(WrappedComponent) {
      *
      * @param  {Raster} image Paper.js Raster instance
      */
-    fitImage = (image) => {
+    fitImage = (image: Raster) => {
       const { imageWidth, imageHeight, width, height } = this.props
       // fit raster into original image size
-      image.fitBounds(0, 0, imageWidth, imageHeight)
+      image.fitBounds(new Rectangle(new Point(0, 0), new Size(imageWidth, imageHeight)))
       // if image is already loaded
       // do not attempt to fit it again
       if (this._imageLoaded) {
@@ -64,7 +94,7 @@ export default function withMoveTool(WrappedComponent) {
      * @param  {ToolEvent} e Paper.js ToolEvent
      * @return {Object}      Object representing pinch zoom event
      */
-    getPinchEventData(e) {
+    getPinchEventData(e: ToolEvent|any) {
       const { event: { target: { offsetLeft, offsetTop }, touches } } = e
       // touch points
       const x0 = touches[0].pageX - offsetLeft
@@ -80,36 +110,12 @@ export default function withMoveTool(WrappedComponent) {
     }
 
     /**
-     * Get pinch zoom state data
-     *
-     * @param  {Object} prev Previous pinch zoom event data
-     * @param  {Object} next Next pinch zoom event data
-     * @return {Object}      Next pinch zoom state
-     */
-    getPinchEventState(e, prev, next) {
-      const { x, y, zoom } = this.state
-      const { tool: { view } } = e
-      const center = view.viewToProject(next.center)
-      const t = center.subtract(view.viewToProject(prev.center))
-      const scale = next.distance / prev.distance
-      return {
-        tx: t.x,
-        ty: t.y,
-        sx: center.x,
-        sy: center.y,
-        x: x + t.x,
-        y: y + t.y,
-        zoom: zoom * scale,
-      }
-    }
-
-    /**
      * Get pan event data
      *
      * @param  {ToolEvent} e Paper.js ToolEvent
      * @return {Object}      Object representing pan event
      */
-    getPanEventData(e) {
+    getPanEventData(e: ToolEvent|any) {
       const { point, event: { touches, pageX, pageY }, tool: { view } } = e
       return {
         point: view.projectToView(point),
@@ -126,7 +132,7 @@ export default function withMoveTool(WrappedComponent) {
      * @param  {Object}    next Next pan event data
      * @return {Object}         Next pan state data
      */
-    getPanEventState(e, prev, next) {
+    getPanEventState(e: ToolEvent|any, prev: any, next: any) {
       const { x, y } = this.state
       const { point, tool: { view } } = e
       const t = point.subtract(view.viewToProject(prev.point))
@@ -144,16 +150,17 @@ export default function withMoveTool(WrappedComponent) {
      * @param  {SyntheticEvent} e    React's SyntheticEvent
      * @param  {PaperScope}     view Paper.js PaperScope instance
      */
-    mouseWheel = (e, { view }) => {
+    mouseWheel = (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => {
       const { zoom } = this.state
-      const { pageX, pageY, nativeEvent } = e
-      const { offsetLeft, offsetTop } = nativeEvent.target
+      const { pageX, pageY } = e
+      const { offsetLeft, offsetTop } = e.currentTarget
       // get wheel delta
-      const delta = -e.deltaY || e.wheelDelta
+      // const delta = -e.deltaY || e.wheelDelta
+      const delta = -e.deltaY
       // calculate new zoom from wheel event delta
       const newZoom = delta > 0 ? zoom * ZOOM_FACTOR : zoom / ZOOM_FACTOR
       // convert mouse point to project space
-      const s = view.viewToProject(pageX - offsetLeft, pageY - offsetTop)
+      const s = view.viewToProject(new Point(pageX - offsetLeft, pageY - offsetTop))
       // scale paper
       this.setState({
         sx: s.x,
@@ -167,7 +174,7 @@ export default function withMoveTool(WrappedComponent) {
      *
      * @param  {ToolEvent} e Paper.js ToolEvent
      */
-    mouseDown = (e) => {
+    mouseDown = (e: ToolEvent) => {
       //this._pan = this.getPanEventData(e)
     }
 
@@ -180,36 +187,19 @@ export default function withMoveTool(WrappedComponent) {
      *
      * @param  {ToolEvent} e Paper.js ToolEvent
      */
-    mouseDrag = (e) => {
-      const { event: { touches }, tool: { view } } = e
-      if (touches && touches.length === 2) {
-        // pinch zoom
-        if (!this._pinch) {
-          this._pinch = this.getPinchEventData(e)
-          return
-        }
-        const prev = this._pinch
-        const next = this.getPinchEventData(e)
-        //this.setState(this.getPinchEventState(e, prev, next))
-        const { sx, sy, tx, ty, zoom } = this.getPinchEventState(e, prev, next)
-        // transform view manually
-        view.scale(zoom / this.state.zoom, [sx, sy])
-        view.translate(tx, ty)
-        this._pinch = next
-      } else {
-        // pan
-        if (!this._pan) {
-          this._pan = this.getPanEventData(e)
-          return
-        }
-        const prev = this._pan
-        const next = this.getPanEventData(e)
-        //this.setState(this.getPanEventState(e, prev, next))
-        const { tx, ty } = this.getPanEventState(e, prev, next)
-        // transform view manually
-        view.translate(tx, ty)
-        this._pan = next
+    mouseDrag = (e: ToolEvent|any) => {
+      const { tool: { view } } = e
+      if (!this._pan) {
+        this._pan = this.getPanEventData(e)
+        return
       }
+      const prev = this._pan
+      const next = this.getPanEventData(e)
+      //this.setState(this.getPanEventState(e, prev, next))
+      const { tx, ty } = this.getPanEventState(e, prev, next)
+      // transform view manually
+      view.translate(tx, ty)
+      this._pan = next
     }
 
     /**
@@ -217,9 +207,8 @@ export default function withMoveTool(WrappedComponent) {
      *
      * @param  {ToolEvent} e Paper.js ToolEvent
      */
-    mouseUp = (e) => {
+    mouseUp = (e: ToolEvent) => {
       this._pan = null
-      this._pinch = null
     }
 
     render() {
@@ -228,9 +217,6 @@ export default function withMoveTool(WrappedComponent) {
           {...this.props}
           {...this.state}
           fitImage={this.fitImage}
-          moveToolTouchStart={this.touchStart}
-          moveToolTouchMove={this.touchMove}
-          moveToolTouchEnd={this.touchEnd}
           moveToolMouseWheel={this.mouseWheel}
           moveToolMouseDown={this.mouseDown}
           moveToolMouseDrag={this.mouseDrag}

@@ -1,10 +1,25 @@
-import React, { Component } from 'react'
+import * as React from 'react'
 
-export default function withTools(WrappedComponent) {
+interface WithToolsInjectedProps {
+  activeTool: string
+  setTool: (tool: string) => void
+}
 
-  return class extends Component {
+interface WithToolsNeededProps {
+}
 
-    constructor(props) {
+type WithToolsProps = WithToolsInjectedProps & WithToolsNeededProps
+
+interface WithToolsState {
+  activeTool: string
+}
+
+export default function withTools(WrappedComponent: React.ComponentClass<WithToolsProps>) {
+
+  return class extends React.Component<WithToolsProps, WithToolsState> {
+    private _prevTool: string | null;
+
+    constructor(props: WithToolsProps) {
       super(props)
       this.state = {
         activeTool: 'move',
@@ -12,11 +27,11 @@ export default function withTools(WrappedComponent) {
       this._prevTool = null
     }
 
-    setTool = (activeTool) => {
+    setTool = (activeTool: string) => {
       this.setState({ activeTool })
     }
 
-    keyDown = (e) => {
+    keyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' && this.state.activeTool !== 'move') {
         this._prevTool = this.state.activeTool
         this.setState({ activeTool: 'move' })
@@ -35,9 +50,9 @@ export default function withTools(WrappedComponent) {
       }
     }
 
-    keyUp = (e) => {
+    keyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space' && this.state.activeTool === 'move' && this._prevTool !== 'move') {
-        this.setTool(this._prevTool)
+        this.setTool(this._prevTool!)
         this._prevTool = null
       }
     }

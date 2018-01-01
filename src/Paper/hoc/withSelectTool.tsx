@@ -1,20 +1,52 @@
-import React, { Component } from 'react'
+import * as React from 'react';
+import ToolEvent = paper.ToolEvent;
+import KeyEvent = paper.KeyEvent;
 
 const HIT_TEST_OPTIONS = {
   segments: true,
   stroke: true,
   fill: true,
   tolerance: 12,
+};
+
+export interface WithSelectToolInjectedProps {
+  selectItem: (_: {id: number, type: string}) => void
+  updateItem: (a: any, b: any) => void
+  removeItem: (item: any) => void
+  deselectItem: () => void
+  selectToolKeyDown: (e: KeyEvent) => void
+  selectToolKeyUp: (e: KeyEvent) => void
+  selectToolMouseDown: (e: ToolEvent) => void
+  selectToolMouseDrag: (e: ToolEvent) => void
+  selectToolMouseUp: (e: ToolEvent) => void
 }
 
-export default function withSelectTool(WrappedComponent) {
+interface WithSelectToolState {
+  activeLayer: number
+  selectedItem: number|null
+}
 
-  return class extends Component {
+export interface WithSelectToolNeededProps {
+  updateItem: (item: any) => void
+  initialData: any
+}
 
-    constructor(props) {
-      super(props)
-      const d = props.initialData
-      const id = d && d[0] && d[0].id
+type WithSelectToolProps = WithSelectToolInjectedProps & WithSelectToolNeededProps
+
+export default function withSelectTool(WrappedComponent: React.ComponentClass<WithSelectToolProps>) {
+
+  return class extends React.Component<WithSelectToolProps, WithSelectToolState> {
+
+    state: WithSelectToolState;
+    private _changed: boolean;
+    private _item: any;
+    private _point: any;
+    private _updateTimeout: any;
+
+    constructor(props: WithSelectToolProps) {
+      super(props);
+      const d = props.initialData;
+      const id = d && d[0] && d[0].id;
       this.state = {
         activeLayer: id,
         selectedItem: id,
@@ -24,7 +56,7 @@ export default function withSelectTool(WrappedComponent) {
       this._point = null
     }
 
-    selectItem = ({ id, type }) => {
+    selectItem = ({id, type}: { id: number, type: string}) => {
       if (id === this.state.selectedItem) {
         return
       }
@@ -46,7 +78,7 @@ export default function withSelectTool(WrappedComponent) {
       this.setState({ selectedItem: null })
     }
 
-    keyDown = (e) => {
+    keyDown = (e: KeyEvent) => {
       if (this._item) {
         const { key, modifiers: { shift } } = e
         switch (key) {
@@ -78,7 +110,7 @@ export default function withSelectTool(WrappedComponent) {
       }
     }
 
-    keyUp = (e) => {
+    keyUp = (e: KeyEvent) => {
       const { key } = e
       if (this._item && this._changed && key !== 'shift') {
         // debounce keyup item update
@@ -99,7 +131,8 @@ export default function withSelectTool(WrappedComponent) {
       }
     }
 
-    mouseDown = (e) => {
+    // TODO: update ToolEvent type?
+    mouseDown = (e: ToolEvent|any) => {
       this.deselectItem()
       const hit = e.tool.view._project.hitTest(e.point, HIT_TEST_OPTIONS)
       if (hit && hit.item && !hit.item.locked) {
@@ -115,7 +148,7 @@ export default function withSelectTool(WrappedComponent) {
       }
     }
 
-    mouseDrag = (e) => {
+    mouseDrag = (e: ToolEvent) => {
       if (this._item && this._point) {
         this._item.translate(e.point.subtract(this._point))
         this._changed = true
@@ -123,7 +156,7 @@ export default function withSelectTool(WrappedComponent) {
       }
     }
 
-    mouseUp = (e) => {
+    mouseUp = (e: ToolEvent) => {
       if (this._item && this._changed) {
         this.props.updateItem(this._item, {
           pathData: this._item.getPathData(),

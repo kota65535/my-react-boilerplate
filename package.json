@@ -58,6 +58,7 @@
     "test": "node scripts/test.js --env=jsdom"
   },
   "devDependencies": {
+    "@types/immutability-helper": "^2.0.15",
     "@types/jest": "^22.0.0",
     "@types/node": "^8.5.2",
     "@types/paper": "^0.9.11",

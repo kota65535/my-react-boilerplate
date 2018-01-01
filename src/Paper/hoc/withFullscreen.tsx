@@ -1,10 +1,24 @@
-import React, { Component } from 'react'
+import * as React from 'react';
 
-export default function withFullscreen(WrappedComponent) {
+interface WithFullscreenInjectedProps {
+  fullscreen: boolean
+  toggleFullscreen: () => void
+}
 
-  return class extends Component {
+interface WithFullscreenNeededProps {
+}
 
-    constructor(props) {
+interface WithFullscreenState {
+  fullscreen: boolean
+}
+
+type WithFullscreenProps = WithFullscreenNeededProps & WithFullscreenInjectedProps
+
+export default function withFullscreen(WrappedComponent: React.ComponentClass<WithFullscreenProps>) {
+
+  return class extends React.Component<WithFullscreenProps, WithFullscreenState> {
+
+    constructor(props: WithFullscreenProps) {
       super(props)
       this.state = {
         fullscreen: false,
@@ -15,20 +29,12 @@ export default function withFullscreen(WrappedComponent) {
       if (!this.state.fullscreen) {
         if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen()
-        } else if (document.documentElement.msRequestFullscreen) {
-          document.documentElement.msRequestFullscreen()
-        } else if (document.documentElement.mozRequestFullScreen) {
-          document.documentElement.mozRequestFullScreen()
         } else if (document.documentElement.webkitRequestFullscreen) {
-          document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT)
+          document.documentElement.webkitRequestFullscreen()
         }
       } else {
         if (document.exitFullscreen) {
           document.exitFullscreen()
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen()
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen()
         } else if (document.webkitExitFullscreen) {
           document.webkitExitFullscreen()
         }

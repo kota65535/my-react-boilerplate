@@ -5,14 +5,11 @@ interface WithFullscreenInjectedProps {
   toggleFullscreen: () => void
 }
 
-interface WithFullscreenNeededProps {
-}
-
 interface WithFullscreenState {
   fullscreen: boolean
 }
 
-type WithFullscreenProps = WithFullscreenNeededProps & WithFullscreenInjectedProps
+export type WithFullscreenProps = WithFullscreenInjectedProps
 
 export default function withFullscreen(WrappedComponent: React.ComponentClass<WithFullscreenProps>) {
 

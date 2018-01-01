@@ -5,14 +5,11 @@ interface WithToolsInjectedProps {
   setTool: (tool: string) => void
 }
 
-interface WithToolsNeededProps {
-}
-
-type WithToolsProps = WithToolsInjectedProps & WithToolsNeededProps
-
 interface WithToolsState {
   activeTool: string
 }
+
+export type WithToolsProps = WithToolsInjectedProps
 
 export default function withTools(WrappedComponent: React.ComponentClass<WithToolsProps>) {
 

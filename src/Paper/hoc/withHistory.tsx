@@ -15,11 +15,11 @@ function getInitialId(data: any, id = 1) {
   return id
 }
 
-export interface WithHistoryNeededProps {
+interface WithHistoryNeededProps {
   initialData: any[]
 }
 
-export interface WithHistoryInjectedProps {
+interface WithHistoryInjectedProps {
   data: any
   addItem: (layer: Layer, data: any) => void
   updateItem: (a: any, b: any) => void
@@ -32,7 +32,7 @@ export interface WithHistoryInjectedProps {
   clearHistory: () => void
 }
 
-type WithHistoryProps = WithHistoryNeededProps & WithHistoryInjectedProps
+export type WithHistoryProps = WithHistoryNeededProps & WithHistoryInjectedProps
 
 export default function withHistory(WrappedComponent: React.ComponentClass<WithHistoryProps>) {
 

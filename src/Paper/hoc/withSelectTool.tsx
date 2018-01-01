@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ToolEvent = paper.ToolEvent;
 import KeyEvent = paper.KeyEvent;
+import {WithHistoryProps} from './withHistory';
 
 const HIT_TEST_OPTIONS = {
   segments: true,
@@ -9,7 +10,7 @@ const HIT_TEST_OPTIONS = {
   tolerance: 12,
 };
 
-export interface WithSelectToolInjectedProps {
+interface WithSelectToolInjectedProps {
   selectItem: (_: {id: number, type: string}) => void
   updateItem: (a: any, b: any) => void
   removeItem: (item: any) => void
@@ -26,12 +27,8 @@ interface WithSelectToolState {
   selectedItem: number|null
 }
 
-export interface WithSelectToolNeededProps {
-  updateItem: (item: any) => void
-  initialData: any
-}
-
-type WithSelectToolProps = WithSelectToolInjectedProps & WithSelectToolNeededProps
+// depends on withHistory
+export type WithSelectToolProps = WithSelectToolInjectedProps & WithHistoryProps
 
 export default function withSelectTool(WrappedComponent: React.ComponentClass<WithSelectToolProps>) {
 

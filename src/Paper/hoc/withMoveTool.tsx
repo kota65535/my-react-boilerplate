@@ -11,14 +11,14 @@ export interface WithMoveToolInjectedProps {
   moveToolMouseUp: (e: ToolEvent) => void
 }
 
-export interface WithMoveToolNeededProps {
+interface WithMoveToolNeededProps {
   imageWidth: number
   imageHeight: number
   width: number
   height: number
 }
 
-export interface WithMoveToolState {
+interface WithMoveToolState {
   sx: number  // scale center x
   sy: number  // scale center y
   tx: number  // translate x

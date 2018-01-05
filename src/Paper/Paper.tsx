@@ -12,7 +12,7 @@ import withTools, {WithToolsInjectedProps} from './hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from './hoc/withMoveTool'
 import withSelectTool, {WithSelectToolProps} from './hoc/withSelectTool'
 
-import './Paper.css'
+import styles from './Paper.css'
 import MyToolbar, {MyToolBarProps} from "./Toolbar/MyToolbar";
 import Layers from './Layers/Layers';
 
@@ -126,7 +126,7 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
 
       
     return (
-      <div className={`Paper tool-${activeTool}`}>
+      <div className={`${styles.Paper} tool-${activeTool}`}>
         <MyToolbar {...toolbarProps} />
         {loaded && showLayers &&
         <Layers {...layerProps} />}

@@ -1,6 +1,3 @@
-.Layers .tree-view_item {
-  display: flex;
-  cursor: pointer;
-  padding-left: 4px;
+.LayersIcon {
+  width: 18px;
 }
-

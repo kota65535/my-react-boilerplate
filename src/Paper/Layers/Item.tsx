@@ -7,6 +7,7 @@ import LensIcon from 'material-ui-icons/Lens'
 
 import Label from './Label'
 
+import './Item.global.css'
 import './Item.css'
 
 function getIcon(type) {
@@ -31,6 +32,7 @@ export interface ItemProps {
   onLabelClick: any
 
 }
+
 
 export default class Item extends React.Component<ItemProps, {}> {
 
@@ -61,7 +63,7 @@ export default class Item extends React.Component<ItemProps, {}> {
       nodeLabel: <Label {...labelProps}>{type}</Label>,
     }
     return (
-      <Tree {...treeProps}>
+      <Tree styleName="LayersIcon" {...treeProps}>
         {hasChildren && children.map(({ id, type }) =>
           <Label
             key={id}

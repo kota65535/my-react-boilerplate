@@ -7,7 +7,7 @@ import RedoIcon from 'material-ui-icons/Redo'
 import {IconButton, Menu, MenuItem, Toolbar} from "material-ui"
 import {AppBar} from "material-ui"
 
-import './MyToolbar.css'
+import styles from './MyToolbar.css'
 
 export interface MyToolBarProps {
   activeTool: string
@@ -37,7 +37,7 @@ export class MyToolbar extends React.Component<MyToolBarProps, MyToolbarState> {
   }
 
   isActive(...tool: string[]) {
-    return tool.includes(this.props.activeTool) ? 'active' : ''
+    return tool.includes(this.props.activeTool) ? styles.active : ''
   }
 
   handlePutToolOpen(e: React.MouseEvent<HTMLElement>) {
@@ -60,17 +60,17 @@ export class MyToolbar extends React.Component<MyToolBarProps, MyToolbarState> {
       <AppBar>
         <Toolbar>
           <IconButton
-            className={`IconButton ${this.isActive('move')}`}
+            className={`${styles.IconButton} ${this.isActive('move')}`}
             onClick={() => this.props.setTool('move')}>
             <PanToolIcon/>
           </IconButton>
           <IconButton
-            className={`IconButton ${this.isActive('select')}`}
+            className={`${styles.IconButton} ${this.isActive('select')}`}
             onClick={() => this.props.setTool('select')}>
             <TouchAppIcon/>
           </IconButton>
           <IconButton
-            className={`IconButton ${this.isActive('rectangle', 'circle')}`}
+            className={`${styles.IconButton} ${this.isActive('rectangle', 'circle')}`}
             onClick={this.handlePutToolOpen}
           >
             <AddBoxIcon/>
@@ -84,12 +84,12 @@ export class MyToolbar extends React.Component<MyToolBarProps, MyToolbarState> {
             <MenuItem data-value="circle" onClick={this.handlePutToolClose}>Circle</MenuItem>
           </Menu>
           <IconButton
-            className={`IconButton ${this.isActive('undo') && this.props.canUndo}`}
+            className={`${styles.IconButton} ${this.isActive('undo') && this.props.canUndo}`}
             onClick={() => this.props.undo()}>
             <UndoIcon/>
           </IconButton>
           <IconButton
-            className={`IconButton ${this.isActive('redo') && this.props.canRedo}`}
+            className={`${styles.IconButton} ${this.isActive('redo') && this.props.canRedo}`}
             onClick={() => this.props.redo()}>
             <RedoIcon/>
           </IconButton>

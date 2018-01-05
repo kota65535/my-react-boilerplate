@@ -34,29 +34,30 @@
 }
 
 /* arrow */
-.Layers .tree-view_arrow {
+:global .tree-view_arrow {
   cursor: pointer;
   display: inline-block;
   transition: all 0.2s;
   user-select: none;
 }
-.Layers .tree-view_arrow:after {
+
+:global .tree-view_arrow:after {
   position: relative;
   content: '▾';
 }
-.Layers .tree-view_arrow-collapsed {
+:global .tree-view_arrow-collapsed {
   transform: rotate(-90deg);
 }
 
 /* children */
-.Layers .tree-view_children {
+:global .tree-view_children {
   margin-left: 30px;
 }
-.Layers .tree-view_children-collapsed {
+:global .tree-view_children-collapsed {
   height: 0px;
 }
 
-.Layers .LayersIcon {
+:global .LayersIcon {
   height: 20px;
   line-height: 20px;
 }

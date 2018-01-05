@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import './Label.css'
+import './Item.global.css'
 
 export interface LabelProps {
   icon: React.ReactNode | string
@@ -20,7 +20,7 @@ export default class Label extends React.Component<LabelProps, {}> {
 
   render() {
     const { children, icon, selected } = this.props
-    const className = `tree-view_label${selected ? ' tree-view_label-selected': ''}`
+    const className = `tree-view_label ${selected ? ' tree-view_label-selected': ''}`
     return (
       <div className={className} onClick={this.handleLabelClick}>
         {icon}

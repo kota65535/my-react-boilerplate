@@ -4,7 +4,7 @@ import LayersIcon from 'material-ui-icons/Layers'
 
 import Item from './Item'
 
-import './Layers.css'
+import styles from './Layers.css'
 
 export interface LayersProps {
   activeLayer: number
@@ -55,12 +55,12 @@ export default class Layers extends React.Component<LayersProps, LayersState> {
       <Draggable
         handle={'.Layers__title'}
       >
-        <div className={'Layers'}>
-          <div className={'Layers__title'} style={{cursor: 'move'}}>
+        <div styleName='Layers'>
+          <div styleName='Layers__title' style={{cursor: 'move'}}>
             <LayersIcon/>
             <b>Layers</b>
           </div>
-          <div className={'Layers__body'}>
+          <div styleName='Layers__body'>
             {data.map(({ id, type, children }) =>
               <Item
                 id={id}

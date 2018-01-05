@@ -7,3 +7,5 @@ declare interface ToolsStoreState {
 declare interface RootState {
   tools: ToolsStoreState;
 }
+
+

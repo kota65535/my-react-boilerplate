@@ -21,8 +21,6 @@ const publicUrl = '';
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 
-const cssModulesScopedName = '[path]___[name]__[local]___[hash:base64:5]'
-
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
@@ -152,21 +150,7 @@ module.exports = {
           {
             test: /\.(ts|tsx)$/,
             include: paths.appSrc,
-            use: [
-              {
-                loader: 'babel-loader',
-                options: {
-                  presets: ['react'],
-                  plugins: [
-                    'transform-react-jsx',
-                    ['react-css-modules', { generateScopedName: cssModulesScopedName }],
-                  ]
-                }
-              },
-              {
-                loader: require.resolve('ts-loader')
-              }
-            ]
+            loader: require.resolve('ts-loader'),
           },
           // Process JS with Babel.
           {
@@ -179,10 +163,6 @@ module.exports = {
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
               cacheDirectory: true,
-              plugins: [
-                'transform-react-jsx',
-                ['react-css-modules', { generateScopedName: cssModulesScopedName }],
-              ]
             },
           },
           // "postcss" loader applies autoprefixer to our CSS.
@@ -232,7 +212,7 @@ module.exports = {
                 options: {
                   importLoaders: 1,
                   modules: true,
-                  localIdentName: cssModulesScopedName
+                  localIdentName: '[name]__[local]___[hash:base64:5]'
                 },
               },
               {

@@ -12,17 +12,9 @@ import withTools, {WithToolsInjectedProps} from './hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from './hoc/withMoveTool'
 import withSelectTool, {WithSelectToolProps} from './hoc/withSelectTool'
 
-import styles from './Paper.css'
 import MyToolbar, {MyToolBarProps} from "./Toolbar/MyToolbar";
-import Layers from './Layers/Layers';
-
-// import Layers from './Layers/Layers';
-
-interface Props {
-  id: string;
-  name: string;
-  age: number;
-}
+import Layers from './Layers/index';
+import {StyledPalette} from "./styles";
 
 export interface PaperProps {
   image: any
@@ -107,10 +99,9 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
     })
 
     const layerProps = {
-      data,
-      activeLayer,
-      selectedItem,
-      selectItem: this.props.selectItem,
+      layers: ['L1', 'L2'],
+      activeLayer: 'L2',
+      visible: [false, false]
     }
 
 
@@ -126,10 +117,12 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
 
       
     return (
-      <div className={`${styles.Paper} tool-${activeTool}`}>
+      <div className={`Paper tool-${activeTool}`}>
         <MyToolbar {...toolbarProps} />
+        <div>!!!!!!!!!!!!!1</div>
         {loaded && showLayers &&
         <Layers {...layerProps} />}
+        <StyledPalette value='unko'/>
         <View {...viewProps}>
           <Layer>
             <Raster locked source={image} onLoad={this.imageLoaded} />

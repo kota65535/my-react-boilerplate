@@ -1,7 +1,7 @@
 import * as React from 'react'
-import Paper from './Paper/Paper'
+import Paper from './Paper/index'
 
-import styles from './App.css'
+import './App.css'
 
 import MR_BUBBLES_JSON from './mr-bubbles.json'
 import MR_BUBBLES_IMAGE_480 from './mr-bubbles-480.jpg'
@@ -73,7 +73,7 @@ class App extends React.Component<WithStyles<'root'>, {}> {
         const { imageSize, mounted } = this.state as any
         const box = this._box && this._box.getBoundingClientRect()
         return (
-            <div className={styles.App} ref={ref => this._box = ref}>
+            <div className='App' ref={ref => this._box = ref}>
                 {mounted &&
                 <Paper
                     initialData={MR_BUBBLES_JSON}

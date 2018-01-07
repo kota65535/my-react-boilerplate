@@ -10,7 +10,7 @@ import {configureStore} from "./store";
 
 // A theme with custom primary and secondary color.
 // It's optional.
-const theme = createMuiTheme({
+export const theme = createMuiTheme({
   palette: {
     primary: cyan,
     secondary: green,

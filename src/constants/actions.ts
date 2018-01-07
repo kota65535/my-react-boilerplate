@@ -1,1 +1,3 @@
 export const SET_TOOL = 'SET_TOOL';
+export const SET_ACTIVE_LAYER = 'SET_ACTIVE_LAYER'
+export const SET_LAYER_VISIBLE = 'SET_LAYER_VISIBLE'

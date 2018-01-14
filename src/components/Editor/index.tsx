@@ -13,7 +13,9 @@ import withBuilder, {WithBuilderProps} from '../hoc/withBuilder'
 
 import Layers from './Layers/index';
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper} from "./styles";
-import ToolBar from "./ToolBar";
+import {default as withStraightRail, WithStraightRailInjectedProps} from "../hoc/withStraightRail";
+import withCurveRail from "../hoc/withCurveRail";
+import {Tools} from "../../constants/tools";
 
 export interface PaperProps {
   image: any
@@ -41,6 +43,7 @@ type ComposedPaperProps = PaperProps
   & WithMoveToolProps
   & WithSelectToolProps
   & WithBuilderProps
+  & WithStraightRailInjectedProps
 
 
 class Paper extends React.Component<ComposedPaperProps, PaperState> {
@@ -92,7 +95,8 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
 
     const { loaded, imageLoaded, showLayers, } = this.state
 
-    const toolbarProps = Object.assign(pick(this.props, ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo']), {
+    const toolbarProps = Object.assign(pick(this.props,
+      ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'selectedItem']), {
       showLayers,
       save: this.save,
       toggleLayers: this.toggleLayers,
@@ -167,6 +171,21 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
               name={'circle'}
               onMouseDown={this.props.builderMouseDown}
             />
+            <Tool
+              active={activeTool === Tools.STRAIGHT_RAILS}
+              name={Tools.STRAIGHT_RAILS}
+              onMouseDown={this.props.straightRailsMouseDown}
+            />
+            <Tool
+              active={activeTool === Tools.CURVE_RAILS}
+              name={Tools.CURVE_RAILS}
+              onMouseDown={this.props.straightRailsMouseDown}
+            />
+            {/*<Tool*/}
+              {/*active={activeTool === TURNOUTS}*/}
+              {/*name={TURNOUTS}*/}
+              {/*onMouseDown={this.props.turnoutsMouseDown}*/}
+            {/*/>*/}
           </View>
         </EditorBody>
       </StyledWrapper>
@@ -180,5 +199,6 @@ export default compose<PaperProps, PaperProps>(
   withTools,
   withMoveTool,
   withSelectTool,
-  withBuilder
+  withStraightRail,
+  withCurveRail
 )(Paper)

@@ -1,8 +1,9 @@
 import {Action, handleActions} from 'redux-actions';
 import * as Actions from '../constants/actions';
+import {Tools} from "../constants/tools";
 
 const initialState: ToolsStoreState = {
-  activeTool: 'move'
+  activeTool: Tools.STRAIGHT_RAILS
 }
 
 export default handleActions<ToolsStoreState, any>({

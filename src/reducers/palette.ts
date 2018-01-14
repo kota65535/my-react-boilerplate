@@ -2,10 +2,10 @@ import {Action, handleActions} from 'redux-actions';
 import * as Actions from '../constants/actions';
 
 const initialState: PaletteStoreState = {
-  selectedItem: {
-    name: "S280",
-    type: "Straight Rails"
-  },
+  // selectedItem: {
+  //   name: "S280",
+  //   type: "Straight Rails"
+  // },
   mode: "Builder"
 }
 

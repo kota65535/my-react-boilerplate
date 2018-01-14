@@ -14,10 +14,12 @@ import {StyledIconButton, VerticalDivider} from "./styles";
 export interface ToolBarProps {
   activeTool: string
   setTool: any
+  selectedItem: PaletteItem
   undo: () => void
   redo: () => void
   canUndo: boolean
   canRedo: boolean
+  activateBuilderTool: (type: string) => void
 }
 
 export interface ToolBarState {
@@ -38,8 +40,8 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
     this.handlePutToolClose = this.handlePutToolClose.bind(this)
   }
 
-  isActive(...tool: string[]) {
-    return tool.includes(this.props.activeTool) ? 'active' : ''
+  isActive(tool: string) {
+    return this.props.activeTool === tool ? 'active' : ''
   }
 
   handlePutToolOpen(e: React.MouseEvent<HTMLElement>) {
@@ -62,35 +64,37 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
       <AppBar>
         <MuiToolbar>
           <StyledIconButton
-            className={`${this.isActive('move')}`}
-            onClick={() => this.props.setTool('move')}>
+            className={`${this.isActive('Straight Rails')}`}
+            onClick={() => this.props.setTool('Straight Rails')}
+          >
             <StraightRailIcon/>
           </StyledIconButton>
           <StyledIconButton
-            className={`${this.isActive('select')}`}
-            onClick={() => this.props.setTool('select')}>
+            className={`${this.isActive('Curve Rails')}`}
+            onClick={() => this.props.setTool('Curve Rails')}
+          >
             <CurveRailIcon/>
           </StyledIconButton>
           <StyledIconButton
-            className={`${this.isActive('rectangle', 'circle')}`}
-            onClick={this.handlePutToolOpen}
+            className={`${this.isActive('Turnouts')}`}
+            onClick={() => this.props.setTool('Turnouts')}
           >
             <TurnoutIcon/>
           </StyledIconButton>
           <VerticalDivider>
           </VerticalDivider>
           {/*<Menu*/}
-            {/*open={this.state.open}*/}
-            {/*onClose={this.handlePutToolClose}*/}
-            {/*anchorEl={this.state.el}*/}
+          {/*open={this.state.open}*/}
+          {/*onClose={this.handlePutToolClose}*/}
+          {/*anchorEl={this.state.el}*/}
           {/*>*/}
-            {/*<MenuItem data-value="rectangle" onClick={this.handlePutToolClose}>Rectangle</MenuItem>*/}
-            {/*<MenuItem data-value="circle" onClick={this.handlePutToolClose}>Circle</MenuItem>*/}
+          {/*<MenuItem data-value="rectangle" onClick={this.handlePutToolClose}>Rectangle</MenuItem>*/}
+          {/*<MenuItem data-value="circle" onClick={this.handlePutToolClose}>Circle</MenuItem>*/}
           {/*</Menu>*/}
 
           <StyledIconButton
             className={`IconButton ${this.isActive('undo') && this.props.canUndo}`}
-            onClick={() => this.props.undo()}>
+            onClick={this.props.undo}>
             <UndoIcon/>
           </StyledIconButton>
           <StyledIconButton

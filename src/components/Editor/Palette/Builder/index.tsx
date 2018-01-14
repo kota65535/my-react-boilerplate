@@ -6,8 +6,10 @@ import Selector from "./Selector"
 import {connect} from "react-redux";
 import data from "../../../../constants/builderPaletteItems.json"
 import {selectItem} from "../../../../actions/tools";
+import {TitleDiv} from "../../Layers/styles";
 
 export interface BuilderProps {
+  title: string
   selectedItem: PaletteItem
   selectItem: (item: PaletteItem) => void
 }
@@ -25,6 +27,8 @@ const ITEM_TYPES = [
   CURVE_RAILS,
   TURNOUTS
 ]
+
+
 
 
 export class Builder extends React.Component<BuilderProps, BuilderState> {
@@ -61,31 +65,15 @@ export class Builder extends React.Component<BuilderProps, BuilderState> {
   render() {
     return (
       <div>
-        <section>
-          <List>
-            {ITEM_TYPES.map((value, index) => {
-              return (
-                <StyledListItem
-                  button
-                  active={this.state.currentItemType === value}
-                  onClick={this.handleClicked.bind(this, value)}
-                >
-                  {/*<StyledListItemIcon>*/}
-                  {/*<InboxIcon />*/}
-                  {/*</StyledListItemIcon>*/}
-                  <ListItemText primary={value} />
-                </StyledListItem>
-              )
-            })}
-          </List>
-        </section>
-        <section>
+          <TitleDiv>
+            {/*<LayersIcon />*/}
+            {this.props.title}
+          </TitleDiv>
           <Selector
             items={data[this.state.currentItemType]}
             selectItem={this.props.selectItem}
             selectedItem={this.props.selectedItem}
           />
-        </section>
       </div>
     )
   }
@@ -94,7 +82,7 @@ export class Builder extends React.Component<BuilderProps, BuilderState> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    selectedItem: state.palette.selectedItem
+    selectedItem: state.builder.selectedItem
   }
 };
 

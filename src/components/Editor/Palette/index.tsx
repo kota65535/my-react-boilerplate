@@ -8,11 +8,17 @@ import BuildIcon from "material-ui-icons/Build"
 import PlayIcon from "material-ui-icons/PlayArrow"
 import {setPaletteMode} from "../../../actions/tools";
 import {connect} from "react-redux";
+import {TitleDiv} from "../Layers/styles";
+import {Tools} from "../../../constants/tools";
 
 export interface PaletteProps {
-  mode: string
+  tool: Tools
   setPaletteMode: (mode: string) => void
 }
+
+const builderTools = [
+  Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS
+]
 
 
 export class Palette extends React.Component<PaletteProps, {}> {
@@ -32,22 +38,12 @@ export class Palette extends React.Component<PaletteProps, {}> {
         // dragHandleClassName=''
       >
         <Paper>
-          <AppBar position="static">
-            <Tabs
-              value={this.props.mode}
-              onChange={this.handleTabChange}
-              fullWidth
-            >
-              <StyledTab icon={<BuildIcon />} label="Builder" value="Builder" />
-              <StyledTab icon={<PlayIcon />} label="Simulator" value="Simulator" />
-            </Tabs>
-          </AppBar>
-          {this.props.mode === 'Builder' && (
-            <Builder />
+          {builderTools.includes(this.props.tool) && (
+            <Builder title={this.props.tool} />
           )}
-          {this.props.mode === 'Simulator' && (
-            <Simulator/>
-          )}
+          {/*{this.props.mode === 'Simulator' && (*/}
+            {/*<Simulator/>*/}
+          {/*)}*/}
         </Paper>
       </StyledRnd>
     )
@@ -56,7 +52,7 @@ export class Palette extends React.Component<PaletteProps, {}> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    mode: state.palette.mode
+    tool: state.tools.activeTool
   }
 };
 

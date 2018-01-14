@@ -4,7 +4,11 @@ import {setTool} from "../../actions/tools";
 
 export interface WithToolsInjectedProps {
   activeTool: string
-  setTool: (tool: string) => void
+  /**
+   * @param {string} tool 選択するツール名
+   * @param {any} mode ツールのモードを制御するための任意の情報
+   */
+  setTool: (tool: string, mode?: any) => void
 }
 
 
@@ -41,9 +45,9 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
       if (e.code === 'Space' && this.props.activeTool !== 'move') {
         this._prevTool = this.props.activeTool
         this.props.setTool('move')
-      } else if (e.key === 'v') {
-        this.props.setTool('move')
-      } else if (e.key === 'a') {
+      } else if (e.key === 's') {
+        this.props.setTool('Builder')
+      } else if (e.key === 'c') {
         this.props.setTool('select')
       } else if (e.key === 'p') {
         this.props.setTool('circle')

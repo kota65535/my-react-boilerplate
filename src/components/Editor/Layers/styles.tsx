@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import Item from "./Item";
-import {theme} from "../../withRoot";
+import ActiveListItem from "../../common/ActiveListItem";
+import {theme} from "../../../withRoot";
 import Rnd from 'react-rnd'
 
 
@@ -26,7 +26,7 @@ export const TitleDiv = styled.div`
   cursor: move
 `
 
-export const StyledItem = styled(Item)`
+export const StyledListItem = styled(ActiveListItem)`
   && {
     background-color: ${props => props.active ? theme.palette.primary[400] : theme.palette.background.default};
     :hover {

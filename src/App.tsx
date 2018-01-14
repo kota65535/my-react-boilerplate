@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Paper from './Paper/index'
+import Editor from './components/Editor'
 
 import './App.css'
 
@@ -75,7 +75,7 @@ class App extends React.Component<WithStyles<'root'>, {}> {
         return (
             <div className='App' ref={ref => this._box = ref}>
                 {mounted &&
-                <Paper
+                <Editor
                     initialData={MR_BUBBLES_JSON}
                     image={IMAGES[imageSize]}
                     imageWidth={IMAGE_WIDTH}

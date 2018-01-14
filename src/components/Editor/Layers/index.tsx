@@ -1,9 +1,9 @@
 import * as React from 'react'
 import LayersIcon from 'material-ui-icons/Layers'
 import {Paper, Grid, Checkbox, ListItemText} from 'material-ui'
-import {StyledItem, StyledRnd, TitleDiv} from "./styles";
+import {StyledListItem, StyledRnd, TitleDiv} from "./styles";
 import {connect} from 'react-redux';
-import {setActiveLayer, setLayerVisible} from "../../actions/tools";
+import {setActiveLayer, setLayerVisible} from "../../../actions/tools";
 
 export interface LayersProps {
   layers: string[]
@@ -64,13 +64,13 @@ export class Layers extends React.Component<LayersProps, LayersState> {
                     />
                   </Grid>,
                   <Grid item xs={10}>
-                    <StyledItem
+                    <StyledListItem
                       button
                       active={this.props.activeLayer === value}
                       onClick={this.handleSetActive.bind(this, value)}
                       >
                       <ListItemText primary={value}/>
-                    </StyledItem>
+                    </StyledListItem>
                   </Grid>
               ]
             })}

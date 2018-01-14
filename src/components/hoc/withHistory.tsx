@@ -28,7 +28,7 @@ interface WithHistoryNeededProps {
 
 interface WithHistoryInjectedProps {
   data: any
-  addItem: (layer: Layer, data: Item) => Item
+  addItem: (layer: Layer, data: PathItem) => PathItem
   updateItem: (a: any, b: any) => void
   removeItem: (item: any) => void
   deselectItem: () => void
@@ -63,7 +63,7 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
       }
     }
 
-    addItem = (layer: Layer, data: Item): Item => {
+    addItem = (layer: Layer, data: PathItem): PathItem => {
       const history = this.getPrevHistory()
       const layerIndex = history.findIndex((l: any) => l.id === layer.data.id)
       const nextItem = Object.assign(data, { id: this._id })
@@ -75,11 +75,11 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
       return nextItem
     }
 
-    updateItem = (item: Item, data: any) => {
+    updateItem = (item: PathItem, data: any) => {
       const history = this.getPrevHistory()
       const layerIndex = history.findIndex((l: any)  => l.id === item.layer.data.id)
       const children = history[layerIndex].children
-      const itemIndex = children.findIndex((i: any) => i.id === item.data.id)
+      const itemIndex = children.findIndex((i: any) => i.id === item.id)
       const nextItem = Object.assign({}, children[itemIndex], data)
       const nextHistory = update(history, {
         [layerIndex]: { children: { [itemIndex]: { $set: nextItem } } }
@@ -88,11 +88,11 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
       return nextItem
     }
 
-    removeItem = (item: Item) => {
+    removeItem = (item: PathItem) => {
       const history = this.getPrevHistory()
       const layerIndex = history.findIndex((l: any) => l.id === item.layer.data.id)
       const children = history[layerIndex].children
-      const itemIndex = children.findIndex((i: any) => i.id === item.data.id)
+      const itemIndex = children.findIndex((i: any) => i.id === item.id)
       const nextHistory = update(history, {
         [layerIndex]: { children: { $splice: [[itemIndex, 1]] } }
       })

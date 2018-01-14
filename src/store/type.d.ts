@@ -9,9 +9,20 @@ declare interface LayersStoreState {
   visible: boolean[]
 }
 
+declare interface PaletteStoreState {
+  selectedItem: PaletteItem,
+  mode: string
+}
+
+declare interface PaletteItem {
+  name: string
+  type: string
+}
+
 declare interface RootState {
-  tools: ToolsStoreState;
-  layers: LayersStoreState;
+  tools: ToolsStoreState
+  layers: LayersStoreState
+  palette: PaletteStoreState
 }
 
 

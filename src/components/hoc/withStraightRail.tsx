@@ -3,12 +3,8 @@ import {connect} from 'react-redux';
 import {WithHistoryProps} from "./withHistory";
 
 export interface WithStraightRailInjectedProps {
-  selectedItem: PaletteItem
   straightRailsMouseDown: any
-}
-
-export interface WithStraightRailState {
-  lastSelectedItem: PaletteItem
+  selectedItem: PaletteItem
 }
 
 export type WithStraightRailProps = WithStraightRailInjectedProps & WithHistoryProps
@@ -26,13 +22,10 @@ export default function withStraightRail(WrappedComponent: React.ComponentClass<
     return {}
   }
 
-  class WithStraightRailComponent extends React.Component<WithStraightRailProps, WithStraightRailState> {
+  class WithStraightRailComponent extends React.Component<WithStraightRailProps, {}> {
 
     constructor (props: WithStraightRailProps) {
       super(props)
-      this.state = {
-        lastSelectedItem: {type: 'Straight Rails', name: 'S280'}
-      }
     }
 
     mouseDown = (e) => {

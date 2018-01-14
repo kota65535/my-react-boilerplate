@@ -1,25 +1,26 @@
 import * as React from 'react'
-import TouchAppIcon from 'material-ui-icons/TouchApp'
 import CurveRailIcon from './Icon/CurveRail'
 import StraightRailIcon from './Icon/StraightRail'
 import TurnoutIcon from './Icon/Turnout'
-import AddBoxIcon from 'material-ui-icons/AddBox'
 import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'
 import {Menu, MenuItem, Toolbar as MuiToolbar} from "material-ui"
 import {AppBar} from "material-ui"
 import {StyledIconButton, VerticalDivider} from "./styles";
+import {Tools} from "../../../constants/tools";
+import {selectItem} from "../../../actions/tools";
+import {connect} from "react-redux";
 
 
 export interface ToolBarProps {
   activeTool: string
   setTool: any
-  selectedItem: PaletteItem
+  selectItem: (item: PaletteItem) => void
+  lastSelectedItems: object
   undo: () => void
   redo: () => void
   canUndo: boolean
   canRedo: boolean
-  activateBuilderTool: (type: string) => void
 }
 
 export interface ToolBarState {
@@ -27,7 +28,7 @@ export interface ToolBarState {
   el: HTMLElement | undefined
 }
 
-export default class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
+export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
 
   constructor(props: ToolBarProps) {
     super(props)
@@ -35,28 +36,16 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
       open: false,
       el: undefined
     }
-
-    this.handlePutToolOpen = this.handlePutToolOpen.bind(this)
-    this.handlePutToolClose = this.handlePutToolClose.bind(this)
   }
 
   isActive(tool: string) {
     return this.props.activeTool === tool ? 'active' : ''
   }
 
-  handlePutToolOpen(e: React.MouseEvent<HTMLElement>) {
-    this.setState( {
-      open: true,
-      el: e.currentTarget
-    })
-  }
-
-  handlePutToolClose(e: React.MouseEvent<HTMLElement>) {
-    let value =  e.currentTarget.dataset.value
-    if (value) {
-      this.props.setTool(value)
-    }
-    this.setState({open: false})
+  handleBuilderToolsClick = (tool: string, e: MouseEvent) => {
+    this.props.setTool(tool)
+    // 最後に選択していたアイテムを選択する
+    this.props.selectItem({type: tool, name: this.props.lastSelectedItems[tool].name})
   }
 
   render() {
@@ -65,19 +54,19 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
         <MuiToolbar>
           <StyledIconButton
             className={`${this.isActive('Straight Rails')}`}
-            onClick={() => this.props.setTool('Straight Rails')}
+            onClick={this.handleBuilderToolsClick.bind(this, Tools.STRAIGHT_RAILS)}
           >
             <StraightRailIcon/>
           </StyledIconButton>
           <StyledIconButton
             className={`${this.isActive('Curve Rails')}`}
-            onClick={() => this.props.setTool('Curve Rails')}
+            onClick={this.handleBuilderToolsClick.bind(this, Tools.CURVE_RAILS)}
           >
             <CurveRailIcon/>
           </StyledIconButton>
           <StyledIconButton
             className={`${this.isActive('Turnouts')}`}
-            onClick={() => this.props.setTool('Turnouts')}
+            onClick={this.handleBuilderToolsClick.bind(this, Tools.TURNOUTS)}
           >
             <TurnoutIcon/>
           </StyledIconButton>
@@ -108,3 +97,16 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
   }
 }
 
+const mapStateToProps = (state: RootState) => {
+  return {
+    lastSelectedItems: state.builder.lastSelectedItems
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    selectItem: (item: PaletteItem) => dispatch(selectItem(item))
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ToolBar)

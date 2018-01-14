@@ -1,15 +1,9 @@
 import styled from "styled-components";
-import ActiveListItem from "../../../common/ActiveListItem";
-import {theme} from "../../../../withRoot";
+import Rnd from 'react-rnd'
 
-
-export const StyledListItem = styled(ActiveListItem)`
-  && {
-    background-color: ${props => props.active ? theme.palette.secondary[400] : theme.palette.background.default};
-    :hover {
-      background-color: ${props => props.active ? theme.palette.secondary[500] : theme.palette.grey[200]};
-    }
+export const HideableDiv = styled.div`
+  &.hidden {
+    display: none
   }
 `
-
 

@@ -19,8 +19,7 @@ export const EditorBody = styled.div`
 
 
 export const StyledPalette = styled(Palette as any)`
-  top: 56px;
-  left: 0px;
+  width: 200px;
 `
 
 export const StyledToolBar = styled(ToolBar as any)`

@@ -6,17 +6,12 @@ declare interface ToolsStoreState {
 
 declare interface BuilderStoreState {
   selectedItem: PaletteItem
-  lastSelectedItems: PaletteItem[]
+  lastSelectedItems: object
 }
 
 declare interface LayersStoreState {
   activeLayer: string
   visible: boolean[]
-}
-
-declare interface PaletteStoreState {
-  // selectedItem: PaletteItem,
-  mode: string
 }
 
 declare interface PaletteItem {
@@ -27,7 +22,6 @@ declare interface PaletteItem {
 declare interface RootState {
   tools: ToolsStoreState
   layers: LayersStoreState
-  palette: PaletteStoreState
   builder: BuilderStoreState
 }
 

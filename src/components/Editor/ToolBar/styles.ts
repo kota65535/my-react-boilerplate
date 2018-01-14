@@ -12,14 +12,10 @@ export const StyledIconButton = styled(IconButton as any)`
 `
 
 export const VerticalDivider = styled.div`
-  border-left: solid #ff0000;
-  //display: block;
-  //flex-grow: 1;
-  //width: 1px;
-  //top: 0px;
-  //bottom: 0px;
-  position: relative;
-  height: 100%;
-  flex: 1;
-  //overflow: auto;
+  border-left: solid ${theme.palette.primary['900']};
+  width: 0px;
+  height:40px;
+  //padding: 0px 0px 0px 0px;
+  margin: 0px 15px 0px 15px;
+  //overflow: auto2
 `

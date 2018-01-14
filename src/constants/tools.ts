@@ -1,7 +1,9 @@
 export enum Tools {
   STRAIGHT_RAILS = 'Straight Rails',
   CURVE_RAILS = 'Curve Rails',
-  TURNOUTS = 'Turnouts'
+  TURNOUTS = 'Turnouts',
+  FEEDERS = 'Feeders',
+  GAP = 'Gaps'
 }
 export const SET_ACTIVE_LAYER = 'SET_ACTIVE_LAYER'
 export const SET_LAYER_VISIBLE = 'SET_LAYER_VISIBLE'

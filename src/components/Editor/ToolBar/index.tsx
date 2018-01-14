@@ -10,6 +10,9 @@ import {StyledIconButton, VerticalDivider} from "./styles";
 import {Tools} from "../../../constants/tools";
 import {selectItem} from "../../../actions/tools";
 import {connect} from "react-redux";
+import Typography from "material-ui/Typography";
+import FeederIcon from "./Icon/Feeder";
+import GapIcon from "./Icon/Gap";
 
 
 export interface ToolBarProps {
@@ -53,25 +56,37 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
       <AppBar>
         <MuiToolbar>
           <StyledIconButton
-            className={`${this.isActive('Straight Rails')}`}
+            className={`${this.isActive(Tools.STRAIGHT_RAILS)}`}
             onClick={this.handleBuilderToolsClick.bind(this, Tools.STRAIGHT_RAILS)}
           >
             <StraightRailIcon/>
           </StyledIconButton>
           <StyledIconButton
-            className={`${this.isActive('Curve Rails')}`}
+            className={`${this.isActive(Tools.CURVE_RAILS)}`}
             onClick={this.handleBuilderToolsClick.bind(this, Tools.CURVE_RAILS)}
           >
             <CurveRailIcon/>
           </StyledIconButton>
           <StyledIconButton
-            className={`${this.isActive('Turnouts')}`}
+            className={`${this.isActive(Tools.TURNOUTS)}`}
             onClick={this.handleBuilderToolsClick.bind(this, Tools.TURNOUTS)}
           >
             <TurnoutIcon/>
           </StyledIconButton>
-          <VerticalDivider>
-          </VerticalDivider>
+          <StyledIconButton
+            className={`${this.isActive(Tools.FEEDERS)}`}
+            onClick={this.handleBuilderToolsClick.bind(this, Tools.FEEDERS)}
+          >
+            <FeederIcon/>
+          </StyledIconButton>
+          <StyledIconButton
+            className={`${this.isActive(Tools.GAP)}`}
+            onClick={this.handleBuilderToolsClick.bind(this, Tools.GAP)}
+          >
+            <GapIcon/>
+          </StyledIconButton>
+          <VerticalDivider/>
+
           {/*<Menu*/}
           {/*open={this.state.open}*/}
           {/*onClose={this.handlePutToolClose}*/}

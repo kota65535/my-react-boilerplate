@@ -7,15 +7,6 @@
   /*bottom: 0;*/
 /*}*/
 
-/*.View {*/
-  /*position: absolute;*/
-  /*top: 50px;*/
-  /*left: 0;*/
-  /*right: 0;*/
-  /*bottom: 0;*/
-
-/*}*/
-
 .Paper.tool-move canvas { cursor: grab; }
 .Paper.tool-select canvas { cursor: pointer; }
 .Paper.tool-pen canvas { cursor: crosshair; }

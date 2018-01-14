@@ -22,13 +22,14 @@ export default class Selector extends React.Component<SelectorProps, {}> {
   render() {
     return (
       <List>
-        {this.props.items.map((value) => {
+        {this.props.items.map((value, index) => {
           return [
               <StyledListItem
                 button
                 active={this.props.selectedItem.name === value.name}
                 // TODO: Performance issue?
                 onClick={this.handleClick.bind(this, value)}
+                key={index}
               >
                 <ListItemText primary={value.name}/>
               </StyledListItem>

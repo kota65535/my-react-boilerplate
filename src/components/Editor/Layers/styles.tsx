@@ -1,18 +1,7 @@
 import styled from "styled-components";
 import ActiveListItem from "../../common/ActiveListItem";
 import {theme} from "../../../withRoot";
-import Rnd from 'react-rnd'
 
-
-export const StyledRnd = styled(Rnd as any)`
-  //position: absolute;
-  z-index: 50;
-  // workaround to override top:0, left:0 inline styles
-  top: auto!important;
-  left: auto!important;
-  bottom: 10px;
-  right: 10px;
-`
 
 export const TitleDiv = styled.div`
   display: flex;

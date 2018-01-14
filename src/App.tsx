@@ -3,22 +3,12 @@ import Editor from './components/Editor'
 
 import './App.css'
 
-import MR_BUBBLES_JSON from './mr-bubbles.json'
-import MR_BUBBLES_IMAGE_480 from './mr-bubbles-480.jpg'
-import MR_BUBBLES_IMAGE_720 from './mr-bubbles-720.jpg'
-import MR_BUBBLES_IMAGE_1080 from './mr-bubbles-1080.jpg'
 import { WithStyles, StyleRulesCallback } from 'material-ui/styles'
 import withStyles from "material-ui/styles/withStyles";
 import withRoot from './withRoot';
 
 const IMAGE_WIDTH = 1920
 const IMAGE_HEIGHT = 870
-
-const IMAGES = {
-    480: MR_BUBBLES_IMAGE_480,
-    720: MR_BUBBLES_IMAGE_720,
-    1080: MR_BUBBLES_IMAGE_1080,
-}
 
 const muiStyles: StyleRulesCallback<'root'> = theme => ({
     root: {
@@ -76,11 +66,7 @@ class App extends React.Component<WithStyles<'root'>, {}> {
             <div className='App' ref={ref => this._box = ref}>
                 {mounted &&
                 <Editor
-                    initialData={MR_BUBBLES_JSON}
-                    image={IMAGES[imageSize]}
-                    imageWidth={IMAGE_WIDTH}
-                    imageHeight={IMAGE_HEIGHT}
-                    imageSize={imageSize}
+                    initialData={[]}
                     width={box.width}
                     height={box.height}
                     setImageSize={this.setImageSize}

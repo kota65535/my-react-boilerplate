@@ -8,9 +8,10 @@ import CurveRailIcon from '../ToolBar/Icon/CurveRail'
 import TurnoutIcon from "../ToolBar/Icon/Turnout";
 import Builder from "./Builder"
 import {StyledRnd} from "./styles";
+import Rnd from "react-rnd"
 
 export interface PaletteProps {
-  className: string
+  className?: string
   tool: Tools
   setPaletteMode: (mode: string) => void
 }
@@ -29,28 +30,29 @@ export class Palette extends React.Component<PaletteProps, {}> {
   render() {
 
     return (
-      <div className={this.props.className}>
-        <StyledRnd>
-          <Builder
-            active={this.isActive(Tools.STRAIGHT_RAILS)}
-            icon={(<StraightRailIcon/>)}
-            title={Tools.STRAIGHT_RAILS}
-            items={builderPaletteData[Tools.STRAIGHT_RAILS]}
-          />
-          <Builder
-            active={this.isActive(Tools.CURVE_RAILS)}
-            icon={(<CurveRailIcon/>)}
-            title={Tools.CURVE_RAILS}
-            items={builderPaletteData[Tools.CURVE_RAILS]}
-          />
-          <Builder
-            active={this.isActive(Tools.TURNOUTS)}
-            icon={(<TurnoutIcon/>)}
-            title={Tools.TURNOUTS}
-            items={builderPaletteData[Tools.TURNOUTS]}
-          />
-        </StyledRnd>
-      </div>
+      <Rnd
+        className={this.props.className}
+        dragHandleClassName='.Palette__title'
+      >
+        <Builder
+          active={this.isActive(Tools.STRAIGHT_RAILS)}
+          icon={(<StraightRailIcon/>)}
+          title={Tools.STRAIGHT_RAILS}
+          items={builderPaletteData[Tools.STRAIGHT_RAILS]}
+        />
+        <Builder
+          active={this.isActive(Tools.CURVE_RAILS)}
+          icon={(<CurveRailIcon/>)}
+          title={Tools.CURVE_RAILS}
+          items={builderPaletteData[Tools.CURVE_RAILS]}
+        />
+        <Builder
+          active={this.isActive(Tools.TURNOUTS)}
+          icon={(<TurnoutIcon/>)}
+          title={Tools.TURNOUTS}
+          items={builderPaletteData[Tools.TURNOUTS]}
+        />
+      </Rnd>
     )
   }
 }

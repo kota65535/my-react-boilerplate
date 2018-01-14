@@ -29,7 +29,7 @@ class Builder extends React.Component<BuilderProps, {}> {
       <div className={this.props.className}>
         <HideableDiv className={`${this.props.active ? '' : 'hidden'}`}>
           <Paper>
-            <TitleDiv>
+            <TitleDiv className='Palette__title'>
               {this.props.icon}
               {this.props.title}
             </TitleDiv>

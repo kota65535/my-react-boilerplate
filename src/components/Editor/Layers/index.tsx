@@ -1,9 +1,10 @@
 import * as React from 'react'
 import LayersIcon from 'material-ui-icons/Layers'
 import {Paper, Grid, Checkbox, ListItemText} from 'material-ui'
-import {StyledListItem, StyledRnd, TitleDiv} from "./styles";
+import {StyledListItem, TitleDiv} from "./styles";
 import {connect} from 'react-redux';
 import {setActiveLayer, setLayerVisible} from "../../../actions/tools";
+import Rnd from 'react-rnd'
 
 export interface LayersProps {
   layers: string[]
@@ -11,12 +12,13 @@ export interface LayersProps {
   activeLayer: string
   setActiveLayer: (layer: string) => void
   setLayerVisible: (visible: boolean[]) => void
+  className?: string
 }
 
 export interface LayersState {
 }
 
-export class Layers extends React.Component<LayersProps, LayersState> {
+class Layers extends React.Component<LayersProps, LayersState> {
 
   constructor(props: LayersProps) {
     super(props)
@@ -38,14 +40,9 @@ export class Layers extends React.Component<LayersProps, LayersState> {
 
   render() {
     return (
-      <StyledRnd
-        // size={{ width: this.state.width,  height: this.state.height }}
+      <Rnd
+        className={this.props.className}
         enableResizing={{}}
-        // onResize={(e, direction, ref, delta, position) => {
-        //   this.setState({
-        //     width: ref.offsetWidth,
-        //   });
-        // }}
         dragHandleClassName='.Layers__title'
       >
         <Paper>
@@ -56,27 +53,27 @@ export class Layers extends React.Component<LayersProps, LayersState> {
           <Grid container justify="center" spacing={0}>
             {this.props.layers.map((value, index) => {
               return [
-                  <Grid item xs={2}>
-                    <Checkbox
-                      checked={this.props.visible[index]}
-                      onChange={this.handleSetVisible}
-                      value={value}
-                    />
-                  </Grid>,
-                  <Grid item xs={10}>
-                    <StyledListItem
-                      button
-                      active={this.props.activeLayer === value}
-                      onClick={this.handleSetActive.bind(this, value)}
-                      >
-                      <ListItemText primary={value}/>
-                    </StyledListItem>
-                  </Grid>
+                <Grid item xs={2}>
+                  <Checkbox
+                    checked={this.props.visible[index]}
+                    onChange={this.handleSetVisible}
+                    value={value}
+                  />
+                </Grid>,
+                <Grid item xs={10}>
+                  <StyledListItem
+                    button
+                    active={this.props.activeLayer === value}
+                    onClick={this.handleSetActive.bind(this, value)}
+                  >
+                    <ListItemText primary={value}/>
+                  </StyledListItem>
+                </Grid>
               ]
             })}
           </Grid>
         </Paper>
-      </StyledRnd>
+      </Rnd>
     )
   }
 }

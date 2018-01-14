@@ -9,19 +9,15 @@ import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 import withSelectTool, {WithSelectToolProps} from '../hoc/withSelectTool'
-import withBuilder, {WithBuilderProps} from '../hoc/withBuilder'
 
-import Layers from './Layers/index';
-import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper} from "./styles";
+import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./styles";
 import {default as withStraightRail, WithStraightRailInjectedProps} from "../hoc/withStraightRail";
-import withCurveRail from "../hoc/withCurveRail";
+import withCurveRail, {WithCurveRailInjectedProps} from "../hoc/withCurveRail";
 import {Tools} from "../../constants/tools";
 
-export interface PaperProps {
-  image: any
-  imageWidth: number
-  imageHeight: number
-  imageSize: number
+import './Paper.css'
+
+export interface EditorProps {
   initialData: any[]
   width: number
   height: number
@@ -30,28 +26,28 @@ export interface PaperProps {
   selectedItem: any
 }
 
-export interface PaperState {
+export interface EditorState {
   imageLoaded: boolean
   loaded: boolean
   showLayers: boolean
 }
 
-type ComposedPaperProps = PaperProps
+type ComposedEditorProps = EditorProps
   & WithHistoryProps
   & WithFullscreenProps
   & WithToolsInjectedProps
   & WithMoveToolProps
   & WithSelectToolProps
-  & WithBuilderProps
   & WithStraightRailInjectedProps
+  & WithCurveRailInjectedProps
 
 
-class Paper extends React.Component<ComposedPaperProps, PaperState> {
+class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
   private _view: View | null;
   private _loaded: boolean;
 
-  constructor(props: ComposedPaperProps) {
+  constructor(props: ComposedEditorProps) {
     super(props)
     this.state = {
       imageLoaded: false,
@@ -74,30 +70,18 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
     })
   }
 
-  imageLoaded = (image) => {
-    this._loaded = true
-    this.props.fitImage(image)
-    this.setState({ imageLoaded: true, loaded: true })
-  }
-
-  componentWillUpdate(nextProps) {
-    const { image } = this.props
-    if (image !== nextProps.image) {
-      this.setState({ imageLoaded: false })
-    }
+  isActive = (tool: string) => {
+    return this.props.activeTool === tool
   }
 
   render() {
     const {
-      activeTool, activeLayer, image, data,
-      selectedItem, setTool, width, height,
+      activeTool, activeLayer, data,
+      selectedItem
     } = this.props
-
-    const { loaded, imageLoaded, showLayers, } = this.state
 
     const toolbarProps = Object.assign(pick(this.props,
       ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'selectedItem']), {
-      showLayers,
       save: this.save,
       toggleLayers: this.toggleLayers,
     })
@@ -125,75 +109,67 @@ class Paper extends React.Component<ComposedPaperProps, PaperState> {
         <StyledToolBar {...toolbarProps} />
         <EditorBody>
           <StyledPalette />
-          {loaded && showLayers &&
-          <Layers {...layerProps} />}
-          <View {...viewProps}>
-            <Layer>
-              <Raster locked source={image} onLoad={this.imageLoaded} />
-            </Layer>
-            {data.map(({ id: layerId, type, children }) =>
-              <Layer
-                key={layerId}
-                data={{ id: layerId, type }}
-                visible={imageLoaded}
-                active={layerId === activeLayer}>
-                {children.map(({ id: itemId, type: Item, ...props }) =>
-                  <Item
-                    key={itemId}
-                    {...props}
-                    data={{ id: itemId, type: Item }}
-                    selected={(
-                      (activeTool === 'select') &&
-                      (itemId === selectedItem || layerId === selectedItem)
-                    )}
-                  />
-                )}
-              </Layer>
-            )}
-            <Tool
-              active={activeTool === 'select'}
-              name={'select'}
-              onKeyDown={this.props.selectToolKeyDown}
-              onKeyUp={this.props.selectToolKeyUp}
-              onMouseDown={this.props.selectToolMouseDown}
-              onMouseDrag={this.props.selectToolMouseDrag}
-              onMouseUp={this.props.selectToolMouseUp}
-            />
-            <Tool
-              active={activeTool === 'move'}
-              name={'move'}
-              onMouseDown={this.props.moveToolMouseDown}
-              onMouseDrag={this.props.moveToolMouseDrag}
-              onMouseUp={this.props.moveToolMouseUp}
-            />
-            <Tool
-              active={activeTool === 'circle'}
-              name={'circle'}
-              onMouseDown={this.props.builderMouseDown}
-            />
-            <Tool
-              active={activeTool === Tools.STRAIGHT_RAILS}
-              name={Tools.STRAIGHT_RAILS}
-              onMouseDown={this.props.straightRailsMouseDown}
-            />
-            <Tool
-              active={activeTool === Tools.CURVE_RAILS}
-              name={Tools.CURVE_RAILS}
-              onMouseDown={this.props.straightRailsMouseDown}
-            />
-            {/*<Tool*/}
+          <StyledLayers {...layerProps} />
+            {/*<StretchedView width={0} height={0} matrix={{}}>*/}
+            <StretchedView {...viewProps}>
+              {/*{data.map(({ id: layerId, type, children }) =>*/}
+            {/*<Layer*/}
+            {/*key={layerId}*/}
+            {/*data={{ id: layerId, type }}*/}
+            {/*visible={true}*/}
+            {/*active={layerId === activeLayer}>*/}
+            {/*{children.map(({ id: itemId, type: Item, ...props }) =>*/}
+            {/*<Item*/}
+            {/*key={itemId}*/}
+            {/*{...props}*/}
+            {/*data={{ id: itemId, type: Item }}*/}
+            {/*selected={(*/}
+            {/*(activeTool === 'select') &&*/}
+            {/*(itemId === selectedItem || layerId === selectedItem)*/}
+            {/*)}*/}
+            {/*/>*/}
+            {/*)}*/}
+            {/*</Layer>*/}
+            {/*)}*/}
+              <Tool
+                active={activeTool === 'select'}
+                name={'select'}
+                onKeyDown={this.props.selectToolKeyDown}
+                onKeyUp={this.props.selectToolKeyUp}
+                onMouseDown={this.props.selectToolMouseDown}
+                onMouseDrag={this.props.selectToolMouseDrag}
+                onMouseUp={this.props.selectToolMouseUp}
+              />
+              <Tool
+                active={activeTool === 'move'}
+                name={'move'}
+                onMouseDown={this.props.moveToolMouseDown}
+                onMouseDrag={this.props.moveToolMouseDrag}
+                onMouseUp={this.props.moveToolMouseUp}
+              />
+              <Tool
+                active={this.isActive(Tools.STRAIGHT_RAILS)}
+                name={'circle'}
+                onMouseDown={this.props.straightRailsMouseDown}
+              />
+              <Tool
+                active={activeTool === Tools.CURVE_RAILS}
+                name={Tools.CURVE_RAILS}
+                onMouseDown={this.props.straightRailsMouseDown}
+              />
+              {/*<Tool*/}
               {/*active={activeTool === TURNOUTS}*/}
               {/*name={TURNOUTS}*/}
               {/*onMouseDown={this.props.turnoutsMouseDown}*/}
-            {/*/>*/}
-          </View>
+              {/*/>*/}
+            </StretchedView>
         </EditorBody>
       </StyledWrapper>
     )
   }
 }
 
-export default compose<PaperProps, PaperProps>(
+export default compose<EditorProps, EditorProps>(
   withHistory,
   withFullscreen,
   withTools,
@@ -201,4 +177,4 @@ export default compose<PaperProps, PaperProps>(
   withSelectTool,
   withStraightRail,
   withCurveRail
-)(Paper)
+)(Editor)

@@ -3,6 +3,8 @@ import * as update from 'immutability-helper';
 import * as _ from "lodash"
 import getLogger from "../../logging";
 import {Point} from "paper";
+import {StraightRailItemData, StraightRailProps} from "../Rails/StraightRail";
+import {CurveRailItemData, CurveRailProps} from "../Rails/CurveRail";
 
 const logger = getLogger('withHistory')
 
@@ -28,18 +30,13 @@ export interface LayerData {
 }
 
 // レイヤー下のアイテム
-export interface ItemData {
+export interface BaseItemData {
   id: number
-  type: string          // アイテム名。この文字列がReactElementのタグ名として用いられる
-  layer: Layer
-  pathData: string
-  strokeColor?: string
-  strokeWidth?: number
-  fillColor?: string
-  radius?: number
-  position: Point
+  type: string    // アイテム名。この文字列がReactElementのタグ名として用いられる
+  layer: Layer    // このアイテムが所属するレイヤー
 }
 
+export type ItemData = StraightRailItemData | CurveRailItemData
 
 
 interface WithHistoryNeededProps {

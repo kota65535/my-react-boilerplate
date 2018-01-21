@@ -35,10 +35,10 @@ export default function withStraightRail(WrappedComponent: React.ComponentClass<
 
       // アイテム情報を登録
       const item = this.props.addItem(paper.project.activeLayer, {
-        type: 'Circle',
-        fillColor: 'red',
-        radius: 10,
-        position: e.point
+        type: 'StraightRail',
+        position: e.point,
+        length: Number(this.props.selectedItem.name.split("S")[1]),
+        angle: 30
       } as ItemData)
       console.log(item)
     }

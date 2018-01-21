@@ -80,6 +80,7 @@
     "@types/react-dom": "^16.0.3",
     "@types/react-redux": "^5.0.14",
     "@types/redux-actions": "^2.2.3",
+    "enzyme": "^3.3.0",
     "raw-loader": "^0.5.1",
     "svg-inline-loader": "^0.8.0",
     "svg-react-loader": "^0.4.5",
@@ -128,6 +129,7 @@
         "tsConfigFile": "/Users/tozawa/Projects/my-react-boilerplate/tsconfig.test.json"
       }
     }
+
   },
   "babel": {
     "presets": [

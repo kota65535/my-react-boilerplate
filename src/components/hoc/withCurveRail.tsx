@@ -1,14 +1,11 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import {ItemData, WithHistoryProps} from "./withHistory";
+import {CurveRailItemData} from "../Rails/CurveRail";
 
 export interface WithCurveRailInjectedProps {
-  selectedItem: PaletteItem
   curveRailMouseDown: any
-}
-
-export interface WithCurveRailState {
-  lastSelectedItem: PaletteItem
+  selectedItem: PaletteItem
 }
 
 export type WithCurveRailProps = WithCurveRailInjectedProps & WithHistoryProps
@@ -26,32 +23,26 @@ export default function withCurveRail(WrappedComponent: React.ComponentClass<Wit
     return {}
   }
 
-  class WithCurveRailComponent extends React.Component<WithCurveRailProps, WithCurveRailState> {
+  class WithCurveRailComponent extends React.Component<WithCurveRailProps, {}> {
 
     constructor (props: WithCurveRailProps) {
       super(props)
-      this.state = {
-        lastSelectedItem: {type: 'Curve Rails', name: 'C280-45'}
-      }
     }
 
     mouseDown = (e) => {
       // this.props.deselectItem()
+      // Paperオブジェクトを取得
       const paper = e.tool._scope
 
-      const circle = new paper.Path.Circle({
-        center: e.point,
-        fillColor: 'blue',
-        radius: 10
-      })
-      const item = this.props.addItem(circle.layer, {
-        type: 'Circle',
-        // pathData: circle.getPathData(),
-        fillColor: circle.fillColor.toCSS(true),
-      } as ItemData)
-      console.log(circle)
-      console.log(circle.getPathData())
-
+      // アイテム情報を登録
+      const item = this.props.addItem(paper.project.activeLayer, {
+        type: 'CurveRail',
+        position: e.point,
+        angle: 40,
+        centerAngle: 45,
+        radius: 280
+      } as CurveRailItemData)
+      console.log(item)
     }
 
     render() {

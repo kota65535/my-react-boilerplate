@@ -18,6 +18,9 @@ import {Tools} from "../../constants/tools";
 import './Paper.css'
 import GridPaper from "./GridPaper";
 
+import rails from "../Rails";
+
+
 export interface EditorProps {
   initialData: HistoryData
   width: number
@@ -104,21 +107,21 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     })
 
 
+    // データから各レイヤーを生成する
     let layers = this.props.data.layers.map(layer =>
       <Layer
         data={{id: layer.id}}
         visible={layer.visible}
         key={layer.id}
       >
-        {layer.children.map((item: ItemData) => {
+        {layer.children.map(({id: id, type: type, ...props}: ItemData) => {
+          // 動的にレールコンポーネントを取得する
+          let RailComponent = rails[type]
           return (
-            <item.type
-              key={item.id}
-              radius={item.radius}
-              fillColor={item.fillColor}
-              position={item.position}
-              // {...props}
-              data={{ id: item.id, type: item.type }}
+            <RailComponent
+              key={id}
+              {...props}
+              // data={{ id: id, type: Type }}
               // selected={(
               //   (activeTool === 'select') &&
               //   (itemId === selectedItem || layer.id === selectedItem)
@@ -141,13 +144,13 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             {layers}
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS)}
-              name={'circle'}
+              name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.straightRailsMouseDown}
             />
             <Tool
-              active={activeTool === Tools.CURVE_RAILS}
+              active={this.isActive(Tools.CURVE_RAILS)}
               name={Tools.CURVE_RAILS}
-              onMouseDown={this.props.straightRailsMouseDown}
+              onMouseDown={this.props.curveRailMouseDown}
             />
           </GridPaper>
         </EditorBody>

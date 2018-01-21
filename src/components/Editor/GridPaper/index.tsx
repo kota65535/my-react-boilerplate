@@ -92,6 +92,8 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
   }
 
   render() {
+
+    // 縦のグリッドを生成
     let verticalLines = _.range(screen.width / this.props.gridSize).map(i => {
       return (
         <Line
@@ -100,6 +102,7 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
           strokeColor={'red'}
         />)
     })
+    // 横のグリッドを生成
     let horizontalLines = _.range(screen.height / this.props.gridSize).map(i => {
       return (
         <Line

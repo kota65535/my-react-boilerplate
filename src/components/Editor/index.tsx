@@ -19,6 +19,11 @@ import './Paper.css'
 import GridPaper from "./GridPaper";
 
 import rails from "../Rails";
+import DetectablePart, {DetectionState} from "../Rails/parts/primitives/DetectablePart";
+import {Point} from "paper";
+import RectPart, {AnchorPoint} from '../Rails/parts/primitives/RectPart';
+import StraightRailPart, {RailPartAnchor} from '../Rails/StraightRailPart';
+import TrianglePart from "../Rails/parts/primitives/TrianglePart";
 
 
 export interface EditorProps {
@@ -122,13 +127,69 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               key={id}
               {...props}
               // data={{ id: id, type: Type }}
-              // selected={(
-              //   (activeTool === 'select') &&
-              //   (itemId === selectedItem || layer.id === selectedItem)
-              // )}
+              selected={true}
+                // (activeTool === Tools.SELECT)
+                // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
             />)
           }
         )}
+
+        <DetectablePart
+          position={new Point(100,100)}
+          angle={45}
+          width={100}
+          height={100}
+          widthMargin={50}
+          heightMargin={50}
+          fillColors={['blue', 'red', 'green']}
+          opacities={[0.5, 0.5, 0]}
+          detectionState={DetectionState.DETECTING}
+          anchor={AnchorPoint.LEFT}
+        />
+
+        <StraightRailPart
+          position={new Point(200,100)}
+          angle={30}
+          length={100}
+          detectionState={DetectionState.DETECTING}
+          anchor={RailPartAnchor.START}
+        />
+
+        <RectPart
+          position={new Point(200,200)}
+          angle={45}
+          width={100}
+          height={100}
+          fillColor={'blue'}
+          opacity={0.4}
+          anchor={AnchorPoint.LEFT}
+        />
+        <RectPart
+          position={new Point(200,200)}
+          angle={45}
+          width={100}
+          height={100}
+          fillColor={'blue'}
+          opacity={0.4}
+          anchor={AnchorPoint.LEFT}
+        />
+        <TrianglePart
+          position={new Point(400,400)}
+          angle={0}
+          width={100}
+          height={100}
+          fillColor={'blue'}
+          opacity={0.4}
+          anchor={AnchorPoint.BOTTOM}
+        />
+
+
+
+
+
+
+
+
       </Layer>
     )
 
@@ -151,6 +212,15 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               active={this.isActive(Tools.CURVE_RAILS)}
               name={Tools.CURVE_RAILS}
               onMouseDown={this.props.curveRailMouseDown}
+            />
+            <Tool
+              active={this.isActive(Tools.SELECT)}
+              name={Tools.SELECT}
+              onKeyDown={this.props.selectToolKeyDown}
+              onKeyUp={this.props.selectToolKeyUp}
+              onMouseDown={this.props.selectToolMouseDown}
+              onMouseDrag={this.props.selectToolMouseDrag}
+              onMouseUp={this.props.selectToolMouseUp}
             />
           </GridPaper>
         </EditorBody>

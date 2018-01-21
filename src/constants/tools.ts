@@ -3,7 +3,8 @@ export enum Tools {
   CURVE_RAILS = 'Curve Rails',
   TURNOUTS = 'Turnouts',
   FEEDERS = 'Feeders',
-  GAP = 'Gaps'
+  GAP = 'Gaps',
+  SELECT = 'Select'
 }
 export const SET_ACTIVE_LAYER = 'SET_ACTIVE_LAYER'
 export const SET_LAYER_VISIBLE = 'SET_LAYER_VISIBLE'

@@ -4,6 +4,8 @@ import StraightRailIcon from './Icon/StraightRail'
 import TurnoutIcon from './Icon/Turnout'
 import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'
+import PanToolIcon from 'material-ui-icons/PanTool'
+import TouchAppIcon from 'material-ui-icons/TouchApp'
 import {Menu, MenuItem, Toolbar as MuiToolbar} from "material-ui"
 import {AppBar} from "material-ui"
 import {StyledIconButton, VerticalDivider} from "./styles";
@@ -97,7 +99,7 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
           {/*</Menu>*/}
 
           <StyledIconButton
-            className={`IconButton ${this.isActive('undo') && this.props.canUndo}`}
+            className={`${this.isActive('undo') && this.props.canUndo}`}
             onClick={this.props.undo}>
             <UndoIcon/>
           </StyledIconButton>
@@ -105,6 +107,12 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
             className={`IconButton ${this.isActive('redo') && this.props.canRedo}`}
             onClick={() => this.props.redo()}>
             <RedoIcon/>
+          </StyledIconButton>
+          <StyledIconButton
+            className={`${this.isActive(Tools.SELECT)}`}
+            onClick={() => this.props.setTool(Tools.SELECT)}
+          >
+            <TouchAppIcon/>
           </StyledIconButton>
         </MuiToolbar>
       </AppBar>

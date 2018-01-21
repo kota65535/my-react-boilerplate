@@ -1,28 +1,76 @@
 import * as React from "react";
-import {Point} from "paper";
-import {Path} from "react-paper-bindings";
+import {Point, Path} from "paper";
+import {Path as PathComponent} from "react-paper-bindings";
+import {AnchorPoint} from "./RectPart";
 
 export interface TrianglePartProps {
-  position: Point
-  angle: number
   width: number
   height: number
-  fillColor: string
+  position: Point
+  angle: number
+  fillColor?: string
+  visible?: boolean
+  opacity?: number
+  selected?: boolean
+  anchor?: AnchorPoint
 }
 
+
 export default class TrianglePart extends React.Component<TrianglePartProps, {}> {
+
+  _path: Path
 
   constructor (props: TrianglePartProps) {
     super(props)
   }
 
+  componentDidMount() {
+    this.fixPositionByAnchorPoint()
+  }
+
+  componentDidUpdate() {
+    this.fixPositionByAnchorPoint()
+  }
+
+  fixPositionByAnchorPoint() {
+    switch (this.props.anchor) {
+      case AnchorPoint.TOP:
+        this.move(this.props.position, this.getCenterOfTop())
+        break
+      case AnchorPoint.BOTTOM:
+        this.move(this.props.position, this.getCenterOfBottom())
+        break
+    }
+  }
+
+  moveRelatively(difference: Point) {
+    this._path.position = this._path.position.add(difference);
+  }
+
+  move(position: Point, anchor: Point = this._path.position): void {
+    let difference = position.subtract(anchor);
+    this.moveRelatively(difference);
+  }
+
+  getCenterOfTop(): Point {
+    return this._path.segments[0].point;
+  }
+
+  getCenterOfBottom(): Point {
+    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
+  }
+
   render() {
-    return <Path
-      pathData={createTrianglePath(this.props.width, this.props.height)}
-      position={this.props.position}
-      rotation={this.props.angle}
-      fillColor={this.props.fillColor}
-      name="unko"
+    const {position, angle, width, height, fillColor, visible, opacity, selected} = this.props
+    return <PathComponent
+      pathData={createTrianglePath(width, height)}
+      position={position}
+      rotation={angle}
+      fillColor={fillColor}
+      visible={visible}
+      opacity={opacity}
+      selected={selected}
+      ref={(Path) => this._path = Path}
     />
   }
 }

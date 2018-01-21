@@ -1,34 +1,54 @@
 import * as React from 'react';
-import Layer = paper.Layer;
-import Item = paper.Item;
 import * as update from 'immutability-helper';
+import * as _ from "lodash"
+import getLogger from "../../logging";
+import {Point} from "paper";
 
-function getInitialId(data: any, id = 1) {
-  data.forEach((item: any) => {
-    if (item.id > id) {
-      id = item.id + 1
-    }
-    if (item.children) {
-      id = getInitialId(item.children, id)
-    }
-  })
-  return id
+const logger = getLogger('withHistory')
+
+
+const getNextItemId = (data: HistoryData, id = 1) => {
+  // 全レイヤーのアイテムの全てのIDを列挙する
+  let ids = _.flatMap(data.layers, layer => layer.children.map(itemData => itemData.id))
+  return ids.length > 0 ? Math.max(...ids) + 1 : 1
 }
 
-// export interface HistoryItem {
-//   id: number
-//   type: string
-//   pathData: string
-//   fillColor: string
-// }
+// エディター全体のデータと言い換えたほうがいいかもしれない
+export interface HistoryData {
+  id: number
+  userName: number
+  layers: LayerData[]
+}
+
+// レイヤーデータ。ヒストリーの管理対象はこれ
+export interface LayerData {
+  id: number
+  children: ItemData[]
+  visible: boolean
+}
+
+// レイヤー下のアイテム
+export interface ItemData {
+  id: number
+  type: string          // アイテム名。この文字列がReactElementのタグ名として用いられる
+  layer: Layer
+  pathData: string
+  strokeColor?: string
+  strokeWidth?: number
+  fillColor?: string
+  radius?: number
+  position: Point
+}
+
+
 
 interface WithHistoryNeededProps {
-  initialData: any[]
+  initialData: HistoryData
 }
 
 interface WithHistoryInjectedProps {
-  data: any
-  addItem: (layer: Layer, data: PathItem) => PathItem
+  data: HistoryData
+  addItem: (layer: Layer, data: ItemData) => ItemData
   updateItem: (a: any, b: any) => void
   removeItem: (item: any) => void
   deselectItem: () => void
@@ -39,106 +59,47 @@ interface WithHistoryInjectedProps {
   clearHistory: () => void
 }
 
+interface WithHistoryState {
+  historyIndex: number      // どのヒストリデータを指しているかのインデックス
+  histories: HistoryData[]  // アンドゥ・リドゥ用に保持するヒストリデータのリスト
+  items: any
+}
+
 export type WithHistoryProps = WithHistoryNeededProps & WithHistoryInjectedProps
 
+/**
+ * ヒストリー機能を提供するHOC
+ */
 export default function withHistory(WrappedComponent: React.ComponentClass<WithHistoryProps>) {
 
-  return class extends React.Component<WithHistoryProps, any> {
+  return class extends React.Component<WithHistoryProps, WithHistoryState> {
     private _id: number;
 
     constructor(props: WithHistoryProps) {
       super(props)
       this.state = {
         historyIndex: 0,
-        history: [props.initialData],
+        histories: [props.initialData],
+        items: null
       }
-      this._id = getInitialId(props.initialData)
+      this._id = getNextItemId(props.initialData)
+      logger.info(this._id)
+
     }
 
+    /**
+     * 追加されるキー操作。
+     * @param {KeyboardEvent} e
+     */
     keyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        this.undo()
-      } else if (e.key === 'ArrowRight') {
-        this.redo()
+      switch (e.key) {
+        case 'ArrowLeft':
+          this.undo()
+          break;
+        case 'ArrowRight':
+          this.redo()
+          break;
       }
-    }
-
-    addItem = (layer: Layer, data: PathItem): PathItem => {
-      const history = this.getPrevHistory()
-      const layerIndex = history.findIndex((l: any) => l.id === layer.data.id)
-      const nextItem = Object.assign(data, { id: this._id })
-      const nextHistory = update(history, {
-        [layerIndex]: { children: { $push: [nextItem] } }
-      })
-      this.addHistory(nextHistory)
-      this._id++
-      return nextItem
-    }
-
-    updateItem = (item: PathItem, data: any) => {
-      const history = this.getPrevHistory()
-      const layerIndex = history.findIndex((l: any)  => l.id === item.layer.data.id)
-      const children = history[layerIndex].children
-      const itemIndex = children.findIndex((i: any) => i.id === item.id)
-      const nextItem = Object.assign({}, children[itemIndex], data)
-      const nextHistory = update(history, {
-        [layerIndex]: { children: { [itemIndex]: { $set: nextItem } } }
-      })
-      this.addHistory(nextHistory)
-      return nextItem
-    }
-
-    removeItem = (item: PathItem) => {
-      const history = this.getPrevHistory()
-      const layerIndex = history.findIndex((l: any) => l.id === item.layer.data.id)
-      const children = history[layerIndex].children
-      const itemIndex = children.findIndex((i: any) => i.id === item.id)
-      const nextHistory = update(history, {
-        [layerIndex]: { children: { $splice: [[itemIndex, 1]] } }
-      })
-      this.addHistory(nextHistory)
-    }
-
-    addHistory = (nextHistory: any) => {
-      const historyIndex = this.state.historyIndex+1
-      const history = [
-        ...this.state.history.slice(0, historyIndex),
-        nextHistory,
-      ]
-      this.setState({ historyIndex, history })
-    }
-
-    getPrevHistory = () => {
-      return this.state.history[this.state.historyIndex]
-    }
-
-    clearHistory = () => {
-      this.setState({
-        historyIndex: 0,
-        history: [this.props.initialData],
-      })
-    }
-
-    undo = () => {
-      const { historyIndex, history } = this.state
-      if (historyIndex <= 0) {
-        return
-      }
-      this.setState({
-        historyIndex: historyIndex - 1,
-        items: history[historyIndex],
-      })
-    }
-
-    redo = () => {
-      const { historyIndex, history } = this.state
-      if (historyIndex >= (history.length - 1)) {
-        return
-      }
-      this.setState({
-        historyIndex: historyIndex + 1,
-        items: history[historyIndex + 1],
-      })
     }
 
     componentDidMount() {
@@ -149,22 +110,122 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
       document.removeEventListener('keydown', this.keyDown)
     }
 
+
+    //==============================
+    // ヒストリ操作系API
+    //==============================
+
+    addItem = (layer: Layer, data: ItemData): ItemData => {
+      const history = this.getPrevHistory()
+      const layerIndex = history.layers.findIndex((l: any) => l.id === layer.data.id)
+      const nextItem = Object.assign(data, { id: this._id })
+      // レイヤーデータにアイテムを追加する
+      const nextHistory = update(history, {
+        layers: {
+          [layerIndex]: { children: { $push: [nextItem] } }
+        }
+      })
+      this.addHistory(nextHistory)
+      this._id++
+      return nextItem
+    }
+
+    updateItem = (item: ItemData, data: any) => {
+      const history = this.getPrevHistory()
+      // 更新すべきアイテムを探す
+      const layerIndex = history.layers.findIndex((l: any)  => l.id === item.layer.data.id)
+      const children = history.layers[layerIndex].children
+      const itemIndex = children.findIndex((i: any) => i.id === item.id)
+      const nextItem = Object.assign({}, children[itemIndex], data)
+      // レイヤーデータのアイテムを更新する
+      const nextHistory = update(history, {
+        layers: {
+          [layerIndex]: { children: { $splice: [[itemIndex, 1]] } }
+        }
+      })
+      this.addHistory(nextHistory)
+      return nextItem
+    }
+
+    removeItem = (item: ItemData) => {
+      const history = this.getPrevHistory()
+      const layerIndex = history.layers.findIndex((l: any) => l.id === item.layer.data.id)
+      const children = history[layerIndex].children
+      const itemIndex = children.findIndex((i: any) => i.id === item.id)
+      const nextHistory = update(history, {
+        layers: {
+          [layerIndex]: { children: { $splice: [[itemIndex, 1]] } }
+        }
+      })
+      this.addHistory(nextHistory)
+    }
+
+    addHistory = (nextHistory: HistoryData) => {
+      const historyIndex = this.state.historyIndex+1
+      const histories = [
+        ...this.state.histories.slice(0, historyIndex),
+        nextHistory,
+      ]
+      this.setState({ historyIndex, histories })
+    }
+
+    getPrevHistory = (): HistoryData => {
+      return this.state.histories[this.state.historyIndex]
+    }
+
+    clearHistory = () => {
+      this.setState({
+        historyIndex: 0,
+        histories: [this.props.initialData],
+      })
+    }
+
+    //==============================
+    // アンドゥ・リドゥAPI
+    //==============================
+
+    undo = () => {
+      if (this.canUndo()) {
+        this.setState({
+          historyIndex: this.state.historyIndex - 1,
+        })
+      }
+    }
+
+    redo = () => {
+      if (this.canRedo()) {
+        this.setState({
+          historyIndex: this.state.historyIndex + 1,
+        })
+      }
+    }
+
+    canUndo = () => {
+      return this.state.historyIndex > 0
+    }
+
+    canRedo = () => {
+      return this.state.histories.length > 1 && this.state.historyIndex + 1 < this.state.histories.length
+    }
+
+
+
     render() {
-      const { historyIndex, history } = this.state
+      const { historyIndex, histories } = this.state
       return (
         <WrappedComponent
           {...this.props}
-          data={history[historyIndex]}
+          data={histories[historyIndex]}
 
           addItem={this.addItem}
           removeItem={this.removeItem}
           updateItem={this.updateItem}
 
-          canUndo={historyIndex > 0}
-          canRedo={history.length > 1 && historyIndex + 1 < history.length}
-
           undo={this.undo}
           redo={this.redo}
+          canUndo={this.canUndo()}
+          canRedo={this.canRedo()}
+
           clearHistory={this.clearHistory}
         />
       )

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {WithHistoryProps} from "./withHistory";
+import {ItemData, WithHistoryProps} from "./withHistory";
 
 export interface WithCurveRailInjectedProps {
   selectedItem: PaletteItem
@@ -46,9 +46,9 @@ export default function withCurveRail(WrappedComponent: React.ComponentClass<Wit
       })
       const item = this.props.addItem(circle.layer, {
         type: 'Circle',
-        pathData: circle.getPathData(),
+        // pathData: circle.getPathData(),
         fillColor: circle.fillColor.toCSS(true),
-      } as PathItem)
+      } as ItemData)
       console.log(circle)
       console.log(circle.getPathData())
 

@@ -6,6 +6,7 @@ import './App.css'
 import { WithStyles, StyleRulesCallback } from 'material-ui/styles'
 import withStyles from "material-ui/styles/withStyles";
 import withRoot from './withRoot';
+import INITIAL_DATA from './mr-bubbles.json'
 
 const IMAGE_WIDTH = 1920
 const IMAGE_HEIGHT = 870
@@ -32,18 +33,12 @@ class App extends React.Component<WithStyles<'root'>, {}> {
     }
 
     resizeWindow = () => {
-        if (!this._request) {
-            this._request = requestAnimationFrame(this.resizePaper)
-        }
+        this._request = requestAnimationFrame(this.resizePaper)
     }
 
     resizePaper = () => {
         this.forceUpdate()
         this._request = null
-    }
-
-    setImageSize = ({ size }: { size: number }) => {
-        this.setState({ imageSize: size })
     }
 
     componentDidMount() {
@@ -60,19 +55,16 @@ class App extends React.Component<WithStyles<'root'>, {}> {
     }
 
     render() {
-        const { imageSize, mounted } = this.state as any
         const box = this._box && this._box.getBoundingClientRect()
         return (
             <div className='App' ref={ref => this._box = ref}>
-                {mounted &&
                 <Editor
-                    initialData={[]}
-                    width={box.width}
-                    height={box.height}
-                    setImageSize={this.setImageSize}
+                    initialData={INITIAL_DATA}
+                    width={6000}
+                    height={4000}
                     activeLayer={null}
                     selectedItem={null}
-                />}
+                />
             </div>
         )
     }

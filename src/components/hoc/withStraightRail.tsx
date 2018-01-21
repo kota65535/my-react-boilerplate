@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {WithHistoryProps} from "./withHistory";
+import {ItemData, WithHistoryProps} from "./withHistory";
 
 export interface WithStraightRailInjectedProps {
   straightRailsMouseDown: any
@@ -30,20 +30,17 @@ export default function withStraightRail(WrappedComponent: React.ComponentClass<
 
     mouseDown = (e) => {
       // this.props.deselectItem()
+      // Paperオブジェクトを取得
       const paper = e.tool._scope
 
-      const circle = new paper.Path.Circle({
-        center: e.point,
-        fillColor: 'red',
-        radius: 10
-      })
-      const item = this.props.addItem(circle.layer, {
+      // アイテム情報を登録
+      const item = this.props.addItem(paper.project.activeLayer, {
         type: 'Circle',
-        pathData: circle.getPathData(),
-        fillColor: circle.fillColor.toCSS(true),
-      } as PathItem)
-      console.log(circle)
-      console.log(circle.getPathData())
+        fillColor: 'red',
+        radius: 10,
+        position: e.point
+      } as ItemData)
+      console.log(item)
     }
 
     render() {

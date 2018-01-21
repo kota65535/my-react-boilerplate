@@ -4,7 +4,7 @@ import pick from 'lodash.pick'
 
 import { Layer, Raster, Tool, View } from 'react-paper-bindings'
 
-import withHistory, {WithHistoryProps} from '../hoc/withHistory'
+import withHistory, {HistoryData, ItemData, WithHistoryProps} from '../hoc/withHistory'
 import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
@@ -16,12 +16,12 @@ import withCurveRail, {WithCurveRailInjectedProps} from "../hoc/withCurveRail";
 import {Tools} from "../../constants/tools";
 
 import './Paper.css'
+import GridPaper from "./GridPaper";
 
 export interface EditorProps {
-  initialData: any[]
+  initialData: HistoryData
   width: number
   height: number
-  setImageSize: any
   activeLayer: any
   selectedItem: any
 }
@@ -103,66 +103,53 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       ])
     })
 
-      
+
+    let layers = this.props.data.layers.map(layer =>
+      <Layer
+        data={{id: layer.id}}
+        visible={layer.visible}
+        key={layer.id}
+      >
+        {layer.children.map((item: ItemData) => {
+          return (
+            <item.type
+              key={item.id}
+              radius={item.radius}
+              fillColor={item.fillColor}
+              position={item.position}
+              // {...props}
+              data={{ id: item.id, type: item.type }}
+              // selected={(
+              //   (activeTool === 'select') &&
+              //   (itemId === selectedItem || layer.id === selectedItem)
+              // )}
+            />)
+          }
+        )}
+      </Layer>
+    )
+
     return (
+
       <StyledWrapper>
         <StyledToolBar {...toolbarProps} />
         <EditorBody>
           <StyledPalette />
           <StyledLayers {...layerProps} />
             {/*<StretchedView width={0} height={0} matrix={{}}>*/}
-            <StretchedView {...viewProps}>
-              {/*{data.map(({ id: layerId, type, children }) =>*/}
-            {/*<Layer*/}
-            {/*key={layerId}*/}
-            {/*data={{ id: layerId, type }}*/}
-            {/*visible={true}*/}
-            {/*active={layerId === activeLayer}>*/}
-            {/*{children.map(({ id: itemId, type: Item, ...props }) =>*/}
-            {/*<Item*/}
-            {/*key={itemId}*/}
-            {/*{...props}*/}
-            {/*data={{ id: itemId, type: Item }}*/}
-            {/*selected={(*/}
-            {/*(activeTool === 'select') &&*/}
-            {/*(itemId === selectedItem || layerId === selectedItem)*/}
-            {/*)}*/}
-            {/*/>*/}
-            {/*)}*/}
-            {/*</Layer>*/}
-            {/*)}*/}
-              <Tool
-                active={activeTool === 'select'}
-                name={'select'}
-                onKeyDown={this.props.selectToolKeyDown}
-                onKeyUp={this.props.selectToolKeyUp}
-                onMouseDown={this.props.selectToolMouseDown}
-                onMouseDrag={this.props.selectToolMouseDrag}
-                onMouseUp={this.props.selectToolMouseUp}
-              />
-              <Tool
-                active={activeTool === 'move'}
-                name={'move'}
-                onMouseDown={this.props.moveToolMouseDown}
-                onMouseDrag={this.props.moveToolMouseDrag}
-                onMouseUp={this.props.moveToolMouseUp}
-              />
-              <Tool
-                active={this.isActive(Tools.STRAIGHT_RAILS)}
-                name={'circle'}
-                onMouseDown={this.props.straightRailsMouseDown}
-              />
-              <Tool
-                active={activeTool === Tools.CURVE_RAILS}
-                name={Tools.CURVE_RAILS}
-                onMouseDown={this.props.straightRailsMouseDown}
-              />
-              {/*<Tool*/}
-              {/*active={activeTool === TURNOUTS}*/}
-              {/*name={TURNOUTS}*/}
-              {/*onMouseDown={this.props.turnoutsMouseDown}*/}
-              {/*/>*/}
-            </StretchedView>
+          <GridPaper width={600} height={300} gridSize={50} initialZoom={0.7} zoomUnit={0.002}>
+            {layers}
+            <Tool
+              active={this.isActive(Tools.STRAIGHT_RAILS)}
+              name={'circle'}
+              onMouseDown={this.props.straightRailsMouseDown}
+            />
+            <Tool
+              active={activeTool === Tools.CURVE_RAILS}
+              name={Tools.CURVE_RAILS}
+              onMouseDown={this.props.straightRailsMouseDown}
+            />
+          </GridPaper>
         </EditorBody>
       </StyledWrapper>
     )

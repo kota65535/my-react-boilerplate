@@ -7,7 +7,7 @@ import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 
 export interface WithBuilderInjectedProps {
-  builderLeftMouseDown: any
+  builderMouseDown: any
   builderMouseMove: any
   selectedItem: PaletteItem
 }
@@ -34,18 +34,29 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     constructor (props: WithBuilderProps) {
       super(props)
+      this.mouseDown = this.mouseDown.bind(this)
       this.mouseLeftDown = this.mouseLeftDown.bind(this)
+      this.mouseRightDown = this.mouseRightDown.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
+    }
+
+    mouseDown(e) {
+      switch (e.event.button) {
+        case 0:
+          this.mouseLeftDown(e)
+          break
+        case 2:
+          this.mouseRightDown(e)
+          break
+      }
     }
 
     mouseLeftDown(e) {
       // this.props.deselectItem()
       // Paperオブジェクトを取得
       const paper = e.tool._scope
-
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.selectedItem.name]()
-
       // レイヤーにレールを追加
       const item = this.props.addItem(paper.project.activeLayer, {
           ...itemProps,
@@ -73,7 +84,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       return (
         <WrappedComponent
           {...this.props}
-          builderLeftMouseDown={this.mouseLeftDown}
+          builderMouseDown={this.mouseDown}
           builderMouseMove={this.mouseMove}
         />
       )

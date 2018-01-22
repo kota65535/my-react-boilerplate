@@ -19,17 +19,17 @@ interface Props extends Partial<DefaultProps> {
 }
 
 interface DefaultProps {
-  position: Point
-  angle: number
-  detectionState: DetectionState
-  anchor: RailPartAnchor
-  selected: boolean
+  position?: Point
+  angle?: number
+  detectionState?: DetectionState
+  anchor?: RailPartAnchor
+  selected?: boolean
 }
 
 export type CurveRailPartProps = Props & DefaultProps;
 
 
-const CurveRailPart = class extends React.Component<CurveRailPartProps, {}> {
+export default class CurveRailPart extends React.Component<CurveRailPartProps, {}> {
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -86,6 +86,4 @@ const CurveRailPart = class extends React.Component<CurveRailPartProps, {}> {
       />
     )
   }
-} as React.ComponentClass<Props>
-
-export default CurveRailPart
+}

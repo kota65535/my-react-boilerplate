@@ -31,6 +31,33 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
     super(props)
   }
 
+  // ========== Public APIs ==========
+
+  get path() {
+    return this._path
+  }
+
+  moveRelatively(difference: Point) {
+    this._path.position = this._path.position.add(difference);
+  }
+
+  move(position: Point, anchor: Point = this._path.position): void {
+    let difference = position.subtract(anchor);
+    this.moveRelatively(difference);
+  }
+
+  // ========== Private methods ==========
+
+  getCenterOfLeft(): Point {
+    return this._path.segments[0].point
+  }
+
+  getCenterOfRight(): Point {
+    // 90度ごとに右端のセグメントのインデックスがインクリメントされているらしい
+    let correction = Math.floor((Math.abs(this.props.centerAngle) + 1) / 90)
+    return this._path.segments[3 + correction].point
+  }
+
   componentDidMount() {
     this.fixPositionByAnchorPoint()
   }
@@ -55,24 +82,6 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
     }
   }
 
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, anchor: Point = this._path.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
-  }
-
-  getCenterOfLeft(): Point {
-    return this._path.segments[0].point
-  }
-
-  getCenterOfRight(): Point {
-    // 90度ごとに右端のセグメントのインデックスがインクリメントされているらしい
-    let correction = Math.floor((Math.abs(this.props.centerAngle) + 1) / 90)
-    return this._path.segments[3 + correction].point
-  }
 
   render() {
     const {position, angle, width, radius, centerAngle, fillColor, visible, opacity, selected} = this.props

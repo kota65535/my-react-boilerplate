@@ -54,10 +54,14 @@ class App extends React.Component<WithStyles<'root'>, {}> {
         window.removeEventListener('resize', this.resizeWindow)
     }
 
+    // コンテキストメニュー無効
     render() {
         const box = this._box && this._box.getBoundingClientRect()
         return (
-            <div className='App' ref={ref => this._box = ref}>
+            <div className='App' ref={ref => this._box = ref} onContextMenu={(e) => {
+              e.preventDefault()
+              return false;
+            }}>
                 <Editor
                     initialData={INITIAL_DATA}
                     width={6000}

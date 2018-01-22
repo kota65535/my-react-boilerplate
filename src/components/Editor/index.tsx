@@ -29,6 +29,8 @@ import StraightRailPart, {RailPartAnchor} from "../Rails/parts/StraightRailPart"
 import StraightRail from "../Rails/StraightRail";
 import withBuilder, {WithBuilderInjectedProps} from "../hoc/withBuilder";
 import CurveRail from "../Rails/CurveRail";
+import CirclePart from "../Rails/parts/primitives/CirclePart";
+import Joint from "../Rails/parts/Joint";
 
 
 export interface EditorProps {
@@ -117,7 +119,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       ])
     })
 
-
     // データから各レイヤーを生成する
     let layers = this.props.data.layers.map(layer =>
       <Layer
@@ -134,12 +135,17 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               key={id}
               {...props}
               // data={{ id: id, type: Type }}
-              selected={true}
                 // (activeTool === Tools.SELECT)
                 // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
             />)
           }
         )}
+
+        <Joint
+          position={new Point(200,100)}
+        />
+
+
 
         {/*<DetectablePart*/}
           {/*mainPart={*/}
@@ -196,7 +202,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
           position={new Point(200,200)}
           angle={30}
           length={100}
-          selected={true}
         />
 
         <CurveRail
@@ -270,7 +275,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
               name={Tools.STRAIGHT_RAILS}
-              onMouseDown={this.props.builderLeftMouseDown}
+              onMouseDown={this.props.builderMouseDown}
               onMouseMove={this.props.builderMouseMove}
             />
             <Tool

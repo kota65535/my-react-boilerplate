@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Group} from "react-paper-bindings";
 import {ReactElement, ReactNode} from "react";
+import Point = paper.Point;
 
 export interface DetectablePartProps {
   mainPart: ReactElement<any>       // 本体のコンポーネント
@@ -25,10 +26,36 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   // TODO: 利用可能なコンポーネントクラスに型を限定したい
   _mainPart: any
   _detectionPart: any
+  _group: Group
 
   constructor (props: DetectablePartProps) {
     super(props)
   }
+
+  // ========== Public APIs ==========
+
+  get mainPart() {
+    return this._mainPart
+  }
+
+  get detectionPart() {
+    return this._detectionPart
+  }
+  
+  get group() {
+    return this._group
+  }
+
+  moveRelatively(difference: Point) {
+    this._group.position = this._group.position.add(difference);
+  }
+
+  move(position: Point, anchor: Point = this._group.position): void {
+    let difference = position.subtract(anchor);
+    this.moveRelatively(difference);
+  }
+
+  // ========== Private methods ==========
 
   componentDidMount() {
     this.fixDetectionPartPosition()
@@ -41,14 +68,14 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   // 本体と当たり判定の中心位置を合わせたいが、本体の位置が確定した後でないとそれができない。
   // そのため両インスタンスを直接参照して位置を変更する
   fixDetectionPartPosition() {
-    this._detectionPart!._path.position = this._mainPart!._path.position
+    this._detectionPart.path.position = this._mainPart.path.position
   }
 
   // MainPartに追加するProps。既に指定されていたら上書き
   additionalMainPartProps() {
     let props: any = {}
     props.fillColor = this.props.fillColors[this.props.detectionState]
-    props.ref = (mainPart) => this._mainPart = mainPart
+    props.ref = (_mainPart) => this._mainPart = _mainPart
     return props
   }
 
@@ -66,7 +93,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
     props.opacity = this.props.opacities[this.props.detectionState]
     props.fillColor = this.props.fillColors[this.props.detectionState]
-    props.ref = (detectionPart) => this._detectionPart = detectionPart
+    props.ref = (_detectionPart) => this._detectionPart = _detectionPart
     return props
   }
 
@@ -80,7 +107,9 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     let clonedDetectionPart = React.cloneElement(detectionPart, Object.assign({}, detectionPart.props, addedDetectionPartProps))
 
     return [
-      <Group>
+      <Group
+        ref={(group) => this._group = group}
+      >
         {clonedMainPart}
         {clonedDetectionPart}
       </Group>

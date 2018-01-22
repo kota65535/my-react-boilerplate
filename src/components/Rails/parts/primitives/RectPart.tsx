@@ -16,19 +16,19 @@ interface Props extends Partial<DefaultProps> {
 }
 
 interface DefaultProps {
-  position: Point
-  angle: number
-  fillColor: string
-  visible: boolean
-  opacity: number
-  selected: boolean
-  anchor: AnchorPoint
+  position?: Point
+  angle?: number
+  fillColor?: string
+  visible?: boolean
+  opacity?: number
+  selected?: boolean
+  anchor?: AnchorPoint
 }
 
 export type RectPartProps = Props & DefaultProps;
 
 
-const RectPart = class extends React.Component<RectPartProps, {}> {
+export default class RectPart extends React.Component<RectPartProps, {}> {
 
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
@@ -46,6 +46,39 @@ const RectPart = class extends React.Component<RectPartProps, {}> {
     super(props)
   }
 
+  // ========== Public APIs ==========
+
+  get path() {
+    return this._path
+  }
+
+  moveRelatively(difference: Point) {
+    this._path.position = this._path.position.add(difference);
+  }
+
+  move(position: Point, anchor: Point = this._path.position): void {
+    let difference = position.subtract(anchor);
+    this.moveRelatively(difference);
+  }
+
+  getCenterOfTop(): Point {
+    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
+  }
+
+  getCenterOfBottom(): Point {
+    return this._path.curves[4].getLocationAt(this._path.curves[4].length/2).point;
+  }
+
+  getCenterOfLeft(): Point {
+    return this._path.segments[0].point
+  }
+
+  getCenterOfRight(): Point {
+    return this._path.segments[3].point
+  }
+
+  // ========== Private methods ==========
+  
   componentDidMount() {
     this.fixPositionByAnchorPoint()
   }
@@ -76,31 +109,6 @@ const RectPart = class extends React.Component<RectPartProps, {}> {
     }
   }
 
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, anchor: Point = this._path.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
-  }
-
-  getCenterOfTop(): Point {
-    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
-  }
-
-  getCenterOfBottom(): Point {
-    return this._path.curves[4].getLocationAt(this._path.curves[4].length/2).point;
-  }
-
-  getCenterOfLeft(): Point {
-    return this._path.segments[0].point
-  }
-
-  getCenterOfRight(): Point {
-    return this._path.segments[3].point
-  }
-
   render() {
     const {position, angle, width, height, fillColor, visible, opacity, selected} = this.props
     return <PathComponent
@@ -114,9 +122,7 @@ const RectPart = class extends React.Component<RectPartProps, {}> {
       ref={(Path) => this._path = Path}
     />
   }
-} as React.ComponentClass<Props>
-
-export default RectPart
+}
 
 
 function createRectPath(width: number, height: number) {

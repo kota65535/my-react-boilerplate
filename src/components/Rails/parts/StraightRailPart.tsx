@@ -31,7 +31,7 @@ interface DefaultProps {
 export type StraightRailPartProps = Props & DefaultProps;
 
 
-const StraightRailPart = class extends React.Component<StraightRailPartProps, {}> {
+export default class StraightRailPart extends React.Component<StraightRailPartProps, {}> {
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -49,12 +49,22 @@ const StraightRailPart = class extends React.Component<StraightRailPartProps, {}
   static FILL_COLORS = [ 'black', 'deepskybule', 'black']
   static OPACITIES = [0.2, 0.2, 0]
 
+  detectablePart: DetectablePart
+
   constructor (props: StraightRailPartProps) {
     super(props)
   }
 
-  render() {
+  get startPoint() {
+    return this.detectablePart.mainPart.getCenterOfLeft()
+  }
 
+  get endPoint() {
+    return this.detectablePart.mainPart.getCenterOfRight()
+  }
+
+
+  render() {
     const {position, angle, length, detectionState, anchor, selected} = this.props
     return (
       <DetectablePart
@@ -83,9 +93,8 @@ const StraightRailPart = class extends React.Component<StraightRailPartProps, {}
         fillColors={StraightRailPart.FILL_COLORS}
         opacities={StraightRailPart.OPACITIES}
         detectionState={detectionState}
+        ref={(part) => this.detectablePart = part!}
       />
     )
   }
-} as React.ComponentClass<Props>
-
-export default StraightRailPart
+}

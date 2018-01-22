@@ -30,6 +30,31 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
     super(props)
   }
 
+  // ========== Public APIs ==========
+
+  get path() {
+    return this._path
+  }
+
+  moveRelatively(difference: Point) {
+    this._path.position = this._path.position.add(difference);
+  }
+
+  move(position: Point, anchor: Point = this._path.position): void {
+    let difference = position.subtract(anchor);
+    this.moveRelatively(difference);
+  }
+
+  getCenterOfTop(): Point {
+    return this._path.segments[0].point;
+  }
+
+  getCenterOfBottom(): Point {
+    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
+  }
+
+  // ========== Private methods ==========
+
   componentDidMount() {
     this.fixPositionByAnchorPoint()
   }
@@ -52,23 +77,6 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
       default:
         throw Error(`Invalid anchor for TrianglePart ${this.props.anchor}`)
     }
-  }
-
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, anchor: Point = this._path.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
-  }
-
-  getCenterOfTop(): Point {
-    return this._path.segments[0].point;
-  }
-
-  getCenterOfBottom(): Point {
-    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
   }
 
   render() {

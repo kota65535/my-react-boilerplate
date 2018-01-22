@@ -21,11 +21,11 @@ interface Props extends Partial<DefaultProps> {
 }
 
 interface DefaultProps {
-  position: Point
-  angle: number
-  detectionState: DetectionState
-  anchor: RailPartAnchor
-  selected: boolean
+  position?: Point
+  angle?: number
+  detectionState?: DetectionState
+  anchor?: RailPartAnchor
+  selected?: boolean
 }
 
 export type StraightRailPartProps = Props & DefaultProps;
@@ -55,6 +55,8 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
     super(props)
   }
 
+  // ========== Public APIs ==========
+
   get startPoint() {
     return this.detectablePart.mainPart.getCenterOfLeft()
   }
@@ -63,6 +65,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
     return this.detectablePart.mainPart.getCenterOfRight()
   }
 
+  // ========== Private methods ==========
 
   render() {
     const {position, angle, length, detectionState, anchor, selected} = this.props

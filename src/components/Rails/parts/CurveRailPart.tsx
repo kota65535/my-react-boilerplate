@@ -47,9 +47,23 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
   static FILL_COLORS = [ 'black', 'deepskybule', 'black']
   static OPACITIES = [0.2, 0.2, 0]
 
+  detectablePart: DetectablePart
+
   constructor (props: CurveRailPartProps) {
     super(props)
   }
+
+  // ========== Public APIs ==========
+
+  get startPoint() {
+    return this.detectablePart.mainPart.getCenterOfLeft()
+  }
+
+  get endPoint() {
+    return this.detectablePart.mainPart.getCenterOfRight()
+  }
+
+  // ========== Private methods ==========
 
   render() {
 
@@ -83,6 +97,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
         fillColors={CurveRailPart.FILL_COLORS}
         opacities={CurveRailPart.OPACITIES}
         detectionState={detectionState}
+        ref={(part) => this.detectablePart = part}
       />
     )
   }

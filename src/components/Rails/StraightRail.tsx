@@ -32,13 +32,23 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
   }
 
   railPart: StraightRailPart
-  joints: Array<Joint|null> = [null, null]
+  joints: Array<Joint> = [null, null]
 
   constructor (props: StraightRailProps) {
     super(props)
   }
 
+
+  componentDidUpdate() {
+    this.fixJointsPosition()
+  }
+
   componentDidMount() {
+    this.fixJointsPosition()
+  }
+
+  // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
+  fixJointsPosition() {
     switch (this.props.anchor) {
       case RailPartAnchor.START:
         this.joints[1]!.detectablePart.move(this.railPart.endPoint)

@@ -50,6 +50,8 @@ export default class Joint extends React.Component<JointProps, {}> {
     this.detectablePart.move(position)
   }
 
+  // ========== Private methods ==========
+
   render() {
 
     const {position, angle, detectionState, anchor, selected} = this.props

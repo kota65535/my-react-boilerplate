@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {setPaletteMode} from "../../../actions/tools";
+import {setPaletteMode} from "../../../actions/builder";
 import {connect} from "react-redux";
 import builderPaletteData from "../../../constants/builderPaletteItems.json"
 import {Tools} from "../../../constants/tools";

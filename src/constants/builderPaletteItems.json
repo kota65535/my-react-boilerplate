@@ -2,27 +2,47 @@
   "Straight Rails": [
     {
       "name": "S280",
-      "type": "Straight Rails"
+      "type": "StraightRail"
+    },
+    {
+      "name": "S158.5",
+      "type": "StraightRail"
     },
     {
       "name": "S140",
-      "type": "Straight Rails"
+      "type": "StraightRail"
+    },
+    {
+      "name": "S99",
+      "type": "StraightRail"
+    },
+    {
+      "name": "S70",
+      "type": "StraightRail"
     }
   ],
   "Curve Rails": [
     {
       "name": "C280-45",
-      "type": "Curve Rails"
+      "type": "CurveRail"
+    },
+    {
+      "name": "C280-15",
+      "type": "CurveRail"
     },
     {
       "name": "C317-45",
-      "type": "Curve Rails"
+      "type": "CurveRail"
+    },
+    {
+      "name": "C317-15",
+      "type": "CurveRail"
     }
   ],
   "Turnouts": [
     {
       "name": "PR541-15",
-      "type": "Turnouts"
+      "type": "Turnout"
     }
   ]
 }

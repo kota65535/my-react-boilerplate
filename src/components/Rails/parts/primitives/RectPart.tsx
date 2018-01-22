@@ -2,18 +2,6 @@ import * as React from "react";
 import {Point, Path} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
 
-export interface RectPartProps {
-  width: number
-  height: number
-  position: Point
-  angle: number
-  fillColor?: string
-  visible?: boolean
-  opacity?: number
-  selected?: boolean
-  anchor?: AnchorPoint
-}
-
 export enum AnchorPoint {
   CENTER = 'Center',
   LEFT = 'Left',
@@ -22,8 +10,35 @@ export enum AnchorPoint {
   BOTTOM = 'Bottom',
 }
 
+interface Props extends Partial<DefaultProps> {
+  width: number
+  height: number
+}
 
-export default class RectPart extends React.Component<RectPartProps, {}> {
+interface DefaultProps {
+  position: Point
+  angle: number
+  fillColor: string
+  visible: boolean
+  opacity: number
+  selected: boolean
+  anchor: AnchorPoint
+}
+
+export type RectPartProps = Props & DefaultProps;
+
+
+const RectPart = class extends React.Component<RectPartProps, {}> {
+
+  public static defaultProps: DefaultProps = {
+    position: new Point(0, 0),
+    angle: 0,
+    fillColor: 'black',
+    visible: true,
+    opacity: 1,
+    selected: false,
+    anchor: AnchorPoint.LEFT
+  }
 
   _path: Path
 
@@ -53,6 +68,11 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
       case AnchorPoint.BOTTOM:
         this.move(this.props.position, this.getCenterOfBottom())
         break
+      case AnchorPoint.CENTER:
+        // noop
+        break
+      default:
+        throw Error(`Invalid anchor for RectPart ${this.props.anchor}`)
     }
   }
 
@@ -94,9 +114,12 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
       ref={(Path) => this._path = Path}
     />
   }
-}
+} as React.ComponentClass<Props>
 
-export function createRectPath(width: number, height: number) {
+export default RectPart
+
+
+function createRectPath(width: number, height: number) {
   let pathData = `M 0 0 L 0 ${-height/2} ${width} ${-height/2} L ${width}} 0 L ${width} ${height/2} L 0 ${height/2} Z`
   return pathData
 }

@@ -1,20 +1,13 @@
 import * as React from "react";
-import {Point} from "paper";
 import {Group} from "react-paper-bindings";
-import {Path} from "paper";
-import RectPart, {AnchorPoint} from "./RectPart";
+import {ReactElement, ReactNode} from "react";
 
 export interface DetectablePartProps {
-  position: Point
-  angle: number
-  width: number
-  height: number
-  widthMargin: number
-  heightMargin: number
+  mainPart: ReactElement<any>       // 本体のコンポーネント
+  detectionPart: ReactElement<any>  // 当たり判定のコンポーネント
   fillColors: string[]    // DetectionState ごとの本体、当たり判定の色
   opacities: number[]     // DetectionState ごとの当たり判定の透過率
   detectionState: DetectionState
-  anchor?: AnchorPoint
 }
 
 /**
@@ -29,8 +22,9 @@ export enum DetectionState {
 
 export default class DetectablePart extends React.Component<DetectablePartProps, {}> {
 
-  _mainPart: RectPart|null
-  _detectionPart: RectPart|null
+  // TODO: 利用可能なコンポーネントクラスに型を限定したい
+  _mainPart: any
+  _detectionPart: any
 
   constructor (props: DetectablePartProps) {
     super(props)
@@ -44,17 +38,22 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     this.fixDetectionPartPosition()
   }
 
+  // 本体と当たり判定の中心位置を合わせたいが、本体の位置が確定した後でないとそれができない。
+  // そのため両インスタンスを直接参照して位置を変更する
   fixDetectionPartPosition() {
     this._detectionPart!._path.position = this._mainPart!._path.position
   }
 
-  calculateMainPartProps() {
+  // MainPartに追加するProps。既に指定されていたら上書き
+  additionalMainPartProps() {
     let props: any = {}
     props.fillColor = this.props.fillColors[this.props.detectionState]
+    props.ref = (mainPart) => this._mainPart = mainPart
     return props
   }
 
-  calculateDetectionPartProps() {
+  // DetectionPartに追加するProps。既に指定されていたら上書き
+  additionalDetectionPartProps() {
     let props: any = {}
     switch (this.props.detectionState) {
       case DetectionState.BEFORE_DETECT:
@@ -67,37 +66,23 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
     props.opacity = this.props.opacities[this.props.detectionState]
     props.fillColor = this.props.fillColors[this.props.detectionState]
+    props.ref = (detectionPart) => this._detectionPart = detectionPart
     return props
   }
 
   render() {
-    const {position, angle, width, height, widthMargin, heightMargin, anchor} = this.props
+    const {mainPart, detectionPart} = this.props
 
-    const mainProps = this.calculateMainPartProps()
-    const detectProps = this.calculateDetectionPartProps()
+    const addedMainPartProps = this.additionalMainPartProps()
+    const addedDetectionPartProps = this.additionalDetectionPartProps()
+
+    let clonedMainPart = React.cloneElement(mainPart, Object.assign({}, mainPart.props, addedMainPartProps))
+    let clonedDetectionPart = React.cloneElement(detectionPart, Object.assign({}, detectionPart.props, addedDetectionPartProps))
 
     return [
       <Group>
-        <RectPart
-          position={position}
-          angle={angle}
-          width={width}
-          height={height}
-          fillColor={mainProps.fillColor}
-          anchor={anchor}
-          ref={(rectPart) => this._mainPart = rectPart}
-        />
-        <RectPart
-          position={position}
-          angle={angle}
-          width={width + widthMargin * 2}
-          height={height + heightMargin * 2}
-          visible={detectProps.visible}
-          opacity={detectProps.opacity}
-          fillColor={detectProps.fillColor}
-          anchor={anchor}
-          ref={(rectPart) => this._detectionPart = rectPart}
-        />
+        {clonedMainPart}
+        {clonedDetectionPart}
       </Group>
     ]
   }

@@ -3,9 +3,9 @@ import {HideableDiv, } from "./styles";
 import Selector from "./Selector"
 import {TitleDiv} from "../../Layers/styles";
 import {ReactNode} from "react";
-import {selectItem} from "../../../../actions/tools";
 import {connect} from "react-redux";
 import Paper from "material-ui/Paper";
+import {selectPaletteItem} from "../../../../actions/builder";
 
 export interface BuilderProps {
   className?: string
@@ -53,7 +53,7 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    selectItem: (item: PaletteItem) => dispatch(selectItem(item))
+    selectItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
   }
 };
 

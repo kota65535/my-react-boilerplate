@@ -2,36 +2,54 @@ import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import {BaseItemData} from "../hoc/withHistory";
-import RectPart from "./parts/primitives/RectPart";
+import StraightRailPart, {RailPartAnchor} from "./parts/StraightRailPart";
+import {DetectionState} from "./parts/primitives/DetectablePart";
 
 
-export interface StraightRailProps {
-  position: Point
-  angle: number
+interface Props extends Partial<DefaultProps> {
   length: number
 }
 
-export default class StraightRail extends React.Component<StraightRailProps, {}> {
+interface DefaultProps {
+  position: Point
+  angle: number
+  selected: boolean
+  anchor: RailPartAnchor
+  detectionState: DetectionState
+}
+
+export type StraightRailProps = Props & DefaultProps
+
+
+const StraightRail = class extends React.Component<StraightRailProps, {}> {
+  public static defaultProps: DefaultProps = {
+    position: new Point(0, 0),
+    angle: 0,
+    selected: false,
+    anchor: RailPartAnchor.START,
+    detectionState: DetectionState.BEFORE_DETECT,
+  }
 
   constructor (props: StraightRailProps) {
     super(props)
   }
 
   render() {
-    // return <Rectangle
-    //   center={this.props.position}
-    //   size={[10, this.props.length]}
-    //   rotation={this.props.angle}
-    //   fillColor='black'
-    // />
-    return <RectPart
-      position={this.props.position}
-      angle={45}
-      width={100}
-      height={10}
-      fillColor='black'
-    />
+    const {position, angle, length, selected, anchor} = this.props
+    return (
+      <StraightRailPart
+        position={position}
+        angle={angle}
+        length={length}
+        anchor={anchor}
+        detectionState={DetectionState.BEFORE_DETECT}
+        selected={selected}
+      />
+    )
   }
-}
+} as React.ComponentClass<Props>
+
+export default StraightRail
+
 
 export type StraightRailItemData = BaseItemData & StraightRailProps

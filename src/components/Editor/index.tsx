@@ -22,8 +22,13 @@ import rails from "../Rails";
 import DetectablePart, {DetectionState} from "../Rails/parts/primitives/DetectablePart";
 import {Point} from "paper";
 import RectPart, {AnchorPoint} from '../Rails/parts/primitives/RectPart';
-import StraightRailPart, {RailPartAnchor} from '../Rails/StraightRailPart';
-import TrianglePart from "../Rails/parts/primitives/TrianglePart";
+// import StraightRailPart, {RailPartAnchor} from '../Rails/StraightRailPart';
+// import TrianglePart from "../Rails/parts/primitives/TrianglePart";
+import ArcPart from "../Rails/parts/primitives/ArcPart";
+import StraightRailPart, {RailPartAnchor} from "../Rails/parts/StraightRailPart";
+import StraightRail from "../Rails/StraightRail";
+import withBuilder, {WithBuilderInjectedProps} from "../hoc/withBuilder";
+import CurveRail from "../Rails/CurveRail";
 
 
 export interface EditorProps {
@@ -46,8 +51,9 @@ type ComposedEditorProps = EditorProps
   & WithToolsInjectedProps
   & WithMoveToolProps
   & WithSelectToolProps
-  & WithStraightRailInjectedProps
-  & WithCurveRailInjectedProps
+  // & WithStraightRailInjectedProps
+  // & WithCurveRailInjectedProps
+  & WithBuilderInjectedProps
 
 
 class Editor extends React.Component<ComposedEditorProps, EditorState> {
@@ -120,8 +126,9 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         key={layer.id}
       >
         {layer.children.map(({id: id, type: type, ...props}: ItemData) => {
-          // 動的にレールコンポーネントを取得する
+          // レールコンポーネントクラスを取得する
           let RailComponent = rails[type]
+          console.log(props)
           return (
             <RailComponent
               key={id}
@@ -134,54 +141,101 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
           }
         )}
 
-        <DetectablePart
-          position={new Point(100,100)}
-          angle={45}
-          width={100}
-          height={100}
-          widthMargin={50}
-          heightMargin={50}
-          fillColors={['blue', 'red', 'green']}
-          opacities={[0.5, 0.5, 0]}
-          detectionState={DetectionState.DETECTING}
-          anchor={AnchorPoint.LEFT}
-        />
+        {/*<DetectablePart*/}
+          {/*mainPart={*/}
+            {/*<RectPart*/}
+              {/*position={new Point(200,200)}*/}
+              {/*angle={0}*/}
+              {/*width={100}*/}
+              {/*height={100}*/}
+              {/*fillColor={'blue'}*/}
+              {/*opacity={1}*/}
+              {/*anchor={AnchorPoint.RIGHT}*/}
+            {/*/>*/}
+          {/*}*/}
+          {/*detectionPart={*/}
+            {/*<RectPart*/}
+              {/*position={new Point(200, 200)}*/}
+              {/*angle={0}*/}
+              {/*width={150}*/}
+              {/*height={150}*/}
+              {/*fillColor={'blue'}*/}
+              {/*opacity={1}*/}
+              {/*anchor={AnchorPoint.RIGHT}*/}
+            {/*/>*/}
+          {/*}*/}
+          {/*fillColors={['blue', 'red', 'green']}*/}
+          {/*opacities={[0.8, 0.5, 0]}*/}
+          {/*detectionState={DetectionState.BEFORE_DETECT}*/}
+        {/*/>*/}
 
-        <StraightRailPart
-          position={new Point(200,100)}
+
+
+
+
+
+
+
+
+
+
+        {/*<DetectablePart*/}
+          {/*position={new Point(100,100)}*/}
+          {/*angle={45}*/}
+          {/*width={100}*/}
+          {/*height={100}*/}
+          {/*widthMargin={50}*/}
+          {/*heightMargin={50}*/}
+          {/*fillColors={['blue', 'red', 'green']}*/}
+          {/*opacities={[0.5, 0.5, 0]}*/}
+          {/*detectionState={DetectionState.DETECTING}*/}
+          {/*anchor={AnchorPoint.LEFT}*/}
+        {/*/>*/}
+
+        <StraightRail
+          position={new Point(200,200)}
           angle={30}
           length={100}
-          detectionState={DetectionState.DETECTING}
-          anchor={RailPartAnchor.START}
+          selected={true}
         />
 
-        <RectPart
-          position={new Point(200,200)}
-          angle={45}
-          width={100}
-          height={100}
-          fillColor={'blue'}
-          opacity={0.4}
-          anchor={AnchorPoint.LEFT}
+        <CurveRail
+          radius={100}
+          centerAngle={60}
+          position={new Point(300,300)}
+          angle={30}
+          selected={true}
         />
-        <RectPart
-          position={new Point(200,200)}
-          angle={45}
-          width={100}
-          height={100}
-          fillColor={'blue'}
-          opacity={0.4}
-          anchor={AnchorPoint.LEFT}
-        />
-        <TrianglePart
-          position={new Point(400,400)}
-          angle={0}
-          width={100}
-          height={100}
-          fillColor={'blue'}
-          opacity={0.4}
-          anchor={AnchorPoint.BOTTOM}
-        />
+        {/*<RectPart*/}
+          {/*position={new Point(200,200)}*/}
+          {/*angle={45}*/}
+          {/*width={100}*/}
+          {/*height={100}*/}
+          {/*fillColor={'blue'}*/}
+          {/*opacity={0.4}*/}
+          {/*anchor={AnchorPoint.LEFT}*/}
+        {/*/>*/}
+        {/*<TrianglePart*/}
+          {/*position={new Point(400,400)}*/}
+          {/*angle={0}*/}
+          {/*width={100}*/}
+          {/*height={100}*/}
+          {/*fillColor={'blue'}*/}
+          {/*opacity={0.4}*/}
+          {/*anchor={AnchorPoint.BOTTOM}*/}
+        {/*/>*/}
+
+        {/*<ArcPart*/}
+          {/*position={new Point(200,200)}*/}
+          {/*angle={0}*/}
+          {/*width={20}*/}
+          {/*radius={200}*/}
+          {/*centerAngle={120}*/}
+          {/*fillColor={'blue'}*/}
+          {/*opacity={0.4}*/}
+          {/*anchor={AnchorPoint.RIGHT}*/}
+          {/*/>*/}
+
 
 
 
@@ -203,15 +257,21 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             {/*<StretchedView width={0} height={0} matrix={{}}>*/}
           <GridPaper width={600} height={300} gridSize={50} initialZoom={0.7} zoomUnit={0.002}>
             {layers}
+            {/*<Tool*/}
+              {/*active={this.isActive(Tools.STRAIGHT_RAILS)}*/}
+              {/*name={Tools.STRAIGHT_RAILS}*/}
+              {/*onMouseDown={this.props.straightRailsMouseDown}*/}
+            {/*/>*/}
+            {/*<Tool*/}
+              {/*active={this.isActive(Tools.CURVE_RAILS)}*/}
+              {/*name={Tools.CURVE_RAILS}*/}
+              {/*onMouseDown={this.props.curveRailMouseDown}*/}
+            {/*/>*/}
             <Tool
-              active={this.isActive(Tools.STRAIGHT_RAILS)}
+              active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
               name={Tools.STRAIGHT_RAILS}
-              onMouseDown={this.props.straightRailsMouseDown}
-            />
-            <Tool
-              active={this.isActive(Tools.CURVE_RAILS)}
-              name={Tools.CURVE_RAILS}
-              onMouseDown={this.props.curveRailMouseDown}
+              onMouseDown={this.props.builderLeftMouseDown}
+              onMouseMove={this.props.builderMouseMove}
             />
             <Tool
               active={this.isActive(Tools.SELECT)}
@@ -235,6 +295,7 @@ export default compose<EditorProps, EditorProps>(
   withTools,
   withMoveTool,
   withSelectTool,
-  withStraightRail,
-  withCurveRail
+  // withStraightRail,
+  // withCurveRail
+  withBuilder
 )(Editor)

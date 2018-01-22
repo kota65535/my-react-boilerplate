@@ -26,19 +26,20 @@ export default function withStraightRail(WrappedComponent: React.ComponentClass<
 
     constructor (props: WithStraightRailProps) {
       super(props)
+      this.mouseDown = this.mouseDown.bind(this)
     }
 
-    mouseDown = (e) => {
+    mouseDown(e) {
       // this.props.deselectItem()
       // Paperオブジェクトを取得
       const paper = e.tool._scope
 
       // アイテム情報を登録
       const item = this.props.addItem(paper.project.activeLayer, {
-        type: 'StraightRail',
+        type: this.props.selectedItem.type,
         position: e.point,
         length: Number(this.props.selectedItem.name.split("S")[1]),
-        angle: 30
+        angle: 0,
       } as ItemData)
       console.log(item)
     }

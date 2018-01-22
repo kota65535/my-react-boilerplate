@@ -32,8 +32,10 @@ export interface LayerData {
 // レイヤー下のアイテム
 export interface BaseItemData {
   id: number
-  type: string    // アイテム名。この文字列がReactElementのタグ名として用いられる
+  name: string
+  type: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   layer: Layer    // このアイテムが所属するレイヤー
+  selected: true
 }
 
 export type ItemData = StraightRailItemData | CurveRailItemData

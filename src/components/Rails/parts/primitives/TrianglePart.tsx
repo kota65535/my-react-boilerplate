@@ -17,6 +17,12 @@ export interface TrianglePartProps {
 
 
 export default class TrianglePart extends React.Component<TrianglePartProps, {}> {
+  public static defaultProps: Partial<TrianglePartProps> = {
+    position: new Point(0, 0),
+    angle: 0,
+    fillColor: 'black',
+    anchor: AnchorPoint.LEFT
+  }
 
   _path: Path
 
@@ -40,6 +46,11 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
       case AnchorPoint.BOTTOM:
         this.move(this.props.position, this.getCenterOfBottom())
         break
+      case AnchorPoint.CENTER:
+        // noop
+        break
+      default:
+        throw Error(`Invalid anchor for TrianglePart ${this.props.anchor}`)
     }
   }
 

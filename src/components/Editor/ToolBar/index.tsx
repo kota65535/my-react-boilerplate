@@ -10,17 +10,17 @@ import {Menu, MenuItem, Toolbar as MuiToolbar} from "material-ui"
 import {AppBar} from "material-ui"
 import {StyledIconButton, VerticalDivider} from "./styles";
 import {Tools} from "../../../constants/tools";
-import {selectItem} from "../../../actions/tools";
 import {connect} from "react-redux";
 import Typography from "material-ui/Typography";
 import FeederIcon from "./Icon/Feeder";
 import GapIcon from "./Icon/Gap";
+import {selectPaletteItem} from "../../../actions/builder";
 
 
 export interface ToolBarProps {
   activeTool: string
   setTool: any
-  selectItem: (item: PaletteItem) => void
+  selectPaletteItem: (item: PaletteItem) => void
   lastSelectedItems: object
   undo: () => void
   redo: () => void
@@ -47,10 +47,10 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
     return this.props.activeTool === tool ? 'active' : ''
   }
 
-  handleBuilderToolsClick = (tool: string, e: MouseEvent) => {
+  handleBuilderToolsClick = (tool: Tools, e: MouseEvent) => {
     this.props.setTool(tool)
     // 最後に選択していたアイテムを選択する
-    this.props.selectItem({type: tool, name: this.props.lastSelectedItems[tool].name})
+    this.props.selectPaletteItem(this.props.lastSelectedItems[tool])
   }
 
   render() {
@@ -128,7 +128,7 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    selectItem: (item: PaletteItem) => dispatch(selectItem(item))
+    selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
   }
 };
 

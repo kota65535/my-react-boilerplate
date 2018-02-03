@@ -1,11 +1,11 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import {BaseItemData} from "../hoc/withHistory";
 import CurveRailPart from "./parts/CurveRailPart";
 import {DetectionState} from "./parts/primitives/DetectablePart";
 import {RailPartAnchor} from "./parts/StraightRailPart";
 import Joint from "./parts/Joint";
+import {BaseItemData} from "reducers/layout";
 
 
 interface Props extends Partial<DefaultProps> {

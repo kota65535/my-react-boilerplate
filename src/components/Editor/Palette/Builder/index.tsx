@@ -5,7 +5,8 @@ import {TitleDiv} from "../../Layers/styles";
 import {ReactNode} from "react";
 import {connect} from "react-redux";
 import Paper from "material-ui/Paper";
-import {selectPaletteItem} from "../../../../actions/builder";
+import {selectPaletteItem} from "actions/builder";
+import {PaletteItem, RootState} from "store/type";
 
 export interface BuilderProps {
   className?: string

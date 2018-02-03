@@ -1,14 +1,14 @@
 import * as React from 'react'
-import {setPaletteMode} from "../../../actions/builder";
 import {connect} from "react-redux";
-import builderPaletteData from "../../../constants/builderPaletteItems.json"
-import {Tools} from "../../../constants/tools";
+import builderPaletteData from "constants/builderPaletteItems.json"
+import {Tools} from "constants/tools";
 import StraightRailIcon from '../ToolBar/Icon/StraightRail'
 import CurveRailIcon from '../ToolBar/Icon/CurveRail'
 import TurnoutIcon from "../ToolBar/Icon/Turnout";
 import Builder from "./Builder"
 import {StyledRnd} from "./styles";
 import Rnd from "react-rnd"
+import {RootState} from "store/type";
 
 export interface PaletteProps {
   className?: string
@@ -65,7 +65,6 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setPaletteMode: (mode: string) => dispatch(setPaletteMode(mode)),
   }
 };
 

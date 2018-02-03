@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import {setTool} from "../../actions/tools";
+import {RootState} from "store/type";
 
 export interface WithToolsInjectedProps {
   activeTool: string

@@ -4,37 +4,30 @@ import pick from 'lodash.pick'
 
 import { Layer, Raster, Tool, View } from 'react-paper-bindings'
 
-import withHistory, {HistoryData, ItemData, WithHistoryProps} from '../hoc/withHistory'
+import withHistory, {WithHistoryProps} from '../hoc/withHistory'
 import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
-import withSelectTool, {WithSelectToolProps} from '../hoc/withSelectTool'
 
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./styles";
-import {default as withStraightRail, WithStraightRailInjectedProps} from "../hoc/withStraightRail";
-import withCurveRail, {WithCurveRailInjectedProps} from "../hoc/withCurveRail";
-import {Tools} from "../../constants/tools";
+import {Tools} from "constants/tools";
 
 import './Paper.css'
 import GridPaper from "./GridPaper";
 
 import rails from "../Rails";
-import DetectablePart, {DetectionState} from "../Rails/parts/primitives/DetectablePart";
 import {Point} from "paper";
-import RectPart, {AnchorPoint} from '../Rails/parts/primitives/RectPart';
-// import StraightRailPart, {RailPartAnchor} from '../Rails/StraightRailPart';
-// import TrianglePart from "../Rails/parts/primitives/TrianglePart";
-import ArcPart from "../Rails/parts/primitives/ArcPart";
-import StraightRailPart, {RailPartAnchor} from "../Rails/parts/StraightRailPart";
 import StraightRail from "../Rails/StraightRail";
-import withBuilder, {WithBuilderInjectedProps} from "../hoc/withBuilder";
+import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
 import CurveRail from "../Rails/CurveRail";
-import CirclePart from "../Rails/parts/primitives/CirclePart";
 import Joint from "../Rails/parts/Joint";
+import {RootState} from "store/type";
+import {connect} from "react-redux";
+import {ItemData, LayoutStoreState} from "reducers/layout";
 
 
 export interface EditorProps {
-  initialData: HistoryData
+  layout: LayoutStoreState
   width: number
   height: number
   activeLayer: any
@@ -52,10 +45,8 @@ type ComposedEditorProps = EditorProps
   & WithFullscreenProps
   & WithToolsInjectedProps
   & WithMoveToolProps
-  & WithSelectToolProps
-  // & WithStraightRailInjectedProps
-  // & WithCurveRailInjectedProps
-  & WithBuilderInjectedProps
+  & WithBuilderPublicProps
+
 
 
 class Editor extends React.Component<ComposedEditorProps, EditorState> {
@@ -92,7 +83,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
   render() {
     const {
-      activeTool, activeLayer, data,
+      activeTool, activeLayer,
       selectedItem
     } = this.props
 
@@ -103,9 +94,8 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     })
 
     const layerProps = {
-      layers: ['L1', 'L2'],
-      activeLayer: 'L2',
-      visible: [false, false]
+      layers: this.props.layout.layers,
+      activeLayer: 1,
     }
 
 
@@ -120,7 +110,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     })
 
     // データから各レイヤーを生成する
-    let layers = this.props.data.layers.map(layer =>
+    let layers = this.props.layout.layers.map(layer =>
       <Layer
         data={{id: layer.id}}
         visible={layer.visible}
@@ -262,31 +252,21 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             {/*<StretchedView width={0} height={0} matrix={{}}>*/}
           <GridPaper width={600} height={300} gridSize={50} initialZoom={0.7} zoomUnit={0.002}>
             {layers}
-            {/*<Tool*/}
-              {/*active={this.isActive(Tools.STRAIGHT_RAILS)}*/}
-              {/*name={Tools.STRAIGHT_RAILS}*/}
-              {/*onMouseDown={this.props.straightRailsMouseDown}*/}
-            {/*/>*/}
-            {/*<Tool*/}
-              {/*active={this.isActive(Tools.CURVE_RAILS)}*/}
-              {/*name={Tools.CURVE_RAILS}*/}
-              {/*onMouseDown={this.props.curveRailMouseDown}*/}
-            {/*/>*/}
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
               name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.builderMouseDown}
               onMouseMove={this.props.builderMouseMove}
             />
-            <Tool
-              active={this.isActive(Tools.SELECT)}
-              name={Tools.SELECT}
-              onKeyDown={this.props.selectToolKeyDown}
-              onKeyUp={this.props.selectToolKeyUp}
-              onMouseDown={this.props.selectToolMouseDown}
-              onMouseDrag={this.props.selectToolMouseDrag}
-              onMouseUp={this.props.selectToolMouseUp}
-            />
+            {/*<Tool*/}
+              {/*active={this.isActive(Tools.SELECT)}*/}
+              {/*name={Tools.SELECT}*/}
+              {/*onKeyDown={this.props.selectToolKeyDown}*/}
+              {/*onKeyUp={this.props.selectToolKeyUp}*/}
+              {/*onMouseDown={this.props.selectToolMouseDown}*/}
+              {/*onMouseDrag={this.props.selectToolMouseDrag}*/}
+              {/*onMouseUp={this.props.selectToolMouseUp}*/}
+            {/*/>*/}
           </GridPaper>
         </EditorBody>
       </StyledWrapper>
@@ -294,13 +274,25 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
   }
 }
 
-export default compose<EditorProps, EditorProps>(
+const mapStateToProps = (state: RootState) => {
+  return {
+    layout: state.layout
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {}
+}
+
+
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps, EditorProps>(
   withHistory,
   withFullscreen,
   withTools,
   withMoveTool,
-  withSelectTool,
   // withStraightRail,
   // withCurveRail
-  withBuilder
-)(Editor)
+  withBuilder,
+)(Editor))

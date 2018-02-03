@@ -1,17 +1,9 @@
 /** TodoMVC model definitions **/
+import {LayoutStoreState} from "reducers/layout";
+import {BuilderStoreState} from "reducers/builder";
 
 declare interface ToolsStoreState {
   activeTool: string
-}
-
-declare interface BuilderStoreState {
-  selectedItem: PaletteItem
-  lastSelectedItems: object
-}
-
-declare interface LayersStoreState {
-  activeLayer: string
-  visible: boolean[]
 }
 
 declare interface PaletteItem {
@@ -21,7 +13,7 @@ declare interface PaletteItem {
 
 declare interface RootState {
   tools: ToolsStoreState
-  layers: LayersStoreState
+  layout: LayoutStoreState
   builder: BuilderStoreState
 }
 

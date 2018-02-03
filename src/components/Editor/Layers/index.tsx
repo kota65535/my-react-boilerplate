@@ -3,15 +3,17 @@ import LayersIcon from 'material-ui-icons/Layers'
 import {Paper, Grid, Checkbox, ListItemText} from 'material-ui'
 import {StyledListItem, TitleDiv} from "./styles";
 import {connect} from 'react-redux';
-import {setActiveLayer, setLayerVisible} from "../../../actions/tools";
 import Rnd from 'react-rnd'
+import {LayerData} from "reducers/layout";
+import {setActiveLayer} from "actions/builder";
+import {setLayerVisible} from "actions/layout";
+import {RootState} from "store/type";
 
 export interface LayersProps {
-  layers: string[]
-  visible: boolean[]
-  activeLayer: string
-  setActiveLayer: (layer: string) => void
-  setLayerVisible: (visible: boolean[]) => void
+  layers: LayerData[]
+  activeLayerId: number
+  setActiveLayer: (layerId: number) => void
+  setLayerVisible: (layerId: number, visible: boolean) => void
   className?: string
 }
 
@@ -27,18 +29,17 @@ class Layers extends React.Component<LayersProps, LayersState> {
   }
 
   handleSetVisible(e: React.SyntheticEvent<HTMLInputElement>) {
-    let layerIndex = this.props.layers.indexOf(e.currentTarget.value)
-    let checked = e.currentTarget.checked
-    let newVisible = Object.assign([], this.props.visible, {[layerIndex]: checked});
-    this.props.setLayerVisible(newVisible)
+    this.props.setLayerVisible(Number(e.currentTarget.value), e.currentTarget.checked)
   }
 
-  handleSetActive(value: string, e: React.MouseEvent<HTMLElement>) {
-    this.props.setActiveLayer(value)
+  handleSetActive(layerId: number, e: React.MouseEvent<HTMLElement>) {
+    this.props.setActiveLayer(layerId)
   }
 
 
   render() {
+    const {layers, activeLayerId} = this.props
+
     return (
       <Rnd
         className={this.props.className}
@@ -51,22 +52,22 @@ class Layers extends React.Component<LayersProps, LayersState> {
             Layers
           </TitleDiv>
           <Grid container justify="center" spacing={0}>
-            {this.props.layers.map((value, index) => {
+            {layers.map((value, index) => {
               return [
                 <Grid item xs={2}>
                   <Checkbox
-                    checked={this.props.visible[index]}
+                    checked={layers[index].visible}
                     onChange={this.handleSetVisible}
-                    value={value}
+                    value={layers[index].id.toString()}
                   />
                 </Grid>,
                 <Grid item xs={10}>
                   <StyledListItem
                     button
-                    active={this.props.activeLayer === value}
+                    active={activeLayerId === value.id}
                     onClick={this.handleSetActive.bind(this, value)}
                   >
-                    <ListItemText primary={value}/>
+                    <ListItemText primary={value.name}/>
                   </StyledListItem>
                 </Grid>
               ]
@@ -80,15 +81,14 @@ class Layers extends React.Component<LayersProps, LayersState> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    activeLayer: state.layers.activeLayer,
-    visible: state.layers.visible
+    activeLayerId: state.builder.activeLayerId
   }
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    setActiveLayer: (layer: string) => dispatch(setActiveLayer(layer)),
-    setLayerVisible: (visible: boolean[]) => dispatch(setLayerVisible(visible))
+    setActiveLayer: (layerId: number) => dispatch(setActiveLayer(layerId)),
+    setLayerVisible: (layerId: number, visible: boolean) => dispatch(setLayerVisible({layerId, visible}))
   }
 };
 

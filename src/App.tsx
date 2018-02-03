@@ -63,7 +63,6 @@ class App extends React.Component<WithStyles<'root'>, {}> {
               return false;
             }}>
                 <Editor
-                    initialData={INITIAL_DATA}
                     width={6000}
                     height={4000}
                     activeLayer={null}

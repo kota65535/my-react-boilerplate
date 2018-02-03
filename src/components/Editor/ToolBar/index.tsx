@@ -9,12 +9,13 @@ import TouchAppIcon from 'material-ui-icons/TouchApp'
 import {Menu, MenuItem, Toolbar as MuiToolbar} from "material-ui"
 import {AppBar} from "material-ui"
 import {StyledIconButton, VerticalDivider} from "./styles";
-import {Tools} from "../../../constants/tools";
+import {Tools} from "constants/tools";
 import {connect} from "react-redux";
 import Typography from "material-ui/Typography";
 import FeederIcon from "./Icon/Feeder";
 import GapIcon from "./Icon/Gap";
-import {selectPaletteItem} from "../../../actions/builder";
+import {selectPaletteItem} from "actions/builder";
+import {PaletteItem, RootState} from "store/type";
 
 
 export interface ToolBarProps {

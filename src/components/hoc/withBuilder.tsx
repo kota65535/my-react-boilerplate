@@ -1,18 +1,23 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {ItemData, WithHistoryProps} from "./withHistory";
-import * as paper from "paper"
-import {Path, ToolEvent} from "paper";
+import {WithHistoryProps} from "./withHistory";
 import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
+import {PaletteItem, RootState} from "store/type";
+import {ItemData, LayoutStoreState} from "reducers/layout";
 
-export interface WithBuilderInjectedProps {
+export interface WithBuilderPublicProps {
   builderMouseDown: any
   builderMouseMove: any
-  selectedItem: PaletteItem
 }
 
-export type WithBuilderProps = WithBuilderInjectedProps & WithHistoryProps
+interface WithBuilderPrivateProps {
+  layout: LayoutStoreState
+  selectedItem: PaletteItem
+  activeLayerId: number
+}
+
+export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps & WithHistoryProps
 
 
 /**
@@ -22,7 +27,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
   const mapStateToProps = (state: RootState) => {
     return {
+      layout: state.layout,
       selectedItem: state.builder.selectedItem,
+      activeLayerId: state.builder.activeLayerId
     }
   }
 
@@ -58,7 +65,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.selectedItem.name]()
       // レイヤーにレールを追加
-      const item = this.props.addItem(paper.project.activeLayer, {
+      const item = this.props.addItem(this.props.activeLayerId, {
           ...itemProps,
         position: e.point
         } as ItemData
@@ -75,9 +82,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       let results = hitTestAll(paper, e.point)
       console.log(results)
 
-      const items = _.flatMap(this.props.data.layers, (layer) => layer.children)
+      const items = _.flatMap(this.props.layout.layers, (layer) => layer.children)
       const target = items.find(item => item.name == 'unko')
-
     }
 
     render() {

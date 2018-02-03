@@ -1,15 +1,12 @@
 import * as React from 'react'
-import Editor from './components/Editor'
+import Editor from 'components/Editor/Editor'
 
 import './App.css'
 
 import { WithStyles, StyleRulesCallback } from 'material-ui/styles'
 import withStyles from "material-ui/styles/withStyles";
 import withRoot from './withRoot';
-import INITIAL_DATA from './mr-bubbles.json'
 
-const IMAGE_WIDTH = 1920
-const IMAGE_HEIGHT = 870
 
 const muiStyles: StyleRulesCallback<'root'> = theme => ({
     root: {

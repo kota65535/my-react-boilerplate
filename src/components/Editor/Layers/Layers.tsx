@@ -1,7 +1,7 @@
 import * as React from 'react'
 import LayersIcon from 'material-ui-icons/Layers'
 import {Paper, Grid, Checkbox, ListItemText} from 'material-ui'
-import {StyledListItem, TitleDiv} from "./styles";
+import {StyledListItem, TitleDiv} from "./Layers.style";
 import {connect} from 'react-redux';
 import Rnd from 'react-rnd'
 import {LayerData} from "reducers/layout";

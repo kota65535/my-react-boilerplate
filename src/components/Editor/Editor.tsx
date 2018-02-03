@@ -9,11 +9,11 @@ import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
-import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./styles";
+import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./Editor.style";
 import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, Tools} from "constants/tools";
 
 import './Paper.css'
-import GridPaper from "./GridPaper";
+import GridPaper from "./GridPaper/GridPaper";
 
 import rails from "../Rails";
 import {Path, Point, Size} from "paper";

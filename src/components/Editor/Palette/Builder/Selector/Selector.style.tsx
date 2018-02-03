@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import ActiveListItem from "../../../../common/ActiveListItem";
-import {theme} from "../../../../../withRoot";
+import ActiveListItem from "components/common/ActiveListItem";
+import {theme} from "withRoot";
 
 
 export const StyledListItem = styled(ActiveListItem)`

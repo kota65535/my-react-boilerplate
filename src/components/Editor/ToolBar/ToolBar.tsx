@@ -4,7 +4,7 @@ import StraightRailIcon from './Icon/StraightRail'
 import TurnoutIcon from './Icon/Turnout'
 import {Menu, MenuItem, Toolbar as MuiToolbar} from "material-ui"
 import {AppBar} from "material-ui"
-import {StyledIconButton, VerticalDivider} from "./styles";
+import {StyledIconButton, VerticalDivider} from "./ToolBar.style";
 import {Tools} from "constants/tools";
 import {connect} from "react-redux";
 import UndoIcon from 'material-ui-icons/Undo'

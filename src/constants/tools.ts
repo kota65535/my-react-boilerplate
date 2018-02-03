@@ -4,5 +4,6 @@ export enum Tools {
   TURNOUTS = 'Turnouts',
   FEEDERS = 'Feeders',
   GAP = 'Gaps',
-  SELECT = 'Select'
+  SELECT = 'Select',
+  PAN = 'Pan'
 }

@@ -115,6 +115,12 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
           >
             <TouchAppIcon/>
           </StyledIconButton>
+          <StyledIconButton
+            className={`${this.isActive(Tools.PAN)}`}
+            onClick={() => this.props.setTool(Tools.PAN)}
+          >
+            <PanToolIcon/>
+          </StyledIconButton>
         </MuiToolbar>
       </AppBar>
     )

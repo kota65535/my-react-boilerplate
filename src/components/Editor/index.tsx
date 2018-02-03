@@ -98,6 +98,9 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       activeLayer: 1,
     }
 
+    const matrix = pick(this.props, [
+      'sx', 'sy', 'tx', 'ty', 'x', 'y', 'zoom',
+    ])
 
     const viewProps = Object.assign(pick(this.props, [
       'activeTool', 'activeLayer', 'width', 'height',
@@ -250,15 +253,33 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
           <StyledPalette />
           <StyledLayers {...layerProps} />
             {/*<StretchedView width={0} height={0} matrix={{}}>*/}
-          <GridPaper width={600} height={300} gridSize={50} initialZoom={0.7} zoomUnit={0.002}>
+          <GridPaper
+            width={600}
+            height={300}
+            gridSize={50}
+            initialZoom={0.7}
+            zoomUnit={0.002}
+            onWheel={this.props.moveToolMouseWheel}
+            matrix={matrix}
+          >
             {layers}
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
               name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.builderMouseDown}
-              onMouseMove={this.props.builderMouseMove}
+              onMouseMove={(e) => {
+                this.props.builderMouseMove(e)
+                this.props.moveToolMouseMove(e)
+              }}
             />
-            {/*<Tool*/}
+            <Tool
+              active={this.isActive(Tools.PAN)}
+              name={Tools.PAN}
+              onMouseDown={this.props.moveToolMouseDown}
+              onMouseDrag={this.props.moveToolMouseDrag}
+              onMouseUp={this.props.moveToolMouseUp}
+              onMouseMove={this.props.moveToolMouseMove}
+            />
               {/*active={this.isActive(Tools.SELECT)}*/}
               {/*name={Tools.SELECT}*/}
               {/*onKeyDown={this.props.selectToolKeyDown}*/}

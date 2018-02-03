@@ -1,21 +1,16 @@
-import {View, Rectangle, Raster, ToolEvent, Point, Size} from 'paper'
+import {View, ToolEvent, Point, Size} from 'paper'
 import * as React from 'react';
 
-const ZOOM_FACTOR = 1.1
+const ZOOM_FACTOR = 0.002
+const ZOOM_MIN = 0.1
+const ZOOM_MAX = 10
 
-export interface WithMoveToolInjectedProps {
-  fitImage: (image: Raster) => void
+export interface WithMoveToolOutputProps {
   moveToolMouseWheel: (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => void
+  moveToolMouseMove: (e: ToolEvent) => void
   moveToolMouseDown: (e: ToolEvent) => void
-  moveToolMouseDrag: (e: ToolEvent) => void
   moveToolMouseUp: (e: ToolEvent) => void
-}
-
-interface WithMoveToolNeededProps {
-  imageWidth: number
-  imageHeight: number
-  width: number
-  height: number
+  moveToolMouseDrag: (e: ToolEvent) => void
 }
 
 interface WithMoveToolState {
@@ -28,14 +23,16 @@ interface WithMoveToolState {
   zoom: number
 }
 
-export type WithMoveToolProps = WithMoveToolInjectedProps & WithMoveToolNeededProps
+export type WithMoveToolProps = WithMoveToolOutputProps
 
 export default function withMoveTool(WrappedComponent: React.ComponentClass<WithMoveToolProps>) {
 
   return class extends React.Component<WithMoveToolProps, WithMoveToolState> {
 
     private _pan: any
-    private _imageLoaded: boolean
+    mousePosition: Point
+    isFocused: boolean
+    view: View
 
     constructor(props: WithMoveToolProps) {
       super(props)
@@ -49,64 +46,24 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
         zoom: 1,
       }
       this._pan = null
+      this.mousePosition = new Point(0,0)
+      this.isFocused = true
+
+      this.mouseWheel = this.mouseWheel.bind(this)
+      this.mouseMove = this.mouseMove.bind(this)
+      this.mouseDrag = this.mouseDrag.bind(this)
+      this.mouseDown = this.mouseDown.bind(this)
+      this.mouseUp = this.mouseUp.bind(this)
+
     }
 
-    /**
-     * Fit image into viewport
-     *
-     * @param  {Raster} image Paper.js Raster instance
-     */
-    fitImage = (image: Raster) => {
-      const { imageWidth, imageHeight, width, height } = this.props
-      // fit raster into original image size
-      image.fitBounds(new Rectangle(new Point(0, 0), new Size(imageWidth, imageHeight)))
-      // if image is already loaded
-      // do not attempt to fit it again
-      if (this._imageLoaded) {
-        return
-      }
-      // calculate zoom
-      const wr = width / imageWidth
-      const hr = height / imageHeight
-      const zoom = wr < hr ? wr : hr
-      // calculate new image size
-      const iw = imageWidth * zoom
-      const ih = imageHeight * zoom
-      // calculate needed translation xy
-      const tx = (width-iw) / 2 / zoom
-      const ty = (height-ih) / 2 / zoom
-      // calculate center xy
-      const x = this.state.x + tx
-      const y = this.state.y + ty
-      // center the image in the middle
-      this.setState({ tx, ty, x, y, zoom }, () => {
-        // TODO: try to find a better solution
-        // reset translation xy to prevent zoom problems
-        this.setState({ tx: 0, ty: 0 })
-      })
-      // set image loaded
-      this._imageLoaded = true
-    }
-
-    /**
-     * Get pinch zoom event data
-     *
-     * @param  {ToolEvent} e Paper.js ToolEvent
-     * @return {Object}      Object representing pinch zoom event
-     */
-    getPinchEventData(e: ToolEvent|any) {
-      const { event: { target: { offsetLeft, offsetTop }, touches } } = e
-      // touch points
-      const x0 = touches[0].pageX - offsetLeft
-      const y0 = touches[0].pageY - offsetTop
-      const x1 = touches[1].pageX - offsetLeft
-      const y1 = touches[1].pageY - offsetTop
-      // center point between fingers
-      const center = [(x0 + x1) / 2, (y0 + y1) / 2]
-      // distance between fingers
-      const distance = Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2))
-      // return object describing touch state
-      return { center, distance }
+    componentDidMount() {
+      window.addEventListener("focus", (e) => {
+        this.isFocused = true
+      }, true);
+      window.addEventListener("blur", (e) => {
+        this.isFocused = false
+      }, true);
     }
 
     /**
@@ -151,22 +108,39 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
      * @param  {PaperScope}     view Paper.js PaperScope instance
      */
     mouseWheel = (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => {
-      const { zoom } = this.state
-      const { pageX, pageY } = e
-      const { offsetLeft, offsetTop } = e.currentTarget
-      // get wheel delta
-      // const delta = -e.deltaY || e.wheelDelta
-      const delta = -e.deltaY
-      // calculate new zoom from wheel event delta
-      const newZoom = delta > 0 ? zoom * ZOOM_FACTOR : zoom / ZOOM_FACTOR
-      // convert mouse point to project space
-      const s = view.viewToProject(new Point(pageX - offsetLeft, pageY - offsetTop))
-      // scale paper
-      this.setState({
-        sx: s.x,
-        sy: s.y,
-        zoom: newZoom,
-      })
+      e.nativeEvent.preventDefault()
+
+      // ホイールの移動距離からズーム倍率を計算する
+      const delta = e.nativeEvent.wheelDelta
+      const newZoom = (1 + delta * ZOOM_FACTOR) * this.state.zoom
+
+      // 最大拡大率・最小縮小率を超えないようにする
+      if (ZOOM_MIN < newZoom && newZoom < ZOOM_MAX) {
+        // ウィンドウにフォーカスが当たっていれば、mouseMoveイベントで常に取得しているマウス位置をズームの中心とする
+        // フォーカスが当たっていない場合は上記イベントが発火しないので、View座標空間からProject座標空間に変換して位置を求める（ただしあまり正確ではない）
+        let zoomCenter
+        if (this.isFocused) {
+          console.log('focused')
+          zoomCenter = this.mousePosition
+        } else {
+          console.log('not focused')
+          const { pageX, pageY } = e
+          const { offsetLeft, offsetTop } = e.currentTarget
+          zoomCenter = this.view.viewToProject(new Point(pageX - offsetLeft, pageY - offsetTop))
+        }
+        this.setState({
+          sx: zoomCenter.x,
+          sy: zoomCenter.y,
+          zoom: newZoom,
+        })
+      }
+    }
+
+    mouseMove = (e: ToolEvent) => {
+      // キャンバス上のマウスカーソルの位置を更新
+      this.mousePosition = e.point
+      this.view = (e as any).tool.view
+      console.log(e.point)
     }
 
     /**
@@ -211,13 +185,13 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       this._pan = null
     }
 
-    render() {
+  render() {
       return (
         <WrappedComponent
           {...this.props}
           {...this.state}
-          fitImage={this.fitImage}
           moveToolMouseWheel={this.mouseWheel}
+          moveToolMouseMove={this.mouseMove}
           moveToolMouseDown={this.mouseDown}
           moveToolMouseDrag={this.mouseDrag}
           moveToolMouseUp={this.mouseUp}

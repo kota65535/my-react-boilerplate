@@ -13,6 +13,8 @@ export interface GridPaperProps {
   gridSize: number
   initialZoom: number
   zoomUnit: number
+  onWheel: any
+  matrix: any
 }
 
 const BOARD_WIDTH = 6000;     // ボード幅
@@ -114,8 +116,11 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
 
 
     return (
-        <View width={screen.width} height={screen.height} matrix={this.matrix}
-                       ref={(view) => this.view = view}
+        <View width={screen.width}
+              height={screen.height}
+              matrix={this.props.matrix}
+              onWheel={this.props.onWheel}
+              ref={(view) => this.view = view}
         >
           <Layer>
             {verticalLines}

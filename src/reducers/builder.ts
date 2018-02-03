@@ -1,12 +1,14 @@
 import {Action, handleActions} from 'redux-actions';
-import * as Actions from '../constants/actions';
-import {PaletteItem} from "../store/type";
+import * as Actions from 'constants/actions';
+import {PaletteItem} from "store/type";
+import {Point} from "paper";
 
 
 export interface BuilderStoreState {
   selectedItem: PaletteItem
   lastSelectedItems: object
   activeLayerId: number
+  mousePosition: Point
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -16,7 +18,8 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
     'Curve Rails': {type: 'CurveRail', name: 'C280-45'},
     'Turnouts': {type: 'Turnout', name: 'PR541-15'}
   },
-  activeLayerId: 1
+  activeLayerId: 1,
+  mousePosition: new Point(0,0)
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -35,6 +38,13 @@ export default handleActions<BuilderStoreState, any>({
         ...state.lastSelectedItems,
         [action.payload!.type]: action.payload
       }
+    } as BuilderStoreState
+  },
+
+  [Actions.BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
+    return {
+      ...state,
+      mousePosition: action.payload
     } as BuilderStoreState
   },
 }, BUILDER_INITIAL_STATE);

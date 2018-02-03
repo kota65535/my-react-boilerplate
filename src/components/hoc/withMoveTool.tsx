@@ -1,9 +1,10 @@
 import {View, ToolEvent, Point, Size} from 'paper'
 import * as React from 'react';
+import {RootState} from "store/type";
+import {setMousePosition} from "actions/builder";
+import {connect} from "react-redux";
+import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, INITIAL_ZOOM, ZOOM_FACTOR, ZOOM_MAX, ZOOM_MIN} from "constants/tools";
 
-const ZOOM_FACTOR = 0.002
-const ZOOM_MIN = 0.1
-const ZOOM_MAX = 10
 
 export interface WithMoveToolOutputProps {
   moveToolMouseWheel: (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => void
@@ -12,6 +13,11 @@ export interface WithMoveToolOutputProps {
   moveToolMouseUp: (e: ToolEvent) => void
   moveToolMouseDrag: (e: ToolEvent) => void
 }
+
+export interface WithMoveToolPrivateProps {
+  setMousePosition: (point: Point) => void
+}
+
 
 interface WithMoveToolState {
   sx: number  // scale center x
@@ -23,16 +29,27 @@ interface WithMoveToolState {
   zoom: number
 }
 
-export type WithMoveToolProps = WithMoveToolOutputProps
+export type WithMoveToolProps = WithMoveToolOutputProps & WithMoveToolPrivateProps
 
 export default function withMoveTool(WrappedComponent: React.ComponentClass<WithMoveToolProps>) {
 
-  return class extends React.Component<WithMoveToolProps, WithMoveToolState> {
+  const mapStateToProps = (state: RootState) => {
+    return {
+    }
+  }
+
+  const mapDispatchToProps = (dispatch: any) => {
+    return {
+      setMousePosition: (point: Point) => dispatch(setMousePosition(point))
+    }
+  }
+
+  class WithMoveTool extends React.Component<WithMoveToolProps, WithMoveToolState> {
 
     private _pan: any
     mousePosition: Point
     isFocused: boolean
-    view: View
+    view: any
 
     constructor(props: WithMoveToolProps) {
       super(props)
@@ -43,7 +60,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
         ty: 0, // translate y
         x: 0,
         y: 0,
-        zoom: 1,
+        zoom: INITIAL_ZOOM,
       }
       this._pan = null
       this.mousePosition = new Point(0,0)
@@ -54,7 +71,15 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       this.mouseDrag = this.mouseDrag.bind(this)
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseUp = this.mouseUp.bind(this)
+    }
 
+    adjustScreenCenter = () => {
+      if (this.view) {
+        const windowCenter = this.view.viewToProject(new Point(window.innerWidth /2, window.innerHeight/2))
+        const boardCenter = new Point(GRID_PAPER_WIDTH/2, GRID_PAPER_HEIGHT/2)
+        const diff = windowCenter.subtract(boardCenter)
+        this.view.translate(diff.x, diff.y)
+      }
     }
 
     componentDidMount() {
@@ -141,6 +166,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       this.mousePosition = e.point
       this.view = (e as any).tool.view
       console.log(e.point)
+      this.props.setMousePosition(e.point)
     }
 
     /**
@@ -148,8 +174,10 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
      *
      * @param  {ToolEvent} e Paper.js ToolEvent
      */
-    mouseDown = (e: ToolEvent) => {
+    mouseDown = (e: ToolEvent|any) => {
       //this._pan = this.getPanEventData(e)
+      const { tool: { view } } = e
+      this.adjustScreenCenter()
     }
 
     /**
@@ -185,7 +213,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       this._pan = null
     }
 
-  render() {
+    render() {
       return (
         <WrappedComponent
           {...this.props}
@@ -198,7 +226,8 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
         />
       )
     }
-
   }
+
+  return connect(mapStateToProps, mapDispatchToProps)(WithMoveTool)
 
 }

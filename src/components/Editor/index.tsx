@@ -10,13 +10,13 @@ import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./styles";
-import {Tools} from "constants/tools";
+import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, INITIAL_ZOOM, Tools, ZOOM_FACTOR} from "constants/tools";
 
 import './Paper.css'
 import GridPaper from "./GridPaper";
 
 import rails from "../Rails";
-import {Point} from "paper";
+import {Path, Point, Size} from "paper";
 import StraightRail from "../Rails/StraightRail";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
 import CurveRail from "../Rails/CurveRail";
@@ -24,6 +24,7 @@ import Joint from "../Rails/parts/Joint";
 import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {ItemData, LayoutStoreState} from "reducers/layout";
+import {Rectangle} from "react-paper-bindings"
 
 
 export interface EditorProps {
@@ -32,6 +33,7 @@ export interface EditorProps {
   height: number
   activeLayer: any
   selectedItem: any
+  mousePosition: Point
 }
 
 export interface EditorState {
@@ -80,6 +82,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
   isActive = (tool: string) => {
     return this.props.activeTool === tool
   }
+
 
   render() {
     const {
@@ -133,117 +136,9 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             />)
           }
         )}
-
-        <Joint
-          position={new Point(200,100)}
-        />
-
-
-
-        {/*<DetectablePart*/}
-          {/*mainPart={*/}
-            {/*<RectPart*/}
-              {/*position={new Point(200,200)}*/}
-              {/*angle={0}*/}
-              {/*width={100}*/}
-              {/*height={100}*/}
-              {/*fillColor={'blue'}*/}
-              {/*opacity={1}*/}
-              {/*anchor={AnchorPoint.RIGHT}*/}
-            {/*/>*/}
-          {/*}*/}
-          {/*detectionPart={*/}
-            {/*<RectPart*/}
-              {/*position={new Point(200, 200)}*/}
-              {/*angle={0}*/}
-              {/*width={150}*/}
-              {/*height={150}*/}
-              {/*fillColor={'blue'}*/}
-              {/*opacity={1}*/}
-              {/*anchor={AnchorPoint.RIGHT}*/}
-            {/*/>*/}
-          {/*}*/}
-          {/*fillColors={['blue', 'red', 'green']}*/}
-          {/*opacities={[0.8, 0.5, 0]}*/}
-          {/*detectionState={DetectionState.BEFORE_DETECT}*/}
-        {/*/>*/}
-
-
-
-
-
-
-
-
-
-
-
-        {/*<DetectablePart*/}
-          {/*position={new Point(100,100)}*/}
-          {/*angle={45}*/}
-          {/*width={100}*/}
-          {/*height={100}*/}
-          {/*widthMargin={50}*/}
-          {/*heightMargin={50}*/}
-          {/*fillColors={['blue', 'red', 'green']}*/}
-          {/*opacities={[0.5, 0.5, 0]}*/}
-          {/*detectionState={DetectionState.DETECTING}*/}
-          {/*anchor={AnchorPoint.LEFT}*/}
-        {/*/>*/}
-
-        <StraightRail
-          position={new Point(200,200)}
-          angle={30}
-          length={100}
-        />
-
-        <CurveRail
-          radius={100}
-          centerAngle={60}
-          position={new Point(300,300)}
-          angle={30}
-          selected={true}
-        />
-        {/*<RectPart*/}
-          {/*position={new Point(200,200)}*/}
-          {/*angle={45}*/}
-          {/*width={100}*/}
-          {/*height={100}*/}
-          {/*fillColor={'blue'}*/}
-          {/*opacity={0.4}*/}
-          {/*anchor={AnchorPoint.LEFT}*/}
-        {/*/>*/}
-        {/*<TrianglePart*/}
-          {/*position={new Point(400,400)}*/}
-          {/*angle={0}*/}
-          {/*width={100}*/}
-          {/*height={100}*/}
-          {/*fillColor={'blue'}*/}
-          {/*opacity={0.4}*/}
-          {/*anchor={AnchorPoint.BOTTOM}*/}
-        {/*/>*/}
-
-        {/*<ArcPart*/}
-          {/*position={new Point(200,200)}*/}
-          {/*angle={0}*/}
-          {/*width={20}*/}
-          {/*radius={200}*/}
-          {/*centerAngle={120}*/}
-          {/*fillColor={'blue'}*/}
-          {/*opacity={0.4}*/}
-          {/*anchor={AnchorPoint.RIGHT}*/}
-          {/*/>*/}
-
-
-
-
-
-
-
-
-
       </Layer>
     )
+
 
     return (
 
@@ -254,14 +149,25 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
           <StyledLayers {...layerProps} />
             {/*<StretchedView width={0} height={0} matrix={{}}>*/}
           <GridPaper
-            width={600}
-            height={300}
-            gridSize={50}
-            initialZoom={0.7}
-            zoomUnit={0.002}
+            width={GRID_PAPER_WIDTH}
+            height={GRID_PAPER_HEIGHT}
+            gridSize={GRID_SIZE}
             onWheel={this.props.moveToolMouseWheel}
             matrix={matrix}
           >
+            <Layer>
+              {/*<CirclePart*/}
+                {/*radius={10}*/}
+                {/*position={this.props.mousePosition}*/}
+              {/*/>*/}
+              <Rectangle
+                // point={new Point(300,300)}
+                center={this.props.mousePosition}
+                fillColor={'orange'}
+                size={new Size(100,100)}
+              />
+
+            </Layer>
             {layers}
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
@@ -293,11 +199,15 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       </StyledWrapper>
     )
   }
+
+  getNearestGridPosition = (mousePosition) => {
+  }
 }
 
 const mapStateToProps = (state: RootState) => {
   return {
-    layout: state.layout
+    layout: state.layout,
+    mousePosition: state.builder.mousePosition
   }
 }
 

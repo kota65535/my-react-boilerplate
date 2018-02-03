@@ -7,3 +7,11 @@ export enum Tools {
   SELECT = 'Select',
   PAN = 'Pan'
 }
+
+export const GRID_PAPER_WIDTH = 1050
+export const GRID_PAPER_HEIGHT = 840
+export const GRID_SIZE = 70
+export const INITIAL_ZOOM = 1
+export const ZOOM_FACTOR = 0.002
+export const ZOOM_MIN = 0.1
+export const ZOOM_MAX = 10

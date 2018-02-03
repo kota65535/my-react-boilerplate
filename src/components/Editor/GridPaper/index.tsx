@@ -2,17 +2,12 @@ import * as React from 'react'
 
 import { Line, Path, Layer, Raster, Tool, View } from 'react-paper-bindings'
 import {Point, Size} from 'paper';
-import * as paper from 'paper';
-import {StretchedView} from "./styles";
-import {ReactDOM, ReactNode} from "react";
 import * as _ from "lodash";
 
 export interface GridPaperProps {
   width: number
   height: number
   gridSize: number
-  initialZoom: number
-  zoomUnit: number
   onWheel: any
   matrix: any
 }
@@ -27,12 +22,6 @@ const AVAILABLE_ZOOM_MAX = 5;
 
 export default class GridPaper extends React.Component<GridPaperProps, {}> {
 
-  cursorPoint: Point
-  cursorDelta: Point
-  canvasPoint: Point
-  viewCenterMin: Point
-  viewCenterMax: Point
-  initialViewSize: Size
   boardMin: Point
   boardMax: Point
   shouldModifyViewCenter: boolean
@@ -96,28 +85,28 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
   render() {
 
     // 縦のグリッドを生成
-    let verticalLines = _.range(screen.width / this.props.gridSize).map(i => {
+    let verticalLines = _.range(this.props.width / this.props.gridSize).map(i => {
       return (
         <Line
           from={new Point(this.props.gridSize * i, 0)}
-          to={new Point(this.props.gridSize * i,screen.height)}
+          to={new Point(this.props.gridSize * i, this.props.height)}
           strokeColor={'red'}
         />)
     })
     // 横のグリッドを生成
-    let horizontalLines = _.range(screen.height / this.props.gridSize).map(i => {
+    let horizontalLines = _.range(this.props.height / this.props.gridSize).map(i => {
       return (
         <Line
           from={new Point(0, this.props.gridSize * i)}
-          to={new Point(screen.width,this.props.gridSize * i)}
+          to={new Point(this.props.width,this.props.gridSize * i)}
           strokeColor={'red'}
         />)
     })
 
 
     return (
-        <View width={screen.width}
-              height={screen.height}
+        <View width={this.props.width}
+              height={this.props.height}
               matrix={this.props.matrix}
               onWheel={this.props.onWheel}
               ref={(view) => this.view = view}

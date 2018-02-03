@@ -82,8 +82,17 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       let results = hitTestAll(paper, e.point)
       console.log(results)
 
-      const items = _.flatMap(this.props.layout.layers, (layer) => layer.children)
-      const target = items.find(item => item.name == 'unko')
+      // const items =
+      // const target = items.find(item => item.name == 'unko')
+      //
+      // if (this.isLayoutEmpty()) {
+      //
+      // }
+
+    }
+
+    isLayoutEmpty = () => {
+      return _.flatMap(this.props.layout.layers, (layer) => layer.children).length > 0
     }
 
     render() {

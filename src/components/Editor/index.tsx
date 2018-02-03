@@ -10,17 +10,14 @@ import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./styles";
-import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, INITIAL_ZOOM, Tools, ZOOM_FACTOR} from "constants/tools";
+import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, Tools} from "constants/tools";
 
 import './Paper.css'
 import GridPaper from "./GridPaper";
 
 import rails from "../Rails";
 import {Path, Point, Size} from "paper";
-import StraightRail from "../Rails/StraightRail";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
-import CurveRail from "../Rails/CurveRail";
-import Joint from "../Rails/parts/Joint";
 import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {ItemData, LayoutStoreState} from "reducers/layout";
@@ -31,7 +28,6 @@ export interface EditorProps {
   layout: LayoutStoreState
   width: number
   height: number
-  activeLayer: any
   selectedItem: any
   mousePosition: Point
 }
@@ -85,20 +81,15 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
 
   render() {
-    const {
-      activeTool, activeLayer,
-      selectedItem
-    } = this.props
 
     const toolbarProps = Object.assign(pick(this.props,
-      ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'selectedItem']), {
+      ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'selectedItem', 'resetViewPosition']), {
       save: this.save,
       toggleLayers: this.toggleLayers,
     })
 
     const layerProps = {
       layers: this.props.layout.layers,
-      activeLayer: 1,
     }
 
     const matrix = pick(this.props, [
@@ -106,7 +97,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     ])
 
     const viewProps = Object.assign(pick(this.props, [
-      'activeTool', 'activeLayer', 'width', 'height',
+      'width', 'height',
     ]), {
       ref: ref => this._view = ref,
       onWheel: this.props.moveToolMouseWheel,
@@ -147,7 +138,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         <EditorBody>
           <StyledPalette />
           <StyledLayers {...layerProps} />
-            {/*<StretchedView width={0} height={0} matrix={{}}>*/}
           <GridPaper
             width={GRID_PAPER_WIDTH}
             height={GRID_PAPER_HEIGHT}

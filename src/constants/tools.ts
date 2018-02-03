@@ -5,7 +5,8 @@ export enum Tools {
   FEEDERS = 'Feeders',
   GAP = 'Gaps',
   SELECT = 'Select',
-  PAN = 'Pan'
+  PAN = 'Pan',
+  RESET_VIEW = 'Reset View'
 }
 
 export const GRID_PAPER_WIDTH = 1050

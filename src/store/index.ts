@@ -3,12 +3,16 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import { logger } from '../middleware';
 import rootReducer from '../reducers';
 import {RootState} from "./type";
+import {BUILDER_SET_MOUSE_POSITION} from "constants/actions";
 
 export function configureStore(initialState?: RootState) {
   let middleware = applyMiddleware(logger);
 
   if (process.env.NODE_ENV === 'development') {
-    middleware = composeWithDevTools(middleware);
+    const composeEnhancers = composeWithDevTools({
+      actionsBlacklist: [BUILDER_SET_MOUSE_POSITION]
+    })
+    middleware = composeEnhancers(middleware);
   }
 
   const store = createStore(rootReducer, initialState, middleware) as Store<RootState>;

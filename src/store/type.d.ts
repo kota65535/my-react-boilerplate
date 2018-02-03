@@ -16,5 +16,3 @@ declare interface RootState {
   layout: LayoutStoreState
   builder: BuilderStoreState
 }
-
-

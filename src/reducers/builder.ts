@@ -9,6 +9,7 @@ export interface BuilderStoreState {
   lastSelectedItems: object
   activeLayerId: number
   mousePosition: Point
+  paperViewLoaded: boolean
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -19,7 +20,8 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
     'Turnouts': {type: 'Turnout', name: 'PR541-15'}
   },
   activeLayerId: 1,
-  mousePosition: new Point(0,0)
+  mousePosition: new Point(0,0),
+  paperViewLoaded: false
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -45,6 +47,13 @@ export default handleActions<BuilderStoreState, any>({
     return {
       ...state,
       mousePosition: action.payload
+    } as BuilderStoreState
+  },
+
+  [Actions.BUILDER_SET_PAPER_VIEW_LOADED]: (state: BuilderStoreState, action: Action<boolean>) => {
+    return {
+      ...state,
+      paperViewLoaded: action.payload
     } as BuilderStoreState
   },
 }, BUILDER_INITIAL_STATE);

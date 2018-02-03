@@ -1,9 +1,9 @@
-import {View, ToolEvent, Point, Size} from 'paper'
 import * as React from 'react';
 import {RootState} from "store/type";
 import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
 import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, INITIAL_ZOOM, ZOOM_FACTOR, ZOOM_MAX, ZOOM_MIN} from "constants/tools";
+import {View, ToolEvent, Point, Size, PaperScope, view, project } from 'paper'
 
 
 export interface WithMoveToolOutputProps {
@@ -12,10 +12,12 @@ export interface WithMoveToolOutputProps {
   moveToolMouseDown: (e: ToolEvent) => void
   moveToolMouseUp: (e: ToolEvent) => void
   moveToolMouseDrag: (e: ToolEvent) => void
+  resetViewPosition: () => void
 }
 
 export interface WithMoveToolPrivateProps {
   setMousePosition: (point: Point) => void
+  paperViewLoaded: boolean
 }
 
 
@@ -35,6 +37,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
 
   const mapStateToProps = (state: RootState) => {
     return {
+      paperViewLoaded: state.builder.paperViewLoaded
     }
   }
 
@@ -71,15 +74,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       this.mouseDrag = this.mouseDrag.bind(this)
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseUp = this.mouseUp.bind(this)
-    }
-
-    adjustScreenCenter = () => {
-      if (this.view) {
-        const windowCenter = this.view.viewToProject(new Point(window.innerWidth /2, window.innerHeight/2))
-        const boardCenter = new Point(GRID_PAPER_WIDTH/2, GRID_PAPER_HEIGHT/2)
-        const diff = windowCenter.subtract(boardCenter)
-        this.view.translate(diff.x, diff.y)
-      }
+      this.resetViewPosition = this.resetViewPosition.bind(this)
     }
 
     componentDidMount() {
@@ -89,6 +84,12 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       window.addEventListener("blur", (e) => {
         this.isFocused = false
       }, true);
+    }
+
+    componentWillReceiveProps(props: WithMoveToolProps) {
+      if (this.props.paperViewLoaded === false && props.paperViewLoaded === true) {
+        this.resetViewPosition()
+      }
     }
 
     /**
@@ -176,8 +177,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
      */
     mouseDown = (e: ToolEvent|any) => {
       //this._pan = this.getPanEventData(e)
-      const { tool: { view } } = e
-      this.adjustScreenCenter()
+      // const { tool: { view } } = e
     }
 
     /**
@@ -213,6 +213,15 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       this._pan = null
     }
 
+    resetViewPosition = () => {
+      if (paperScope) {
+        const windowCenter = paperScope.view.viewToProject(new Point(window.innerWidth /2, window.innerHeight/2))
+        const boardCenter = new Point(GRID_PAPER_WIDTH/2, GRID_PAPER_HEIGHT/2)
+        const diff = windowCenter.subtract(boardCenter)
+        paperScope.view.translate(diff.x, diff.y)
+      }
+    }
+
     render() {
       return (
         <WrappedComponent
@@ -223,6 +232,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
           moveToolMouseDown={this.mouseDown}
           moveToolMouseDrag={this.mouseDrag}
           moveToolMouseUp={this.mouseUp}
+          resetViewPosition={this.resetViewPosition}
         />
       )
     }

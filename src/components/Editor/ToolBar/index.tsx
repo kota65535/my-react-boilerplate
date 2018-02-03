@@ -2,16 +2,16 @@ import * as React from 'react'
 import CurveRailIcon from './Icon/CurveRail'
 import StraightRailIcon from './Icon/StraightRail'
 import TurnoutIcon from './Icon/Turnout'
-import UndoIcon from 'material-ui-icons/Undo'
-import RedoIcon from 'material-ui-icons/Redo'
-import PanToolIcon from 'material-ui-icons/PanTool'
-import TouchAppIcon from 'material-ui-icons/TouchApp'
 import {Menu, MenuItem, Toolbar as MuiToolbar} from "material-ui"
 import {AppBar} from "material-ui"
 import {StyledIconButton, VerticalDivider} from "./styles";
 import {Tools} from "constants/tools";
 import {connect} from "react-redux";
-import Typography from "material-ui/Typography";
+import UndoIcon from 'material-ui-icons/Undo'
+import RedoIcon from 'material-ui-icons/Redo'
+import PanToolIcon from 'material-ui-icons/PanTool'
+import TouchAppIcon from 'material-ui-icons/TouchApp'
+import AspectRatioIcon from "material-ui-icons/AspectRatio";
 import FeederIcon from "./Icon/Feeder";
 import GapIcon from "./Icon/Gap";
 import {selectPaletteItem} from "actions/builder";
@@ -27,6 +27,7 @@ export interface ToolBarProps {
   redo: () => void
   canUndo: boolean
   canRedo: boolean
+  resetViewPosition: () => void
 }
 
 export interface ToolBarState {
@@ -105,7 +106,7 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
             <UndoIcon/>
           </StyledIconButton>
           <StyledIconButton
-            className={`IconButton ${this.isActive('redo') && this.props.canRedo}`}
+            className={`${this.isActive('redo') && this.props.canRedo}`}
             onClick={() => this.props.redo()}>
             <RedoIcon/>
           </StyledIconButton>
@@ -120,6 +121,12 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
             onClick={() => this.props.setTool(Tools.PAN)}
           >
             <PanToolIcon/>
+          </StyledIconButton>
+          <StyledIconButton
+            className={`${this.isActive(Tools.RESET_VIEW)}`}
+            onClick={() => this.props.resetViewPosition()}
+          >
+            <AspectRatioIcon/>
           </StyledIconButton>
         </MuiToolbar>
       </AppBar>

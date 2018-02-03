@@ -65,7 +65,6 @@ class App extends React.Component<WithStyles<'root'>, {}> {
                 <Editor
                     width={6000}
                     height={4000}
-                    activeLayer={null}
                     selectedItem={null}
                 />
             </div>

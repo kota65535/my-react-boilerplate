@@ -3,6 +3,9 @@ import * as React from 'react'
 import { Line, Path, Layer, Raster, Tool, View } from 'react-paper-bindings'
 import {Point, Size} from 'paper';
 import * as _ from "lodash";
+import {RootState} from "store/type";
+import {setPaperViewLoaded} from "actions/builder";
+import {connect} from "react-redux";
 
 export interface GridPaperProps {
   width: number
@@ -10,32 +13,32 @@ export interface GridPaperProps {
   gridSize: number
   onWheel: any
   matrix: any
+  setPaperViewLoaded: (loaded: boolean) => void
 }
 
-const BOARD_WIDTH = 6000;     // ボード幅
-const BOARD_HEIGHT = 4000;    // ボード高さ
-const GRID_SIZE = 70;
-const INITIAL_ZOOM = 0.7;
-const ZOOM_UNIT = 0.002;
-const AVAILABLE_ZOOM_MIN = 0.2;
-const AVAILABLE_ZOOM_MAX = 5;
+const mapStateToProps = (state: RootState) => {
+  return {
+  }
+}
 
-export default class GridPaper extends React.Component<GridPaperProps, {}> {
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    setPaperViewLoaded: (view: View) => dispatch(setPaperViewLoaded(view))
+  }
+}
+
+
+
+export class GridPaper extends React.Component<GridPaperProps, {}> {
 
   boardMin: Point
   boardMax: Point
-  shouldModifyViewCenter: boolean
   matrix: object
-  view: any
+  view: View|any
   mounted: boolean
 
   constructor(props: GridPaperProps) {
     super(props)
-    // this.state = {
-    //   imageLoaded: false,
-    //   loaded: false,
-    //   showLayers: true,
-    // }
     this.boardMin = new Point(0, 0)
     this.boardMax = new Point(0, 0)
     this.matrix = {
@@ -59,6 +62,8 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
     this.setState({ mounted: true })
     window.addEventListener('resize', this.resizePaper)
     this.mounted = true
+    paperScope = this.view.paper
+    this.props.setPaperViewLoaded(true)
   }
 
   componentWillUnmount() {
@@ -66,21 +71,6 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
     window.removeEventListener('resize', this.resizePaper)
   }
 
-  // componentDidMount () {
-  //   this.forceUpdate()
-  //
-  //   // this.viewCenterMin = new paper.Point(this.props.width - this.props.width / 2, this.view.size.height - this.props.height / 2);
-  //   // this.viewCenterMax = new paper.Point(this.props.width / 2, this.props.height / 2);
-  //   // this.boardMin = new paper.Point(this.view.size.width / 2 - this.props.width / 2, this.view.size.height / 2 - this.props.height / 2);
-  //   // this.boardMax = new paper.Point(this.view.size.width / 2 + this.props.width / 2, this.view.size.height / 2 + this.props.height / 2);
-  // }
-
-
-
-
-  componentDidUpdate () {
-    console.log(this.view.paper.view)
-  }
 
   render() {
 
@@ -121,3 +111,4 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
   }
 }
 
+export default connect(mapStateToProps, mapDispatchToProps)(GridPaper)

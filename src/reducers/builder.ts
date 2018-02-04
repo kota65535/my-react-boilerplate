@@ -2,6 +2,13 @@ import {Action, handleActions} from 'redux-actions';
 import * as Actions from 'constants/actions';
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
+import {ItemData} from "reducers/layout";
+
+export enum BuilderPhase {
+  CHOOSING_FIRST_RAIL_POSITION,
+  CHOOSING_FIRST_RAIL_ANGLE,
+  SECOND_RAIL
+}
 
 
 export interface BuilderStoreState {
@@ -10,6 +17,9 @@ export interface BuilderStoreState {
   activeLayerId: number
   mousePosition: Point
   paperViewLoaded: boolean
+  temporaryItem: ItemData
+  phase: BuilderPhase
+  markerPosition: Point
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -21,7 +31,10 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   },
   activeLayerId: 1,
   mousePosition: new Point(0,0),
-  paperViewLoaded: false
+  paperViewLoaded: false,
+  temporaryItem: null,
+  phase: BuilderPhase.CHOOSING_FIRST_RAIL_POSITION,
+  markerPosition: null
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -54,6 +67,24 @@ export default handleActions<BuilderStoreState, any>({
     return {
       ...state,
       paperViewLoaded: action.payload
+    } as BuilderStoreState
+  },
+  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<ItemData>) => {
+    return {
+      ...state,
+      temporaryItem: action.payload
+    } as BuilderStoreState
+  },
+  [Actions.BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>) => {
+    return {
+      ...state,
+      phase: action.payload
+    } as BuilderStoreState
+  },
+  [Actions.BUILDER_SET_MARKER_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
+    return {
+      ...state,
+      markerPosition: action.payload
     } as BuilderStoreState
   },
 }, BUILDER_INITIAL_STATE);

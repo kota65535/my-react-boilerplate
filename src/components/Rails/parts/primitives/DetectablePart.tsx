@@ -7,7 +7,8 @@ export interface DetectablePartProps {
   mainPart: ReactElement<any>       // 本体のコンポーネント
   detectionPart: ReactElement<any>  // 当たり判定のコンポーネント
   fillColors: string[]    // DetectionState ごとの本体、当たり判定の色
-  opacities: number[]     // DetectionState ごとの当たり判定の透過率
+  mainPartOpacity: number
+  detectionPartOpacity: number
   detectionState: DetectionState
   name?: string
 }
@@ -16,7 +17,8 @@ export interface DetectablePartProps {
  * 当たり判定による検出状態。
  */
 export enum DetectionState {
-  BEFORE_DETECT = 0,  // 検出前
+  DISABLED = 0,
+  BEFORE_DETECT,  // 検出前
   DETECTING,          // 検出中（カーソルが当たっている）
   AFTER_DETECT        // 検出後（クリックなどにより選択された）
 }
@@ -76,6 +78,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   additionalMainPartProps() {
     let props: any = {}
     props.fillColor = this.props.fillColors[this.props.detectionState]
+    props.opacity = this.props.mainPartOpacity
     props.ref = (_mainPart) => this._mainPart = _mainPart
     return props
   }
@@ -88,11 +91,12 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
       case DetectionState.DETECTING:
         props.visible = true
         break
+      case DetectionState.DISABLED:
       case DetectionState.AFTER_DETECT:
         props.visible = false
         break
     }
-    props.opacity = this.props.opacities[this.props.detectionState]
+    props.opacity = this.props.detectionPartOpacity
     props.fillColor = this.props.fillColors[this.props.detectionState]
     props.ref = (_detectionPart) => this._detectionPart = _detectionPart
     return props

@@ -5,6 +5,7 @@ import RectPart, {AnchorPoint} from "./primitives/RectPart";
 import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
 import {RailPartAnchor, default as StraightRailPart} from "./StraightRailPart";
 import ArcPart from "./primitives/ArcPart";
+import {RAIL_PART_DETECTION_PART_OPACITY, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/tools";
 
 
 const ANCHOR_TABLE = {
@@ -25,6 +26,8 @@ interface DefaultProps {
   detectionState?: DetectionState
   anchor?: RailPartAnchor
   selected?: boolean
+  opacity?: number
+  fillColors?: string[]
 }
 
 export type CurveRailPartProps = Props & DefaultProps;
@@ -35,18 +38,16 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
     position: new Point(0, 0),
     angle: 0,
     anchor: RailPartAnchor.START,
-    detectionState: DetectionState.BEFORE_DETECT,
-    selected: false
+    detectionState: DetectionState.DISABLED,
+    selected: false,
+    opacity: 1,
+    fillColors: RAIL_PART_FILL_COLORS
   }
 
-  static HEIGHT = 14;
-  static MARGIN = 3;
   static FLOW_COLOR_1 = "royalblue";
   static FLOW_COLOR_2 = "greenyellow";
   static ANIMATION_MAX = 30
   static ANIMATION_MIN = 60
-  static FILL_COLORS = [ 'black', 'deepskybule', 'black']
-  static OPACITIES = [0.2, 0.2, 0]
 
   detectablePart: DetectablePart
 
@@ -68,7 +69,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
 
   render() {
 
-    const {radius, centerAngle, position, angle, detectionState, anchor, selected, name} = this.props
+    const {radius, centerAngle, position, angle, detectionState, anchor, selected, name, fillColors, opacity} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -77,7 +78,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
             centerAngle={centerAngle}
             position={position}
             angle={angle}
-            width={StraightRailPart.HEIGHT}
+            width={RAIL_PART_WIDTH}
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
@@ -89,14 +90,15 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
             centerAngle={centerAngle}
             position={position}
             angle={angle}
-            width={StraightRailPart.HEIGHT}
+            width={RAIL_PART_WIDTH + 4}
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
           />
         }
-        fillColors={CurveRailPart.FILL_COLORS}
-        opacities={CurveRailPart.OPACITIES}
+        fillColors={fillColors}
+        mainPartOpacity={opacity}
+        detectionPartOpacity={RAIL_PART_DETECTION_PART_OPACITY}
         detectionState={detectionState}
         name={name}
         ref={(part) => this.detectablePart = part}

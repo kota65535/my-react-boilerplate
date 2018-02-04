@@ -5,10 +5,12 @@ import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {ItemData, LayoutStoreState} from "reducers/layout";
-import HitResult = paper.HitResult;
-import Point = paper.Point;
 import {isLayoutEmpty} from "selectors";
-import ToolEvent = paper.ToolEvent;
+import {Path, Point, ToolEvent, HitResult} from "paper";
+import {getClosest} from "constants/utils";
+import {setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
+import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, TEMPORARY_RAIL_OPACITY} from "constants/tools";
+import {BuilderPhase} from "reducers/builder";
 
 export interface WithBuilderPublicProps {
   builderMouseDown: any
@@ -20,6 +22,12 @@ interface WithBuilderPrivateProps {
   selectedItem: PaletteItem
   activeLayerId: number
   isLayoutEmpty: boolean
+  mousePosition: Point
+  setTemporaryItem: (item: ItemData) => void
+  setPhase: (phase: BuilderPhase) => void
+  phase: BuilderPhase
+  setMarkerPosition: (position: Point) => void
+  temporaryItem: ItemData
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps & WithHistoryProps
@@ -35,27 +43,42 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       layout: state.layout,
       selectedItem: state.builder.selectedItem,
       activeLayerId: state.builder.activeLayerId,
-      isLayoutEmpty: isLayoutEmpty(state)
+      isLayoutEmpty: isLayoutEmpty(state),
+      mousePosition: state.builder.mousePosition,
+      phase: state.builder.phase,
+      temporaryItem: state.builder.temporaryItem
     }
   }
 
   const mapDispatchToProps = (dispatch: any) => {
-    return {}
+    return {
+      setTemporaryItem: (item: ItemData) => dispatch(setTemporaryItem(item)),
+      setPhase: (phase: BuilderPhase) => dispatch(setPhase(phase)),
+      setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position))
+    }
   }
 
   class WithBuilderComponent extends React.Component<WithBuilderProps, {}> {
 
-    isPuttingFisrtRail: boolean
+    firstRailPosition: Point
 
     constructor (props: WithBuilderProps) {
       super(props)
 
-      this.isPuttingFisrtRail = false
+      this.firstRailPosition = null
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseLeftDown = this.mouseLeftDown.bind(this)
       this.mouseRightDown = this.mouseRightDown.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
     }
+
+    // componentDidMount() {
+    //   if (this.props.isLayoutEmpty) {
+    //     this.state = BuilderState.CHOOSING_FIRST_RAIL_POSITION
+    //   } else {
+    //     this.state = BuilderState.SECOND_RAIL
+    //   }
+    // }
 
     mouseDown(e: ToolEvent|any) {
       switch (e.event.button) {
@@ -69,29 +92,34 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     mouseLeftDown(e: ToolEvent|any) {
-      // this.props.deselectItem()
-      // Paperオブジェクトを取得
-      const paper = e.tool._scope
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.selectedItem.name]()
-      if (this.props.isLayoutEmpty) {
-        // 最初の一本目を設置しようとした
+
+      // 最初の一本目を設置しようとした
+      if (this.props.phase === BuilderPhase.CHOOSING_FIRST_RAIL_POSITION) {
         const results = hitTestAll(e.point)
         const firstPositionRect = results.map(r => r.item).find(i => i.name === 'FirstRailPosition')
         if (firstPositionRect) {
-          console.log(firstPositionRect)
-          this.props.addItem(this.props.activeLayerId, {
-            ...itemProps,
-            position: firstPositionRect.position
-          } as ItemData)
+          this.firstRailPosition = firstPositionRect.position
+          this.props.setPhase(BuilderPhase.CHOOSING_FIRST_RAIL_ANGLE)
         }
-      } else {
-        // レイヤーにレールを追加
-        const item = this.props.addItem(this.props.activeLayerId, {
-            ...itemProps,
-            position: e.point
-          } as ItemData)
+      } else if (this.props.phase === BuilderPhase.CHOOSING_FIRST_RAIL_ANGLE) {
+        this.props.addItem(this.props.activeLayerId, {
+          ...itemProps,
+          position: (this.props.temporaryItem as any).position,
+          angle: (this.props.temporaryItem as any).angle
+        } as ItemData)
+        this.props.setPhase(BuilderPhase.SECOND_RAIL)
+        this.props.setMarkerPosition(null)
       }
+
+      // else {
+      //   // レイヤーにレールを追加
+      //   const item = this.props.addItem(this.props.activeLayerId, {
+      //       ...itemProps,
+      //       position: e.point
+      //     } as ItemData)
+      // }
     }
 
 
@@ -104,13 +132,29 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       let results = hitTestAll(e.point)
       console.log(results)
 
+      if (this.props.phase === BuilderPhase.CHOOSING_FIRST_RAIL_POSITION) {
+        this.props.setMarkerPosition(this.getNearestGridPosition(e.point))
       // const items =
       // const target = items.find(item => item.name == 'unko')
       //
       // if (this.isLayoutEmpty()) {
       //
-      // }
-
+      }
+      if (this.props.phase === BuilderPhase.CHOOSING_FIRST_RAIL_ANGLE) {
+        const itemProps = RailFactory[this.props.selectedItem.name]()
+        const angle = this.getFirstRailAngle(this.firstRailPosition, e.point)
+        console.log(angle)
+        // this.props.addItem(this.props.activeLayerId, {
+        //   ...itemProps,
+        //   position: this.firstRailPosition
+        // } as ItemData)
+        this.props.setTemporaryItem({
+          ...itemProps,
+          position: this.firstRailPosition,
+          angle: angle,
+          opacity: TEMPORARY_RAIL_OPACITY
+        },)
+      }
     }
 
     render() {
@@ -123,7 +167,32 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       )
     }
 
+
+    getFirstRailAngle = (anchor: Point, cursor: Point) => {
+      const diffX = cursor.x - anchor.x
+      const diffY = cursor.y - anchor.y
+      const angle = Math.atan2(diffY, diffX) * 180 / Math.PI
+      // このやり方では 0~180度の範囲でしか分からない
+      // const diff = cursor.subtract(anchor)
+      // const unit = new Point(1,0)
+      // const angle = Math.acos(unit.dot(diff) / (unit.length * diff.length))
+      const candidates =_.range(-180, 180, 45)
+      return getClosest(angle, candidates)
+    }
+
+    getNearestGridPosition = (pos) => {
+      const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
+      const xPos = xNums.reduce(function(prev, curr) {
+        return (Math.abs(curr - pos.x) < Math.abs(prev - pos.x) ? curr : prev);
+      });
+      const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
+      const yPos = yNums.reduce(function(prev, curr) {
+        return (Math.abs(curr - pos.y) < Math.abs(prev - pos.y) ? curr : prev);
+      });
+      return new Point(xPos, yPos)
+    }
   }
+
 
   return connect(mapStateToProps, mapDispatchToProps)(WithBuilderComponent)
 }
@@ -144,3 +213,5 @@ export const hitTestAll = (point: Point): HitResult[] => {
   // return hitResultsPathOnly;
   return hitResults;
 }
+
+export const isJoint = (path: Path) =>  path.name.split('-')[2] === 'j'

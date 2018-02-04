@@ -3,6 +3,7 @@ import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import RectPart, {AnchorPoint} from "./primitives/RectPart";
 import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
+import {RAIL_PART_DETECTION_PART_OPACITY, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/tools";
 
 
 export enum RailPartAnchor {
@@ -27,6 +28,8 @@ interface DefaultProps {
   detectionState?: DetectionState
   anchor?: RailPartAnchor
   selected?: boolean
+  opacity?: number
+  fillColors?: string[]
 }
 
 export type StraightRailPartProps = Props & DefaultProps;
@@ -37,18 +40,16 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
     position: new Point(0, 0),
     angle: 0,
     anchor: RailPartAnchor.START,
-    detectionState: DetectionState.BEFORE_DETECT,
-    selected: false
+    detectionState: DetectionState.DISABLED,
+    selected: false,
+    opacity: 1,
+    fillColors: RAIL_PART_FILL_COLORS
   }
 
-  static HEIGHT = 14;
-  static MARGIN = 3;
   static FLOW_COLOR_1 = "royalblue";
   static FLOW_COLOR_2 = "greenyellow";
   static ANIMATION_MAX = 30
   static ANIMATION_MIN = 60
-  static FILL_COLORS = [ 'black', 'deepskybule', 'black']
-  static OPACITIES = [0.2, 0.2, 0]
 
   detectablePart: DetectablePart
 
@@ -69,7 +70,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
   // ========== Private methods ==========
 
   render() {
-    const {position, angle, length, detectionState, anchor, selected} = this.props
+    const {position, angle, length, detectionState, anchor, selected, fillColors, opacity} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -77,7 +78,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
             position={position}
             angle={angle}
             width={length}
-            height={StraightRailPart.HEIGHT}
+            height={RAIL_PART_WIDTH}
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
@@ -88,14 +89,15 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
             position={position}
             angle={angle}
             width={length}
-            height={StraightRailPart.HEIGHT + 4}
+            height={RAIL_PART_WIDTH + 4}
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
           />
         }
-        fillColors={StraightRailPart.FILL_COLORS}
-        opacities={StraightRailPart.OPACITIES}
+        fillColors={fillColors}
+        mainPartOpacity={opacity}
+        detectionPartOpacity={RAIL_PART_DETECTION_PART_OPACITY}
         detectionState={detectionState}
         name={name}
         ref={(part) => this.detectablePart = part!}

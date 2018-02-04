@@ -18,6 +18,7 @@ interface DefaultProps {
   selected?: boolean
   anchor?: RailPartAnchor
   detectionState?: DetectionState
+  opacity?: number
 }
 
 export type StraightRailProps = Props & DefaultProps
@@ -29,7 +30,8 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
     angle: 0,
     selected: false,
     anchor: RailPartAnchor.START,
-    detectionState: DetectionState.BEFORE_DETECT,
+    detectionState: DetectionState.DISABLED,
+    opacity: 1,
   }
 
   railPart: StraightRailPart
@@ -52,16 +54,18 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
   fixJointsPosition() {
     switch (this.props.anchor) {
       case RailPartAnchor.START:
-        this.joints[1]!.detectablePart.move(this.railPart.endPoint)
+        // ジョイントパーツの右端・左端をレールパーツに合わせる場合
+        // this.joints[1].detectablePart.move(this.railPart.endPoint, this.joints[1].detectablePart.mainPart.getCenterOfRight())
+        this.joints[1].detectablePart.move(this.railPart.endPoint)
         break
       case RailPartAnchor.END:
-        this.joints[0]!.detectablePart.move(this.railPart.startPoint)
+        this.joints[0].detectablePart.move(this.railPart.startPoint)
         break
     }
   }
 
   render() {
-    const {position, angle, length, selected, anchor, id} = this.props
+    const {position, angle, length, selected, anchor, id, detectionState, opacity} = this.props
 
     return [
       <StraightRailPart
@@ -69,21 +73,28 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
         angle={angle}
         length={length}
         anchor={anchor}
-        detectionState={DetectionState.BEFORE_DETECT}
+        detectionState={detectionState}
         selected={selected}
+        opacity={opacity}
         name={`${id}-s-p-1`}
         ref={(railPart) => this.railPart = railPart}
       />,
       <Joint
         angle={angle}
         position={position}
+        opacity={opacity}
+        detectionState={detectionState}
         name={`${id}-s-j-1`}
+        // anchor={AnchorPoint.LEFT}    // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
         angle={angle}
         position={position}
+        opacity={opacity}
+        detectionState={detectionState}
         name={`${id}-s-j-2`}
+        // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         ref={(joint) => this.joints[1] = joint}
       />
     ]

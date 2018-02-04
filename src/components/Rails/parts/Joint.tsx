@@ -4,6 +4,7 @@ import {Rectangle} from "react-paper-bindings";
 import RectPart, {AnchorPoint} from "./primitives/RectPart";
 import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
 import CirclePart from "./primitives/CirclePart";
+import {JOINT_DETECTION_PART_OPACITY, JOINT_FILL_COLORS} from "constants/tools";
 
 
 interface Props extends Partial<DefaultProps> {
@@ -16,6 +17,8 @@ interface DefaultProps {
   anchor?: AnchorPoint
   selected?: boolean
   name?: string
+  opacity?: number
+  fillColors?: string[]
 }
 
 export type JointProps = Props & DefaultProps;
@@ -25,9 +28,11 @@ export default class Joint extends React.Component<JointProps, {}> {
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
     angle: 0,
-    anchor: AnchorPoint.LEFT,
-    detectionState: DetectionState.BEFORE_DETECT,
-    selected: false
+    anchor: AnchorPoint.CENTER,
+    detectionState: DetectionState.DISABLED,
+    selected: false,
+    opacity: 1,
+    fillColors: JOINT_FILL_COLORS
   }
   static WIDTH = 8;
   static HEIGHT = 18;
@@ -36,8 +41,6 @@ export default class Joint extends React.Component<JointProps, {}> {
   static FLOW_COLOR_2 = "greenyellow";
   static ANIMATION_MAX = 30
   static ANIMATION_MIN = 60
-  static FILL_COLORS = ['orange', 'deepskybule', 'black']
-  static OPACITIES = [0.2, 0.2, 0]
 
   detectablePart: DetectablePart
 
@@ -55,7 +58,7 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   render() {
 
-    const {position, angle, detectionState, anchor, selected} = this.props
+    const {position, angle, detectionState, anchor, selected, fillColors, opacity} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -75,11 +78,12 @@ export default class Joint extends React.Component<JointProps, {}> {
             selected={selected}
           />
         }
-        fillColors={Joint.FILL_COLORS}
-        opacities={Joint.OPACITIES}
+        fillColors={fillColors}
+        mainPartOpacity={opacity}
+        detectionPartOpacity={JOINT_DETECTION_PART_OPACITY}
         detectionState={detectionState}
         name={name}
-        ref={(part) => this.detectablePart = part!}
+        ref={(part) => this.detectablePart = part}
       />
     )
   }

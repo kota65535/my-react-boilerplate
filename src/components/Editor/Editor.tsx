@@ -10,7 +10,7 @@ import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./Editor.style";
-import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, Tools} from "constants/tools";
+import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, RAIL_PART_FILL_COLORS, Tools} from "constants/tools";
 
 import './Paper.css'
 import GridPaper from "./GridPaper/GridPaper";
@@ -24,6 +24,10 @@ import {ItemData, LayoutStoreState} from "reducers/layout";
 import {Rectangle} from "react-paper-bindings"
 import * as _ from "lodash";
 import {isLayoutEmpty} from "selectors";
+import StraightRail from "components/Rails/StraightRail";
+import DetectablePart, {DetectionState} from "components/Rails/parts/primitives/DetectablePart";
+import RectPart, {AnchorPoint} from "components/Rails/parts/primitives/RectPart";
+import {BuilderPhase} from "reducers/builder";
 
 
 export interface EditorProps {
@@ -33,6 +37,9 @@ export interface EditorProps {
   selectedItem: any
   mousePosition: Point
   isLayoutEmpty: boolean
+  temporaryItem: ItemData
+  builderPhase: BuilderPhase
+  markerPosition: Point
 }
 
 export interface EditorState {
@@ -53,7 +60,10 @@ const mapStateToProps = (state: RootState) => {
   return {
     layout: state.layout,
     mousePosition: state.builder.mousePosition,
-    isLayoutEmpty: isLayoutEmpty(state)
+    isLayoutEmpty: isLayoutEmpty(state),
+    temporaryItem: state.builder.temporaryItem,
+    builderPhase: state.builder.phase,
+    markerPosition: state.builder.markerPosition
   }
 }
 
@@ -128,22 +138,10 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         visible={layer.visible}
         key={layer.id}
       >
-        {layer.children.map(({id: id, type: type, ...props}: ItemData) => {
-          // レールコンポーネントクラスを取得する
-          let RailComponent = rails[type]
-          console.log(props)
-          return (
-            <RailComponent
-              key={id}
-              {...props}
-              // data={{ id: id, type: Type }}
-                // (activeTool === Tools.SELECT)
-                // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
-            />)
-          }
-        )}
+        {layer.children.map(item => this.createRailComponent(item))}
       </Layer>
     )
+
 
 
     return (
@@ -161,20 +159,17 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             matrix={matrix}
           >
             <Layer>
-              {/*<CirclePart*/}
-                {/*radius={10}*/}
-                {/*position={this.props.mousePosition}*/}
-              {/*/>*/}
-              {this.props.isLayoutEmpty &&
+              {this.props.markerPosition &&
               <Rectangle
-                // point={new Point(300,300)}
-                center={this.getNearestGridPosition(this.props.mousePosition)}
+                center={this.props.markerPosition}
                 fillColor={'orange'}
                 size={new Size(GRID_SIZE,GRID_SIZE)}
-                opacity={0.7}
+                opacity={0.5}
                 name={'FirstRailPosition'}
               />
               }
+              {this.props.temporaryItem &&
+              this.createRailComponent(this.props.temporaryItem)}
             </Layer>
             {layers}
             <Tool
@@ -208,17 +203,22 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     )
   }
 
-  getNearestGridPosition = (pos) => {
-    const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
-    const xPos = xNums.reduce(function(prev, curr) {
-      return (Math.abs(curr - pos.x) < Math.abs(prev - pos.x) ? curr : prev);
-    });
-    const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
-    const yPos = yNums.reduce(function(prev, curr) {
-      return (Math.abs(curr - pos.y) < Math.abs(prev - pos.y) ? curr : prev);
-    });
-    return new Point(xPos, yPos)
+
+  createRailComponent = (item: ItemData) => {
+    const {id: id, type: type, ...props} = item
+    let RailComponent = rails[type]
+    console.log(props)
+    return (
+      <RailComponent
+        key={id}
+        {...props}
+        // data={{ id: id, type: Type }}
+        // (activeTool === Tools.SELECT)
+        // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
+      />)
   }
+
+
 }
 
 

@@ -16,3 +16,10 @@ export const INITIAL_ZOOM = 1
 export const ZOOM_FACTOR = 0.002
 export const ZOOM_MIN = 0.1
 export const ZOOM_MAX = 10
+
+export const RAIL_PART_WIDTH = 14
+export const RAIL_PART_FILL_COLORS = ['black', 'black', 'deepskybule', 'black']
+export const RAIL_PART_DETECTION_PART_OPACITY = 0
+export const JOINT_DETECTION_PART_OPACITY = 0.2
+export const JOINT_FILL_COLORS = ['orange', 'orange', 'deepskybule', 'black']
+export const TEMPORARY_RAIL_OPACITY = 0.5

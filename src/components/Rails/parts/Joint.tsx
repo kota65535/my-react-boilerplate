@@ -58,7 +58,7 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   render() {
 
-    const {position, angle, detectionState, anchor, selected, fillColors, opacity} = this.props
+    const {position, angle, detectionState, anchor, selected, fillColors, opacity, name} = this.props
     return (
       <DetectablePart
         mainPart={

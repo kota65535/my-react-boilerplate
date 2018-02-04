@@ -10,7 +10,10 @@ import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./Editor.style";
-import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, RAIL_PART_FILL_COLORS, Tools} from "constants/tools";
+import {
+  GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, JOINT_FILL_COLORS, RAIL_PART_FILL_COLORS,
+  Tools
+} from "constants/tools";
 
 import './Paper.css'
 import GridPaper from "./GridPaper/GridPaper";
@@ -28,6 +31,10 @@ import StraightRail from "components/Rails/StraightRail";
 import DetectablePart, {DetectionState} from "components/Rails/parts/primitives/DetectablePart";
 import RectPart, {AnchorPoint} from "components/Rails/parts/primitives/RectPart";
 import {BuilderPhase} from "reducers/builder";
+import CurveRail from "components/Rails/CurveRail";
+import getLogger from "logging";
+
+const LOGGER = getLogger(__filename)
 
 
 export interface EditorProps {
@@ -158,7 +165,10 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             onWheel={this.props.moveToolMouseWheel}
             matrix={matrix}
           >
-            <Layer>
+            <Layer
+              key={-1}
+              data={{id: -1}}
+            >
               {this.props.markerPosition &&
               <Rectangle
                 center={this.props.markerPosition}
@@ -171,7 +181,9 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               {this.props.temporaryItem &&
               this.createRailComponent(this.props.temporaryItem)}
             </Layer>
+
             {layers}
+
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
               name={Tools.STRAIGHT_RAILS}
@@ -207,14 +219,16 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
   createRailComponent = (item: ItemData) => {
     const {id: id, type: type, ...props} = item
     let RailComponent = rails[type]
-    console.log(props)
+    // LOGGER.debug(props)
     return (
       <RailComponent
         key={id}
+        id={id}
         {...props}
         // data={{ id: id, type: Type }}
         // (activeTool === Tools.SELECT)
         // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
+        ref={(c) => railComponents[id] = c}
       />)
   }
 

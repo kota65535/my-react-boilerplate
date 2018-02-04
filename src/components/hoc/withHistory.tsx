@@ -93,6 +93,8 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
     //==============================
 
     addItem = (layerId: number, item: ItemData) => {
+      // IDを振る
+      item.id = this._id
       // 対象のレイヤーを探す
       const layerIndex = this.props.layout.layers.findIndex(layer => layer.id === layerId)
       const newLayout = update(this.props.layout, {

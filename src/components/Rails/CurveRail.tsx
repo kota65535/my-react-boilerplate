@@ -76,7 +76,7 @@ export default class CurveRail extends React.Component<CurveRailProps, {}> {
         detectionState={detectionState}
         selected={selected}
         opacity={opacity}
-        name={`${id}-c-p-1`}
+        name={`${id}-c-p-0`}
         ref={(railPart) => this.railPart = railPart}
       />,
       <Joint
@@ -84,7 +84,7 @@ export default class CurveRail extends React.Component<CurveRailProps, {}> {
         position={position}
         opacity={opacity}
         detectionState={detectionState}
-        name={`${id}-c-j-1`}
+        name={`${id}-c-j-0`}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
@@ -92,7 +92,7 @@ export default class CurveRail extends React.Component<CurveRailProps, {}> {
         position={position}
         opacity={opacity}
         detectionState={detectionState}
-        name={`${id}-c-j-2`}
+        name={`${id}-c-j-1`}
         ref={(joint) => this.joints[1] = joint}
       />
     ]

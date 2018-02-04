@@ -17,7 +17,7 @@ interface DefaultProps {
   angle?: number
   selected?: boolean
   anchor?: RailPartAnchor
-  detectionState?: DetectionState
+  detectionState?: DetectionState[]
   opacity?: number
 }
 
@@ -30,7 +30,7 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
     angle: 0,
     selected: false,
     anchor: RailPartAnchor.START,
-    detectionState: DetectionState.DISABLED,
+    detectionState: [DetectionState.DISABLED, DetectionState.DISABLED],
     opacity: 1,
   }
 
@@ -73,18 +73,18 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
         angle={angle}
         length={length}
         anchor={anchor}
-        detectionState={detectionState}
+        detectionState={DetectionState.DISABLED}
         selected={selected}
         opacity={opacity}
-        name={`${id}-s-p-1`}
+        name={`${id}-s-p-0`}
         ref={(railPart) => this.railPart = railPart}
       />,
       <Joint
         angle={angle}
         position={position}
         opacity={opacity}
-        detectionState={detectionState}
-        name={`${id}-s-j-1`}
+        detectionState={detectionState[0]}
+        name={`${id}-s-j-0`}
         // anchor={AnchorPoint.LEFT}    // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         ref={(joint) => this.joints[0] = joint}
       />,
@@ -92,8 +92,8 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
         angle={angle}
         position={position}
         opacity={opacity}
-        detectionState={detectionState}
-        name={`${id}-s-j-2`}
+        detectionState={detectionState[1]}
+        name={`${id}-s-j-1`}
         // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         ref={(joint) => this.joints[1] = joint}
       />

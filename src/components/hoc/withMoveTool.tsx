@@ -4,6 +4,9 @@ import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
 import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, INITIAL_ZOOM, ZOOM_FACTOR, ZOOM_MAX, ZOOM_MIN} from "constants/tools";
 import {View, ToolEvent, Point, Size, PaperScope, view, project } from 'paper'
+import getLogger from "logging";
+
+const LOGGER = getLogger(__filename)
 
 
 export interface WithMoveToolOutputProps {
@@ -146,13 +149,13 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
         // フォーカスが当たっていない場合は上記イベントが発火しないので、View座標空間からProject座標空間に変換して位置を求める（ただしあまり正確ではない）
         let zoomCenter
         if (this.isFocused) {
-          console.log('focused')
           zoomCenter = this.mousePosition
+          LOGGER.debug(`zoomCenter=${zoomCenter} (focused)`)
         } else {
-          console.log('not focused')
           const { pageX, pageY } = e
           const { offsetLeft, offsetTop } = e.currentTarget
           zoomCenter = this.view.viewToProject(new Point(pageX - offsetLeft, pageY - offsetTop))
+          LOGGER.debug(`zoomCenter=${zoomCenter} (not focused)`)
         }
         this.setState({
           sx: zoomCenter.x,
@@ -166,7 +169,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       // キャンバス上のマウスカーソルの位置を更新
       this.mousePosition = e.point
       this.view = (e as any).tool.view
-      console.log(e.point)
+      LOGGER.trace(e.point)
       this.props.setMousePosition(e.point)
     }
 

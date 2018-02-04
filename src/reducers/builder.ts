@@ -5,9 +5,9 @@ import {Point} from "paper";
 import {ItemData} from "reducers/layout";
 
 export enum BuilderPhase {
-  CHOOSING_FIRST_RAIL_POSITION,
-  CHOOSING_FIRST_RAIL_ANGLE,
-  SECOND_RAIL
+  FIRST_POSITION = 'FirstPosition',
+  FIRST_ANGLE = 'FirstAngle',
+  SUBSEQUENT = 'Subsequent'
 }
 
 
@@ -33,7 +33,7 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   mousePosition: new Point(0,0),
   paperViewLoaded: false,
   temporaryItem: null,
-  phase: BuilderPhase.CHOOSING_FIRST_RAIL_POSITION,
+  phase: BuilderPhase.FIRST_POSITION,
   markerPosition: null
 }
 

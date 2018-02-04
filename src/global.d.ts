@@ -4,3 +4,4 @@ declare module "*.json"
 declare module '*.jpg'
 
 declare var paperScope: PaperScope|any
+declare var railComponents: any

@@ -21,8 +21,8 @@ function initLogdown (name) {
 }
 
 export default function getLogger (name) {
-  let logger = initLogdown(name);
-  // let logger = initLoglevel(name)
+  // let logger = initLogdown(name);
+  let logger = initLoglevel(name)
 
   logger.printOpts = (opts) => {
     let ary: string[] = []

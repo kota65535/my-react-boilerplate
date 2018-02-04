@@ -9,6 +9,7 @@ import {BaseItemData} from "reducers/layout";
 
 interface Props extends Partial<DefaultProps> {
   length: number
+  id: number
 }
 
 interface DefaultProps {
@@ -60,7 +61,7 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
   }
 
   render() {
-    const {position, angle, length, selected, anchor} = this.props
+    const {position, angle, length, selected, anchor, id} = this.props
 
     return [
       <StraightRailPart
@@ -70,16 +71,19 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
         anchor={anchor}
         detectionState={DetectionState.BEFORE_DETECT}
         selected={selected}
+        name={`${id}-s-p-1`}
         ref={(railPart) => this.railPart = railPart}
       />,
       <Joint
         angle={angle}
         position={position}
+        name={`${id}-s-j-1`}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
         angle={angle}
         position={position}
+        name={`${id}-s-j-2`}
         ref={(joint) => this.joints[1] = joint}
       />
     ]

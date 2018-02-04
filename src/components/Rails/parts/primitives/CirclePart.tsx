@@ -4,6 +4,7 @@ import {Path as PathComponent} from "react-paper-bindings";
 
 interface Props extends Partial<DefaultProps> {
   radius: number
+  name?: string
 }
 
 interface DefaultProps {
@@ -58,6 +59,7 @@ export default class CirclePart extends React.Component<CirclePartProps, {}> {
       visible={visible}
       opacity={opacity}
       selected={selected}
+      name={name}
       ref={(Path) => this._path = Path}
     />
   }

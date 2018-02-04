@@ -16,6 +16,7 @@ const ANCHOR_TABLE = {
 interface Props extends Partial<DefaultProps> {
   radius: number
   centerAngle: number
+  name?: string
 }
 
 interface DefaultProps {
@@ -67,7 +68,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
 
   render() {
 
-    const {radius, centerAngle, position, angle, detectionState, anchor, selected} = this.props
+    const {radius, centerAngle, position, angle, detectionState, anchor, selected, name} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -97,6 +98,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
         fillColors={CurveRailPart.FILL_COLORS}
         opacities={CurveRailPart.OPACITIES}
         detectionState={detectionState}
+        name={name}
         ref={(part) => this.detectablePart = part}
       />
     )

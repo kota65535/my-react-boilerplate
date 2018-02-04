@@ -13,6 +13,7 @@ export interface TrianglePartProps {
   opacity?: number
   selected?: boolean
   anchor?: AnchorPoint
+  name?: string
 }
 
 
@@ -89,6 +90,7 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
       visible={visible}
       opacity={opacity}
       selected={selected}
+      name={name}
       ref={(Path) => this._path = Path}
     />
   }

@@ -14,6 +14,7 @@ export interface ArcPartProps {
   opacity?: number
   selected?: boolean
   anchor?: AnchorPoint
+  name?: string
 }
 
 
@@ -93,6 +94,7 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
       visible={visible}
       opacity={opacity}
       selected={selected}
+      name={name}
       ref={(Path) => this._path = Path}
     />
   }

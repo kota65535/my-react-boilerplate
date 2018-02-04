@@ -13,6 +13,7 @@ export enum AnchorPoint {
 interface Props extends Partial<DefaultProps> {
   width: number
   height: number
+  name?: string
 }
 
 interface DefaultProps {
@@ -110,7 +111,7 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
   }
 
   render() {
-    const {position, angle, width, height, fillColor, visible, opacity, selected} = this.props
+    const {position, angle, width, height, fillColor, visible, opacity, selected, name} = this.props
     return <PathComponent
       pathData={createRectPath(width, height)}
       position={position}
@@ -119,6 +120,7 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
       visible={visible}
       opacity={opacity}
       selected={selected}
+      name={name}
       ref={(Path) => this._path = Path}
     />
   }

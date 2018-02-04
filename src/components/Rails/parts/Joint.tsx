@@ -15,6 +15,7 @@ interface DefaultProps {
   detectionState?: DetectionState
   anchor?: AnchorPoint
   selected?: boolean
+  name?: string
 }
 
 export type JointProps = Props & DefaultProps;
@@ -77,6 +78,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         fillColors={Joint.FILL_COLORS}
         opacities={Joint.OPACITIES}
         detectionState={detectionState}
+        name={name}
         ref={(part) => this.detectablePart = part!}
       />
     )

@@ -5,6 +5,10 @@ import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {ItemData, LayoutStoreState} from "reducers/layout";
+import HitResult = paper.HitResult;
+import Point = paper.Point;
+import {isLayoutEmpty} from "selectors";
+import ToolEvent = paper.ToolEvent;
 
 export interface WithBuilderPublicProps {
   builderMouseDown: any
@@ -15,6 +19,7 @@ interface WithBuilderPrivateProps {
   layout: LayoutStoreState
   selectedItem: PaletteItem
   activeLayerId: number
+  isLayoutEmpty: boolean
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps & WithHistoryProps
@@ -29,7 +34,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     return {
       layout: state.layout,
       selectedItem: state.builder.selectedItem,
-      activeLayerId: state.builder.activeLayerId
+      activeLayerId: state.builder.activeLayerId,
+      isLayoutEmpty: isLayoutEmpty(state)
     }
   }
 
@@ -39,15 +45,19 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
   class WithBuilderComponent extends React.Component<WithBuilderProps, {}> {
 
+    isPuttingFisrtRail: boolean
+
     constructor (props: WithBuilderProps) {
       super(props)
+
+      this.isPuttingFisrtRail = false
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseLeftDown = this.mouseLeftDown.bind(this)
       this.mouseRightDown = this.mouseRightDown.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
     }
 
-    mouseDown(e) {
+    mouseDown(e: ToolEvent|any) {
       switch (e.event.button) {
         case 0:
           this.mouseLeftDown(e)
@@ -58,28 +68,40 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
-    mouseLeftDown(e) {
+    mouseLeftDown(e: ToolEvent|any) {
       // this.props.deselectItem()
       // Paperオブジェクトを取得
       const paper = e.tool._scope
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.selectedItem.name]()
-      // レイヤーにレールを追加
-      const item = this.props.addItem(this.props.activeLayerId, {
-          ...itemProps,
-        position: e.point
-        } as ItemData
-      )
-      console.log(item)
+      if (this.props.isLayoutEmpty) {
+        // 最初の一本目を設置しようとした
+        const results = hitTestAll(e.point)
+        const firstPositionRect = results.map(r => r.item).find(i => i.name === 'FirstRailPosition')
+        if (firstPositionRect) {
+          console.log(firstPositionRect)
+          this.props.addItem(this.props.activeLayerId, {
+            ...itemProps,
+            position: firstPositionRect.position
+          } as ItemData)
+        }
+      } else {
+        // レイヤーにレールを追加
+        const item = this.props.addItem(this.props.activeLayerId, {
+            ...itemProps,
+            position: e.point
+          } as ItemData)
+      }
     }
+
 
     mouseRightDown(e) {
 
     }
 
-    mouseMove(e: any) {
-      const paper = e.tool._scope
-      let results = hitTestAll(paper, e.point)
+
+    mouseMove = (e: ToolEvent|any) => {
+      let results = hitTestAll(e.point)
       console.log(results)
 
       // const items =
@@ -89,10 +111,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       //
       // }
 
-    }
-
-    isLayoutEmpty = () => {
-      return _.flatMap(this.props.layout.layers, (layer) => layer.children).length > 0
     }
 
     render() {
@@ -112,7 +130,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
 
 
-export function hitTestAll(paper, point) {
+export const hitTestAll = (point: Point): HitResult[] => {
   let hitOptions :any = {
     // class: Path,
     segments: true,
@@ -120,9 +138,9 @@ export function hitTestAll(paper, point) {
     fill: true,
     tolerance: 5
   };
-  let hitResults = (paper.project as any).hitTestAll(point, hitOptions);
-    // Groupがひっかかるとうざいので取り除く
-    // let hitResultsPathOnly = hitResults.filter(r => r.item instanceof paper.Path);
-    // return hitResultsPathOnly;
-    return hitResults;
-    }
+  let hitResults = (paperScope.project as any).hitTestAll(point, hitOptions);
+  // Groupがひっかかるとうざいので取り除く
+  // let hitResultsPathOnly = hitResults.filter(r => r.item instanceof paper.Path);
+  // return hitResultsPathOnly;
+  return hitResults;
+}

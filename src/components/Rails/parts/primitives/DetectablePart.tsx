@@ -9,6 +9,7 @@ export interface DetectablePartProps {
   fillColors: string[]    // DetectionState ごとの本体、当たり判定の色
   opacities: number[]     // DetectionState ごとの当たり判定の透過率
   detectionState: DetectionState
+  name?: string
 }
 
 /**
@@ -98,7 +99,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   }
 
   render() {
-    const {mainPart, detectionPart} = this.props
+    const {mainPart, detectionPart, name} = this.props
 
     const addedMainPartProps = this.additionalMainPartProps()
     const addedDetectionPartProps = this.additionalDetectionPartProps()
@@ -108,6 +109,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
 
     return [
       <Group
+        name={name}
         ref={(group) => this._group = group}
       >
         {clonedMainPart}

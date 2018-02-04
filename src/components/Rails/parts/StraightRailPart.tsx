@@ -18,6 +18,7 @@ const ANCHOR_TABLE = {
 
 interface Props extends Partial<DefaultProps> {
   length: number
+  name?: string
 }
 
 interface DefaultProps {
@@ -96,6 +97,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
         fillColors={StraightRailPart.FILL_COLORS}
         opacities={StraightRailPart.OPACITIES}
         detectionState={detectionState}
+        name={name}
         ref={(part) => this.detectablePart = part!}
       />
     )

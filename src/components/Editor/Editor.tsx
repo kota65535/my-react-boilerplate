@@ -22,6 +22,8 @@ import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {ItemData, LayoutStoreState} from "reducers/layout";
 import {Rectangle} from "react-paper-bindings"
+import * as _ from "lodash";
+import {isLayoutEmpty} from "selectors";
 
 
 export interface EditorProps {
@@ -30,6 +32,7 @@ export interface EditorProps {
   height: number
   selectedItem: any
   mousePosition: Point
+  isLayoutEmpty: boolean
 }
 
 export interface EditorState {
@@ -45,6 +48,18 @@ type ComposedEditorProps = EditorProps
   & WithMoveToolProps
   & WithBuilderPublicProps
 
+
+const mapStateToProps = (state: RootState) => {
+  return {
+    layout: state.layout,
+    mousePosition: state.builder.mousePosition,
+    isLayoutEmpty: isLayoutEmpty(state)
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {}
+}
 
 
 class Editor extends React.Component<ComposedEditorProps, EditorState> {
@@ -150,13 +165,16 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
                 {/*radius={10}*/}
                 {/*position={this.props.mousePosition}*/}
               {/*/>*/}
+              {this.props.isLayoutEmpty &&
               <Rectangle
                 // point={new Point(300,300)}
-                center={this.props.mousePosition}
+                center={this.getNearestGridPosition(this.props.mousePosition)}
                 fillColor={'orange'}
-                size={new Size(100,100)}
+                size={new Size(GRID_SIZE,GRID_SIZE)}
+                opacity={0.7}
+                name={'FirstRailPosition'}
               />
-
+              }
             </Layer>
             {layers}
             <Tool
@@ -190,19 +208,17 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     )
   }
 
-  getNearestGridPosition = (mousePosition) => {
+  getNearestGridPosition = (pos) => {
+    const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
+    const xPos = xNums.reduce(function(prev, curr) {
+      return (Math.abs(curr - pos.x) < Math.abs(prev - pos.x) ? curr : prev);
+    });
+    const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
+    const yPos = yNums.reduce(function(prev, curr) {
+      return (Math.abs(curr - pos.y) < Math.abs(prev - pos.y) ? curr : prev);
+    });
+    return new Point(xPos, yPos)
   }
-}
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    layout: state.layout,
-    mousePosition: state.builder.mousePosition
-  }
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {}
 }
 
 

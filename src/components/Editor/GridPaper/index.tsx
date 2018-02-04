@@ -88,6 +88,7 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
     let verticalLines = _.range(this.props.width / this.props.gridSize).map(i => {
       return (
         <Line
+          key={`ver-${i}`}
           from={new Point(this.props.gridSize * i, 0)}
           to={new Point(this.props.gridSize * i, this.props.height)}
           strokeColor={'red'}
@@ -97,6 +98,7 @@ export default class GridPaper extends React.Component<GridPaperProps, {}> {
     let horizontalLines = _.range(this.props.height / this.props.gridSize).map(i => {
       return (
         <Line
+          key={`hor-${i}`}
           from={new Point(0, this.props.gridSize * i)}
           to={new Point(this.props.width,this.props.gridSize * i)}
           strokeColor={'red'}

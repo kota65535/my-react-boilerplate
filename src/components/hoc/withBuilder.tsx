@@ -139,6 +139,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           })
           this.props.updateItem(this.detecting, newItem as any)
         }
+        this.props.setTemporaryItem(null);
       }
 
     }
@@ -152,6 +153,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
       this.props.updateItem(oldItem, newItem)
 
+      const joint = railComponents[railId].joints[jointId]
+
       // 現在Detectingにしているジョイントを覚えておく
       this.detecting = oldItem
 
@@ -161,8 +164,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         ...itemProps,
         id: -1,
         name: 'TemporaryRail',
-        position: (oldItem as any).position,
-        angle: (oldItem as any).angle,
+        position: joint.detectablePart.mainPart.path.position,
+        angle: joint.props.angle,
         opacity: TEMPORARY_RAIL_OPACITY,
       })
     }
@@ -209,6 +212,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.mouseMove_FirstAngle(e)
     }
 
+
     mouseLeftDown_FirstAngle  = (e: ToolEvent|any) => {
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.selectedItem.name]()
@@ -227,6 +231,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.props.setMarkerPosition(null)
     }
 
+
     mouseLeftDown_Subsequent = (e: ToolEvent|any) => {
       const results = hitTestAll(e.point)
       const joint = results.map(r => r.item)
@@ -237,9 +242,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         detectionState: {$splice: [[jointId, 1, DetectionState.DETECTING]]}
       })
       this.props.updateItem(oldItem, newItem)
-      LOGGER.info("Updated Item")
-      LOGGER.info(oldItem)
-      LOGGER.info(oldItem)
+      // LOGGER.info("Updated Item")
+      // LOGGER.info(oldItem)
+      // LOGGER.info(oldItem)
     }
 
 

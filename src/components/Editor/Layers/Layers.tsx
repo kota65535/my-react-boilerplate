@@ -54,14 +54,14 @@ class Layers extends React.Component<LayersProps, LayersState> {
           <Grid container justify="center" spacing={0}>
             {layers.map((value, index) => {
               return [
-                <Grid item xs={2}>
+                <Grid item xs={2} key={`${index}-1`}>
                   <Checkbox
                     checked={layers[index].visible}
                     onChange={this.handleSetVisible}
                     value={layers[index].id.toString()}
                   />
                 </Grid>,
-                <Grid item xs={10}>
+                <Grid item xs={10} key={`${index}-2`}>
                   <StyledListItem
                     button
                     active={activeLayerId === value.id}

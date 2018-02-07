@@ -6,6 +6,7 @@ import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
 import {RailPartAnchor, default as StraightRailPart} from "./StraightRailPart";
 import ArcPart from "./primitives/ArcPart";
 import {RAIL_PART_DETECTION_PART_OPACITY, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/tools";
+import {RailPartInfo} from "components/Rails/parts/types";
 
 
 const ANCHOR_TABLE = {
@@ -18,6 +19,7 @@ interface Props extends Partial<DefaultProps> {
   radius: number
   centerAngle: number
   name?: string
+  data?: RailPartInfo
 }
 
 interface DefaultProps {
@@ -69,7 +71,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
 
   render() {
 
-    const {radius, centerAngle, position, angle, detectionState, anchor, selected, name, fillColors, opacity} = this.props
+    const {radius, centerAngle, position, angle, detectionState, anchor, selected, fillColors, opacity, name, data} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -82,6 +84,8 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
+            name={name}
+            data={data}
           />
         }
         detectionPart={
@@ -94,6 +98,8 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
+            name={name}
+            data={data}
           />
         }
         fillColors={fillColors}
@@ -101,6 +107,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
         detectionPartOpacity={RAIL_PART_DETECTION_PART_OPACITY}
         detectionState={detectionState}
         name={name}
+        data={data}
         ref={(part) => this.detectablePart = part}
       />
     )

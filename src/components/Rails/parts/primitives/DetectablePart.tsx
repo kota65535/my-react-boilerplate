@@ -3,6 +3,7 @@ import {Group} from "react-paper-bindings";
 import {ReactElement, ReactNode} from "react";
 import Point = paper.Point;
 
+
 export interface DetectablePartProps {
   mainPart: ReactElement<any>       // 本体のコンポーネント
   detectionPart: ReactElement<any>  // 当たり判定のコンポーネント
@@ -11,6 +12,7 @@ export interface DetectablePartProps {
   detectionPartOpacity: number
   detectionState: DetectionState
   name?: string
+  data?: object
 }
 
 /**
@@ -29,7 +31,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   // TODO: 利用可能なコンポーネントクラスに型を限定したい
   _mainPart: any
   _detectionPart: any
-  _group: Group
 
   constructor (props: DetectablePartProps) {
     super(props)
@@ -44,18 +45,15 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   get detectionPart() {
     return this._detectionPart
   }
-  
-  get group() {
-    return this._group
-  }
 
   moveRelatively(difference: Point) {
-    this._group.position = this._group.position.add(difference);
+    this.mainPart.moveRelatively(difference)
+    this.detectionPart.moveRelatively(difference)
   }
 
-  move(position: Point, anchor: Point = this._group.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
+  move(position: Point, anchor: Point = this.mainPart.position): void {
+    this.mainPart.move(position, anchor)
+    this.detectionPart.move(position, anchor)
   }
 
   // ========== Private methods ==========
@@ -79,6 +77,8 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     let props: any = {}
     props.fillColor = this.props.fillColors[this.props.detectionState]
     props.opacity = this.props.mainPartOpacity
+    props.name = this.props.name
+    props.data = this.props.data
     props.ref = (_mainPart) => this._mainPart = _mainPart
     return props
   }
@@ -98,12 +98,14 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
     props.opacity = this.props.detectionPartOpacity
     props.fillColor = this.props.fillColors[this.props.detectionState]
+    props.name = this.props.name
+    props.data = this.props.data
     props.ref = (_detectionPart) => this._detectionPart = _detectionPart
     return props
   }
 
   render() {
-    const {mainPart, detectionPart, name} = this.props
+    const {mainPart, detectionPart, name, data} = this.props
 
     const addedMainPartProps = this.additionalMainPartProps()
     const addedDetectionPartProps = this.additionalDetectionPartProps()
@@ -112,13 +114,10 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     let clonedDetectionPart = React.cloneElement(detectionPart, Object.assign({}, detectionPart.props, addedDetectionPartProps))
 
     return [
-      <Group
-        name={name}
-        ref={(group) => this._group = group}
-      >
+      <React.Fragment>
         {clonedMainPart}
         {clonedDetectionPart}
-      </Group>
+      </React.Fragment>
     ]
   }
 }

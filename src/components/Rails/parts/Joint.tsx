@@ -5,9 +5,11 @@ import RectPart, {AnchorPoint} from "./primitives/RectPart";
 import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
 import CirclePart from "./primitives/CirclePart";
 import {JOINT_DETECTION_PART_OPACITY, JOINT_FILL_COLORS} from "constants/tools";
+import {RailPartInfo} from "components/Rails/parts/types";
 
 
 interface Props extends Partial<DefaultProps> {
+  data?: RailPartInfo
 }
 
 interface DefaultProps {
@@ -50,6 +52,10 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   // ========== Public APIs ==========
 
+  get position() {
+    return this.detectablePart.mainPart.path.position
+  }
+
   move(position: Point): void {
     this.detectablePart.move(position)
   }
@@ -57,8 +63,10 @@ export default class Joint extends React.Component<JointProps, {}> {
   // ========== Private methods ==========
 
   render() {
+    const {position, angle, detectionState, anchor, selected, fillColors, opacity, name, data} = this.props
 
-    const {position, angle, detectionState, anchor, selected, fillColors, opacity, name} = this.props
+
+
     return (
       <DetectablePart
         mainPart={
@@ -83,6 +91,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         detectionPartOpacity={JOINT_DETECTION_PART_OPACITY}
         detectionState={detectionState}
         name={name}
+        data={Object.assign(data, {detectionState})}
         ref={(part) => this.detectablePart = part}
       />
     )

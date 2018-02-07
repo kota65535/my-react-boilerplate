@@ -14,6 +14,7 @@ export interface TrianglePartProps {
   selected?: boolean
   anchor?: AnchorPoint
   name?: string
+  data?: object
 }
 
 
@@ -81,7 +82,7 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
   }
 
   render() {
-    const {position, angle, width, height, fillColor, visible, opacity, selected} = this.props
+    const {position, angle, width, height, fillColor, visible, opacity, selected, name, data} = this.props
     return <PathComponent
       pathData={createTrianglePath(width, height)}
       position={position}
@@ -91,6 +92,7 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
       opacity={opacity}
       selected={selected}
       name={name}
+      data={data}
       ref={(Path) => this._path = Path}
     />
   }

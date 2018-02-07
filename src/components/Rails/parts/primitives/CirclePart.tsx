@@ -13,6 +13,8 @@ interface DefaultProps {
   visible?: boolean
   opacity?: number
   selected?: boolean
+  name?: string
+  data?: object
 }
 
 export type CirclePartProps = Props & DefaultProps;
@@ -51,7 +53,7 @@ export default class CirclePart extends React.Component<CirclePartProps, {}> {
   // ========== Private methods ==========
 
   render() {
-    const {radius, position, fillColor, visible, opacity, selected} = this.props
+    const {radius, position, fillColor, visible, opacity, selected, name, data} = this.props
     return <PathComponent
       pathData={createCirclePath(radius)}
       position={position}
@@ -60,6 +62,7 @@ export default class CirclePart extends React.Component<CirclePartProps, {}> {
       opacity={opacity}
       selected={selected}
       name={name}
+      data={data}
       ref={(Path) => this._path = Path}
     />
   }

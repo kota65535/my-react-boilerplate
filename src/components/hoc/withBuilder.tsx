@@ -101,14 +101,14 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     mouseMove_FirstPosition = (e: ToolEvent|any) => {
       // マウス位置に応じてマーカーの位置を決定する
-      this.props.setMarkerPosition(this.getNearestGridPosition(e.point))
+      this.props.setMarkerPosition(getNearestGridPosition(e.point))
     }
 
 
     mouseMove_FirstAngle = (e: ToolEvent|any) => {
       // 一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
       const itemProps = RailFactory[this.props.selectedItem.name]()
-      const angle = this.getFirstRailAngle(this.props.markerPosition, e.point)
+      const angle = getFirstRailAngle(this.props.markerPosition, e.point)
       LOGGER.info(`FirstAngle: ${angle}`)
       this.props.setTemporaryItem({
         ...itemProps,
@@ -121,14 +121,11 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     mouseMove_Subsequent = (e: ToolEvent|any) => {
-      const results = hitTestAll(e.point)
-      const item = results.map(r => r.item)
-        .find(i => i.name && i.name.match(/\d-[sc]-[pj]-\d/).length > 0)
-      if (item) {
-        const [, railId, railType, partType, partId] = item.name.match(/(\d)-([sc])-([pj])-(\d)/)
-        switch (partType) {
-          case 'j':
-            this.mouseMove_Subsequent_OnJoint(e, Number(railId), Number(partId))
+      const result = getRailPartAt(e.point)
+      if (result) {
+        switch (result.partType) {
+          case 'Joint':
+            this.mouseMove_Subsequent_OnJoint(e, result.railId, result.partId)
             break
           default:
         }
@@ -141,22 +138,21 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         }
         this.props.setTemporaryItem(null);
       }
-
     }
 
 
     mouseMove_Subsequent_OnJoint = (e: ToolEvent|any, railId: number, jointId: number) => {
       // 対象のレールのジョイントをDetectingにする
-      const oldItem = findItemFromLayout(this.props.layout, railId)
-      const newItem = update(oldItem, {
-        detectionState: {$splice: [[jointId, 1, DetectionState.DETECTING]]}
-      })
-      this.props.updateItem(oldItem, newItem)
+      const railData = getRailDataById(this.props.layout, railId)
+      const joint = RAIL_COMPONENTS[railId].joints[jointId]
+      if (joint.props.detectionState === DetectionState.AFTER_DETECT) {
+        return
+      }
+      this.setJointState(railData, jointId, DetectionState.DETECTING)
 
-      const joint = railComponents[railId].joints[jointId]
 
       // 現在Detectingにしているジョイントを覚えておく
-      this.detecting = oldItem
+      this.detecting = railData
 
       // 仮レールを設置する
       const itemProps = RailFactory[this.props.selectedItem.name]()
@@ -164,7 +160,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         ...itemProps,
         id: -1,
         name: 'TemporaryRail',
-        position: joint.detectablePart.mainPart.path.position,
+        position: joint.position,
         angle: joint.props.angle,
         opacity: TEMPORARY_RAIL_OPACITY,
       })
@@ -195,6 +191,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
+
     mouseLeftDown(e: ToolEvent|any) {
       const methodName = `mouseLeftDown_${this.props.phase}`
 
@@ -205,6 +202,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         LOGGER.error(`EventHandler: ${methodName} does not exist!`)
       }
     }
+
 
     mouseLeftDown_FirstPosition = (e: ToolEvent|any) => {
       this.props.setPhase(BuilderPhase.FIRST_ANGLE)
@@ -233,27 +231,53 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
 
     mouseLeftDown_Subsequent = (e: ToolEvent|any) => {
-      const results = hitTestAll(e.point)
-      const joint = results.map(r => r.item)
-        .find(i => i.name && i.name.match(/\d-[sc]-j-\d/).length > 0)
-      const [, railId, jointId] = joint.name.match(/(\d)-[sc]-j-(\d)/)
-      const oldItem = findItemFromLayout(this.props.layout, Number(railId))
-      const newItem = update(oldItem, {
-        detectionState: {$splice: [[jointId, 1, DetectionState.DETECTING]]}
+      const result = getRailPartAt(e.point)
+      if (result) {
+        switch (result.partType) {
+          case 'Joint':
+            this.mouseLeftDown_Subsequent_OnJoint(e, result.railId, result.partId)
+            break
+          default:
+        }
+      } else {
+        // noop
+      }
+    }
+
+
+    mouseLeftDown_Subsequent_OnJoint = (e: ToolEvent|any, railId: number, jointId: number) => {
+      // 対象のレールのジョイントをAfterDetectにする
+      const oldItem = getRailDataById(this.props.layout, railId)
+      this.setJointState(oldItem, jointId, DetectionState.AFTER_DETECT)
+
+      // パレットで選択したレール生成のためのPropsを取得
+      const itemProps = RailFactory[this.props.selectedItem.name]()
+      // 仮レールの位置にレールを設置
+      this.props.addItem(this.props.activeLayerId, {
+        ...itemProps,
+        position: (this.props.temporaryItem as any).position,
+        angle: (this.props.temporaryItem as any).angle,
+        detectionState: [DetectionState.AFTER_DETECT, DetectionState.BEFORE_DETECT],
+        layerId: this.props.activeLayerId,
+      } as ItemData)
+      this.detecting = null
+
+
+
+    }
+
+
+    mouseRightDown(e: ToolEvent|any) {
+      // noop
+    }
+
+
+    setJointState = (item: ItemData, jointId: number, detectionState: DetectionState) => {
+      const newItem = update(item, {
+        detectionState: {$splice: [[jointId, 1, detectionState]]}
       })
-      this.props.updateItem(oldItem, newItem)
-      // LOGGER.info("Updated Item")
-      // LOGGER.info(oldItem)
-      // LOGGER.info(oldItem)
+      this.props.updateItem(item, newItem)
     }
-
-
-
-    mouseRightDown(e) {
-
-    }
-
-
 
     render() {
       return (
@@ -266,29 +290,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    getFirstRailAngle = (anchor: Point, cursor: Point) => {
-      const diffX = cursor.x - anchor.x
-      const diffY = cursor.y - anchor.y
-      const angle = Math.atan2(diffY, diffX) * 180 / Math.PI
-      // このやり方では 0~180度の範囲でしか分からない
-      // const diff = cursor.subtract(anchor)
-      // const unit = new Point(1,0)
-      // const angle = Math.acos(unit.dot(diff) / (unit.length * diff.length))
-      const candidates =_.range(-180, 180, 45)
-      return getClosest(angle, candidates)
-    }
-
-    getNearestGridPosition = (pos) => {
-      const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
-      const xPos = xNums.reduce(function(prev, curr) {
-        return (Math.abs(curr - pos.x) < Math.abs(prev - pos.x) ? curr : prev);
-      });
-      const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
-      const yPos = yNums.reduce(function(prev, curr) {
-        return (Math.abs(curr - pos.y) < Math.abs(prev - pos.y) ? curr : prev);
-      });
-      return new Point(xPos, yPos)
-    }
   }
 
 
@@ -303,20 +304,58 @@ export const hitTestAll = (point: Point): HitResult[] => {
     segments: true,
     stroke: true,
     fill: true,
-    tolerance: 5
+    tolerance: 0,
+    // match: (result: HitResult) => {
+    //   return result.item instanceof Path
+    // },
+
+
   };
   let hitResults = (paperScope.project as any).hitTestAll(point, hitOptions);
   // Groupがひっかかるとうざいので取り除く
-  // let hitResultsPathOnly = hitResults.filter(r => r.item instanceof paper.Path);
+  // let hitResultsPathOnly = hitResults.filter(r => r.item.data.type === "Path");
   // return hitResultsPathOnly;
   return hitResults;
 }
 
-export const isJoint = (path: Path) =>  path.name.split('-')[2] === 'j'
 
-
-const findItemFromLayout = (layout: LayoutStoreState, id: number) => {
+const getRailDataById = (layout: LayoutStoreState, id: number) => {
   let found = _.flatMap(layout.layers, layer => layer.children)
     .find(item => item.id === id)
   return found
 }
+
+
+const getFirstRailAngle = (anchor: Point, cursor: Point) => {
+  const diffX = cursor.x - anchor.x
+  const diffY = cursor.y - anchor.y
+  const angle = Math.atan2(diffY, diffX) * 180 / Math.PI
+  // このやり方では 0~180度の範囲でしか分からない
+  // const diff = cursor.subtract(anchor)
+  // const unit = new Point(1,0)
+  // const angle = Math.acos(unit.dot(diff) / (unit.length * diff.length))
+  const candidates =_.range(-180, 180, 45)
+  return getClosest(angle, candidates)
+}
+
+
+const getNearestGridPosition = (pos) => {
+  const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
+  const xPos = getClosest(pos.x, xNums)
+  const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
+  const yPos = getClosest(pos.y, yNums)
+  return new Point(xPos, yPos)
+}
+
+
+const getRailPartAt = (point: Point) => {
+  const results = hitTestAll(point)
+  const item = results.map(r => r.item).find(i => i.name === "Rail")
+  if (item) {
+    return item.data
+  } else {
+    return null
+  }
+}
+
+

@@ -14,6 +14,7 @@ interface Props extends Partial<DefaultProps> {
   width: number
   height: number
   name?: string
+  data?: object
 }
 
 interface DefaultProps {
@@ -111,7 +112,7 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
   }
 
   render() {
-    const {position, angle, width, height, fillColor, visible, opacity, selected, name} = this.props
+    const {position, angle, width, height, fillColor, visible, opacity, selected, name, data} = this.props
     return <PathComponent
       pathData={createRectPath(width, height)}
       position={position}
@@ -121,6 +122,7 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
       opacity={opacity}
       selected={selected}
       name={name}
+      data={data}
       ref={(Path) => this._path = Path}
     />
   }

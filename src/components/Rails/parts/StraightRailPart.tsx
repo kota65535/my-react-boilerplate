@@ -4,6 +4,7 @@ import {Rectangle} from "react-paper-bindings";
 import RectPart, {AnchorPoint} from "./primitives/RectPart";
 import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
 import {RAIL_PART_DETECTION_PART_OPACITY, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/tools";
+import {RailPartInfo} from "components/Rails/parts/types";
 
 
 export enum RailPartAnchor {
@@ -20,6 +21,7 @@ const ANCHOR_TABLE = {
 interface Props extends Partial<DefaultProps> {
   length: number
   name?: string
+  data?: RailPartInfo
 }
 
 interface DefaultProps {
@@ -70,7 +72,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
   // ========== Private methods ==========
 
   render() {
-    const {position, angle, length, detectionState, anchor, selected, fillColors, opacity} = this.props
+    const {position, angle, length, detectionState, anchor, selected, fillColors, opacity, name, data} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -82,6 +84,8 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
+            name={name}
+            data={data}
           />
         }
         detectionPart={
@@ -93,6 +97,8 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
             fillColor={'blue'}
             anchor={ANCHOR_TABLE[anchor]}
             selected={selected}
+            name={name}
+            data={data}
           />
         }
         fillColors={fillColors}
@@ -100,6 +106,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
         detectionPartOpacity={RAIL_PART_DETECTION_PART_OPACITY}
         detectionState={detectionState}
         name={name}
+        data={data}
         ref={(part) => this.detectablePart = part!}
       />
     )

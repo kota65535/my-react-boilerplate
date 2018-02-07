@@ -15,6 +15,7 @@ export interface ArcPartProps {
   selected?: boolean
   anchor?: AnchorPoint
   name?: string
+  data?: object
 }
 
 
@@ -85,7 +86,7 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
 
 
   render() {
-    const {position, angle, width, radius, centerAngle, fillColor, visible, opacity, selected} = this.props
+    const {position, angle, width, radius, centerAngle, fillColor, visible, opacity, selected, name, data} = this.props
     return <PathComponent
       pathData={createArcPath(width, radius, centerAngle)}
       position={position}
@@ -95,6 +96,7 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
       opacity={opacity}
       selected={selected}
       name={name}
+      data={data}
       ref={(Path) => this._path = Path}
     />
   }

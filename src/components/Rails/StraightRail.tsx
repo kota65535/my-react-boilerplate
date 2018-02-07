@@ -76,16 +76,26 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
         detectionState={DetectionState.DISABLED}
         selected={selected}
         opacity={opacity}
-        name={`${id}-s-p-0`}
+        name={'Rail'}
+        data={{
+          railId: id,
+          partType: 'RailPart',
+          partId: 0
+        }}
         ref={(railPart) => this.railPart = railPart}
       />,
       <Joint
-        angle={angle}
+        angle={angle-180}
         position={position}
         opacity={opacity}
         detectionState={detectionState[0]}
-        name={`${id}-s-j-0`}
+        name={'Rail'}
         // anchor={AnchorPoint.LEFT}    // ジョイントパーツの右端・左端をレールパーツに合わせる場合
+        data={{
+          railId: id,
+          partType: 'Joint',
+          partId: 0
+        }}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
@@ -93,8 +103,13 @@ export default class StraightRail extends React.Component<StraightRailProps, {}>
         position={position}
         opacity={opacity}
         detectionState={detectionState[1]}
-        name={`${id}-s-j-1`}
+        name={'Rail'}
         // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
+        data={{
+          railId: id,
+          partType: 'Joint',
+          partId: 1
+        }}
         ref={(joint) => this.joints[1] = joint}
       />
     ]

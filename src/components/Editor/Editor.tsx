@@ -228,7 +228,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         // data={{ id: id, type: Type }}
         // (activeTool === Tools.SELECT)
         // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
-        ref={(c) => railComponents[id] = c}
+        ref={(c) => RAIL_COMPONENTS[id] = c}
       />)
   }
 

@@ -1,18 +1,12 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart, {AnchorPoint} from "./primitives/RectPart";
-import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
-import {RailPartAnchor, default as StraightRailPart} from "./StraightRailPart";
+import RectPart from "./primitives/RectPart";
+import DetectablePart from "./primitives/DetectablePart";
 import ArcPart from "./primitives/ArcPart";
-import {RAIL_PART_DETECTION_PART_OPACITY, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/tools";
+import {RAIL_PART_DETECTION_OPACITY_RATE, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
+import {Pivot} from "components/Rails/parts/primitives/PartBase";
 import {RailPartInfo} from "components/Rails/parts/types";
-
-
-const ANCHOR_TABLE = {
-  [RailPartAnchor.START]: AnchorPoint.LEFT,
-  [RailPartAnchor.END]: AnchorPoint.RIGHT
-}
 
 
 interface Props extends Partial<DefaultProps> {
@@ -20,13 +14,14 @@ interface Props extends Partial<DefaultProps> {
   centerAngle: number
   name?: string
   data?: RailPartInfo
+  onClick?: (e: MouseEvent) => void
 }
 
 interface DefaultProps {
   position?: Point
   angle?: number
-  detectionState?: DetectionState
-  anchor?: RailPartAnchor
+  pivot?: Pivot
+  detectionEnabled?: boolean
   selected?: boolean
   opacity?: number
   fillColors?: string[]
@@ -39,75 +34,63 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
     angle: 0,
-    anchor: RailPartAnchor.START,
-    detectionState: DetectionState.DISABLED,
+    detectionEnabled: false,
+    pivot: Pivot.LEFT,
     selected: false,
     opacity: 1,
     fillColors: RAIL_PART_FILL_COLORS
   }
 
-  static FLOW_COLOR_1 = "royalblue";
-  static FLOW_COLOR_2 = "greenyellow";
-  static ANIMATION_MAX = 30
-  static ANIMATION_MIN = 60
-
   detectablePart: DetectablePart
 
-  constructor (props: CurveRailPartProps) {
+  constructor(props: CurveRailPartProps) {
     super(props)
   }
 
   // ========== Public APIs ==========
 
   get startPoint() {
-    return this.detectablePart.mainPart.getCenterOfLeft()
+    return (this.detectablePart.mainPart as RectPart).getCenterOfLeft()
   }
 
   get endPoint() {
-    return this.detectablePart.mainPart.getCenterOfRight()
+    return (this.detectablePart.mainPart as RectPart).getCenterOfRight()
   }
 
   // ========== Private methods ==========
 
   render() {
-
-    const {radius, centerAngle, position, angle, detectionState, anchor, selected, fillColors, opacity, name, data} = this.props
+    const {radius, centerAngle, position, angle, pivot, detectionEnabled, selected, fillColors, opacity,
+      name, data, onClick} = this.props
     return (
       <DetectablePart
         mainPart={
           <ArcPart
-            radius={radius}
-            centerAngle={centerAngle}
             position={position}
             angle={angle}
+            radius={radius}
+            centerAngle={centerAngle}
             width={RAIL_PART_WIDTH}
-            fillColor={'blue'}
-            anchor={ANCHOR_TABLE[anchor]}
+            pivot={pivot}
             selected={selected}
-            name={name}
-            data={data}
           />
         }
         detectionPart={
           <ArcPart
-            radius={radius}
-            centerAngle={centerAngle}
             position={position}
             angle={angle}
-            width={RAIL_PART_WIDTH + 4}
-            fillColor={'blue'}
-            anchor={ANCHOR_TABLE[anchor]}
+            radius={radius}
+            centerAngle={centerAngle}
+            width={RAIL_PART_WIDTH}
             selected={selected}
-            name={name}
-            data={data}
+            opacity={opacity * RAIL_PART_DETECTION_OPACITY_RATE}
           />
         }
         fillColors={fillColors}
-        mainPartOpacity={opacity}
-        detectionPartOpacity={RAIL_PART_DETECTION_PART_OPACITY}
-        detectionState={detectionState}
+        detectionEnabled={detectionEnabled}
         name={name}
         data={data}
+        onClick={onClick}
         ref={(part) => this.detectablePart = part}
       />
     )

@@ -11,7 +11,7 @@ import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./Editor.style";
 import {
-  GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, JOINT_FILL_COLORS, RAIL_PART_FILL_COLORS,
+  GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE,
   Tools
 } from "constants/tools";
 
@@ -25,13 +25,8 @@ import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {ItemData, LayoutStoreState} from "reducers/layout";
 import {Rectangle} from "react-paper-bindings"
-import * as _ from "lodash";
 import {isLayoutEmpty} from "selectors";
-import StraightRail from "components/Rails/StraightRail";
-import DetectablePart, {DetectionState} from "components/Rails/parts/primitives/DetectablePart";
-import RectPart, {AnchorPoint} from "components/Rails/parts/primitives/RectPart";
 import {BuilderPhase} from "reducers/builder";
-import CurveRail from "components/Rails/CurveRail";
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)

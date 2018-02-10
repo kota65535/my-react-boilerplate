@@ -1,51 +1,20 @@
 import * as React from "react";
-import {Point, Path} from "paper";
+import {Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
-import {AnchorPoint} from "./RectPart";
+import {default as PartBase, PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
 
-export interface TrianglePartProps {
+export interface TrianglePartProps extends PartBaseProps {
   width: number
   height: number
-  position: Point
-  angle: number
-  fillColor?: string
-  visible?: boolean
-  opacity?: number
-  selected?: boolean
-  anchor?: AnchorPoint
-  name?: string
-  data?: object
 }
 
-
-export default class TrianglePart extends React.Component<TrianglePartProps, {}> {
-  public static defaultProps: Partial<TrianglePartProps> = {
-    position: new Point(0, 0),
-    angle: 0,
-    fillColor: 'black',
-    anchor: AnchorPoint.LEFT
-  }
-
-  _path: Path
+export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
 
   constructor (props: TrianglePartProps) {
     super(props)
   }
 
   // ========== Public APIs ==========
-
-  get path() {
-    return this._path
-  }
-
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, anchor: Point = this._path.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
-  }
 
   getCenterOfTop(): Point {
     return this._path.segments[0].point;
@@ -66,23 +35,25 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
   }
 
   fixPositionByAnchorPoint() {
-    switch (this.props.anchor) {
-      case AnchorPoint.TOP:
+    switch (this.props.pivot) {
+      case Pivot.TOP:
         this.move(this.props.position, this.getCenterOfTop())
         break
-      case AnchorPoint.BOTTOM:
+      case Pivot.BOTTOM:
         this.move(this.props.position, this.getCenterOfBottom())
         break
-      case AnchorPoint.CENTER:
+      case Pivot.CENTER:
         // noop
         break
       default:
-        throw Error(`Invalid anchor for TrianglePart ${this.props.anchor}`)
+        throw Error(`Invalid pivot ${this.props.pivot} for ${this.constructor.name}`)
     }
   }
 
   render() {
-    const {position, angle, width, height, fillColor, visible, opacity, selected, name, data} = this.props
+    const {width, height,
+      position, angle, fillColor, visible, opacity, selected, name, data,
+      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
     return <PathComponent
       pathData={createTrianglePath(width, height)}
       position={position}
@@ -93,6 +64,15 @@ export default class TrianglePart extends React.Component<TrianglePartProps, {}>
       selected={selected}
       name={name}
       data={data}
+      onFrame={onFrame}
+      onMouseDown={onMouseDown}
+      onMouseDrag={onMouseDrag}
+      onMouseUp={onMouseUp}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       ref={(Path) => this._path = Path}
     />
   }

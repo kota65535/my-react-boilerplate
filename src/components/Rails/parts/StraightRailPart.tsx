@@ -1,34 +1,25 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart, {AnchorPoint} from "./primitives/RectPart";
-import DetectablePart, {DetectionState} from "./primitives/DetectablePart";
-import {RAIL_PART_DETECTION_PART_OPACITY, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/tools";
+import RectPart from "./primitives/RectPart";
+import DetectablePart from "./primitives/DetectablePart";
+import {RAIL_PART_DETECTION_OPACITY_RATE, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {RailPartInfo} from "components/Rails/parts/types";
-
-
-export enum RailPartAnchor {
-  START,
-  END
-}
-
-const ANCHOR_TABLE = {
-  [RailPartAnchor.START]: AnchorPoint.LEFT,
-  [RailPartAnchor.END]: AnchorPoint.RIGHT
-}
+import {Pivot} from "components/Rails/parts/primitives/PartBase";
 
 
 interface Props extends Partial<DefaultProps> {
   length: number
   name?: string
   data?: RailPartInfo
+  onClick?: (e: MouseEvent) => void
 }
 
 interface DefaultProps {
   position?: Point
   angle?: number
-  detectionState?: DetectionState
-  anchor?: RailPartAnchor
+  pivot?: Pivot
+  detectionEnabled?: boolean
   selected?: boolean
   opacity?: number
   fillColors?: string[]
@@ -41,38 +32,34 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
     angle: 0,
-    anchor: RailPartAnchor.START,
-    detectionState: DetectionState.DISABLED,
+    detectionEnabled: false,
+    pivot: Pivot.LEFT,
     selected: false,
     opacity: 1,
     fillColors: RAIL_PART_FILL_COLORS
   }
 
-  static FLOW_COLOR_1 = "royalblue";
-  static FLOW_COLOR_2 = "greenyellow";
-  static ANIMATION_MAX = 30
-  static ANIMATION_MIN = 60
-
   detectablePart: DetectablePart
 
-  constructor (props: StraightRailPartProps) {
+  constructor(props: StraightRailPartProps) {
     super(props)
   }
 
   // ========== Public APIs ==========
 
   get startPoint() {
-    return this.detectablePart.mainPart.getCenterOfLeft()
+    return (this.detectablePart.mainPart as RectPart).getCenterOfLeft()
   }
 
   get endPoint() {
-    return this.detectablePart.mainPart.getCenterOfRight()
+    return (this.detectablePart.mainPart as RectPart).getCenterOfRight()
   }
 
   // ========== Private methods ==========
 
   render() {
-    const {position, angle, length, detectionState, anchor, selected, fillColors, opacity, name, data} = this.props
+    const {length, position, angle, pivot, detectionEnabled, selected, fillColors, opacity,
+      name, data , onClick} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -81,11 +68,8 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
             angle={angle}
             width={length}
             height={RAIL_PART_WIDTH}
-            fillColor={'blue'}
-            anchor={ANCHOR_TABLE[anchor]}
+            pivot={pivot}
             selected={selected}
-            name={name}
-            data={data}
           />
         }
         detectionPart={
@@ -93,21 +77,18 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
             position={position}
             angle={angle}
             width={length}
-            height={RAIL_PART_WIDTH + 4}
-            fillColor={'blue'}
-            anchor={ANCHOR_TABLE[anchor]}
+            height={RAIL_PART_WIDTH}
+            pivot={pivot}
             selected={selected}
-            name={name}
-            data={data}
+            opacity={opacity * RAIL_PART_DETECTION_OPACITY_RATE}
           />
         }
         fillColors={fillColors}
-        mainPartOpacity={opacity}
-        detectionPartOpacity={RAIL_PART_DETECTION_PART_OPACITY}
-        detectionState={detectionState}
+        detectionEnabled={detectionEnabled}
         name={name}
         data={data}
-        ref={(part) => this.detectablePart = part!}
+        onClick={onClick}
+        ref={(part) => this.detectablePart = part}
       />
     )
   }

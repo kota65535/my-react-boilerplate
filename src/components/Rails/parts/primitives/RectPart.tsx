@@ -1,67 +1,22 @@
 import * as React from "react";
-import {Point, Path} from "paper";
+import {Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
+import PartBase, {PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
 
-export enum AnchorPoint {
-  CENTER = 'Center',
-  LEFT = 'Left',
-  TOP = 'Top',
-  RIGHT = 'Right',
-  BOTTOM = 'Bottom',
-}
 
-interface Props extends Partial<DefaultProps> {
+interface RectPartProps extends PartBaseProps {
   width: number
   height: number
-  name?: string
-  data?: object
 }
 
-interface DefaultProps {
-  position?: Point
-  angle?: number
-  fillColor?: string
-  visible?: boolean
-  opacity?: number
-  selected?: boolean
-  anchor?: AnchorPoint
-}
 
-export type RectPartProps = Props & DefaultProps;
-
-
-export default class RectPart extends React.Component<RectPartProps, {}> {
-
-  public static defaultProps: DefaultProps = {
-    position: new Point(0, 0),
-    angle: 0,
-    fillColor: 'black',
-    visible: true,
-    opacity: 1,
-    selected: false,
-    anchor: AnchorPoint.LEFT
-  }
-
-  _path: Path
+export default class RectPart extends PartBase<RectPartProps, {}> {
 
   constructor (props: RectPartProps) {
     super(props)
   }
 
   // ========== Public APIs ==========
-
-  get path() {
-    return this._path
-  }
-
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, anchor: Point = this._path.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
-  }
 
   getCenterOfTop(): Point {
     return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
@@ -90,29 +45,31 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
   }
 
   fixPositionByAnchorPoint() {
-    switch (this.props.anchor) {
-      case AnchorPoint.LEFT:
+    switch (this.props.pivot) {
+      case Pivot.LEFT:
         this.move(this.props.position, this.getCenterOfLeft())
         break
-      case AnchorPoint.TOP:
+      case Pivot.TOP:
         this.move(this.props.position, this.getCenterOfTop())
         break
-      case AnchorPoint.RIGHT:
+      case Pivot.RIGHT:
         this.move(this.props.position, this.getCenterOfRight())
         break
-      case AnchorPoint.BOTTOM:
+      case Pivot.BOTTOM:
         this.move(this.props.position, this.getCenterOfBottom())
         break
-      case AnchorPoint.CENTER:
+      case Pivot.CENTER:
         // noop
         break
       default:
-        throw Error(`Invalid anchor for RectPart ${this.props.anchor}`)
+        throw Error(`Invalid pivot ${this.props.pivot} for ${this.constructor.name}`)
     }
   }
 
   render() {
-    const {position, angle, width, height, fillColor, visible, opacity, selected, name, data} = this.props
+    const {width, height,
+      position, angle, fillColor, visible, opacity, selected, name, data,
+      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
     return <PathComponent
       pathData={createRectPath(width, height)}
       position={position}
@@ -123,6 +80,15 @@ export default class RectPart extends React.Component<RectPartProps, {}> {
       selected={selected}
       name={name}
       data={data}
+      onFrame={onFrame}
+      onMouseDown={onMouseDown}
+      onMouseDrag={onMouseDrag}
+      onMouseUp={onMouseUp}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       ref={(Path) => this._path = Path}
     />
   }

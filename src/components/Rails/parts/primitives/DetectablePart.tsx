@@ -1,18 +1,21 @@
 import * as React from "react";
+import {ReactElement} from "react";
 import {Group} from "react-paper-bindings";
-import {ReactElement, ReactNode} from "react";
-import Point = paper.Point;
+import {Point} from "paper";
+import PartBase, {PartBaseProps} from "components/Rails/parts/primitives/PartBase";
 
 
-export interface DetectablePartProps {
-  mainPart: ReactElement<any>       // 本体のコンポーネント
-  detectionPart: ReactElement<any>  // 当たり判定のコンポーネント
+export interface DetectablePartProps extends PartBaseProps {
+  mainPart: ReactElement<PartBase<PartBaseProps, {}>>         // 本体のコンポーネント
+  detectionPart: ReactElement<PartBase<PartBaseProps, {}>>    //  当たり判定のコンポーネント
   fillColors: string[]    // DetectionState ごとの本体、当たり判定の色
-  mainPartOpacity: number
-  detectionPartOpacity: number
+  onClick: (e: MouseEvent) => void
+  detectionEnabled: boolean
+}
+
+export interface DetectablePartState {
   detectionState: DetectionState
-  name?: string
-  data?: object
+  detectionPartVisible: boolean
 }
 
 /**
@@ -26,14 +29,27 @@ export enum DetectionState {
 }
 
 
-export default class DetectablePart extends React.Component<DetectablePartProps, {}> {
+export default class DetectablePart extends React.Component<DetectablePartProps, DetectablePartState> {
 
-  // TODO: 利用可能なコンポーネントクラスに型を限定したい
-  _mainPart: any
-  _detectionPart: any
+  _mainPart: PartBase<PartBaseProps, {}>
+  _detectionPart: PartBase<PartBaseProps, {}>
 
   constructor (props: DetectablePartProps) {
     super(props)
+    if (this.props.detectionEnabled) {
+      this.state = {
+        detectionState: DetectionState.BEFORE_DETECT,
+        detectionPartVisible: true
+      }
+    } else {
+      this.state = {
+        detectionState: DetectionState.DISABLED,
+        detectionPartVisible: false
+      }
+    }
+    this.onMouseEnter.bind(this)
+    this.onMouseLeave.bind(this)
+    this.onClick.bind(this)
   }
 
   // ========== Public APIs ==========
@@ -72,11 +88,36 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     this._detectionPart.path.position = this._mainPart.path.position
   }
 
+  onMouseEnter = (e: MouseEvent) => {
+    if (this.props.detectionEnabled && this.state.detectionState == DetectionState.BEFORE_DETECT) {
+      this.setState({
+        detectionState: DetectionState.DETECTING,
+        detectionPartVisible: true
+      })
+    }
+  }
+
+  onMouseLeave = (e: MouseEvent) => {
+    if (this.props.detectionEnabled && this.state.detectionState == DetectionState.DETECTING) {
+      this.setState({
+        detectionState: DetectionState.BEFORE_DETECT,
+        detectionPartVisible: true
+      })
+    }
+  }
+
+  onClick = (e: MouseEvent) => {
+    this.setState({
+      detectionState: DetectionState.AFTER_DETECT,
+      detectionPartVisible: false
+    })
+    this.props.onClick(e)
+  }
+
   // MainPartに追加するProps。既に指定されていたら上書き
   additionalMainPartProps() {
     let props: any = {}
-    props.fillColor = this.props.fillColors[this.props.detectionState]
-    props.opacity = this.props.mainPartOpacity
+    props.fillColor = this.props.fillColors[this.state.detectionState]
     props.name = this.props.name
     props.data = this.props.data
     props.ref = (_mainPart) => this._mainPart = _mainPart
@@ -86,26 +127,19 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   // DetectionPartに追加するProps。既に指定されていたら上書き
   additionalDetectionPartProps() {
     let props: any = {}
-    switch (this.props.detectionState) {
-      case DetectionState.BEFORE_DETECT:
-      case DetectionState.DETECTING:
-        props.visible = true
-        break
-      case DetectionState.DISABLED:
-      case DetectionState.AFTER_DETECT:
-        props.visible = false
-        break
-    }
-    props.opacity = this.props.detectionPartOpacity
-    props.fillColor = this.props.fillColors[this.props.detectionState]
+    props.fillColor = this.props.fillColors[this.state.detectionState]
+    props.visible = this.props.detectionEnabled ? this.state.detectionPartVisible : false
     props.name = this.props.name
     props.data = this.props.data
+    props.onMouseEnter = this.onMouseEnter
+    props.onMouseLeave = this.onMouseLeave
+    props.onClick = this.onClick
     props.ref = (_detectionPart) => this._detectionPart = _detectionPart
     return props
   }
 
   render() {
-    const {mainPart, detectionPart, name, data} = this.props
+    const {mainPart, detectionPart} = this.props
 
     const addedMainPartProps = this.additionalMainPartProps()
     const addedDetectionPartProps = this.additionalDetectionPartProps()

@@ -1,54 +1,22 @@
 import * as React from "react";
-import {Point, Path} from "paper";
+import {Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
-import {AnchorPoint} from "./RectPart";
+import {default as PartBase, PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
 
-export interface ArcPartProps {
+export interface ArcPartProps extends PartBaseProps {
   width: number
   radius: number
   centerAngle: number
-  position: Point
-  angle: number
-  fillColor?: string
-  visible?: boolean
-  opacity?: number
-  selected?: boolean
-  anchor?: AnchorPoint
-  name?: string
-  data?: object
 }
 
 
-export default class ArcPart extends React.Component<ArcPartProps, {}> {
-  public static defaultProps: Partial<ArcPartProps> = {
-    position: new Point(0, 0),
-    angle: 0,
-    fillColor: 'black',
-    anchor: AnchorPoint.LEFT
-  }
-
-  _path: Path
+export default class ArcPart extends PartBase<ArcPartProps, {}> {
 
   constructor (props: ArcPartProps) {
     super(props)
   }
 
   // ========== Public APIs ==========
-
-  get path() {
-    return this._path
-  }
-
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, anchor: Point = this._path.position): void {
-    let difference = position.subtract(anchor);
-    this.moveRelatively(difference);
-  }
-
-  // ========== Private methods ==========
 
   getCenterOfLeft(): Point {
     return this._path.segments[0].point
@@ -60,33 +28,37 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
     return this._path.segments[3 + correction].point
   }
 
+  // ========== Private methods ==========
+
   componentDidMount() {
-    this.fixPositionByAnchorPoint()
+    this.fixPositionByPivot()
   }
 
   componentDidUpdate() {
-    this.fixPositionByAnchorPoint()
+    this.fixPositionByPivot()
   }
 
-  fixPositionByAnchorPoint() {
-    switch (this.props.anchor) {
-      case AnchorPoint.LEFT:
+  fixPositionByPivot() {
+    switch (this.props.pivot) {
+      case Pivot.LEFT:
         this.move(this.props.position, this.getCenterOfLeft())
         break
-      case AnchorPoint.RIGHT:
+      case Pivot.RIGHT:
         this.move(this.props.position, this.getCenterOfRight())
         break
-      case AnchorPoint.CENTER:
+      case Pivot.CENTER:
         // noop
         break
       default:
-        throw Error(`Invalid anchor for ArcPart ${this.props.anchor}`)
+        throw Error(`Invalid pivot ${this.props.pivot} for ${this.constructor.name}`)
     }
   }
 
 
   render() {
-    const {position, angle, width, radius, centerAngle, fillColor, visible, opacity, selected, name, data} = this.props
+    const {width, radius, centerAngle,
+      position, angle, fillColor, visible, opacity, selected, name, data,
+      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
     return <PathComponent
       pathData={createArcPath(width, radius, centerAngle)}
       position={position}
@@ -97,6 +69,15 @@ export default class ArcPart extends React.Component<ArcPartProps, {}> {
       selected={selected}
       name={name}
       data={data}
+      onFrame={onFrame}
+      onMouseDown={onMouseDown}
+      onMouseDrag={onMouseDrag}
+      onMouseUp={onMouseUp}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       ref={(Path) => this._path = Path}
     />
   }

@@ -100,13 +100,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     mouseMove_FirstPosition = (e: ToolEvent|any) => {
-      // マウス位置に応じてマーカーの位置を決定する
-      this.props.setMarkerPosition(getNearestGridPosition(e.point))
+      // noop
     }
 
 
     mouseMove_FirstAngle = (e: ToolEvent|any) => {
-      // 一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
+      // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
       const itemProps = RailFactory[this.props.selectedItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
       LOGGER.info(`FirstAngle: ${angle}`)
@@ -143,27 +142,27 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     mouseMove_Subsequent_OnJoint = (e: ToolEvent|any, railId: number, jointId: number) => {
       // 対象のレールのジョイントをDetectingにする
-      const railData = getRailDataById(this.props.layout, railId)
-      const joint = RAIL_COMPONENTS[railId].joints[jointId]
-      if (joint.props.detectionState === DetectionState.AFTER_DETECT) {
-        return
-      }
-      this.setJointState(railData, jointId, DetectionState.DETECTING)
-
-
-      // 現在Detectingにしているジョイントを覚えておく
-      this.detecting = railData
-
-      // 仮レールを設置する
-      const itemProps = RailFactory[this.props.selectedItem.name]()
-      this.props.setTemporaryItem({
-        ...itemProps,
-        id: -1,
-        name: 'TemporaryRail',
-        position: joint.position,
-        angle: joint.props.angle,
-        opacity: TEMPORARY_RAIL_OPACITY,
-      })
+      // const railData = getRailDataById(this.props.layout, railId)
+      // const joint = RAIL_COMPONENTS[railId].joints[jointId]
+      // if (joint.props.detectionState === DetectionState.AFTER_DETECT) {
+      //   return
+      // }
+      // this.setJointState(railData, jointId, DetectionState.DETECTING)
+      //
+      //
+      // // 現在Detectingにしているジョイントを覚えておく
+      // this.detecting = railData
+      //
+      // // 仮レールを設置する
+      // const itemProps = RailFactory[this.props.selectedItem.name]()
+      // this.props.setTemporaryItem({
+      //   ...itemProps,
+      //   id: -1,
+      //   name: 'TemporaryRail',
+      //   position: joint.position,
+      //   angle: joint.props.angle,
+      //   opacity: TEMPORARY_RAIL_OPACITY,
+      // })
     }
 
     // resetAllJoints = () => {
@@ -205,9 +204,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
 
     mouseLeftDown_FirstPosition = (e: ToolEvent|any) => {
-      this.props.setPhase(BuilderPhase.FIRST_ANGLE)
+      // this.props.setPhase(BuilderPhase.FIRST_ANGLE)
       // クリックして即座に仮レールを表示したいので、手動で呼び出す
-      this.mouseMove_FirstAngle(e)
+      // this.mouseMove_FirstAngle(e)
     }
 
 
@@ -219,8 +218,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         ...itemProps,
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
-        detectionState: [DetectionState.BEFORE_DETECT, DetectionState.BEFORE_DETECT],
         layerId: this.props.activeLayerId,
+        detectionEnabled: [true, true]
       } as ItemData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.SUBSEQUENT)
@@ -338,14 +337,6 @@ const getFirstRailAngle = (anchor: Point, cursor: Point) => {
   return getClosest(angle, candidates)
 }
 
-
-const getNearestGridPosition = (pos) => {
-  const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
-  const xPos = getClosest(pos.x, xNums)
-  const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
-  const yPos = getClosest(pos.y, yNums)
-  return new Point(xPos, yPos)
-}
 
 
 const getRailPartAt = (point: Point) => {

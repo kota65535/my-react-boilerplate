@@ -18,7 +18,6 @@ import {
 import './Paper.css'
 import GridPaper from "./GridPaper/GridPaper";
 
-import rails from "../Rails";
 import {Path, Point, Size} from "paper";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
 import {RootState} from "store/type";
@@ -28,6 +27,9 @@ import {Rectangle} from "react-paper-bindings"
 import {isLayoutEmpty} from "selectors";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
+import FirstRailPutter from "components/Rails/parts/FirstRailPutter";
+import {createRailComponent} from "components/Rails/utils";
+import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
 
 const LOGGER = getLogger(__filename)
 
@@ -39,7 +41,6 @@ export interface EditorProps {
   selectedItem: any
   mousePosition: Point
   isLayoutEmpty: boolean
-  temporaryItem: ItemData
   builderPhase: BuilderPhase
   markerPosition: Point
 }
@@ -63,7 +64,6 @@ const mapStateToProps = (state: RootState) => {
     layout: state.layout,
     mousePosition: state.builder.mousePosition,
     isLayoutEmpty: isLayoutEmpty(state),
-    temporaryItem: state.builder.temporaryItem,
     builderPhase: state.builder.phase,
     markerPosition: state.builder.markerPosition
   }
@@ -140,11 +140,12 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         visible={layer.visible}
         key={layer.id}
       >
-        {layer.children.map(item => this.createRailComponent(item))}
+        {layer.children.map(item => createRailComponent(item, this.props.addItem))}
       </Layer>
     )
 
 
+    console.log(this.props.mousePosition)
 
     return (
 
@@ -160,22 +161,12 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             onWheel={this.props.moveToolMouseWheel}
             matrix={matrix}
           >
-            <Layer
-              key={-1}
-              data={{id: -1}}
-            >
-              {this.props.markerPosition &&
-              <Rectangle
-                center={this.props.markerPosition}
-                fillColor={'orange'}
-                size={new Size(GRID_SIZE,GRID_SIZE)}
-                opacity={0.5}
-                name={'FirstRailPosition'}
+            {(this.props.builderPhase == BuilderPhase.FIRST_POSITION ||
+              this.props.builderPhase === BuilderPhase.FIRST_ANGLE) &&
+              <FirstRailPutter
               />
-              }
-              {this.props.temporaryItem &&
-              this.createRailComponent(this.props.temporaryItem)}
-            </Layer>
+            }
+            <TemporaryLayer />
 
             {layers}
 
@@ -209,24 +200,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       </StyledWrapper>
     )
   }
-
-
-  createRailComponent = (item: ItemData) => {
-    const {id: id, type: type, ...props} = item
-    let RailComponent = rails[type]
-    // LOGGER.debug(props)
-    return (
-      <RailComponent
-        key={id}
-        id={id}
-        {...props}
-        // data={{ id: id, type: Type }}
-        // (activeTool === Tools.SELECT)
-        // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
-        ref={(c) => RAIL_COMPONENTS[id] = c}
-      />)
-  }
-
 
 }
 

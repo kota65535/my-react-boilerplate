@@ -134,6 +134,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     props.onMouseEnter = this.onMouseEnter
     props.onMouseLeave = this.onMouseLeave
     props.onClick = this.onClick
+    props.onMouseMove = this.props.onMouseMove
     props.ref = (_detectionPart) => this._detectionPart = _detectionPart
     return props
   }

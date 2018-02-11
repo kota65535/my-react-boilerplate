@@ -13,6 +13,7 @@ interface Props extends Partial<DefaultProps> {
   name?: string
   data?: RailPartInfo
   onClick?: (e: MouseEvent) => void
+  onMouseMove?: (e: MouseEvent) => void
 }
 
 interface DefaultProps {
@@ -23,6 +24,7 @@ interface DefaultProps {
   selected?: boolean
   opacity?: number
   fillColors?: string[]
+  enabled?: boolean
 }
 
 export type JointProps = Props & DefaultProps;
@@ -36,7 +38,7 @@ export default class Joint extends React.Component<JointProps, {}> {
     detectionEnabled: true,
     selected: false,
     opacity: 1,
-    fillColors: JOINT_FILL_COLORS
+    fillColors: JOINT_FILL_COLORS,
   }
   static WIDTH = 8;
   static HEIGHT = 18;
@@ -66,7 +68,7 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   render() {
     const {position, angle, detectionEnabled, pivot, selected, fillColors, opacity,
-      name, data, onClick} = this.props
+      name, data, onClick, onMouseMove} = this.props
 
     return (
       <DetectablePart
@@ -94,6 +96,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         name={name}
         // data={Object.assign(data, {detectionState})}
         onClick={onClick}
+        onMouseMove={onMouseMove}
         ref={(part) => this.detectablePart = part}
       />
     )

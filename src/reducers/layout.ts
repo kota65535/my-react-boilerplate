@@ -131,9 +131,8 @@ export default handleActions<LayoutStoreState, any>({
   [LAYOUT_SET_LAYERS]: (state: LayoutStoreState, action: Action<SetLayersPayload>) => {
     return update(state, {
       histories: {
-        $push: [{
-          layers: action.payload.layers
-        }]},
+        $splice: [[state.historyIndex + 1, 1, {layers: action.payload.layers}]],
+      },
       historyIndex: {$set: state.historyIndex + 1}
     })
   },
@@ -141,9 +140,7 @@ export default handleActions<LayoutStoreState, any>({
   [LAYOUT_SET_LAYERS_NO_HISTORY]: (state: LayoutStoreState, action: Action<SetLayersPayload>) => {
     return update(state, {
       histories: {
-        [state.histories.length - 1]: {
-          layers: {$set: action.payload.layers}
-        }
+        $splice: [[state.historyIndex, 1, {layers: action.payload.layers}]],
       }
     })
   },

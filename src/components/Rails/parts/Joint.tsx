@@ -19,12 +19,11 @@ interface Props extends Partial<DefaultProps> {
 interface DefaultProps {
   position?: Point
   angle?: number
-  detectionEnabled?: boolean
   pivot?: Pivot
   selected?: boolean
   opacity?: number
   fillColors?: string[]
-  enabled?: boolean
+  hasOpposingJoint: boolean
 }
 
 export type JointProps = Props & DefaultProps;
@@ -35,10 +34,10 @@ export default class Joint extends React.Component<JointProps, {}> {
     position: new Point(0, 0),
     angle: 0,
     pivot: Pivot.CENTER,
-    detectionEnabled: true,
     selected: false,
     opacity: 1,
     fillColors: JOINT_FILL_COLORS,
+    hasOpposingJoint: false
   }
   static WIDTH = 8;
   static HEIGHT = 18;
@@ -60,6 +59,13 @@ export default class Joint extends React.Component<JointProps, {}> {
     return this.detectablePart.mainPart.path.position
   }
 
+  // 対向ジョイントの接続が解除されたら状態をリセットする（再び検出可能にする）
+  componentWillReceiveProps(nextProps: JointProps) {
+    if (this.props.hasOpposingJoint && ! nextProps.hasOpposingJoint) {
+      this.detectablePart.resetDetectionState()
+    }
+  }
+
   move(position: Point): void {
     this.detectablePart.move(position)
   }
@@ -67,7 +73,7 @@ export default class Joint extends React.Component<JointProps, {}> {
   // ========== Private methods ==========
 
   render() {
-    const {position, angle, detectionEnabled, pivot, selected, fillColors, opacity,
+    const {position, angle, hasOpposingJoint, pivot, selected, fillColors, opacity,
       name, data, onClick, onMouseMove} = this.props
 
     return (
@@ -92,7 +98,7 @@ export default class Joint extends React.Component<JointProps, {}> {
           />
         }
         fillColors={fillColors}
-        detectionEnabled={detectionEnabled}
+        detectionEnabled={! hasOpposingJoint}
         name={name}
         // data={Object.assign(data, {detectionState})}
         onClick={onClick}

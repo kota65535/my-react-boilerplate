@@ -33,7 +33,7 @@ export class TemporaryLayer extends React.Component<ComposedProps, {}> {
         data={{id: -1}}
       >
         {this.props.temporaryItem &&
-        createRailComponent(this.props.temporaryItem, this.props.addItem)}
+        createRailComponent(this.props.temporaryItem, this.props.addItem, this.props.updateItem)}
       </Layer>
     )
   }

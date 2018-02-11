@@ -4,8 +4,8 @@ import {WithHistoryProps} from "./withHistory";
 import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
-import {ItemData, LayoutStoreState} from "reducers/layout";
-import {isLayoutEmpty} from "selectors";
+import {ItemData, LayoutData, LayoutStoreState} from "reducers/layout";
+import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {Path, Point, ToolEvent, HitResult} from "paper";
 import {getClosest} from "constants/utils";
 import {setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
@@ -47,7 +47,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
   const mapStateToProps = (state: RootState) => {
     return {
-      layout: state.layout,
+      layout: currentLayoutData(state),
       selectedItem: state.builder.selectedItem,
       activeLayerId: state.builder.activeLayerId,
       isLayoutEmpty: isLayoutEmpty(state),
@@ -219,7 +219,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
         layerId: this.props.activeLayerId,
-        detectionEnabled: [true, true]
+        hasOpposingJoints: [false, false]
       } as ItemData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.SUBSEQUENT)
@@ -318,7 +318,7 @@ export const hitTestAll = (point: Point): HitResult[] => {
 }
 
 
-const getRailDataById = (layout: LayoutStoreState, id: number) => {
+const getRailDataById = (layout: LayoutData, id: number) => {
   let found = _.flatMap(layout.layers, layer => layer.children)
     .find(item => item.id === id)
   return found
@@ -348,5 +348,4 @@ const getRailPartAt = (point: Point) => {
     return null
   }
 }
-
 

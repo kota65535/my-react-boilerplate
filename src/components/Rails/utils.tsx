@@ -2,7 +2,7 @@ import {ItemData} from "reducers/layout";
 import Rails from "components/Rails/index";
 import * as React from "react";
 
-export const createRailComponent = (item: ItemData, addItem: any) => {
+export const createRailComponent = (item: ItemData, addItem: any, updateItem: any) => {
   const {id: id, type: type, ...props} = item
   let RailComponent = Rails[type]
   // LOGGER.debug(props)
@@ -15,6 +15,7 @@ export const createRailComponent = (item: ItemData, addItem: any) => {
       // (activeTool === Tools.SELECT)
       // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
       addItem={addItem}
+      updateItem={updateItem}
       ref={(c) => RAIL_COMPONENTS[id] = c}
     />)
 }

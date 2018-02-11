@@ -22,9 +22,9 @@ import {Path, Point, Size} from "paper";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
 import {RootState} from "store/type";
 import {connect} from "react-redux";
-import {ItemData, LayoutStoreState} from "reducers/layout";
+import {ItemData, LayoutData, LayoutStoreState} from "reducers/layout";
 import {Rectangle} from "react-paper-bindings"
-import {isLayoutEmpty} from "selectors";
+import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import FirstRailPutter from "components/Rails/parts/FirstRailPutter";
@@ -35,7 +35,7 @@ const LOGGER = getLogger(__filename)
 
 
 export interface EditorProps {
-  layout: LayoutStoreState
+  layout: LayoutData
   width: number
   height: number
   selectedItem: any
@@ -61,7 +61,7 @@ type ComposedEditorProps = EditorProps
 
 const mapStateToProps = (state: RootState) => {
   return {
-    layout: state.layout,
+    layout: currentLayoutData(state),
     mousePosition: state.builder.mousePosition,
     isLayoutEmpty: isLayoutEmpty(state),
     builderPhase: state.builder.phase,
@@ -140,7 +140,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         visible={layer.visible}
         key={layer.id}
       >
-        {layer.children.map(item => createRailComponent(item, this.props.addItem))}
+        {layer.children.map(item => createRailComponent(item, this.props.addItem, this.props.updateItem))}
       </Layer>
     )
 

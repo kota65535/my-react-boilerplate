@@ -89,6 +89,7 @@ export default class CurveRail extends React.Component<CurveRailProps, {}> {
           partType: 'Joint',
           partId: 0
         }}
+        hasOpposingJoint={true}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
@@ -102,6 +103,7 @@ export default class CurveRail extends React.Component<CurveRailProps, {}> {
           partType: 'Joint',
           partId: 1
         }}
+        hasOpposingJoint={true}
         ref={(joint) => this.joints[1] = joint}
       />
     ]

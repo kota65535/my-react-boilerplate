@@ -1,23 +1,19 @@
 import * as React from 'react';
 import * as update from 'immutability-helper';
 import * as _ from "lodash"
-import {ItemData, LayerData, LayoutStoreState} from "reducers/layout";
+import {ItemData, LayerData, LayoutData, LayoutStoreState} from "reducers/layout";
 import {connect} from "react-redux";
 import {RootState} from "store/type";
-import {setLayers} from "actions/layout";
+import {clearHistory, setHistoryIndex, setLayers, setLayersNoHistory} from "actions/layout";
+import {currentLayoutData, nextRailId} from "selectors";
 
 
-const getNextItemId = (layout: LayoutStoreState, id = 1) => {
-  // 全レイヤーのアイテムの全てのIDを列挙する
-  let ids = _.flatMap(layout.layers, layer => layer.children.map(itemData => itemData.id))
-  return ids.length > 0 ? Math.max(...ids) + 1 : 1
-}
 
 
 
 export interface WithHistoryPublicProps {
   addItem: (layerId: number, item: ItemData) => void
-  updateItem: (oldItem: ItemData, newItem: ItemData) => void
+  updateItem: (oldItem: ItemData, newItem: ItemData, addHistory?: boolean) => void
   removeItem: (item: ItemData) => void
   setLayers: (layers: LayerData[]) => void
   canUndo: boolean
@@ -28,8 +24,14 @@ export interface WithHistoryPublicProps {
 }
 
 export interface WithHistoryPrivateProps {
-  layout: LayoutStoreState
+  histories: LayoutData[]
+  historyIndex: number
+  layout: LayoutData
+  nextId: number
   setLayers: (layers: LayerData[]) => void
+  setLayersNoHistory: (layers: LayerData[]) => void
+  setHistoryIndex: (index: number) => void
+  clearHistory: () => void
 }
 
 export type WithHistoryProps = WithHistoryPublicProps & WithHistoryPrivateProps
@@ -42,27 +44,32 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
 
   const mapStateToProps = (state: RootState) => {
     return {
-      layout: state.layout
+      histories: state.layout.histories,
+      historyIndex: state.layout.historyIndex,
+      layout: currentLayoutData(state),
+      nextId: nextRailId(state)
     }
   }
 
   const mapDispatchToProps = (dispatch: any) => {
     return {
-      setLayers: (layers: LayerData[]) => dispatch(setLayers({layers}))
+      setLayers: (layers: LayerData[]) => dispatch(setLayers({layers})),
+      setLayersNoHistory: (layers: LayerData[]) => dispatch(setLayersNoHistory({layers})),
+      clearHistory: () => dispatch(clearHistory({})),
+      setHistoryIndex: (index: number) => dispatch(setHistoryIndex(index)),
     }
   }
 
   class WithHistory extends React.Component<WithHistoryProps, {}> {
-    private historyIndex: number           // どのヒストリデータを指しているかのインデックス     private histories: Lay
-    private histories: LayoutStoreState[]  // アンドゥ・リドゥ用に保持するヒストリデータのリスト
-    private _id: number
-
 
     constructor(props: WithHistoryProps) {
       super(props)
-      this.historyIndex = 0
-      this.histories = [props.layout]
-      this._id = getNextItemId(props.layout)
+
+      this.addItem = this.addItem.bind(this)
+      this.updateItem = this.updateItem.bind(this)
+      this.removeItem = this.removeItem.bind(this)
+      this.undo = this.undo.bind(this)
+      this.redo = this.redo.bind(this)
     }
 
     /**
@@ -94,7 +101,7 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
 
     addItem = (layerId: number, item: ItemData) => {
       // IDを振る
-      item.id = this._id
+      item.id = this.props.nextId
       // 対象のレイヤーを探す
       const layerIndex = this.props.layout.layers.findIndex(layer => layer.id === layerId)
       const newLayout = update(this.props.layout, {
@@ -103,10 +110,9 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
         }
       })
       this.addHistory(newLayout)
-      this._id++
     }
 
-    updateItem = (oldItem: ItemData, newItem: any) => {
+    updateItem = (oldItem: ItemData, newItem: any, addHistory = true) => {
       // 対象のレイヤー、アイテムを探す
       const layerIndex = this.props.layout.layers.findIndex(layer => layer.id === oldItem.layerId)
       const itemIndex = this.props.layout.layers[layerIndex].children.findIndex((item) => item.id === oldItem.id)
@@ -115,7 +121,11 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
           [layerIndex]: { children: { $splice: [[itemIndex, 1, newItem]] } }
         }
       })
-      this.addHistory(newLayout)
+      if (addHistory) {
+        this.addHistory(newLayout)
+      } else {
+        this.updateHistory(newLayout)
+      }
     }
 
     removeItem = (item: ItemData) => {
@@ -130,18 +140,22 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
       this.addHistory(newLayout)
     }
 
-    addHistory = (currentState: LayoutStoreState) => {
-      this.historyIndex += 1
-      this.histories = [
-        ...this.histories.slice(0, this.historyIndex),
-        currentState,
+    addHistory = (layoutData: LayoutData) => {
+      // レイアウトデータをヒストリの最後尾に追加し、ヒストリインデックスをインクリメントする
+      const historyIndex = this.props.historyIndex + 1
+      const histories = [
+        ...this.props.histories.slice(0, historyIndex),
+        layoutData,
       ]
-      this.props.setLayers(this.histories[this.historyIndex].layers)
+      this.props.setLayers(histories[historyIndex].layers)
+    }
+
+    updateHistory = (layoutData: LayoutData) => {
+      this.props.setLayersNoHistory(layoutData.layers)
     }
 
     clearHistory = () => {
-      this.historyIndex = 0
-      this.histories = [this.props.layout]
+      this.props.clearHistory()
     }
 
     //==============================
@@ -150,24 +164,27 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
 
     undo = () => {
       if (this.canUndo()) {
-        this.historyIndex = this.historyIndex - 1
-        this.props.setLayers(this.histories[this.historyIndex].layers)
+        console.warn(this.props.historyIndex)
+        const historyIndex = this.props.historyIndex - 1
+        // this.props.setLayers(this.props.histories[historyIndex].layers)
+        this.props.setHistoryIndex(historyIndex)
       }
     }
 
     redo = () => {
       if (this.canRedo()) {
-        this.historyIndex = this.historyIndex + 1
-        this.props.setLayers(this.histories[this.historyIndex].layers)
+        const historyIndex = this.props.historyIndex + 1
+        this.props.setLayers(this.props.histories[historyIndex].layers)
+        this.props.setHistoryIndex(historyIndex)
       }
     }
 
     canUndo = () => {
-      return this.historyIndex > 0
+      return this.props.historyIndex > 0
     }
 
     canRedo = () => {
-      return this.histories.length > 1 && this.historyIndex + 1 < this.histories.length
+      return this.props.histories.length > 1 && this.props.historyIndex + 1 < this.props.histories.length
     }
 
 

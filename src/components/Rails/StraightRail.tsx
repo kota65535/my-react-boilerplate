@@ -10,11 +10,13 @@ import {setTemporaryItem} from "actions/builder";
 import {connect} from "react-redux";
 import RailFactory from "components/Rails/RailFactory";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
+import * as update from "immutability-helper";
+import {compose} from "recompose";
+import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
 
 
 interface Props extends Partial<DefaultProps> {
   position: Point
-  addItem: (layerId: number, item: ItemData) => void
   angle: number
   length: number
   id: number
@@ -22,21 +24,19 @@ interface Props extends Partial<DefaultProps> {
   temporaryItem: ItemData
   setTemporaryItem: (item: ItemData) => void
   activeLayerId: number
-  detectionEnabled: boolean[]
+  name: string
+  layerId: number    // このアイテムが所属するレイヤー
 }
 
 interface DefaultProps {
+  type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   selected?: boolean
   pivot?: Pivot
   opacity?: number
-  detectionEnabled?: boolean[]
+  hasOpposingJoints?: boolean[]
 }
 
-interface State {
-  jointDetectionStates: boolean[]
-}
-
-export type StraightRailProps = Props & DefaultProps
+export type StraightRailProps = Props & DefaultProps & WithHistoryProps
 
 
 const mapStateToProps = (state: RootState) => {
@@ -53,12 +53,13 @@ const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export class StraightRail extends React.Component<StraightRailProps, State> {
+export class StraightRail extends React.Component<StraightRailProps, {}> {
   public static defaultProps: DefaultProps = {
+    type: 'StraightRail',
     selected: false,
     pivot: Pivot.LEFT,
     opacity: 1,
-    detectionEnabled: [false, false]
+    hasOpposingJoints: [false, false]
   }
 
   railPart: StraightRailPart
@@ -105,8 +106,16 @@ export class StraightRail extends React.Component<StraightRailProps, State> {
       position: (this.props.temporaryItem as any).position,
       angle: (this.props.temporaryItem as any).angle,
       layerId: this.props.activeLayerId,
-      detectionEnabled: [false, true]
+      hasOpposingJoints: [true, false]
     } as ItemData)
+
+    // このレールのジョイントの接続状態を変更する
+    this.props.updateItem(this.props as any, update(this.props, {
+        hasOpposingJoints: {
+          [jointId]: {$set: true}
+        }
+      }
+    ), false)
   }
 
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
@@ -123,7 +132,8 @@ export class StraightRail extends React.Component<StraightRailProps, State> {
   }
 
   render() {
-    const {position, angle, length, id, selected, pivot, opacity} = this.props
+    const {position, angle, length, id, selected, pivot, opacity,
+      hasOpposingJoints} = this.props
 
     return [
       <StraightRailPart
@@ -152,7 +162,7 @@ export class StraightRail extends React.Component<StraightRailProps, State> {
           partType: 'Joint',
           partId: 0
         }}
-        detectionEnabled={this.props.detectionEnabled[0]}
+        hasOpposingJoint={hasOpposingJoints[0]}
         onClick={this.onJointClick.bind(this,  0)}
         onMouseMove={this.onJointMouseMove.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
@@ -168,7 +178,7 @@ export class StraightRail extends React.Component<StraightRailProps, State> {
           partType: 'Joint',
           partId: 1
         }}
-        detectionEnabled={this.props.detectionEnabled[1]}
+        hasOpposingJoint={hasOpposingJoints[1]}
         onClick={this.onJointClick.bind(this, 1)}
         onMouseMove={this.onJointMouseMove.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
@@ -180,4 +190,6 @@ export class StraightRail extends React.Component<StraightRailProps, State> {
 export type StraightRailItemData = BaseItemData & StraightRailProps
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(StraightRail)
+export default connect(mapStateToProps, mapDispatchToProps)(compose<Props, Props>(
+  withHistory
+)(StraightRail))

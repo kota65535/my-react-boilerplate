@@ -62,6 +62,14 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     return this._detectionPart
   }
 
+  get position() {
+    return this._mainPart.position
+  }
+
+  get angle() {
+    return this._mainPart.angle
+  }
+
   resetDetectionState() {
     this.setState({
         detectionState: DetectionState.BEFORE_DETECT
@@ -76,6 +84,16 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   move(position: Point, anchor: Point = this.mainPart.position): void {
     this.mainPart.move(position, anchor)
     this.detectionPart.move(position, anchor)
+  }
+
+  rotateRelatively(difference: number, pivot: Point = this.position) {
+    this.mainPart.rotateRelatively(difference, pivot);
+    this.detectionPart.rotateRelatively(difference, pivot);
+  }
+
+  rotate(angle: number, pivot: Point = this.position) {
+    this.mainPart.rotate(angle, pivot);
+    this.detectionPart.rotate(angle, pivot);
   }
 
   // ========== Private methods ==========

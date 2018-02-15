@@ -23,7 +23,7 @@ interface DefaultProps {
   selected?: boolean
   opacity?: number
   fillColors?: string[]
-  hasOpposingJoint: boolean
+  hasOpposingJoint?: boolean
 }
 
 export type JointProps = Props & DefaultProps;
@@ -56,7 +56,11 @@ export default class Joint extends React.Component<JointProps, {}> {
   // ========== Public APIs ==========
 
   get position() {
-    return this.detectablePart.mainPart.path.position
+    return this.detectablePart.position
+  }
+
+  get angle() {
+    return this.detectablePart.angle
   }
 
   // 対向ジョイントの接続が解除されたら状態をリセットする（再び検出可能にする）
@@ -68,6 +72,14 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   move(position: Point): void {
     this.detectablePart.move(position)
+  }
+
+  rotateRelatively(difference: number, pivot: Point = this.position) {
+    this.detectablePart.rotateRelatively(difference, pivot);
+  }
+
+  rotate(angle: number, pivot: Point = this.position) {
+    this.detectablePart.rotate(angle, pivot);
   }
 
   // ========== Private methods ==========

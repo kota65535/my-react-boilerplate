@@ -80,7 +80,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
         <Line
           from={new Point(this.props.gridSize * i, 0)}
           to={new Point(this.props.gridSize * i, this.props.height)}
-          strokeColor={'red'}
+          strokeColor={i % 10 === 0 ? 'white' : 'red'}
         />)
     })
     // 横のグリッドを生成
@@ -89,7 +89,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
         <Line
           from={new Point(0, this.props.gridSize * i)}
           to={new Point(this.props.width,this.props.gridSize * i)}
-          strokeColor={'red'}
+          strokeColor={i % 10 === 0 ? 'white' : 'red'}
         />)
     })
 

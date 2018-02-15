@@ -30,6 +30,9 @@ import getLogger from "logging";
 import FirstRailPutter from "components/Rails/parts/FirstRailPutter";
 import {createRailComponent} from "components/Rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
+import StraightRail from "components/Rails/StraightRail";
+import CurveRail from "components/Rails/CurveRail";
+import SimpleTurnout from "components/Rails/SimpleTurnout";
 
 const LOGGER = getLogger(__filename)
 
@@ -169,6 +172,36 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             <TemporaryLayer />
 
             {layers}
+
+            <SimpleTurnout
+              position={new Point(700, 700)}
+              pivotJointIndex={2}
+              angle={30}
+              length={140}
+              radius={541}
+              centerAngle={15}
+              id={1}
+              layerId={1}
+            />
+
+            {/*<StraightRail*/}
+              {/*position={new Point(700, 700)}*/}
+              {/*pivotJointIndex={1}*/}
+              {/*angle={30}*/}
+              {/*length={200}*/}
+              {/*id={1}*/}
+              {/*layerId={1}*/}
+            {/*/>*/}
+
+            {/*<CurveRail*/}
+              {/*position={new Point(770, 770)}*/}
+              {/*pivotJointIndex={1}*/}
+              {/*angle={135}*/}
+              {/*radius={140}*/}
+              {/*centerAngle={45}*/}
+              {/*id={2}*/}
+              {/*layerId={1}*/}
+            {/*/>*/}
 
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}

@@ -3,10 +3,16 @@ import {Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
 import {default as PartBase, PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
 
+export enum ArcDirection {
+  RIGHT,
+  LEFT
+}
+
 export interface ArcPartProps extends PartBaseProps {
   width: number
   radius: number
   centerAngle: number
+  direction: ArcDirection
 }
 
 
@@ -56,11 +62,11 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
 
 
   render() {
-    const {width, radius, centerAngle,
+    const {width, radius, centerAngle, direction,
       position, angle, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
     return <PathComponent
-      pathData={createArcPath(width, radius, centerAngle)}
+      pathData={createArcPath(width, radius, centerAngle, direction)}
       position={position}
       rotation={angle}
       fillColor={fillColor}
@@ -83,7 +89,16 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
   }
 }
 
-export function createArcPath(width: number, radius: number, centerAngle: number) {
+export function createArcPath(width: number, radius: number, centerAngle: number, direction: ArcDirection) {
+  switch (direction) {
+    case ArcDirection.RIGHT:
+      return createArcPathRight(width, radius, centerAngle)
+    case ArcDirection.LEFT:
+      return createArcPathLeft(width, radius, centerAngle)
+  }
+}
+
+const createArcPathRight = (width: number, radius: number, centerAngle: number) => {
   // 曲線の始点・終点の座標を計算
   let outerEndX = (radius + width/2) * Math.sin(centerAngle / 180 * Math.PI);
   let outerEndY = (radius + width/2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) - width/2;
@@ -95,5 +110,23 @@ export function createArcPath(width: number, radius: number, centerAngle: number
   L ${(outerEndX + innerEndX) / 2} ${(outerEndY + innerEndY) / 2} 
   L ${innerEndX} ${innerEndY} 
   A ${radius - width/2} ${radius - width/2} 0, 0, 0, 0 ${ width/2} Z`
+  console.log(pathData)
   return pathData
+}
+
+const createArcPathLeft = (width: number, radius: number, centerAngle: number) => {
+  // 曲線の始点・終点の座標を計算
+  let outerEndX = (radius + width/2) * Math.sin(centerAngle / 180 * Math.PI);
+  let outerEndY = - (radius + width/2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) + width/2;
+  let innerEndX = (radius - width/2) * Math.sin(centerAngle / 180 * Math.PI);
+  let innerEndY = - (radius - width/2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) - width/2;
+
+  let pathData = `M 0 0 L 0 ${width/2}
+  A ${radius + width/2} ${radius + width/2}, 0, 0, 0, ${outerEndX} ${outerEndY}
+  L ${(outerEndX + innerEndX) / 2} ${(outerEndY + innerEndY) / 2} 
+  L ${innerEndX} ${innerEndY} 
+  A ${radius - width/2} ${radius - width/2} 0, 0, 1, 0 ${-width/2} Z`
+  console.log(pathData)
+  return pathData
+
 }

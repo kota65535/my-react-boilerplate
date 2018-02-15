@@ -24,14 +24,14 @@ interface Props extends Partial<DefaultProps> {
   temporaryItem: ItemData
   setTemporaryItem: (item: ItemData) => void
   activeLayerId: number
-  name: string
+  name?: string
   layerId: number    // このアイテムが所属するレイヤー
 }
 
 interface DefaultProps {
   type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   selected?: boolean
-  pivot?: Pivot
+  pivotJointIndex?: number
   opacity?: number
   hasOpposingJoints?: boolean[]
 }
@@ -57,7 +57,7 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
   public static defaultProps: DefaultProps = {
     type: 'StraightRail',
     selected: false,
-    pivot: Pivot.LEFT,
+    pivotJointIndex: 0,
     opacity: 1,
     hasOpposingJoints: [false, false]
   }
@@ -67,37 +67,57 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
 
   constructor(props: StraightRailProps) {
     super(props)
-    this.state = {
-      jointDetectionStates: [false, false]
-    }
 
     this.onJointClick = this.onJointClick.bind(this)
   }
 
+  getJointPosition(jointId: number) {
+    switch (jointId) {
+      case 0:
+        return this.railPart.startPoint
+      case 1:
+        return this.railPart.endPoint
+      default:
+        throw Error(`Invalid joint ID ${jointId}`)
+    }
+  }
 
   componentDidUpdate() {
+    this.fixPositionByPivotJoint()
     this.fixJointsPosition()
   }
 
   componentDidMount() {
+    this.fixPositionByPivotJoint()
     this.fixJointsPosition()
+  }
+
+  fixPositionByPivotJoint() {
+    this.railPart.rotate(this.joints[0].angle - this.joints[this.props.pivotJointIndex].angle - this.props.angle, this.getJointPosition(this.props.pivotJointIndex))
+    this.railPart.move(this.props.position, this.getJointPosition(this.props.pivotJointIndex))
   }
 
   // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
   fixJointsPosition() {
-    switch (this.props.pivot) {
-      case Pivot.LEFT:
-        // ジョイントパーツの右端・左端をレールパーツに合わせる場合
-        // this.joints[1].detectablePart.move(this.railPart.endPoint, this.joints[1].detectablePart.mainPart.getCenterOfRight())
-        this.joints[1].detectablePart.move(this.railPart.endPoint)
+    this.joints.forEach((joint, i) => joint.move(this.getJointPosition(i)))
+  }
+
+  onJointClick = (jointId: number, e: any) => {
+    switch (e.event.button) {
+      case 0:
+        this.onMouseLeftDown(jointId, e)
         break
-      case Pivot.RIGHT:
-        this.joints[0].detectablePart.move(this.railPart.startPoint)
+      case 2:
+        this.onMouseRightDown(jointId, e)
         break
     }
   }
 
-  onJointClick = (jointId: number, e: MouseEvent) => {
+  onMouseRightDown = (jointId: number, e: MouseEvent) => {
+
+  }
+
+  onMouseLeftDown = (jointId: number, e: MouseEvent) => {
     // パレットで選択したレール生成のためのPropsを取得
     const itemProps = RailFactory[this.props.selectedItem.name]()
     // 仮レールの位置にレールを設置
@@ -132,7 +152,7 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
   }
 
   render() {
-    const {position, angle, length, id, selected, pivot, opacity,
+    const {position, angle, length, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints} = this.props
 
     return [
@@ -140,7 +160,7 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
         position={position}
         angle={angle}
         length={length}
-        pivot={pivot}
+        pivot={Pivot.LEFT}
         selected={selected}
         opacity={opacity}
         name={'Rail'}
@@ -152,7 +172,7 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
         ref={(railPart) => this.railPart = railPart}
       />,
       <Joint
-        angle={angle - 180}
+        angle={angle + 180}
         position={position}
         opacity={opacity}
         name={'Rail'}

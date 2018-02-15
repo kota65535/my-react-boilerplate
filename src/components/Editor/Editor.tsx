@@ -33,6 +33,7 @@ import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
 import StraightRail from "components/Rails/StraightRail";
 import CurveRail from "components/Rails/CurveRail";
 import SimpleTurnout from "components/Rails/SimpleTurnout";
+import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
 
 const LOGGER = getLogger(__filename)
 
@@ -175,6 +176,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
             <SimpleTurnout
               position={new Point(700, 700)}
+              branchDirection={ArcDirection.RIGHT}
               pivotJointIndex={2}
               angle={30}
               length={140}
@@ -184,24 +186,24 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               layerId={1}
             />
 
-            {/*<StraightRail*/}
-              {/*position={new Point(700, 700)}*/}
-              {/*pivotJointIndex={1}*/}
-              {/*angle={30}*/}
-              {/*length={200}*/}
-              {/*id={1}*/}
-              {/*layerId={1}*/}
-            {/*/>*/}
+            <StraightRail
+              position={new Point(770, 630)}
+              pivotJointIndex={1}
+              angle={30}
+              length={200}
+              id={1}
+              layerId={1}
+            />
 
-            {/*<CurveRail*/}
-              {/*position={new Point(770, 770)}*/}
-              {/*pivotJointIndex={1}*/}
-              {/*angle={135}*/}
-              {/*radius={140}*/}
-              {/*centerAngle={45}*/}
-              {/*id={2}*/}
-              {/*layerId={1}*/}
-            {/*/>*/}
+            <CurveRail
+              position={new Point(770, 770)}
+              pivotJointIndex={1}
+              angle={135}
+              radius={140}
+              centerAngle={45}
+              id={2}
+              layerId={1}
+            />
 
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}

@@ -13,9 +13,10 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import * as update from "immutability-helper";
 import {compose} from "recompose";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
+import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
 
 
-interface Props extends Partial<DefaultProps> {
+export interface StraightRailProps extends RailBaseProps {
   position: Point
   angle: number
   length: number
@@ -28,15 +29,8 @@ interface Props extends Partial<DefaultProps> {
   layerId: number    // このアイテムが所属するレイヤー
 }
 
-interface DefaultProps {
-  type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
-  selected?: boolean
-  pivotJointIndex?: number
-  opacity?: number
-  hasOpposingJoints?: boolean[]
-}
 
-export type StraightRailProps = Props & DefaultProps & WithHistoryProps
+export type StraightRailComposedProps = StraightRailProps & WithHistoryProps
 
 
 const mapStateToProps = (state: RootState) => {
@@ -53,53 +47,26 @@ const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export class StraightRail extends React.Component<StraightRailProps, {}> {
-  public static defaultProps: DefaultProps = {
+export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
+
+  public static NUM_RAIL_PARTS = 1
+  public static NUM_JOINTS = 2
+
+  public static defaultProps: RailBaseDefaultProps = {
     type: 'StraightRail',
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: [false, false]
+    hasOpposingJoints: new Array(StraightRail.NUM_JOINTS).fill(false)
   }
 
-  railPart: StraightRailPart
-  joints: Array<Joint> = [null, null]
+  railParts: Array<any> = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
+  joints: Array<Joint> = new Array(StraightRail.NUM_JOINTS).fill(null)
 
-  constructor(props: StraightRailProps) {
+  constructor(props: StraightRailComposedProps) {
     super(props)
 
     this.onJointClick = this.onJointClick.bind(this)
-  }
-
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railPart.startPoint
-      case 1:
-        return this.railPart.endPoint
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
-  }
-
-  componentDidUpdate() {
-    this.fixPositionByPivotJoint()
-    this.fixJointsPosition()
-  }
-
-  componentDidMount() {
-    this.fixPositionByPivotJoint()
-    this.fixJointsPosition()
-  }
-
-  fixPositionByPivotJoint() {
-    this.railPart.rotate(this.joints[0].angle - this.joints[this.props.pivotJointIndex].angle - this.props.angle, this.getJointPosition(this.props.pivotJointIndex))
-    this.railPart.move(this.props.position, this.getJointPosition(this.props.pivotJointIndex))
-  }
-
-  // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
-  fixJointsPosition() {
-    this.joints.forEach((joint, i) => joint.move(this.getJointPosition(i)))
   }
 
   onJointClick = (jointId: number, e: any) => {
@@ -169,7 +136,7 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
           partType: 'RailPart',
           partId: 0
         }}
-        ref={(railPart) => this.railPart = railPart}
+        ref={(railPart) => this.railParts[0] = railPart}
       />,
       <Joint
         angle={angle + 180}
@@ -210,6 +177,6 @@ export class StraightRail extends React.Component<StraightRailProps, {}> {
 export type StraightRailItemData = BaseItemData & StraightRailProps
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<Props, Props>(
+export default connect(mapStateToProps, mapDispatchToProps)(compose<StraightRailProps, StraightRailProps>(
   withHistory
 )(StraightRail))

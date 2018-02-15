@@ -11,31 +11,20 @@ import {connect} from "react-redux";
 import {compose} from "recompose";
 import {setTemporaryItem} from "actions/builder";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
+import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
 
 
-interface Props extends Partial<DefaultProps> {
-  position: Point
-  angle: number
+export interface CurveRailProps extends RailBaseProps {
   radius: number
   centerAngle: number
-  id: number
   selectedItem: PaletteItem
   temporaryItem: ItemData
   setTemporaryItem: (item: ItemData) => void
   activeLayerId: number
   name?: string
-  layerId: number    // このアイテムが所属するレイヤー
 }
 
-interface DefaultProps {
-  type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
-  selected?: boolean
-  pivotJointIndex?: number
-  opacity?: number
-  hasOpposingJoints?: boolean[]
-}
-
-export type CurveRailProps = Props & DefaultProps & WithHistoryProps
+export type CurveRailComposedProps = CurveRailProps & WithHistoryProps
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -51,67 +40,26 @@ const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export class CurveRail extends React.Component<CurveRailProps, {}> {
-  public static defaultProps: DefaultProps = {
+export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
+
+  public static NUM_RAIL_PARTS = 1
+  public static NUM_JOINTS = 2
+
+  public static defaultProps: RailBaseDefaultProps = {
     type: 'CurveRail',
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: [false, false]
+    hasOpposingJoints: new Array(CurveRail.NUM_JOINTS).fill(false)
   }
 
-  railPart: CurveRailPart
-  joints: Array<Joint> = [null, null]
+  railParts: Array<any> = new Array(CurveRail.NUM_RAIL_PARTS).fill(null)
+  joints: Array<Joint> = new Array(CurveRail.NUM_JOINTS).fill(null)
 
-  constructor(props: CurveRailProps) {
+  constructor(props: CurveRailComposedProps) {
     super(props)
 
     // this.onJointClick = this.onJointClick.bind(this)
-  }
-
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railPart.startPoint
-      case 1:
-        return this.railPart.endPoint
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
-  }
-
-  getJointAngle(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railPart.startAngle
-      case 1:
-        return this.railPart.endAngle
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
-  }
-
-  componentDidUpdate() {
-    this.fixRailPartPosition()
-    this.fixJointsPosition()
-  }
-
-  componentDidMount() {
-    this.fixRailPartPosition()
-    this.fixJointsPosition()
-  }
-
-  // レールパーツの位置・角度をPivotJointの指定に合わせる
-  fixRailPartPosition() {
-    // console.log(this.joints[0].angle, this.getJointPosition(this.props.pivotJointIndex))
-    this.railPart.rotate(this.joints[0].props.angle - this.joints[this.props.pivotJointIndex].props.angle + this.props.angle, this.getJointPosition(this.props.pivotJointIndex))
-    this.railPart.move(this.props.position, this.getJointPosition(this.props.pivotJointIndex))
-  }
-
-  // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
-  fixJointsPosition() {
-    this.joints.forEach((joint, i) => joint.move(this.getJointPosition(i)))
-    this.joints.forEach((joint, i) => joint.rotate(this.getJointAngle(i)))
   }
 
   render() {
@@ -133,7 +81,7 @@ export class CurveRail extends React.Component<CurveRailProps, {}> {
           partType: 'RailPart',
           partId: 0
         }}
-        ref={(railPart) => this.railPart = railPart}
+        ref={(railPart) => this.railParts[0] = railPart}
       />,
       <Joint
         angle={angle + 180}
@@ -169,6 +117,6 @@ export class CurveRail extends React.Component<CurveRailProps, {}> {
 
 export type CurveRailItemData = BaseItemData & CurveRailProps
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<Props, Props>(
+export default connect(mapStateToProps, mapDispatchToProps)(compose<CurveRailProps, CurveRailProps>(
   withHistory
 )(CurveRail))

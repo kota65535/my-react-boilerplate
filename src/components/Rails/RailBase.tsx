@@ -11,16 +11,15 @@ import {setTemporaryItem} from "actions/builder";
 import * as _ from "lodash";
 
 
-interface Props extends Partial<DefaultProps> {
+export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
   position: Point
   angle: number
   id: number
-  activeLayerId: number
-  name?: string
   layerId: number    // このアイテムが所属するレイヤー
+  name?: string
 }
 
-interface DefaultProps {
+export interface RailBaseDefaultProps {
   type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   selected?: boolean
   pivotJointIndex?: number
@@ -28,11 +27,9 @@ interface DefaultProps {
   hasOpposingJoints?: boolean[]
 }
 
-export type RailBaseProps = Props & DefaultProps
-
 
 export abstract class RailBase<P extends RailBaseProps, S> extends React.Component<P, S> {
-  public static defaultProps: DefaultProps = {
+  public static defaultProps: RailBaseDefaultProps = {
     type: 'RailBase',
     selected: false,
     pivotJointIndex: 0,
@@ -49,8 +46,27 @@ export abstract class RailBase<P extends RailBaseProps, S> extends React.Compone
     // this.onJointClick = this.onJointClick.bind(this)
   }
 
-  abstract getJointPosition(jointId: number)
-  abstract getJointAngle(jointId: number)
+  getJointPosition(jointId: number) {
+    switch (jointId) {
+      case 0:
+        return this.railParts[0].startPoint
+      case 1:
+        return this.railParts[0].endPoint
+      default:
+        throw Error(`Invalid joint ID ${jointId}`)
+    }
+  }
+
+  getJointAngle(jointId: number) {
+    switch (jointId) {
+      case 0:
+        return this.railParts[0].startAngle
+      case 1:
+        return this.railParts[0].endAngle
+      default:
+        throw Error(`Invalid joint ID ${jointId}`)
+    }
+  }
 
   componentDidUpdate() {
     this.fixRailPartPosition()

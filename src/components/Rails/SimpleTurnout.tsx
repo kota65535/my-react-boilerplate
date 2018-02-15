@@ -13,19 +13,16 @@ import {compose} from "recompose";
 import {setTemporaryItem} from "actions/builder";
 import * as _ from "lodash";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
+import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
 
-enum BranchDirection {
-  LEFT,
-  RIGHT
-}
 
-interface Props extends Partial<DefaultProps> {
+interface SimpleTurnoutProps extends RailBaseProps {
   position: Point
   angle: number
   length: number
   radius: number
   centerAngle: number
-  // branchDirection: BranchDirection
+  branchDirection: ArcDirection
   id: number
   selectedItem: PaletteItem
   temporaryItem: ItemData
@@ -35,15 +32,15 @@ interface Props extends Partial<DefaultProps> {
   layerId: number    // このアイテムが所属するレイヤー
 }
 
-interface DefaultProps {
-  type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
-  selected?: boolean
-  pivotJointIndex?: number
-  opacity?: number
-  hasOpposingJoints?: boolean[]
-}
+// interface DefaultProps {
+//   type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
+//   selected?: boolean
+//   pivotJointIndex?: number
+//   opacity?: number
+//   hasOpposingJoints?: boolean[]
+// }
 
-export type SimpleTurnoutProps = Props & DefaultProps & WithHistoryProps
+export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -59,19 +56,22 @@ const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
-  public static defaultProps: DefaultProps = {
+export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
+  public static NUM_RAIL_PARTS = 2
+  public static NUM_JOINTS = 3
+
+  public static defaultProps: RailBaseDefaultProps = {
     type: 'SimpleTurnout',
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: [false, false]
+    hasOpposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(false)
   }
 
-  railPart: Array<any> = [null, null]
-  joints: Array<Joint> = [null, null, null]
+  railParts: Array<any> = new Array(SimpleTurnout.NUM_RAIL_PARTS).fill(null)
+  joints: Array<Joint> = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
 
-  constructor(props: SimpleTurnoutProps) {
+  constructor(props: SimpleTurnoutComposedProps) {
     super(props)
 
     // this.onJointClick = this.onJointClick.bind(this)
@@ -80,11 +80,11 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
   getJointPosition(jointId: number) {
     switch (jointId) {
       case 0:
-        return this.railPart[0].startPoint
+        return this.railParts[0].startPoint
       case 1:
-        return this.railPart[0].endPoint
+        return this.railParts[0].endPoint
       case 2:
-        return this.railPart[1].endPoint
+        return this.railParts[1].endPoint
       default:
         throw Error(`Invalid joint ID ${jointId}`)
     }
@@ -93,49 +93,19 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
   getJointAngle(jointId: number) {
     switch (jointId) {
       case 0:
-        return this.railPart[0].startAngle
+        return this.railParts[0].startAngle
       case 1:
-        return this.railPart[0].endAngle
+        return this.railParts[0].endAngle
       case 2:
-        return this.railPart[1].endAngle
+        return this.railParts[1].endAngle
       default:
         throw Error(`Invalid joint ID ${jointId}`)
     }
   }
 
-  componentDidUpdate() {
-    this.fixRailPartPosition()
-    this.fixJointsPosition()
-  }
-
-  componentDidMount() {
-    this.fixRailPartPosition()
-    this.fixJointsPosition()
-  }
-
-  // レールパーツの位置・角度をPivotJointの指定に合わせる
-  fixRailPartPosition() {
-    // console.log(this.joints[0].angle, this.getJointPosition(this.props.pivotJointIndex))
-    const jointPosition = _.cloneDeep(this.getJointPosition(this.props.pivotJointIndex))
-    // this.railPart.forEach(r => r.rotate(this.joints[0].props.angle - this.joints[this.props.pivotJointIndex].props.angle + this.props.angle, jointPosition))
-    this.railPart[0].rotate(this.joints[0].props.angle - this.joints[this.props.pivotJointIndex].props.angle + this.railPart[0].props.angle, jointPosition)
-    this.railPart[1].rotate(this.joints[0].props.angle - this.joints[this.props.pivotJointIndex].props.angle + this.railPart[1].props.angle, jointPosition)
-    // // this.railPart.forEach(r => r.move(this.props.position, this.getJointPosition(this.props.pivotJointIndex)))
-    // // this.railPart[0].move(this.props.position, jointPosition)
-    this.railPart[0].move(this.props.position, jointPosition)
-    this.railPart[1].move(this.props.position, jointPosition)
-    // this.railPart.rotate(this.joints[0].angle, this.getJointPosition(this.props.pivotJointIndex))
-    // this.railPart.rotate(this.joints[0].props.angle - this.joints[this.props.pivotJointIndex].props.angle + this.props.angle, this.getJointPosition(this.props.pivotJointIndex))
-  }
-
-  // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
-  fixJointsPosition() {
-    this.joints.forEach((joint, i) => joint.move(this.getJointPosition(i)))
-    this.joints.forEach((joint, i) => joint.rotate(this.getJointAngle(i)))
-  }
 
   render() {
-    const {position, length, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity,
+    const {position, length, angle, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints} = this.props
     return [
       <StraightRailPart
@@ -151,12 +121,12 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
           partType: 'RailPart',
           partId: 0
         }}
-        ref={(railPart) => this.railPart[0] = railPart}
+        ref={(railPart) => this.railParts[0] = railPart}
       />,
       <CurveRailPart
         radius={radius}
         centerAngle={centerAngle}
-        direction={ArcDirection.LEFT}
+        direction={branchDirection}
         position={position}
         angle={angle}
         pivot={Pivot.LEFT}
@@ -168,7 +138,7 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
           partType: 'RailPart',
           partId: 0
         }}
-        ref={(railPart) => this.railPart[1] = railPart}
+        ref={(railPart) => this.railParts[1] = railPart}
       />,
       <Joint
         angle={angle + 180}
@@ -199,7 +169,7 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
         ref={(joint) => this.joints[1] = joint}
       />,
       <Joint
-        angle={angle - centerAngle}
+        angle={branchDirection === ArcDirection.RIGHT ? angle + centerAngle : angle - centerAngle}
         position={position}
         opacity={opacity}
         name={'Rail'}
@@ -207,9 +177,9 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
         data={{
           railId: id,
           partType: 'Joint',
-          partId: 1
+          partId: 2
         }}
-        hasOpposingJoint={hasOpposingJoints[1]}
+        hasOpposingJoint={hasOpposingJoints[2]}
         ref={(joint) => this.joints[2] = joint}
       />
     ]
@@ -218,6 +188,6 @@ export class SimpleTurnout extends React.Component<SimpleTurnoutProps, {}> {
 
 export type SimpleTurnoutItemData = BaseItemData & SimpleTurnoutProps
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<Props, Props>(
+export default connect(mapStateToProps, mapDispatchToProps)(compose<SimpleTurnoutProps, SimpleTurnoutProps>(
   withHistory
 )(SimpleTurnout))

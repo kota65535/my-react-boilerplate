@@ -62,34 +62,33 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
   constructor(props: CurveRailComposedProps) {
     super(props)
 
-    this.onJointClick = this.onJointClick.bind(this)
+    this.onJointLeftClick = this.onJointLeftClick.bind(this)
+    this.onJointRightClick = this.onJointRightClick.bind(this)
   }
 
-  onJointClick = (jointId: number, e: any) => {
-    switch (e.event.button) {
-      case 0:
-        this.onMouseLeftDown(jointId, e)
-        break
-      case 2:
-        this.onMouseRightDown(jointId, e)
-        break
-    }
+
+  onJointRightClick = (jointId: number, e: MouseEvent) => {
+    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + 1) % this.joints.length
+    this.props.setTemporaryItem(update(this.props.temporaryItem, {
+        pivotJointIndex: {$set: this.temporaryPivotJointIndex}
+      }
+    ))
   }
 
-  onMouseRightDown = (jointId: number, e: MouseEvent) => {
-
-  }
-
-  onMouseLeftDown = (jointId: number, e: MouseEvent) => {
+  onJointLeftClick = (jointId: number, e: MouseEvent) => {
     // パレットで選択したレール生成のためのPropsを取得
     const itemProps = RailFactory[this.props.selectedItem.name]()
+    let hasOpposingJoints = new Array(this.props.hasOpposingJoints.length).fill(false)
+    hasOpposingJoints[this.temporaryPivotJointIndex] = true
+
     // 仮レールの位置にレールを設置
     this.props.addItem(this.props.activeLayerId, {
       ...itemProps,
       position: (this.props.temporaryItem as any).position,
       angle: (this.props.temporaryItem as any).angle,
       layerId: this.props.activeLayerId,
-      hasOpposingJoints: [true, false]
+      hasOpposingJoints: hasOpposingJoints,
+      pivotJointIndex: this.temporaryPivotJointIndex
     } as ItemData)
 
     // このレールのジョイントの接続状態を変更する
@@ -99,6 +98,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
         }
       }
     ), false)
+    this.props.setTemporaryItem(null)
   }
 
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
@@ -109,8 +109,10 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
       id: -1,
       name: 'TemporaryRail',
       position: this.joints[jointId].position,
-      angle: this.joints[jointId].props.angle,
+      angle: this.joints[jointId].angle,
+      layerId: 1,
       opacity: TEMPORARY_RAIL_OPACITY,
+      pivotJointIndex: this.temporaryPivotJointIndex
     })
   }
 
@@ -140,14 +142,14 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.LEFT}    // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',
           partId: 0
         }}
         hasOpposingJoint={hasOpposingJoints[0]}
-        onClick={this.onJointClick.bind(this,  0)}
+        onLeftClick={this.onJointLeftClick.bind(this,  0)}
+        onRightClick={this.onJointRightClick.bind(this,  0)}
         onMouseMove={this.onJointMouseMove.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
       />,
@@ -156,14 +158,14 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',
           partId: 1
         }}
         hasOpposingJoint={hasOpposingJoints[1]}
-        onClick={this.onJointClick.bind(this, 1)}
+        onLeftClick={this.onJointLeftClick.bind(this, 1)}
+        onRightClick={this.onJointRightClick.bind(this,  1)}
         onMouseMove={this.onJointMouseMove.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
       />

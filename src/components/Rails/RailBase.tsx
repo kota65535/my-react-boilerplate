@@ -34,15 +34,16 @@ export abstract class RailBase<P extends RailBaseProps, S> extends React.PureCom
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: [false, false]
+    hasOpposingJoints: []
   }
 
-  railParts: Array<any>
-  joints: Array<Joint>
+  railParts: any[]
+  joints: Joint[]
+  temporaryPivotJointIndex: number
 
   constructor(props: P) {
     super(props)
-
+    this.temporaryPivotJointIndex = this.props.pivotJointIndex
     // this.onJointClick = this.onJointClick.bind(this)
   }
 
@@ -65,7 +66,7 @@ export abstract class RailBase<P extends RailBaseProps, S> extends React.PureCom
   getJointAngle(jointId: number) {
     switch (jointId) {
       case 0:
-        return this.railParts[0].startAngle
+        return this.railParts[0].startAngle - 180
       case 1:
         return this.railParts[0].endAngle
       default:

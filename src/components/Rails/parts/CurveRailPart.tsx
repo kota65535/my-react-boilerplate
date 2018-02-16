@@ -15,7 +15,8 @@ interface Props extends Partial<DefaultProps> {
   direction: ArcDirection
   name?: string
   data?: RailPartInfo
-  onClick?: (e: MouseEvent) => void
+  onLeftClick?: (e: MouseEvent) => void
+  onRightClick?: (e: MouseEvent) => void
 }
 
 interface DefaultProps {
@@ -91,7 +92,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
 
   render() {
     const {radius, centerAngle, position, angle, direction, pivot, detectionEnabled, selected, fillColors, opacity,
-      name, data, onClick} = this.props
+      name, data, onLeftClick, onRightClick} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -122,7 +123,8 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
         detectionEnabled={detectionEnabled}
         name={name}
         data={data}
-        onClick={onClick}
+        onLeftClick={onLeftClick}
+        onRightClick={onRightClick}
         ref={(part) => this.detectablePart = part}
       />
     )

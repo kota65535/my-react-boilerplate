@@ -29,6 +29,10 @@ export interface StraightRailProps extends RailBaseProps {
   layerId: number    // このアイテムが所属するレイヤー
 }
 
+export interface StraightRailState {
+ temporaryItemPivotIndex: number
+}
+
 
 export type StraightRailComposedProps = StraightRailProps & WithHistoryProps
 
@@ -47,7 +51,7 @@ const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
+export class StraightRail extends RailBase<StraightRailComposedProps, StraightRailState> {
 
   public static NUM_RAIL_PARTS = 1
   public static NUM_JOINTS = 2
@@ -62,44 +66,39 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
 
   railParts: Array<any> = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
   joints: Array<Joint> = new Array(StraightRail.NUM_JOINTS).fill(null)
+  temporaryPivotJointIndex: number
 
   constructor(props: StraightRailComposedProps) {
     super(props)
 
-    this.onJointClick = this.onJointClick.bind(this)
+    this.temporaryPivotJointIndex = this.props.pivotJointIndex
+    this.onJointLeftClick = this.onJointLeftClick.bind(this)
+    this.onJointRightClick = this.onJointRightClick.bind(this)
   }
 
 
-  onJointClick = (jointId: number, e: any) => {
-    switch (e.event.button) {
-      case 0:
-        this.onMouseLeftDown(jointId, e)
-        break
-      case 2:
-        this.onMouseRightDown(jointId, e)
-        break
-    }
-  }
-
-  onMouseRightDown = (jointId: number, e: MouseEvent) => {
-    // FIXME
+  onJointRightClick = (jointId: number, e: MouseEvent) => {
+    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + 1) % this.joints.length
     this.props.setTemporaryItem(update(this.props.temporaryItem, {
-        pivotJointIndex: {$set: 1}
+        pivotJointIndex: {$set: this.temporaryPivotJointIndex}
       }
     ))
-
   }
 
-  onMouseLeftDown = (jointId: number, e: MouseEvent) => {
+  onJointLeftClick = (jointId: number, e: MouseEvent) => {
     // パレットで選択したレール生成のためのPropsを取得
     const itemProps = RailFactory[this.props.selectedItem.name]()
+    let hasOpposingJoints = new Array(this.props.hasOpposingJoints.length).fill(false)
+    hasOpposingJoints[this.temporaryPivotJointIndex] = true
+
     // 仮レールの位置にレールを設置
     this.props.addItem(this.props.activeLayerId, {
       ...itemProps,
       position: (this.props.temporaryItem as any).position,
       angle: (this.props.temporaryItem as any).angle,
       layerId: this.props.activeLayerId,
-      hasOpposingJoints: [true, false]
+      hasOpposingJoints: hasOpposingJoints,
+      pivotJointIndex: this.temporaryPivotJointIndex
     } as ItemData)
 
     // このレールのジョイントの接続状態を変更する
@@ -109,6 +108,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
         }
       }
     ), false)
+    this.props.setTemporaryItem(null)
   }
 
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
@@ -119,9 +119,10 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
       id: -1,
       name: 'TemporaryRail',
       position: this.joints[jointId].position,
-      angle: this.joints[jointId].props.angle,
+      angle: this.joints[jointId].angle,
       layerId: 1,
       opacity: TEMPORARY_RAIL_OPACITY,
+      pivotJointIndex: this.temporaryPivotJointIndex
     })
   }
 
@@ -156,7 +157,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
           partId: 0
         }}
         hasOpposingJoint={hasOpposingJoints[0]}
-        onClick={this.onJointClick.bind(this,  0)}
+        onLeftClick={this.onJointLeftClick.bind(this,  0)}
+        onRightClick={this.onJointRightClick.bind(this,  0)}
         onMouseMove={this.onJointMouseMove.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
       />,
@@ -171,7 +173,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
           partId: 1
         }}
         hasOpposingJoint={hasOpposingJoints[1]}
-        onClick={this.onJointClick.bind(this, 1)}
+        onLeftClick={this.onJointLeftClick.bind(this, 1)}
+        onRightClick={this.onJointRightClick.bind(this,  1)}
         onMouseMove={this.onJointMouseMove.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
       />

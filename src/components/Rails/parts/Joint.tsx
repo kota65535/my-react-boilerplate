@@ -7,13 +7,15 @@ import CirclePart from "./primitives/CirclePart";
 import {RailPartInfo} from "components/Rails/parts/types";
 import {Pivot} from "components/Rails/parts/primitives/PartBase";
 import {JOINT_DETECTION_OPACITY_RATE, JOINT_FILL_COLORS} from "constants/parts";
+import TrianglePart from "components/Rails/parts/primitives/TrianglePart";
 
 
 interface Props extends Partial<DefaultProps> {
   name?: string
   data?: RailPartInfo
-  onClick?: (e: MouseEvent) => void
   onMouseMove?: (e: MouseEvent) => void
+  onLeftClick?: (e: MouseEvent) => void
+  onRightClick?: (e: MouseEvent) => void
 }
 
 interface DefaultProps {
@@ -86,12 +88,12 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   render() {
     const {position, angle, hasOpposingJoint, pivot, selected, fillColors, opacity,
-      name, data, onClick, onMouseMove} = this.props
+      name, data, onLeftClick, onRightClick, onMouseMove} = this.props
 
     return (
       <DetectablePart
         mainPart={
-          <RectPart
+          <TrianglePart
             position={position}
             angle={angle}
             width={Joint.WIDTH}
@@ -113,7 +115,8 @@ export default class Joint extends React.Component<JointProps, {}> {
         detectionEnabled={! hasOpposingJoint}
         name={name}
         // data={Object.assign(data, {detectionState})}
-        onClick={onClick}
+        onLeftClick={onLeftClick}
+        onRightClick={onRightClick}
         onMouseMove={onMouseMove}
         ref={(part) => this.detectablePart = part}
       />

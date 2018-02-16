@@ -19,16 +19,7 @@ import {
 
 
 export interface StraightRailProps extends RailBaseProps {
-  position: Point
-  angle: number
   length: number
-  id: number
-  selectedItem: PaletteItem
-  temporaryItem: ItemData
-  setTemporaryItem: (item: ItemData) => void
-  activeLayerId: number
-  name?: string
-  layerId: number    // このアイテムが所属するレイヤー
 }
 
 export interface StraightRailState {
@@ -54,9 +45,9 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
   constructor(props: StraightRailComposedProps) {
     super(props)
 
+    this.temporaryPivotJointIndex = 0
     this.railParts = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
-    this.temporaryPivotJointIndex = this.props.pivotJointIndex
   }
 
 
@@ -95,7 +86,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
         hasOpposingJoint={hasOpposingJoints[0]}
         onLeftClick={this.onJointLeftClick.bind(this, 0)}
         onRightClick={this.onJointRightClick.bind(this, 0)}
-        onMouseMove={this.onJointMouseMove.bind(this, 0)}
+        // onMouseMove={this.onJointMouseMove.bind(this, 0)}
+        onMouseEnter={this.onJointMouseEnter.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
@@ -111,7 +103,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
         hasOpposingJoint={hasOpposingJoints[1]}
         onLeftClick={this.onJointLeftClick.bind(this, 1)}
         onRightClick={this.onJointRightClick.bind(this, 1)}
-        onMouseMove={this.onJointMouseMove.bind(this, 1)}
+        // onMouseMove={this.onJointMouseMove.bind(this, 1)}
+        onMouseEnter={this.onJointMouseEnter.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
       />
     ]

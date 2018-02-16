@@ -10,6 +10,7 @@ import * as _ from "lodash";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import RailFactory from "components/Rails/RailFactory";
 import * as update from "immutability-helper";
+import {RailComponents} from "components/Rails/index";
 
 
 export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
@@ -64,7 +65,6 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
 
   constructor(props: P) {
     super(props)
-    this.temporaryPivotJointIndex = this.props.pivotJointIndex
   }
 
   // TODO: これでOK?
@@ -104,17 +104,29 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
     this.fixJointsPosition()
   }
 
+  /**
+   * ジョイントを右クリックしたら、仮レールが接続するジョイントを変更する
+   * @param {number} jointId
+   * @param {MouseEvent} e
+   */
   onJointRightClick = (jointId: number, e: MouseEvent) => {
-    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + 1) % this.joints.length
+    // 仮レールのPivotJointをインクリメントする
+    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + 1) % RailComponents[this.props.temporaryItem.type].NUM_JOINTS
     this.props.setTemporaryItem(update(this.props.temporaryItem, {
         pivotJointIndex: {$set: this.temporaryPivotJointIndex}
       }
     ))
   }
 
+  /**
+   * ジョイントを左クリックしたら、仮レールの位置にレールを設置する
+   * @param {number} jointId
+   * @param {MouseEvent} e
+   */
   onJointLeftClick = (jointId: number, e: MouseEvent) => {
     // パレットで選択したレール生成のためのPropsを取得
     const itemProps = RailFactory[this.props.selectedItem.name]()
+    // PivotJointだけ接続状態にする
     let hasOpposingJoints = new Array(this.props.hasOpposingJoints.length).fill(false)
     hasOpposingJoints[this.temporaryPivotJointIndex] = true
 
@@ -128,19 +140,29 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
       pivotJointIndex: this.temporaryPivotJointIndex
     } as ItemData)
 
-    // このレールのジョイントの接続状態を変更する
+    // 仮レールに接続しているジョイントを接続状態にする
     this.props.updateItem(this.props as any, update(this.props, {
         hasOpposingJoints: {
           [jointId]: {$set: true}
         }
       }
     ), false)
+    // 仮レールを消去する
     this.props.setTemporaryItem(null)
   }
 
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
-    // 仮レールを設置する
+  }
+
+  /**
+   * ジョイントにマウスが乗ったら、仮レールを表示する
+   * @param {number} jointId
+   * @param {MouseEvent} e
+   */
+  onJointMouseEnter = (jointId: number, e: MouseEvent) => {
+    // パレットで選択したレール生成のためのPropsを取得
     const itemProps = RailFactory[this.props.selectedItem.name]()
+    // 仮レールを設置する
     this.props.setTemporaryItem({
       ...itemProps,
       id: -1,
@@ -151,6 +173,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
       opacity: TEMPORARY_RAIL_OPACITY,
       pivotJointIndex: this.temporaryPivotJointIndex
     })
+
+  }
+
+  onJointMouseLeave = (jointId: number, e: MouseEvent) => {
   }
 
   // レールパーツの位置・角度をPivotJointの指定に合わせる

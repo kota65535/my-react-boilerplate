@@ -1,3 +1,5 @@
+import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
+
 class RailFactory {
 
   // ========== Straight Rails ==========
@@ -93,12 +95,25 @@ class RailFactory {
     }
   }
 
-  // PL541_15() {
-  //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 541, 15, TurnoutDirection.LEFT);
-  // }
-  // PR541_15() {
-  //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 541, 15, TurnoutDirection.RIGHT);
-  // }
+  ['PL541-15']() {
+    return {
+      type: 'SimpleTurnout',
+      length: 140,
+      radius: 541,
+      centerAngle: 15,
+      branchDirection: ArcDirection.LEFT
+    }
+  }
+
+  ['PR541-15']() {
+    return {
+      type: 'SimpleTurnout',
+      length: 140,
+      radius: 541,
+      centerAngle: 15,
+      branchDirection: ArcDirection.RIGHT
+    }
+  }
   // PL280_30() {
   //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 280, 30, TurnoutDirection.LEFT);
   // }

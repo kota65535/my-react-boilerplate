@@ -16,6 +16,8 @@ interface Props extends Partial<DefaultProps> {
   onMouseMove?: (e: MouseEvent) => void
   onLeftClick?: (e: MouseEvent) => void
   onRightClick?: (e: MouseEvent) => void
+  onMouseEnter?: (e: MouseEvent) => void
+  onMouseLeave?: (e: MouseEvent) => void
 }
 
 interface DefaultProps {
@@ -88,7 +90,7 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   render() {
     const {position, angle, hasOpposingJoint, pivot, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick, onMouseMove} = this.props
+      name, data, onLeftClick, onRightClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
 
     return (
       <DetectablePart
@@ -117,6 +119,8 @@ export default class Joint extends React.Component<JointProps, {}> {
         // data={Object.assign(data, {detectionState})}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
         onMouseMove={onMouseMove}
         ref={(part) => this.detectablePart = part}
       />

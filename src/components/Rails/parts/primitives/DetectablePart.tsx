@@ -130,6 +130,9 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         detectionPartVisible: true
       })
     }
+    if (this.props.onMouseEnter) {
+      this.props.onMouseEnter(e)
+    }
   }
 
   onMouseLeave = (e: MouseEvent) => {
@@ -138,6 +141,9 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         detectionState: DetectionState.BEFORE_DETECT,
         detectionPartVisible: true
       })
+    }
+    if (this.props.onMouseLeave) {
+      this.props.onMouseLeave(e)
     }
   }
 

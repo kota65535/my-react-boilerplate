@@ -12,48 +12,21 @@ import {connect} from "react-redux";
 import {compose} from "recompose";
 import {setTemporaryItem} from "actions/builder";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
-import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
+import {
+  mapDispatchToProps, mapStateToProps, RailBase, RailBaseDefaultProps,
+  RailBaseProps
+} from "components/Rails/RailBase";
 
 
 interface SimpleTurnoutProps extends RailBaseProps {
-  position: Point
-  angle: number
   length: number
   radius: number
   centerAngle: number
   branchDirection: ArcDirection
-  id: number
-  selectedItem: PaletteItem
-  temporaryItem: ItemData
-  setTemporaryItem: (item: ItemData) => void
-  activeLayerId: number
-  name?: string
-  layerId: number    // このアイテムが所属するレイヤー
 }
-
-// interface DefaultProps {
-//   type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
-//   selected?: boolean
-//   pivotJointIndex?: number
-//   opacity?: number
-//   hasOpposingJoints?: boolean[]
-// }
 
 export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    selectedItem: state.builder.selectedItem,
-    temporaryItem: state.builder.temporaryItem,
-    activeLayerId: state.builder.activeLayerId
-  }
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    setTemporaryItem: (item: ItemData) => dispatch(setTemporaryItem(item)),
-  }
-}
 
 export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
   public static NUM_RAIL_PARTS = 2
@@ -67,13 +40,12 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
     hasOpposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(false)
   }
 
-  railParts: Array<any> = new Array(SimpleTurnout.NUM_RAIL_PARTS).fill(null)
-  joints: Array<Joint> = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
-
   constructor(props: SimpleTurnoutComposedProps) {
     super(props)
 
-    // this.onJointClick = this.onJointClick.bind(this)
+    this.temporaryPivotJointIndex = 0
+    this.railParts = new Array(SimpleTurnout.NUM_RAIL_PARTS).fill(null)
+    this.joints = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
   }
 
   getJointPosition(jointId: number) {
@@ -92,7 +64,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
   getJointAngle(jointId: number) {
     switch (jointId) {
       case 0:
-        return this.railParts[0].startAngle
+        return this.railParts[0].startAngle - 180
       case 1:
         return this.railParts[0].endAngle
       case 2:
@@ -146,13 +118,17 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.LEFT}    // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',
           partId: 0
         }}
         hasOpposingJoint={hasOpposingJoints[0]}
+        onLeftClick={this.onJointLeftClick.bind(this, 0)}
+        onRightClick={this.onJointRightClick.bind(this, 0)}
+        // onMouseMove={this.onJointMouseMove.bind(this, 0)}
+        // onMouseLeave={this.onJointMouseLeave.bind(this, 0)}
+        onMouseEnter={this.onJointMouseEnter.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
@@ -160,13 +136,17 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',
           partId: 1
         }}
         hasOpposingJoint={hasOpposingJoints[1]}
+        onLeftClick={this.onJointLeftClick.bind(this, 1)}
+        onRightClick={this.onJointRightClick.bind(this, 1)}
+        // onMouseMove={this.onJointMouseMove.bind(this, 1)}
+        // onMouseLeave={this.onJointMouseLeave.bind(this, 1)}
+        onMouseEnter={this.onJointMouseEnter.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
       />,
       <Joint
@@ -174,13 +154,17 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',
           partId: 2
         }}
         hasOpposingJoint={hasOpposingJoints[2]}
+        onLeftClick={this.onJointLeftClick.bind(this, 2)}
+        onRightClick={this.onJointRightClick.bind(this,2)}
+        // onMouseMove={this.onJointMouseMove.bind(this, 2)}
+        // onMouseLeave={this.onJointMouseLeave.bind(this, 2)}
+        onMouseEnter={this.onJointMouseEnter.bind(this, 2)}
         ref={(joint) => this.joints[2] = joint}
       />
     ]

@@ -9,6 +9,9 @@ import {connect} from "react-redux";
 import {compose} from "recompose";
 import {setTemporaryItem} from "actions/builder";
 import * as _ from "lodash";
+import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
+import RailFactory from "components/Rails/RailFactory";
+import * as update from "immutability-helper";
 
 
 export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
@@ -17,6 +20,11 @@ export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
   id: number
   layerId: number    // このアイテムが所属するレイヤー
   name?: string
+
+  selectedItem: PaletteItem
+  temporaryItem: ItemData
+  setTemporaryItem: (item: ItemData) => void
+  activeLayerId: number
 }
 
 export interface RailBaseDefaultProps {
@@ -27,8 +35,10 @@ export interface RailBaseDefaultProps {
   hasOpposingJoints?: boolean[]
 }
 
+type RailBaseComposedProps = RailBaseProps & WithHistoryProps
 
-export abstract class RailBase<P extends RailBaseProps, S> extends React.PureComponent<P, S> {
+
+export abstract class RailBase<P extends RailBaseComposedProps, S> extends React.PureComponent<P, S> {
   public static defaultProps: RailBaseDefaultProps = {
     type: 'RailBase',
     selected: false,
@@ -44,7 +54,6 @@ export abstract class RailBase<P extends RailBaseProps, S> extends React.PureCom
   constructor(props: P) {
     super(props)
     this.temporaryPivotJointIndex = this.props.pivotJointIndex
-    // this.onJointClick = this.onJointClick.bind(this)
   }
 
   // TODO: これでOK?
@@ -82,6 +91,55 @@ export abstract class RailBase<P extends RailBaseProps, S> extends React.PureCom
   componentDidMount() {
     this.fixRailPartPosition()
     this.fixJointsPosition()
+  }
+
+  onJointRightClick = (jointId: number, e: MouseEvent) => {
+    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + 1) % this.joints.length
+    this.props.setTemporaryItem(update(this.props.temporaryItem, {
+        pivotJointIndex: {$set: this.temporaryPivotJointIndex}
+      }
+    ))
+  }
+
+  onJointLeftClick = (jointId: number, e: MouseEvent) => {
+    // パレットで選択したレール生成のためのPropsを取得
+    const itemProps = RailFactory[this.props.selectedItem.name]()
+    let hasOpposingJoints = new Array(this.props.hasOpposingJoints.length).fill(false)
+    hasOpposingJoints[this.temporaryPivotJointIndex] = true
+
+    // 仮レールの位置にレールを設置
+    this.props.addItem(this.props.activeLayerId, {
+      ...itemProps,
+      position: (this.props.temporaryItem as any).position,
+      angle: (this.props.temporaryItem as any).angle,
+      layerId: this.props.activeLayerId,
+      hasOpposingJoints: hasOpposingJoints,
+      pivotJointIndex: this.temporaryPivotJointIndex
+    } as ItemData)
+
+    // このレールのジョイントの接続状態を変更する
+    this.props.updateItem(this.props as any, update(this.props, {
+        hasOpposingJoints: {
+          [jointId]: {$set: true}
+        }
+      }
+    ), false)
+    this.props.setTemporaryItem(null)
+  }
+
+  onJointMouseMove = (jointId: number, e: MouseEvent) => {
+    // 仮レールを設置する
+    const itemProps = RailFactory[this.props.selectedItem.name]()
+    this.props.setTemporaryItem({
+      ...itemProps,
+      id: -1,
+      name: 'TemporaryRail',
+      position: this.joints[jointId].position,
+      angle: this.joints[jointId].angle,
+      layerId: 1,
+      opacity: TEMPORARY_RAIL_OPACITY,
+      pivotJointIndex: this.temporaryPivotJointIndex
+    })
   }
 
   // レールパーツの位置・角度をPivotJointの指定に合わせる

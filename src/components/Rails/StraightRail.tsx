@@ -34,6 +34,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
 
   public static NUM_RAIL_PARTS = 1
   public static NUM_JOINTS = 2
+  public static PIVOT_JOINT_CHANGING_STRIDE = 1
+
 
   public static defaultProps: RailBaseDefaultProps = {
     type: 'StraightRail',

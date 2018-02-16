@@ -53,6 +53,13 @@ class RailFactory {
     }
   }
 
+  ['DS280']() {
+    return {
+      type: 'DoubleStraightRail',
+      length: 280
+    }
+  }
+
   // ========== Curve Rails ==========
 
   ['C280-45']() {
@@ -130,18 +137,10 @@ class RailFactory {
     }
   }
 
-  ['PLR541/280-15']() {
+  ['N-PX280']() {
     return {
-      type: 'ThreeWayTurnout',
-      length: 140,
-      // leftStart: 70,
-      // leftRadius: 280,
-      leftStart: 0,
-      leftRadius: 541,
-      leftCenterAngle: 15,
-      rightStart: 0,
-      rightRadius: 541,
-      rightCenterAngle: 15,
+      type: 'CrossoverTurnout',
+      length: 280,
     }
   }
   // PL280_30() {

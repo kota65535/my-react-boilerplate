@@ -19,38 +19,32 @@ import {
 import * as _ from "lodash";
 
 
-interface ThreeWayTurnoutProps extends RailBaseProps {
+interface CrossoverTurnoutProps extends RailBaseProps {
   length: number
-  leftStart: number
-  leftRadius: number
-  leftCenterAngle: number
-  rightStart: number
-  rightRadius: number
-  rightCenterAngle: number
 }
 
-export type ThreeWayTurnoutComposedProps = ThreeWayTurnoutProps & WithHistoryProps
+export type CrossoverTurnoutComposedProps = CrossoverTurnoutProps & WithHistoryProps
 
 
-export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> {
-  public static NUM_RAIL_PARTS = 3
+export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, {}> {
+  public static NUM_RAIL_PARTS = 5
   public static NUM_JOINTS = 4
-  public static PIVOT_JOINT_CHANGING_STRIDE = 1
+  public static PIVOT_JOINT_CHANGING_STRIDE = 2
 
   public static defaultProps: RailBaseDefaultProps = {
-    type: 'ThreeWayTurnout',
+    type: 'CrossoverTurnout',
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(ThreeWayTurnout.NUM_JOINTS).fill(false)
+    hasOpposingJoints: new Array(CrossoverTurnout.NUM_JOINTS).fill(false)
   }
 
-  constructor(props: ThreeWayTurnoutComposedProps) {
+  constructor(props: CrossoverTurnoutComposedProps) {
     super(props)
 
     this.temporaryPivotJointIndex = 0
-    this.railParts = new Array(ThreeWayTurnout.NUM_RAIL_PARTS).fill(null)
-    this.joints = new Array(ThreeWayTurnout.NUM_JOINTS).fill(null)
+    this.railParts = new Array(CrossoverTurnout.NUM_RAIL_PARTS).fill(null)
+    this.joints = new Array(CrossoverTurnout.NUM_JOINTS).fill(null)
   }
 
   getJointPosition(jointId: number) {
@@ -58,11 +52,11 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
       case 0:
         return this.railParts[0].startPoint
       case 1:
-        return this.railParts[1].endPoint
-      case 2:
         return this.railParts[0].endPoint
+      case 2:
+        return this.railParts[1].startPoint
       case 3:
-        return this.railParts[2].endPoint
+        return this.railParts[1].endPoint
       default:
         throw Error(`Invalid joint ID ${jointId}`)
     }
@@ -71,13 +65,13 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
   getJointAngle(jointId: number) {
     switch (jointId) {
       case 0:
-        return this.railParts[0].startAngle - 180
+        return this.railParts[0].startAngle + 180
       case 1:
-        return this.railParts[1].endAngle
-      case 2:
         return this.railParts[0].endAngle
+      case 2:
+        return this.railParts[1].startAngle + 180
       case 3:
-        return this.railParts[2].endAngle
+        return this.railParts[1].endAngle
       default:
         throw Error(`Invalid joint ID ${jointId}`)
     }
@@ -86,19 +80,19 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
 
   render() {
     const {
-      position, length, angle, leftStart, leftRadius, leftCenterAngle, rightStart, rightRadius, rightCenterAngle, id, selected, pivotJointIndex, opacity,
+      position, length, angle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
     const jointAngles = [
       angle + 180,
-      angle - leftCenterAngle,
       angle,
-      angle + rightCenterAngle
+      angle + 180,
+      angle
     ]
 
-    const leftStartPosition = position.add(new Point(leftStart, 0).rotate(angle, new Point(0, 0)))
-    const rightStartPosition = position.add(new Point(rightStart, 0).rotate(angle, new Point(0, 0)))
-
+    const firstLineEndPosition = position.add(new Point(length, 0).rotate(angle, new Point(0,0)))
+    const secondLineStartPosition = position.add(new Point(0,  RailBase.RAIL_SPACE).rotate(angle, new Point(0,0)))
+    const secondLineEndPosition = secondLineStartPosition.add(new Point(length, 0).rotate(angle, new Point(0,0)))
 
     return (
       <React.Fragment>
@@ -117,12 +111,10 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
           }}
           ref={(railPart) => this.railParts[0] = railPart}
         />
-        <CurveRailPart
-          radius={leftRadius}
-          centerAngle={leftCenterAngle}
-          direction={ArcDirection.LEFT}
-          position={leftStartPosition}
+        <StraightRailPart
+          position={secondLineStartPosition}
           angle={angle}
+          length={length}
           pivot={Pivot.LEFT}
           selected={selected}
           opacity={opacity}
@@ -130,15 +122,15 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
           data={{
             railId: id,
             partType: 'RailPart',
-            partId: 0
+            partId: 1
           }}
           ref={(railPart) => this.railParts[1] = railPart}
         />
         <CurveRailPart
-          radius={rightRadius}
-          centerAngle={rightCenterAngle}
+          radius={541}
+          centerAngle={15}
           direction={ArcDirection.RIGHT}
-          position={rightStartPosition}
+          position={position}
           angle={angle}
           pivot={Pivot.LEFT}
           selected={selected}
@@ -151,7 +143,58 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
           }}
           ref={(railPart) => this.railParts[2] = railPart}
         />
-        {_.range(ThreeWayTurnout.NUM_JOINTS).map(i => {
+        <CurveRailPart
+          radius={541}
+          centerAngle={15}
+          direction={ArcDirection.LEFT}
+          position={firstLineEndPosition}
+          angle={angle + 180}
+          pivot={Pivot.LEFT}
+          selected={selected}
+          opacity={opacity}
+          name={'Rail'}
+          data={{
+            railId: id,
+            partType: 'RailPart',
+            partId: 0
+          }}
+          ref={(railPart) => this.railParts[3] = railPart}
+        />
+        <CurveRailPart
+          radius={541}
+          centerAngle={15}
+          direction={ArcDirection.LEFT}
+          position={secondLineStartPosition}
+          angle={angle}
+          pivot={Pivot.LEFT}
+          selected={selected}
+          opacity={opacity}
+          name={'Rail'}
+          data={{
+            railId: id,
+            partType: 'RailPart',
+            partId: 0
+          }}
+          ref={(railPart) => this.railParts[4] = railPart}
+        />
+        <CurveRailPart
+          radius={541}
+          centerAngle={15}
+          direction={ArcDirection.RIGHT}
+          position={secondLineEndPosition}
+          angle={angle + 180}
+          pivot={Pivot.LEFT}
+          selected={selected}
+          opacity={opacity}
+          name={'Rail'}
+          data={{
+            railId: id,
+            partType: 'RailPart',
+            partId: 0
+          }}
+          ref={(railPart) => this.railParts[4] = railPart}
+        />
+        {_.range(CrossoverTurnout.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
@@ -178,8 +221,8 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> 
   }
 }
 
-export type ThreeWayTurnoutItemData = BaseItemData & ThreeWayTurnoutProps
+export type CrossoverTurnoutItemData = BaseItemData & CrossoverTurnoutProps
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<ThreeWayTurnoutProps, ThreeWayTurnoutProps>(
+export default connect(mapStateToProps, mapDispatchToProps)(compose<CrossoverTurnoutProps, CrossoverTurnoutProps>(
   withHistory
-)(ThreeWayTurnout))
+)(CrossoverTurnout))

@@ -32,6 +32,7 @@ export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
 export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
   public static NUM_RAIL_PARTS = 2
   public static NUM_JOINTS = 3
+  public static PIVOT_JOINT_CHANGING_STRIDE = 1
 
   public static defaultProps: RailBaseDefaultProps = {
     type: 'SimpleTurnout',

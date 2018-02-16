@@ -54,6 +54,7 @@ export const mapDispatchToProps = (dispatch: any) => {
 }
 
 export abstract class RailBase<P extends RailBaseComposedProps, S> extends React.PureComponent<P, S> {
+
   public static defaultProps: RailBaseDefaultProps = {
     type: 'RailBase',
     selected: false,
@@ -61,6 +62,8 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
     opacity: 1,
     hasOpposingJoints: []
   }
+
+  public static RAIL_SPACE = 38
 
   railParts: any[]
   joints: Joint[]
@@ -116,7 +119,9 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
    */
   onJointRightClick = (jointId: number, e: MouseEvent) => {
     // 仮レールのPivotJointをインクリメントする
-    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + 1) % RailComponents[this.props.temporaryItem.type].NUM_JOINTS
+    const numJoints = RailComponents[this.props.temporaryItem.type].NUM_JOINTS
+    const stride = RailComponents[this.props.temporaryItem.type].PIVOT_JOINT_CHANGING_STRIDE
+    this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + stride) % numJoints
     this.props.setTemporaryItem(update(this.props.temporaryItem, {
         pivotJointIndex: {$set: this.temporaryPivotJointIndex}
       }

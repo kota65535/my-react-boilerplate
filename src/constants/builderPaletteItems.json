@@ -19,6 +19,10 @@
     {
       "name": "S70",
       "type": "StraightRail"
+    },
+    {
+      "name": "DS280",
+      "type": "StraightRail"
     }
   ],
   "Curve Rails": [
@@ -46,6 +50,18 @@
     },
     {
       "name": "PL541-15",
+      "type": "Turnout"
+    },
+    {
+      "name": "PRL541/280-15",
+      "type": "Turnout"
+    },
+    {
+      "name": "PLR541/280-15",
+      "type": "Turnout"
+    },
+    {
+      "name": "N-PX280",
       "type": "Turnout"
     }
 

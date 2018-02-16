@@ -1,4 +1,3 @@
-
 class RailFactory {
 
   // ========== Straight Rails ==========
@@ -9,36 +8,42 @@ class RailFactory {
       length: 280
     }
   }
+
   ['S158.5']() {
     return {
       type: 'StraightRail',
       length: 158.5
     }
   }
+
   ['S140']() {
     return {
       type: 'StraightRail',
       length: 140
     }
   }
+
   ['S99']() {
     return {
       type: 'StraightRail',
       length: 90
     }
   }
+
   ['S70']() {
     return {
       type: 'StraightRail',
       length: 70
     }
   }
+
   ['S33']() {
     return {
       type: 'StraightRail',
       length: 33
     }
   }
+
   ['S18.5']() {
     return {
       type: 'StraightRail',
@@ -55,6 +60,7 @@ class RailFactory {
       centerAngle: 45
     }
   }
+
   ['C280-15']() {
     return {
       type: 'CurveRail',
@@ -62,6 +68,7 @@ class RailFactory {
       centerAngle: 15
     }
   }
+
   ['C317-45']() {
     return {
       type: 'CurveRail',
@@ -69,6 +76,7 @@ class RailFactory {
       centerAngle: 45
     }
   }
+
   ['C317-15']() {
     return {
       type: 'CurveRail',
@@ -76,6 +84,7 @@ class RailFactory {
       centerAngle: 15
     }
   }
+
   ['C541-15']() {
     return {
       type: 'CurveRail',
@@ -83,6 +92,7 @@ class RailFactory {
       centerAngle: 15
     }
   }
+
   // PL541_15() {
   //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 541, 15, TurnoutDirection.LEFT);
   // }

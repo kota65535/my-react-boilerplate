@@ -11,7 +11,6 @@ import {default as withHistory, WithHistoryProps} from "components/hoc/withHisto
 import {connect} from "react-redux";
 import {compose} from "recompose";
 import {setTemporaryItem} from "actions/builder";
-import * as _ from "lodash";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
 import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
 
@@ -105,8 +104,10 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
 
 
   render() {
-    const {position, length, angle, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
-      hasOpposingJoints} = this.props
+    const {
+      position, length, angle, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
+      hasOpposingJoints
+    } = this.props
     return [
       <StraightRailPart
         position={position}

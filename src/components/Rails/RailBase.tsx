@@ -2,11 +2,9 @@ import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import Joint from "./parts/Joint";
-import {BaseItemData, ItemData} from "reducers/layout";
+import {ItemData} from "reducers/layout";
 import {PaletteItem, RootState} from "store/type";
-import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
-import {connect} from "react-redux";
-import {compose} from "recompose";
+import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
 import * as _ from "lodash";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
@@ -37,6 +35,19 @@ export interface RailBaseDefaultProps {
 
 type RailBaseComposedProps = RailBaseProps & WithHistoryProps
 
+export const mapStateToProps = (state: RootState) => {
+  return {
+    selectedItem: state.builder.selectedItem,
+    temporaryItem: state.builder.temporaryItem,
+    activeLayerId: state.builder.activeLayerId
+  }
+}
+
+export const mapDispatchToProps = (dispatch: any) => {
+  return {
+    setTemporaryItem: (item: ItemData) => dispatch(setTemporaryItem(item)),
+  }
+}
 
 export abstract class RailBase<P extends RailBaseComposedProps, S> extends React.PureComponent<P, S> {
   public static defaultProps: RailBaseDefaultProps = {

@@ -5,15 +5,17 @@ import StraightRailPart from "./parts/StraightRailPart";
 import Joint from "./parts/Joint";
 import {Pivot} from "components/Rails/parts/primitives/PartBase";
 import {BaseItemData, ItemData} from "reducers/layout";
-import {PaletteItem, RootState} from "store/type";
-import {setTemporaryItem} from "actions/builder";
+import {PaletteItem} from "store/type";
 import {connect} from "react-redux";
-import RailFactory from "components/Rails/RailFactory";
-import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import * as update from "immutability-helper";
 import {compose} from "recompose";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
-import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
+import {
+  mapDispatchToProps,
+  mapStateToProps,
+  RailBase,
+  RailBaseDefaultProps,
+  RailBaseProps
+} from "components/Rails/RailBase";
 
 
 export interface StraightRailProps extends RailBaseProps {
@@ -30,26 +32,11 @@ export interface StraightRailProps extends RailBaseProps {
 }
 
 export interface StraightRailState {
- temporaryItemPivotIndex: number
+  temporaryItemPivotIndex: number
 }
-
 
 export type StraightRailComposedProps = StraightRailProps & WithHistoryProps
 
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    selectedItem: state.builder.selectedItem,
-    temporaryItem: state.builder.temporaryItem,
-    activeLayerId: state.builder.activeLayerId
-  }
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    setTemporaryItem: (item: ItemData) => dispatch(setTemporaryItem(item)),
-  }
-}
 
 export class StraightRail extends RailBase<StraightRailComposedProps, StraightRailState> {
 
@@ -67,15 +54,17 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
   constructor(props: StraightRailComposedProps) {
     super(props)
 
-    this.railParts =  new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
+    this.railParts = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
     this.temporaryPivotJointIndex = this.props.pivotJointIndex
   }
 
 
   render() {
-    const {position, angle, length, id, selected, pivotJointIndex, opacity,
-      hasOpposingJoints} = this.props
+    const {
+      position, angle, length, id, selected, pivotJointIndex, opacity,
+      hasOpposingJoints
+    } = this.props
 
     return [
       <StraightRailPart
@@ -104,8 +93,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
           partId: 0
         }}
         hasOpposingJoint={hasOpposingJoints[0]}
-        onLeftClick={this.onJointLeftClick.bind(this,  0)}
-        onRightClick={this.onJointRightClick.bind(this,  0)}
+        onLeftClick={this.onJointLeftClick.bind(this, 0)}
+        onRightClick={this.onJointRightClick.bind(this, 0)}
         onMouseMove={this.onJointMouseMove.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
       />,
@@ -121,7 +110,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
         }}
         hasOpposingJoint={hasOpposingJoints[1]}
         onLeftClick={this.onJointLeftClick.bind(this, 1)}
-        onRightClick={this.onJointRightClick.bind(this,  1)}
+        onRightClick={this.onJointRightClick.bind(this, 1)}
         onMouseMove={this.onJointMouseMove.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
       />

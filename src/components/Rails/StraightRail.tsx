@@ -69,6 +69,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
     this.onJointClick = this.onJointClick.bind(this)
   }
 
+
   onJointClick = (jointId: number, e: any) => {
     switch (e.event.button) {
       case 0:
@@ -81,6 +82,11 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
   }
 
   onMouseRightDown = (jointId: number, e: MouseEvent) => {
+    // FIXME
+    this.props.setTemporaryItem(update(this.props.temporaryItem, {
+        pivotJointIndex: {$set: 1}
+      }
+    ))
 
   }
 
@@ -114,6 +120,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
       name: 'TemporaryRail',
       position: this.joints[jointId].position,
       angle: this.joints[jointId].props.angle,
+      layerId: 1,
       opacity: TEMPORARY_RAIL_OPACITY,
     })
   }
@@ -143,7 +150,6 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.LEFT}    // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',
@@ -159,7 +165,6 @@ export class StraightRail extends RailBase<StraightRailComposedProps, {}> {
         position={position}
         opacity={opacity}
         name={'Rail'}
-        // anchor={AnchorPoint.RIGHT}   // ジョイントパーツの右端・左端をレールパーツに合わせる場合
         data={{
           railId: id,
           partType: 'Joint',

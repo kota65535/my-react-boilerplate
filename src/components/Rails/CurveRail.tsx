@@ -12,6 +12,9 @@ import {compose} from "recompose";
 import {setTemporaryItem} from "actions/builder";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
 import {RailBase, RailBaseDefaultProps, RailBaseProps} from "components/Rails/RailBase";
+import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
+import RailFactory from "components/Rails/RailFactory";
+import * as update from "immutability-helper";
 
 
 export interface CurveRailProps extends RailBaseProps {
@@ -59,7 +62,56 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
   constructor(props: CurveRailComposedProps) {
     super(props)
 
-    // this.onJointClick = this.onJointClick.bind(this)
+    this.onJointClick = this.onJointClick.bind(this)
+  }
+
+  onJointClick = (jointId: number, e: any) => {
+    switch (e.event.button) {
+      case 0:
+        this.onMouseLeftDown(jointId, e)
+        break
+      case 2:
+        this.onMouseRightDown(jointId, e)
+        break
+    }
+  }
+
+  onMouseRightDown = (jointId: number, e: MouseEvent) => {
+
+  }
+
+  onMouseLeftDown = (jointId: number, e: MouseEvent) => {
+    // パレットで選択したレール生成のためのPropsを取得
+    const itemProps = RailFactory[this.props.selectedItem.name]()
+    // 仮レールの位置にレールを設置
+    this.props.addItem(this.props.activeLayerId, {
+      ...itemProps,
+      position: (this.props.temporaryItem as any).position,
+      angle: (this.props.temporaryItem as any).angle,
+      layerId: this.props.activeLayerId,
+      hasOpposingJoints: [true, false]
+    } as ItemData)
+
+    // このレールのジョイントの接続状態を変更する
+    this.props.updateItem(this.props as any, update(this.props, {
+        hasOpposingJoints: {
+          [jointId]: {$set: true}
+        }
+      }
+    ), false)
+  }
+
+  onJointMouseMove = (jointId: number, e: MouseEvent) => {
+    // 仮レールを設置する
+    const itemProps = RailFactory[this.props.selectedItem.name]()
+    this.props.setTemporaryItem({
+      ...itemProps,
+      id: -1,
+      name: 'TemporaryRail',
+      position: this.joints[jointId].position,
+      angle: this.joints[jointId].props.angle,
+      opacity: TEMPORARY_RAIL_OPACITY,
+    })
   }
 
   render() {
@@ -95,6 +147,8 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
           partId: 0
         }}
         hasOpposingJoint={hasOpposingJoints[0]}
+        onClick={this.onJointClick.bind(this,  0)}
+        onMouseMove={this.onJointMouseMove.bind(this, 0)}
         ref={(joint) => this.joints[0] = joint}
       />,
       <Joint
@@ -109,6 +163,8 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
           partId: 1
         }}
         hasOpposingJoint={hasOpposingJoints[1]}
+        onClick={this.onJointClick.bind(this, 1)}
+        onMouseMove={this.onJointMouseMove.bind(this, 1)}
         ref={(joint) => this.joints[1] = joint}
       />
     ]

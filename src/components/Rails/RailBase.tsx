@@ -28,7 +28,7 @@ export interface RailBaseDefaultProps {
 }
 
 
-export abstract class RailBase<P extends RailBaseProps, S> extends React.Component<P, S> {
+export abstract class RailBase<P extends RailBaseProps, S> extends React.PureComponent<P, S> {
   public static defaultProps: RailBaseDefaultProps = {
     type: 'RailBase',
     selected: false,
@@ -45,6 +45,11 @@ export abstract class RailBase<P extends RailBaseProps, S> extends React.Compone
 
     // this.onJointClick = this.onJointClick.bind(this)
   }
+
+  // TODO: これでOK?
+  // shouldComponentUpdate() {
+  //   return false
+  // }
 
   getJointPosition(jointId: number) {
     switch (jointId) {

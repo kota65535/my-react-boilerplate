@@ -141,6 +141,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   }
 
   onClick = (e: MouseEvent) => {
+    // TODO: 左クリックと右クリックでイベントを分ける
     this.setState({
       detectionState: DetectionState.AFTER_DETECT,
       detectionPartVisible: false

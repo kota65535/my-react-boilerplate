@@ -11,6 +11,9 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import RailFactory from "components/Rails/RailFactory";
 import * as update from "immutability-helper";
 import {RailComponents} from "components/Rails/index";
+import getLogger from "logging";
+
+const LOGGER = getLogger(__filename)
 
 
 export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
@@ -79,7 +82,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
       case 1:
         return this.railParts[0].endPoint
       default:
-        throw Error(`Invalid joint ID ${jointId}`)
+        // throw Error(`Invalid joint ID ${jointId}`)
     }
   }
 
@@ -90,16 +93,18 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
       case 1:
         return this.railParts[0].endAngle
       default:
-        throw Error(`Invalid joint ID ${jointId}`)
+        // throw Error(`Invalid joint ID ${jointId}`)
     }
   }
 
   componentDidUpdate() {
+    LOGGER.debug('updated')
     this.fixRailPartPosition()
     this.fixJointsPosition()
   }
 
   componentDidMount() {
+    LOGGER.debug('mounted')
     this.fixRailPartPosition()
     this.fixJointsPosition()
   }
@@ -177,7 +182,9 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
   }
 
   onJointMouseLeave = (jointId: number, e: MouseEvent) => {
+    this.props.setTemporaryItem(null)
   }
+
 
   // レールパーツの位置・角度をPivotJointの指定に合わせる
   fixRailPartPosition() {

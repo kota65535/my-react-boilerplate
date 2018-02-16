@@ -114,6 +114,36 @@ class RailFactory {
       branchDirection: ArcDirection.RIGHT
     }
   }
+
+  ['PRL541/280-15']() {
+    return {
+      type: 'ThreeWayTurnout',
+      length: 140,
+      // leftStart: 70,
+      // leftRadius: 280,
+      leftStart: 0,
+      leftRadius: 541,
+      leftCenterAngle: 15,
+      rightStart: 0,
+      rightRadius: 541,
+      rightCenterAngle: 15,
+    }
+  }
+
+  ['PLR541/280-15']() {
+    return {
+      type: 'ThreeWayTurnout',
+      length: 140,
+      // leftStart: 70,
+      // leftRadius: 280,
+      leftStart: 0,
+      leftRadius: 541,
+      leftCenterAngle: 15,
+      rightStart: 0,
+      rightRadius: 541,
+      rightCenterAngle: 15,
+    }
+  }
   // PL280_30() {
   //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 280, 30, TurnoutDirection.LEFT);
   // }

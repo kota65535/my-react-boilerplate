@@ -19,34 +19,37 @@ import {
 import * as _ from "lodash";
 
 
-interface SimpleTurnoutProps extends RailBaseProps {
+interface ThreeWayTurnoutProps extends RailBaseProps {
   length: number
-  radius: number
-  centerAngle: number
-  branchDirection: ArcDirection
+  leftStart: number
+  leftRadius: number
+  leftCenterAngle: number
+  rightStart: number
+  rightRadius: number
+  rightCenterAngle: number
 }
 
-export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
+export type ThreeWayTurnoutComposedProps = ThreeWayTurnoutProps & WithHistoryProps
 
 
-export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
-  public static NUM_RAIL_PARTS = 2
-  public static NUM_JOINTS = 3
+export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, {}> {
+  public static NUM_RAIL_PARTS = 3
+  public static NUM_JOINTS = 4
 
   public static defaultProps: RailBaseDefaultProps = {
-    type: 'SimpleTurnout',
+    type: 'ThreeWayTurnout',
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(false)
+    hasOpposingJoints: new Array(ThreeWayTurnout.NUM_JOINTS).fill(false)
   }
 
-  constructor(props: SimpleTurnoutComposedProps) {
+  constructor(props: ThreeWayTurnoutComposedProps) {
     super(props)
 
     this.temporaryPivotJointIndex = 0
-    this.railParts = new Array(SimpleTurnout.NUM_RAIL_PARTS).fill(null)
-    this.joints = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
+    this.railParts = new Array(ThreeWayTurnout.NUM_RAIL_PARTS).fill(null)
+    this.joints = new Array(ThreeWayTurnout.NUM_JOINTS).fill(null)
   }
 
   getJointPosition(jointId: number) {
@@ -54,9 +57,11 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
       case 0:
         return this.railParts[0].startPoint
       case 1:
-        return this.railParts[0].endPoint
-      case 2:
         return this.railParts[1].endPoint
+      case 2:
+        return this.railParts[0].endPoint
+      case 3:
+        return this.railParts[2].endPoint
       default:
         throw Error(`Invalid joint ID ${jointId}`)
     }
@@ -67,9 +72,11 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
       case 0:
         return this.railParts[0].startAngle - 180
       case 1:
-        return this.railParts[0].endAngle
-      case 2:
         return this.railParts[1].endAngle
+      case 2:
+        return this.railParts[0].endAngle
+      case 3:
+        return this.railParts[2].endAngle
       default:
         throw Error(`Invalid joint ID ${jointId}`)
     }
@@ -78,14 +85,20 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
 
   render() {
     const {
-      position, length, angle, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
+      position, length, angle, leftStart, leftRadius, leftCenterAngle, rightStart, rightRadius, rightCenterAngle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
     const jointAngles = [
       angle + 180,
+      angle - leftCenterAngle,
       angle,
-      branchDirection === ArcDirection.RIGHT ? angle + centerAngle : angle - centerAngle
+      angle + rightCenterAngle
     ]
+
+    const leftStartPosition = position.add(new Point(leftStart, 0).rotate(angle, new Point(0, 0)))
+    const rightStartPosition = position.add(new Point(rightStart, 0).rotate(angle, new Point(0, 0)))
+
+
     return (
       <React.Fragment>
         <StraightRailPart
@@ -104,10 +117,10 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
           ref={(railPart) => this.railParts[0] = railPart}
         />
         <CurveRailPart
-          radius={radius}
-          centerAngle={centerAngle}
-          direction={branchDirection}
-          position={position}
+          radius={leftRadius}
+          centerAngle={leftCenterAngle}
+          direction={ArcDirection.LEFT}
+          position={leftStartPosition}
           angle={angle}
           pivot={Pivot.LEFT}
           selected={selected}
@@ -120,7 +133,24 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
           }}
           ref={(railPart) => this.railParts[1] = railPart}
         />
-        {_.range(SimpleTurnout.NUM_JOINTS).map(i => {
+        <CurveRailPart
+          radius={rightRadius}
+          centerAngle={rightCenterAngle}
+          direction={ArcDirection.RIGHT}
+          position={rightStartPosition}
+          angle={angle}
+          pivot={Pivot.LEFT}
+          selected={selected}
+          opacity={opacity}
+          name={'Rail'}
+          data={{
+            railId: id,
+            partType: 'RailPart',
+            partId: 0
+          }}
+          ref={(railPart) => this.railParts[2] = railPart}
+        />
+        {_.range(ThreeWayTurnout.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
@@ -147,8 +177,8 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
   }
 }
 
-export type SimpleTurnoutItemData = BaseItemData & SimpleTurnoutProps
+export type ThreeWayTurnoutItemData = BaseItemData & ThreeWayTurnoutProps
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<SimpleTurnoutProps, SimpleTurnoutProps>(
+export default connect(mapStateToProps, mapDispatchToProps)(compose<ThreeWayTurnoutProps, ThreeWayTurnoutProps>(
   withHistory
-)(SimpleTurnout))
+)(ThreeWayTurnout))

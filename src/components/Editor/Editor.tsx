@@ -34,6 +34,7 @@ import StraightRail from "components/Rails/StraightRail";
 import CurveRail from "components/Rails/CurveRail";
 import SimpleTurnout from "components/Rails/SimpleTurnout";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
+import ThreeWayTurnout from "components/Rails/ThreeWayTurnout";
 
 const LOGGER = getLogger(__filename)
 
@@ -185,6 +186,21 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               id={1}
               layerId={1}
             />
+            <ThreeWayTurnout
+              position={new Point(700, 840)}
+              pivotJointIndex={0}
+              angle={30}
+              length={140}
+              id={1}
+              layerId={1}
+              leftStart={0}
+              leftRadius={541}
+              leftCenterAngle={15}
+              rightStart={0}
+              rightRadius={541}
+              rightCenterAngle={15}
+            />
+
 
             {/*<StraightRail*/}
               {/*position={new Point(770, 630)}*/}

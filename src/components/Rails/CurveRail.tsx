@@ -16,6 +16,7 @@ import {
   RailBaseDefaultProps,
   RailBaseProps
 } from "components/Rails/RailBase";
+import * as _ from "lodash";
 
 
 export interface CurveRailProps extends RailBaseProps {
@@ -53,59 +54,53 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
       position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
-    return [
-      <CurveRailPart
-        radius={radius}
-        centerAngle={centerAngle}
-        direction={ArcDirection.RIGHT}
-        position={position}
-        angle={angle}
-        pivot={Pivot.LEFT}
-        selected={selected}
-        opacity={opacity}
-        name={'Rail'}
-        data={{
-          railId: id,
-          partType: 'RailPart',
-          partId: 0
-        }}
-        ref={(railPart) => this.railParts[0] = railPart}
-      />,
-      <Joint
-        angle={angle + 180}
-        position={position}
-        opacity={opacity}
-        name={'Rail'}
-        data={{
-          railId: id,
-          partType: 'Joint',
-          partId: 0
-        }}
-        hasOpposingJoint={hasOpposingJoints[0]}
-        onLeftClick={this.onJointLeftClick.bind(this, 0)}
-        onRightClick={this.onJointRightClick.bind(this, 0)}
-        // onMouseMove={this.onJointMouseMove.bind(this, 0)}
-        onMouseEnter={this.onJointMouseEnter.bind(this, 0)}
-        ref={(joint) => this.joints[0] = joint}
-      />,
-      <Joint
-        angle={angle + centerAngle}
-        position={position}
-        opacity={opacity}
-        name={'Rail'}
-        data={{
-          railId: id,
-          partType: 'Joint',
-          partId: 1
-        }}
-        hasOpposingJoint={hasOpposingJoints[1]}
-        onLeftClick={this.onJointLeftClick.bind(this, 1)}
-        onRightClick={this.onJointRightClick.bind(this, 1)}
-        // onMouseMove={this.onJointMouseMove.bind(this, 1)}
-        onMouseEnter={this.onJointMouseEnter.bind(this, 1)}
-        ref={(joint) => this.joints[1] = joint}
-      />
+    const jointAngles = [
+      angle + 180,
+      angle + centerAngle
     ]
+    return (
+      <React.Fragment>
+        <CurveRailPart
+          radius={radius}
+          centerAngle={centerAngle}
+          direction={ArcDirection.RIGHT}
+          position={position}
+          angle={angle}
+          pivot={Pivot.LEFT}
+          selected={selected}
+          opacity={opacity}
+          name={'Rail'}
+          data={{
+            railId: id,
+            partType: 'RailPart',
+            partId: 0
+          }}
+          ref={(railPart) => this.railParts[0] = railPart}
+        />
+        {_.range(CurveRail.NUM_JOINTS).map(i => {
+          return (
+            <Joint
+              angle={jointAngles[i]}
+              position={position}
+              opacity={opacity}
+              name={'Rail'}
+              data={{
+                railId: id,
+                partType: 'Joint',
+                partId: i
+              }}
+              hasOpposingJoint={hasOpposingJoints[i]}
+              onLeftClick={this.onJointLeftClick.bind(this, i)}
+              onRightClick={this.onJointRightClick.bind(this, i)}
+              // onMouseMove={this.onJointMouseMove.bind(this, i)}
+              onMouseEnter={this.onJointMouseEnter.bind(this, i)}
+              onMouseLeave={this.onJointMouseLeave.bind(this, i)}
+              ref={(joint) => this.joints[i] = joint}
+            />
+          )
+        })}
+      </React.Fragment>
+    )
   }
 }
 

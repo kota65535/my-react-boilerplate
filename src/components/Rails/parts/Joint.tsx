@@ -1,14 +1,15 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart from "./primitives/RectPart";
 import DetectablePart from "./primitives/DetectablePart";
 import CirclePart from "./primitives/CirclePart";
 import {RailPartInfo} from "components/Rails/parts/types";
 import {Pivot} from "components/Rails/parts/primitives/PartBase";
 import {JOINT_DETECTION_OPACITY_RATE, JOINT_FILL_COLORS} from "constants/parts";
 import TrianglePart from "components/Rails/parts/primitives/TrianglePart";
+import getLogger from "logging";
 
+const LOGGER = getLogger(__filename)
 
 interface Props extends Partial<DefaultProps> {
   name?: string
@@ -45,7 +46,7 @@ export default class Joint extends React.Component<JointProps, {}> {
   }
   static WIDTH = 8;
   static HEIGHT = 18;
-  static HIT_RADIUS = 20;
+  static HIT_RADIUS = 16;
   static FLOW_COLOR_1 = "royalblue";
   static FLOW_COLOR_2 = "greenyellow";
   static ANIMATION_MAX = 30
@@ -75,6 +76,7 @@ export default class Joint extends React.Component<JointProps, {}> {
   }
 
   move(position: Point): void {
+    LOGGER.debug(`move ${this.detectablePart.position} ->  ${position}`)
     this.detectablePart.move(position)
   }
 
@@ -83,6 +85,7 @@ export default class Joint extends React.Component<JointProps, {}> {
   }
 
   rotate(angle: number, pivot: Point = this.position) {
+    LOGGER.debug(`rotate ${this.detectablePart.angle} ->  ${angle} @ ${pivot}`)
     this.detectablePart.rotate(angle, pivot);
   }
 

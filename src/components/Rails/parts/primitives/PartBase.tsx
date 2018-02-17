@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Path, Point} from "paper";
+import Item = paper.Item;
 
 export enum Pivot {
   CENTER = 'Center',
@@ -41,7 +42,7 @@ export interface PartBaseDefaultProps {
 }
 
 
-export default class PartBase<P extends PartBaseProps, S> extends React.Component<P, S> {
+export default abstract class PartBase<P extends PartBaseProps, S> extends React.Component<P, S> {
   public static defaultProps: PartBaseDefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -73,6 +74,20 @@ export default class PartBase<P extends PartBaseProps, S> extends React.Componen
   get angle() {
     return this._angle
   }
+
+
+  abstract getPublicPivotPosition(pivot: Pivot)
+  abstract getPrivatePivotPosition(pivot: Pivot)
+
+  // shouldComponentUpdate(nextProps) {
+  //   if (this.props.position.x === nextProps.position.x && this.props.position.y === nextProps.position.y) {
+  //     return false
+  //   }
+  //   if (this.props.angle === nextProps.angle) {
+  //     return false
+  //   }
+  //   return true
+  // }
 
   moveRelatively(difference: Point) {
     this._path.position = this._path.position.add(difference);

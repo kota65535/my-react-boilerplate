@@ -16,37 +16,30 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
 
   // ========== Public APIs ==========
 
-  getCenterOfTop(): Point {
-    return this._path.segments[0].point;
-  }
-
-  getCenterOfBottom(): Point {
-    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
+  getPublicPivotPosition(pivot: Pivot) {
+    switch (pivot) {
+      case Pivot.TOP:
+        return this.path.getPointAt(0)
+      case Pivot.BOTTOM:
+        return this.path.getPointAt(this.path.length / 8 * 2)
+      case Pivot.CENTER:
+      default:
+        return this.path.position
+    }
   }
 
   // ========== Private methods ==========
 
-  componentDidMount() {
-    this.fixPositionByAnchorPoint()
-  }
-
-  componentDidUpdate() {
-    this.fixPositionByAnchorPoint()
-  }
-
-  fixPositionByAnchorPoint() {
-    switch (this.props.pivot) {
+  getPrivatePivotPosition(pivot: Pivot) {
+    const {height} = this.props
+    switch (pivot) {
       case Pivot.TOP:
-        this.move(this.props.position, this.getCenterOfTop())
-        break
+        return new Point(0, 0)
       case Pivot.BOTTOM:
-        this.move(this.props.position, this.getCenterOfBottom())
-        break
+        return new Point(0, height)
       case Pivot.CENTER:
-        // noop
-        break
       default:
-        throw Error(`Invalid pivot ${this.props.pivot} for ${this.constructor.name}`)
+        return new Point(0, height / 3 * 2)
     }
   }
 
@@ -54,8 +47,12 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
     const {width, height,
       position, angle, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
+
+    const pivot = this.getPrivatePivotPosition(this.props.pivot)
+
     return <PathComponent
       pathData={createTrianglePath(width, height)}
+      pivot={pivot}     // pivot parameter MUST proceed to position
       position={position}
       rotation={angle}
       fillColor={fillColor}

@@ -14,55 +14,39 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
 
   constructor (props: RectPartProps) {
     super(props)
+
   }
 
-  // ========== Public APIs ==========
-
-  getCenterOfTop(): Point {
-    return this._path.curves[1].getLocationAt(this._path.curves[1].length/2).point;
-  }
-
-  getCenterOfBottom(): Point {
-    return this._path.curves[4].getLocationAt(this._path.curves[4].length/2).point;
-  }
-
-  getCenterOfLeft(): Point {
-    return this._path.segments[0].point
-  }
-
-  getCenterOfRight(): Point {
-    return this._path.segments[3].point
-  }
-
-  // ========== Private methods ==========
-  
-  componentDidMount() {
-    this.fixPositionByAnchorPoint()
-  }
-
-  componentDidUpdate() {
-    this.fixPositionByAnchorPoint()
-  }
-
-  fixPositionByAnchorPoint() {
-    switch (this.props.pivot) {
+  getPublicPivotPosition(pivot: Pivot) {
+    switch (pivot) {
       case Pivot.LEFT:
-        this.move(this.props.position, this.getCenterOfLeft())
-        break
+        return this.path.getPointAt(0)
       case Pivot.TOP:
-        this.move(this.props.position, this.getCenterOfTop())
-        break
+        return this.path.getPointAt(this.path.length / 8 * 2)
       case Pivot.RIGHT:
-        this.move(this.props.position, this.getCenterOfRight())
-        break
+        return this.path.getPointAt(this.path.length / 8 * 4)
       case Pivot.BOTTOM:
-        this.move(this.props.position, this.getCenterOfBottom())
-        break
+        return this.path.getPointAt(this.path.length / 8 * 6)
       case Pivot.CENTER:
-        // noop
-        break
       default:
-        throw Error(`Invalid pivot ${this.props.pivot} for ${this.constructor.name}`)
+        return this.path.position
+    }
+  }
+
+  getPrivatePivotPosition(pivot: Pivot) {
+    const {width, height} = this.props
+    switch (pivot) {
+      case Pivot.LEFT:
+        return new Point(0, 0)
+      case Pivot.TOP:
+        return new Point(width/2, -height/2)
+      case Pivot.RIGHT:
+        return new Point(width, 0)
+      case Pivot.BOTTOM:
+        return new Point(width/2, height/2)
+      case Pivot.CENTER:
+      default:
+        return new Point(width/2, 0)
     }
   }
 
@@ -70,8 +54,12 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
     const {width, height,
       position, angle, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
+
+    const pivot = this.getPrivatePivotPosition(this.props.pivot)
+
     return <PathComponent
       pathData={createRectPath(width, height)}
+      pivot={pivot}     // pivot parameter MUST proceed to position
       position={position}
       rotation={angle}
       fillColor={fillColor}

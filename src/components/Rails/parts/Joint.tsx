@@ -99,23 +99,20 @@ export default class Joint extends React.Component<JointProps, {}> {
       <DetectablePart
         mainPart={
           <TrianglePart
-            position={position}
-            angle={angle}
             width={Joint.WIDTH}
             height={Joint.HEIGHT}
-            pivot={pivot}
-            selected={selected}
             opacity={opacity}
           />
         }
         detectionPart={
           <CirclePart
-            position={position}
             radius={Joint.HIT_RADIUS}
-            selected={selected}
             opacity={opacity * JOINT_DETECTION_OPACITY_RATE}
           />
         }
+        position={position}
+        angle={angle}
+        pivot={pivot}
         fillColors={fillColors}
         detectionEnabled={! hasOpposingJoint}
         name={name}

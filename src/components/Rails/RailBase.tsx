@@ -194,9 +194,9 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
   // レールパーツの位置・角度をPivotJointの指定に合わせる
   fixRailPartPosition() {
     // console.log(this.joints[0].angle, this.getJointPosition(this.props.pivotJointIndex))
-    const jointPosition = _.cloneDeep(this.getJointPosition(this.props.pivotJointIndex))
-    this.railParts.forEach(r => r.rotate(
-      this.joints[0].props.angle - this.joints[this.props.pivotJointIndex as number].props.angle + r.props.angle, jointPosition))
+    // const jointPosition = _.cloneDeep(this.getJointPosition(this.props.pivotJointIndex))
+    // this.railParts.forEach(r => r.rotate(
+    //   this.joints[0].props.angle - this.joints[this.props.pivotJointIndex as number].props.angle + r.props.angle, jointPosition))
     // this.railParts.forEach(r => r.move(
     //   this.props.position, jointPosition))
   }

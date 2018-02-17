@@ -202,14 +202,14 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               {/*rightRadius={541}*/}
               {/*rightCenterAngle={15}*/}
             {/*/>*/}
-            <DoubleStraightRail
-              position={new Point(840, 560)}
-              pivotJointIndex={1}
-              id={3}
-              layerId={1}
-              length={280}
-              angle={0}
-            />
+            {/*<DoubleStraightRail*/}
+              {/*position={new Point(840, 560)}*/}
+              {/*pivotJointIndex={1}*/}
+              {/*id={3}*/}
+              {/*layerId={1}*/}
+              {/*length={280}*/}
+              {/*angle={0}*/}
+            {/*/>*/}
             {/*<CrossoverTurnout*/}
               {/*position={new Point(840, 560)}*/}
               {/*pivotJointIndex={0}*/}
@@ -221,14 +221,14 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
 
 
-            {/*<StraightRail*/}
-              {/*position={new Point(770, 630)}*/}
-              {/*pivotJointIndex={1}*/}
-              {/*angle={30}*/}
-              {/*length={200}*/}
-              {/*id={1}*/}
-              {/*layerId={1}*/}
-            {/*/>*/}
+            <StraightRail
+              position={new Point(770, 630)}
+              pivotJointIndex={1}
+              angle={30}
+              length={200}
+              id={1}
+              layerId={1}
+            />
 
             {/*<CurveRail*/}
               {/*position={new Point(770, 770)}*/}

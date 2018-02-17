@@ -52,11 +52,11 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
   // ========== Public APIs ==========
 
   get startPoint() {
-    return (this.detectablePart.mainPart as RectPart).getCenterOfLeft()
+    return (this.detectablePart.mainPart as RectPart).getPublicPivotPosition(Pivot.LEFT)
   }
 
   get endPoint() {
-    return (this.detectablePart.mainPart as RectPart).getCenterOfRight()
+    return (this.detectablePart.mainPart as RectPart).getPublicPivotPosition(Pivot.RIGHT)
   }
 
   get startAngle() {
@@ -85,6 +85,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
     this.detectablePart.rotate(angle, pivot);
   }
 
+
   // ========== Private methods ==========
 
   render() {
@@ -94,25 +95,20 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
       <DetectablePart
         mainPart={
           <RectPart
-            position={position}
-            angle={angle}
             width={length}
             height={RAIL_PART_WIDTH}
-            pivot={pivot}
-            selected={selected}
           />
         }
         detectionPart={
           <RectPart
-            position={position}
-            angle={angle}
             width={length}
             height={RAIL_PART_WIDTH}
-            pivot={pivot}
-            selected={selected}
             opacity={opacity * RAIL_PART_DETECTION_OPACITY_RATE}
           />
         }
+        position={position}
+        angle={angle}
+        pivot={pivot}
         fillColors={fillColors}
         detectionEnabled={detectionEnabled}
         name={name}

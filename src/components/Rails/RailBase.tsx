@@ -82,6 +82,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     // }
 
     this.fixedRailPartsCount = 0
+    this.onRailPartFixed = this.onRailPartFixed.bind(this)
   }
 
   // TODO: これでOK?
@@ -98,39 +99,22 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   }
 
 
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startPoint
-      case 1:
-        return this.railParts[0].endPoint
-      default:
-        // throw Error(`Invalid joint ID ${jointId}`)
-    }
-  }
-
-  getJointAngle(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startAngle - 180
-      case 1:
-        return this.railParts[0].endAngle
-      default:
-        // throw Error(`Invalid joint ID ${jointId}`)
-    }
-  }
+  abstract getJointPositions()
+  abstract getJointAngles()
 
   componentDidUpdate() {
     LOGGER.debug('updated')
-    this.fixRailPartPosition()
-    this.fixJointsPosition()
+    if (this.state.railPartsFixed) {
+      this.fixRailPartPosition()
+      this.fixJointsPosition()
+    }
   }
 
-  componentDidMount() {
-    LOGGER.debug('mounted')
-    this.fixRailPartPosition()
-    this.fixJointsPosition()
-  }
+  // componentDidMount() {
+  //   LOGGER.debug('mounted')
+  //   this.fixRailPartPosition()
+  //   this.fixJointsPosition()
+  // }
 
   /**
    * ジョイントを右クリックしたら、仮レールが接続するジョイントを変更する
@@ -213,12 +197,12 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
 
   // レールパーツの位置・角度をPivotJointの指定に合わせる
   fixRailPartPosition() {
-    // console.log(this.joints[0].angle, this.getJointPosition(this.props.pivotJointIndex))
-    // const jointPosition = _.cloneDeep(this.getJointPosition(this.props.pivotJointIndex))
-    // this.railParts.forEach(r => r.rotate(
-    //   this.joints[0].props.angle - this.joints[this.props.pivotJointIndex as number].props.angle + r.props.angle, jointPosition))
-    // this.railParts.forEach(r => r.move(
-    //   this.props.position, jointPosition))
+    console.log(this.joints[0].angle, this.getJointPositions()[this.props.pivotJointIndex])
+    const jointPosition = _.cloneDeep(this.getJointPositions()[this.props.pivotJointIndex])
+    this.railParts.forEach(r => r.rotate(
+      this.joints[0].props.angle - this.joints[this.props.pivotJointIndex as number].props.angle + r.props.angle, jointPosition))
+    this.railParts.forEach(r => r.move(
+      this.props.position, jointPosition))
   }
 
   // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する

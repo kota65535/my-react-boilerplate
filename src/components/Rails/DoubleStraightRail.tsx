@@ -20,6 +20,7 @@ import * as _ from "lodash";
 import {RailComponents} from "components/Rails/index";
 import * as update from "immutability-helper";
 import {JOINT_FILL_COLORS, RAIL_PART_FILL_COLORS} from "constants/parts";
+import {StraightRail} from "components/Rails/StraightRail";
 
 
 interface DoubleStraightRailProps extends RailBaseProps {
@@ -44,40 +45,36 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
 
   constructor(props: DoubleStraightRailComposedProps) {
     super(props)
+    this.state = {
+      railPartsFixed: false
+    }
 
     this.temporaryPivotJointIndex = 0
     this.railParts = new Array(DoubleStraightRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(DoubleStraightRail.NUM_JOINTS).fill(null)
   }
 
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startPoint
-      case 1:
-        return this.railParts[0].endPoint
-      case 2:
-        return this.railParts[1].startPoint
-      case 3:
-        return this.railParts[1].endPoint
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
+  getJointPositions() {
+    if (this.state.railPartsFixed) {
+      return [
+        this.railParts[0].startPoint,
+        this.railParts[0].endPoint,
+        this.railParts[1].startPoint,
+        this.railParts[1].endPoint
+      ]
+    } else {
+      return new Array(StraightRail.NUM_JOINTS).fill(this.props.position)
     }
   }
 
-  getJointAngle(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startAngle + 180
-      case 1:
-        return this.railParts[0].endAngle
-      case 2:
-        return this.railParts[1].startAngle + 180
-      case 3:
-        return this.railParts[1].endAngle
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
+  getJointAngles() {
+    const {angle} = this.props
+    return [
+      angle + 180,
+      angle,
+      angle + 180,
+      angle
+    ]
   }
 
   render() {
@@ -85,14 +82,11 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
       position, length, angle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
-    const jointAngles = [
-      angle + 180,
-      angle,
-      angle + 180,
-      angle
-    ]
 
     const secondLineStartPosition = position.add(new Point(0, RailBase.RAIL_SPACE).rotate(angle, new Point(0,0)))
+
+    const jointAngles = this.getJointAngles()
+    const jointPositions = this.getJointPositions()
 
     return (
       <React.Fragment>
@@ -109,6 +103,7 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         <StraightRailPart
@@ -124,13 +119,14 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
             partType: 'RailPart',
             partId: 1
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[1] = railPart}
         />
         {_.range(DoubleStraightRail.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={position}
+              position={jointPositions[i]}
               opacity={opacity}
               name={'Rail'}
               data={{
@@ -138,7 +134,6 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
                 partType: 'Joint',
                 partId: i
               }}
-              fillColors={i === 0 ? RAIL_PART_FILL_COLORS : JOINT_FILL_COLORS}
               hasOpposingJoint={hasOpposingJoints[i]}
               onLeftClick={this.onJointLeftClick.bind(this, i)}
               onRightClick={this.onJointRightClick.bind(this, i)}

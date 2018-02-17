@@ -50,14 +50,6 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
     this.railParts = new Array(CurveRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(CurveRail.NUM_JOINTS).fill(null)
 
-    this.onRailPartFixed = this.onRailPartFixed.bind(this)
-  }
-
-  getJointAngles() {
-    return [
-      this.props.angle + 180,
-      this.props.angle + this.props.centerAngle
-    ]
   }
 
   getJointPositions() {
@@ -69,6 +61,13 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
     } else {
       return new Array(CurveRail.NUM_JOINTS).fill(this.props.position)
     }
+  }
+
+  getJointAngles() {
+    return [
+      this.props.angle + 180,
+      this.props.angle + this.props.centerAngle
+    ]
   }
 
   render() {

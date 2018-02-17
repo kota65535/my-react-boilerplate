@@ -44,49 +44,45 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
 
   constructor(props: SimpleTurnoutComposedProps) {
     super(props)
+    this.state = {
+      railPartsFixed: false
+    }
 
     this.temporaryPivotJointIndex = 0
     this.railParts = new Array(SimpleTurnout.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
   }
 
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startPoint
-      case 1:
-        return this.railParts[0].endPoint
-      case 2:
-        return this.railParts[1].endPoint
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
+  getJointPositions() {
+    if (this.state.railPartsFixed) {
+      return [
+        this.railParts[0].startPoint,
+        this.railParts[0].endPoint,
+        this.railParts[1].endPoint
+      ]
+    } else {
+      return new Array(SimpleTurnout.NUM_JOINTS).fill(this.props.position)
     }
   }
 
-  getJointAngle(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startAngle - 180
-      case 1:
-        return this.railParts[0].endAngle
-      case 2:
-        return this.railParts[1].endAngle
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
+  getJointAngles() {
+    const {angle, branchDirection, centerAngle} = this.props
+    return [
+      angle + 180,
+      angle,
+      branchDirection === ArcDirection.RIGHT ? angle + centerAngle : angle - centerAngle
+    ]
   }
-
 
   render() {
     const {
       position, length, angle, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
-    const jointAngles = [
-      angle + 180,
-      angle,
-      branchDirection === ArcDirection.RIGHT ? angle + centerAngle : angle - centerAngle
-    ]
+
+    const jointAngles = this.getJointAngles()
+    const jointPositions = this.getJointPositions()
+
     return (
       <React.Fragment>
         <StraightRailPart
@@ -102,6 +98,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         <CurveRailPart
@@ -119,13 +116,14 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[1] = railPart}
         />
         {_.range(SimpleTurnout.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={position}
+              position={jointPositions[i]}
               opacity={opacity}
               name={'Rail'}
               data={{

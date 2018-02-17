@@ -47,58 +47,49 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, Rail
 
   constructor(props: ThreeWayTurnoutComposedProps) {
     super(props)
+    this.state = {
+      railPartsFixed: false
+    }
 
     this.temporaryPivotJointIndex = 0
     this.railParts = new Array(ThreeWayTurnout.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(ThreeWayTurnout.NUM_JOINTS).fill(null)
   }
 
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startPoint
-      case 1:
-        return this.railParts[1].endPoint
-      case 2:
-        return this.railParts[0].endPoint
-      case 3:
-        return this.railParts[2].endPoint
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
+  getJointPositions() {
+    if (this.state.railPartsFixed) {
+      return [
+        this.railParts[0].startPoint,
+        this.railParts[1].endPoint,
+        this.railParts[0].endPoint,
+        this.railParts[2].endPoint
+      ]
+    } else {
+      return new Array(ThreeWayTurnout.NUM_JOINTS).fill(this.props.position)
     }
   }
 
-  getJointAngle(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startAngle - 180
-      case 1:
-        return this.railParts[1].endAngle
-      case 2:
-        return this.railParts[0].endAngle
-      case 3:
-        return this.railParts[2].endAngle
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
+  getJointAngles() {
+    const {angle, leftCenterAngle, rightCenterAngle} = this.props
+    return [
+      angle + 180,
+      angle - leftCenterAngle,
+      angle,
+      angle + rightCenterAngle
+    ]
   }
-
 
   render() {
     const {
       position, length, angle, leftStart, leftRadius, leftCenterAngle, rightStart, rightRadius, rightCenterAngle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
-    const jointAngles = [
-      angle + 180,
-      angle - leftCenterAngle,
-      angle,
-      angle + rightCenterAngle
-    ]
 
     const leftStartPosition = position.add(new Point(leftStart, 0).rotate(angle, new Point(0, 0)))
     const rightStartPosition = position.add(new Point(rightStart, 0).rotate(angle, new Point(0, 0)))
 
+    const jointAngles = this.getJointAngles()
+    const jointPositions = this.getJointPositions()
 
     return (
       <React.Fragment>
@@ -115,6 +106,7 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, Rail
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         <CurveRailPart
@@ -132,6 +124,7 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, Rail
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[1] = railPart}
         />
         <CurveRailPart
@@ -149,13 +142,14 @@ export class ThreeWayTurnout extends RailBase<ThreeWayTurnoutComposedProps, Rail
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[2] = railPart}
         />
         {_.range(ThreeWayTurnout.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={position}
+              position={jointPositions[i]}
               opacity={opacity}
               name={'Rail'}
               data={{

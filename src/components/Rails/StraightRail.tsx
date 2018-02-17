@@ -51,15 +51,6 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
     this.temporaryPivotJointIndex = 0
     this.railParts = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
-
-    this.onRailPartFixed = this.onRailPartFixed.bind(this)
-  }
-
-  getJointAngles() {
-    return [
-      this.props.angle + 180,
-      this.props.angle
-    ]
   }
 
   getJointPositions() {
@@ -71,6 +62,13 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
     } else {
       return new Array(StraightRail.NUM_JOINTS).fill(this.props.position)
     }
+  }
+
+  getJointAngles() {
+    return [
+      this.props.angle + 180,
+      this.props.angle
+    ]
   }
 
   render() {

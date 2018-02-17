@@ -47,52 +47,41 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
     this.joints = new Array(CrossoverTurnout.NUM_JOINTS).fill(null)
   }
 
-  getJointPosition(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startPoint
-      case 1:
-        return this.railParts[0].endPoint
-      case 2:
-        return this.railParts[1].startPoint
-      case 3:
-        return this.railParts[1].endPoint
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
+  getJointPositions() {
+    if (this.state.railPartsFixed) {
+      return [
+        this.railParts[0].startPoint,
+        this.railParts[0].endPoint,
+        this.railParts[1].startPoint,
+        this.railParts[1].endPoint
+      ]
+    } else {
+      return new Array(CrossoverTurnout.NUM_JOINTS).fill(this.props.position)
     }
   }
 
-  getJointAngle(jointId: number) {
-    switch (jointId) {
-      case 0:
-        return this.railParts[0].startAngle + 180
-      case 1:
-        return this.railParts[0].endAngle
-      case 2:
-        return this.railParts[1].startAngle + 180
-      case 3:
-        return this.railParts[1].endAngle
-      default:
-        throw Error(`Invalid joint ID ${jointId}`)
-    }
+  getJointAngles() {
+    const {angle} = this.props
+    return [
+      angle + 180,
+      angle,
+      angle + 180,
+      angle
+    ]
   }
-
 
   render() {
     const {
       position, length, angle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
-    const jointAngles = [
-      angle + 180,
-      angle,
-      angle + 180,
-      angle
-    ]
 
     const firstLineEndPosition = position.add(new Point(length, 0).rotate(angle, new Point(0,0)))
     const secondLineStartPosition = position.add(new Point(0,  RailBase.RAIL_SPACE).rotate(angle, new Point(0,0)))
     const secondLineEndPosition = secondLineStartPosition.add(new Point(length, 0).rotate(angle, new Point(0,0)))
+
+    const jointAngles = this.getJointAngles()
+    const jointPositions = this.getJointPositions()
 
     return (
       <React.Fragment>
@@ -109,6 +98,7 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         <StraightRailPart
@@ -124,6 +114,7 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
             partType: 'RailPart',
             partId: 1
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[1] = railPart}
         />
         <CurveRailPart
@@ -141,6 +132,7 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[2] = railPart}
         />
         <CurveRailPart
@@ -158,6 +150,7 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[3] = railPart}
         />
         <CurveRailPart
@@ -175,6 +168,7 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[4] = railPart}
         />
         <CurveRailPart
@@ -192,13 +186,14 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, Ra
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[5] = railPart}
         />
         {_.range(CrossoverTurnout.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={position}
+              position={jointPositions[i]}
               opacity={opacity}
               name={'Rail'}
               data={{

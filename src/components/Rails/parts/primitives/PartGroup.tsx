@@ -6,6 +6,7 @@ import PartBase, {PartBaseProps, Pivot} from "components/Rails/parts/primitives/
 
 interface MultiPartProps extends PartBaseProps {
   pivotPartIndex?: number
+  onFixed?: () => void
 }
 
 interface PartGroupState {
@@ -22,9 +23,11 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
       pivotPoint: null
     }
     this._children = new Array((this.props.children as any[]).length)
+    this._isFixed = false
   }
 
   _children: any[]
+  _isFixed: boolean
 
   // ========== Public APIs ==========
 
@@ -58,6 +61,17 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
     let relAngle = angle - this.angle
     if (relAngle !== 0) {
       this.rotateRelatively(relAngle);
+    }
+  }
+
+  componentDidUpdate() {
+    // PivotPointが設定された状態でレンダリングが終わって初めて位置・回転が確定する
+    // その時にonFixedコールバックを呼んでやる
+    if (! this._isFixed && this.state.pivotPoint) {
+      if (this.props.onFixed) {
+        this.props.onFixed()
+      }
+      this._isFixed = true
     }
   }
 
@@ -97,12 +111,18 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
     const {pivot, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
 
-    const extendedChildren = React.Children.map(this.props.children,  (child: any, i) => {
-      return React.cloneElement(child as any, {
-        ...child.props,
-        ref: (node) =>  this._children[i] = node
+    // PivotPartIndexが指定されていたら、子パーツのメソッドを呼び出す必要があるのでrefをpropsに追加する
+    let children
+    if (this.props.pivotPartIndex !== undefined) {
+      children = React.Children.map(this.props.children, (child: any, i) => {
+        return React.cloneElement(child as any, {
+          ...child.props,
+          ref: (node) => this._children[i] = node
+        })
       })
-    })
+    } else {
+      children = this.props.children
+    }
 
     // Pivotの座標を計算するには角度0でのGroupのBoundingBoxが必要なため、
     // Pivotの影響を受ける position, rotation をいったん無指定にして描画する。
@@ -140,13 +160,11 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
             this.setState({
               group: group,
               pivotPoint: this.getPivotPointFromBoundingBox(group)
-
             })
           }
         }}
       >
-        {this.props.children}
-        {extendedChildren}
+        {children}
       </GroupComponent>
     )
   }

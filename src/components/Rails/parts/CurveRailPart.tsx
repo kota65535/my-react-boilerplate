@@ -20,6 +20,7 @@ interface Props extends Partial<DefaultProps> {
   data?: RailPartInfo
   onLeftClick?: (e: MouseEvent) => void
   onRightClick?: (e: MouseEvent) => void
+  onFixed?: () => void
 }
 
 interface DefaultProps {

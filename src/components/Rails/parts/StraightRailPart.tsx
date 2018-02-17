@@ -17,6 +17,7 @@ interface Props extends Partial<DefaultProps> {
   data?: RailPartInfo
   onLeftClick?: (e: MouseEvent) => void
   onRightClick?: (e: MouseEvent) => void
+  onFixed?: () => void
 }
 
 interface DefaultProps {
@@ -90,7 +91,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
 
   render() {
     const {length, position, angle, pivot, detectionEnabled, selected, fillColors, opacity,
-      name, data , onLeftClick, onRightClick} = this.props
+      name, data , onLeftClick, onRightClick, onFixed} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -115,6 +116,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

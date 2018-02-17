@@ -24,7 +24,8 @@ export interface StraightRailProps extends RailBaseProps {
 }
 
 export interface StraightRailState {
-  temporaryItemPivotIndex: number
+  // temporaryItemPivotIndex: number
+  jointPosition: Point[]
 }
 
 export type StraightRailComposedProps = StraightRailProps & WithHistoryProps
@@ -47,10 +48,27 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
 
   constructor(props: StraightRailComposedProps) {
     super(props)
+    this.state = {
+      jointPosition: new Array(StraightRail.NUM_JOINTS).fill(props.position)
+    }
 
     this.temporaryPivotJointIndex = 0
     this.railParts = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
+  }
+
+
+  // componentDidMount() {
+  // }
+
+  onRailPartFixed() {
+    this.setState({
+      jointPosition: [
+        this.railParts[0].startPoint,
+        this.railParts[0].endPoint
+      ]
+    })
+
   }
 
 
@@ -80,13 +98,14 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed.bind(this)}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         {_.range(StraightRail.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={position}
+              position={this.state.jointPosition[i]}
               opacity={opacity}
               name={'Rail'}
               data={{

@@ -19,6 +19,7 @@ import {
 import * as _ from "lodash";
 import {RailComponents} from "components/Rails/index";
 import * as update from "immutability-helper";
+import {JOINT_FILL_COLORS, RAIL_PART_FILL_COLORS} from "constants/parts";
 
 
 interface DoubleStraightRailProps extends RailBaseProps {
@@ -137,6 +138,7 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
                 partType: 'Joint',
                 partId: i
               }}
+              fillColors={i === 0 ? RAIL_PART_FILL_COLORS : JOINT_FILL_COLORS}
               hasOpposingJoint={hasOpposingJoints[i]}
               onLeftClick={this.onJointLeftClick.bind(this, i)}
               onRightClick={this.onJointRightClick.bind(this, i)}

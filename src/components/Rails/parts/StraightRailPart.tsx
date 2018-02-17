@@ -6,6 +6,9 @@ import DetectablePart from "./primitives/DetectablePart";
 import {RAIL_PART_DETECTION_OPACITY_RATE, RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {RailPartInfo} from "components/Rails/parts/types";
 import {Pivot} from "components/Rails/parts/primitives/PartBase";
+import getLogger from "logging";
+
+const LOGGER = getLogger(__filename)
 
 
 interface Props extends Partial<DefaultProps> {
@@ -69,6 +72,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
   }
 
   move(position: Point, pivot: Point = this.startPoint): void {
+    LOGGER.debug(`move ${this.detectablePart.position} ->  ${position} @ ${pivot}`)
     this.detectablePart.move(position, pivot)
   }
 
@@ -77,6 +81,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
   }
 
   rotate(angle: number, pivot: Point = this.startPoint) {
+    LOGGER.debug(`rotate ${this.detectablePart.angle} ->  ${angle} @ ${pivot}`)
     this.detectablePart.rotate(angle, pivot);
   }
 

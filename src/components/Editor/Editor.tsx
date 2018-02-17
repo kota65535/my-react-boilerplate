@@ -177,47 +177,47 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
             {layers}
 
-            <SimpleTurnout
-              position={new Point(700, 700)}
-              branchDirection={ArcDirection.RIGHT}
-              pivotJointIndex={2}
-              angle={30}
-              length={140}
-              radius={541}
-              centerAngle={15}
-              id={1}
-              layerId={1}
-            />
-            <ThreeWayTurnout
-              position={new Point(700, 840)}
-              pivotJointIndex={0}
-              angle={30}
-              length={140}
-              id={1}
-              layerId={1}
-              leftStart={0}
-              leftRadius={541}
-              leftCenterAngle={15}
-              rightStart={0}
-              rightRadius={541}
-              rightCenterAngle={15}
-            />
-            {/*<DoubleStraightRail*/}
-              {/*position={new Point(700, 560)}*/}
-              {/*pivotJointIndex={0}*/}
-              {/*id={3}*/}
-              {/*layerId={1}*/}
-              {/*length={280}*/}
+            {/*<SimpleTurnout*/}
+              {/*position={new Point(700, 700)}*/}
+              {/*branchDirection={ArcDirection.RIGHT}*/}
+              {/*pivotJointIndex={2}*/}
               {/*angle={30}*/}
+              {/*length={140}*/}
+              {/*radius={541}*/}
+              {/*centerAngle={15}*/}
+              {/*id={1}*/}
+              {/*layerId={1}*/}
             {/*/>*/}
-            <CrossoverTurnout
-              position={new Point(700, 560)}
+            {/*<ThreeWayTurnout*/}
+              {/*position={new Point(700, 840)}*/}
+              {/*pivotJointIndex={1}*/}
+              {/*angle={30}*/}
+              {/*length={140}*/}
+              {/*id={1}*/}
+              {/*layerId={1}*/}
+              {/*leftStart={0}*/}
+              {/*leftRadius={541}*/}
+              {/*leftCenterAngle={15}*/}
+              {/*rightStart={0}*/}
+              {/*rightRadius={541}*/}
+              {/*rightCenterAngle={15}*/}
+            {/*/>*/}
+            <DoubleStraightRail
+              position={new Point(840, 560)}
               pivotJointIndex={1}
               id={3}
               layerId={1}
               length={280}
-              angle={30}
+              angle={0}
             />
+            {/*<CrossoverTurnout*/}
+              {/*position={new Point(840, 560)}*/}
+              {/*pivotJointIndex={0}*/}
+              {/*id={3}*/}
+              {/*layerId={1}*/}
+              {/*length={280}*/}
+              {/*angle={45}*/}
+            {/*/>*/}
 
 
 

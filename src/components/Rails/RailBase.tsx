@@ -197,13 +197,13 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
     const jointPosition = _.cloneDeep(this.getJointPosition(this.props.pivotJointIndex))
     this.railParts.forEach(r => r.rotate(
       this.joints[0].props.angle - this.joints[this.props.pivotJointIndex as number].props.angle + r.props.angle, jointPosition))
-    this.railParts.forEach(r => r.move(
-      this.props.position, jointPosition))
+    // this.railParts.forEach(r => r.move(
+    //   this.props.position, jointPosition))
   }
 
   // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
   fixJointsPosition() {
-    this.joints.forEach((joint, i) => joint.move(this.getJointPosition(i)))
-    this.joints.forEach((joint, i) => joint.rotate(this.getJointAngle(i)))
+    // this.joints.forEach((joint, i) => joint.move(this.getJointPosition(i)))
+    // this.joints.forEach((joint, i) => joint.rotate(this.getJointAngle(i)))
   }
 }

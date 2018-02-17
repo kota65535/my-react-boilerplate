@@ -27,7 +27,7 @@ export type CrossoverTurnoutComposedProps = CrossoverTurnoutProps & WithHistoryP
 
 
 export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, {}> {
-  public static NUM_RAIL_PARTS = 5
+  public static NUM_RAIL_PARTS = 6
   public static NUM_JOINTS = 4
   public static PIVOT_JOINT_CHANGING_STRIDE = 2
 
@@ -192,7 +192,7 @@ export class CrossoverTurnout extends RailBase<CrossoverTurnoutComposedProps, {}
             partType: 'RailPart',
             partId: 0
           }}
-          ref={(railPart) => this.railParts[4] = railPart}
+          ref={(railPart) => this.railParts[5] = railPart}
         />
         {_.range(CrossoverTurnout.NUM_JOINTS).map(i => {
           return (

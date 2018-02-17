@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Point, Group} from "paper";
 import {Path as PathComponent, Group as GroupComponent} from "react-paper-bindings";
-import PartBase, {PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
+import PartBase, {PartBaseDefaultProps, PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
 
 
 interface MultiPartProps extends PartBaseProps {
@@ -15,6 +15,15 @@ interface PartGroupState {
 }
 
 export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> {
+  public static defaultProps: PartBaseDefaultProps = {
+    position: new Point(0, 0),
+    angle: 0,
+    pivot: Pivot.CENTER,
+    fillColor: undefined,
+    visible: true,
+    opacity: 1,
+    selected: false,
+  }
 
   constructor (props: MultiPartProps) {
     super(props)
@@ -117,7 +126,9 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
       children = React.Children.map(this.props.children, (child: any, i) => {
         return React.cloneElement(child as any, {
           ...child.props,
-          ref: (node) => this._children[i] = node
+          ref: (node) => {
+            this._children[i] = node
+          }
         })
       })
     } else {

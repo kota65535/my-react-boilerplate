@@ -14,7 +14,7 @@ import {setTemporaryItem} from "actions/builder";
 import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
 import {
   mapDispatchToProps, mapStateToProps, RailBase, RailBaseDefaultProps,
-  RailBaseProps
+  RailBaseProps, RailBaseState
 } from "components/Rails/RailBase";
 import * as _ from "lodash";
 
@@ -29,7 +29,7 @@ interface SimpleTurnoutProps extends RailBaseProps {
 export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
 
 
-export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, {}> {
+export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBaseState> {
   public static NUM_RAIL_PARTS = 2
   public static NUM_JOINTS = 3
   public static PIVOT_JOINT_CHANGING_STRIDE = 1

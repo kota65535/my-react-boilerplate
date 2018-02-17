@@ -98,7 +98,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
 
   render() {
     const {radius, centerAngle, position, angle, direction, pivot, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick} = this.props
+      name, data, onLeftClick, onRightClick, onFixed} = this.props
     return (
       <DetectablePart
         mainPart={
@@ -128,6 +128,7 @@ export default class CurveRailPart extends React.Component<CurveRailPartProps, {
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

@@ -37,6 +37,10 @@ export interface RailBaseDefaultProps {
   hasOpposingJoints?: boolean[]
 }
 
+export interface RailBaseState {
+  railPartsFixed: boolean
+}
+
 type RailBaseComposedProps = RailBaseProps & WithHistoryProps
 
 export const mapStateToProps = (state: RootState) => {
@@ -53,7 +57,7 @@ export const mapDispatchToProps = (dispatch: any) => {
   }
 }
 
-export abstract class RailBase<P extends RailBaseComposedProps, S> extends React.PureComponent<P, S> {
+export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBaseState> extends React.Component<P, S> {
 
   public static defaultProps: RailBaseDefaultProps = {
     type: 'RailBase',
@@ -68,15 +72,31 @@ export abstract class RailBase<P extends RailBaseComposedProps, S> extends React
   railParts: any[]
   joints: Joint[]
   temporaryPivotJointIndex: number
+  fixedRailPartsCount: number
 
   constructor(props: P) {
     super(props)
+    // 本当はここに書きたいがエラーになる。Typescriptが糞
+    // this.state = {
+    //   railPartsFixed: false
+    // }
+
+    this.fixedRailPartsCount = 0
   }
 
   // TODO: これでOK?
   // shouldComponentUpdate() {
   //   return false
   // }
+  onRailPartFixed() {
+    this.fixedRailPartsCount += 1
+    if (this.fixedRailPartsCount === this.railParts.length) {
+      this.setState({
+        railPartsFixed: true
+      })
+    }
+  }
+
 
   getJointPosition(jointId: number) {
     switch (jointId) {

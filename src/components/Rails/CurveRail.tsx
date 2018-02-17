@@ -14,7 +14,7 @@ import {
   mapStateToProps,
   RailBase,
   RailBaseDefaultProps,
-  RailBaseProps
+  RailBaseProps, RailBaseState
 } from "components/Rails/RailBase";
 import * as _ from "lodash";
 
@@ -27,7 +27,7 @@ export interface CurveRailProps extends RailBaseProps {
 export type CurveRailComposedProps = CurveRailProps & WithHistoryProps
 
 
-export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
+export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
   public static NUM_RAIL_PARTS = 1
   public static NUM_JOINTS = 2
   public static PIVOT_JOINT_CHANGING_STRIDE = 1
@@ -42,22 +42,45 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
 
   constructor(props: CurveRailComposedProps) {
     super(props)
+    this.state = {
+      railPartsFixed: false
+    }
 
     this.temporaryPivotJointIndex = this.props.pivotJointIndex
     this.railParts = new Array(CurveRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(CurveRail.NUM_JOINTS).fill(null)
+
+    this.onRailPartFixed = this.onRailPartFixed.bind(this)
   }
 
+  getJointAngles() {
+    return [
+      this.props.angle + 180,
+      this.props.angle + this.props.centerAngle
+    ]
+  }
+
+  getJointPositions() {
+    if (this.state.railPartsFixed) {
+      return [
+        this.railParts[0].startPoint,
+        this.railParts[0].endPoint
+      ]
+    } else {
+      return new Array(CurveRail.NUM_JOINTS).fill(this.props.position)
+    }
+  }
 
   render() {
     const {
       position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity,
       hasOpposingJoints
     } = this.props
-    const jointAngles = [
-      angle + 180,
-      angle + centerAngle
-    ]
+
+    const jointAngles = this.getJointAngles()
+    const jointPositions = this.getJointPositions()
+
+
     return (
       <React.Fragment>
         <CurveRailPart
@@ -75,13 +98,14 @@ export class CurveRail extends RailBase<CurveRailComposedProps, {}> {
             partType: 'RailPart',
             partId: 0
           }}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         {_.range(CurveRail.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={position}
+              position={jointPositions[i]}
               opacity={opacity}
               name={'Rail'}
               data={{

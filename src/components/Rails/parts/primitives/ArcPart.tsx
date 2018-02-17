@@ -140,8 +140,6 @@ const createArcPathRight = (width: number, radius: number, centerAngle: number, 
   L ${(outerEndX + innerEndX) / 2} ${(outerEndY + innerEndY) / 2} 
   L ${innerEndX} ${innerEndY} 
   A ${radius - width/2} ${radius - width/2} 0, 0, 0, 0 ${ width/2} Z`
-
-  console.log(pathData)
   return pathData
 }
 
@@ -159,7 +157,5 @@ const createArcPathLeft = (width: number, radius: number, centerAngle: number, p
   L ${(outerEndX + innerEndX) / 2} ${(outerEndY + innerEndY) / 2} 
   L ${innerEndX} ${innerEndY} 
   A ${radius - width/2} ${radius - width/2} 0, 0, 1, 0 ${-width/2} Z`
-  console.log(pathData)
   return pathData
-
 }

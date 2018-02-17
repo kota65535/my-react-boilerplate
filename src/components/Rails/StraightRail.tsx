@@ -14,7 +14,7 @@ import {
   mapStateToProps,
   RailBase,
   RailBaseDefaultProps,
-  RailBaseProps
+  RailBaseProps, RailBaseState
 } from "components/Rails/RailBase";
 import * as _ from "lodash";
 
@@ -23,15 +23,11 @@ export interface StraightRailProps extends RailBaseProps {
   length: number
 }
 
-export interface StraightRailState {
-  // temporaryItemPivotIndex: number
-  jointPosition: Point[]
-}
 
 export type StraightRailComposedProps = StraightRailProps & WithHistoryProps
 
 
-export class StraightRail extends RailBase<StraightRailComposedProps, StraightRailState> {
+export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseState> {
 
   public static NUM_RAIL_PARTS = 1
   public static NUM_JOINTS = 2
@@ -49,28 +45,33 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
   constructor(props: StraightRailComposedProps) {
     super(props)
     this.state = {
-      jointPosition: new Array(StraightRail.NUM_JOINTS).fill(props.position)
+      railPartsFixed: false
     }
 
     this.temporaryPivotJointIndex = 0
     this.railParts = new Array(StraightRail.NUM_RAIL_PARTS).fill(null)
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
+
+    this.onRailPartFixed = this.onRailPartFixed.bind(this)
   }
 
+  getJointAngles() {
+    return [
+      this.props.angle + 180,
+      this.props.angle
+    ]
+  }
 
-  // componentDidMount() {
-  // }
-
-  onRailPartFixed() {
-    this.setState({
-      jointPosition: [
+  getJointPositions() {
+    if (this.state.railPartsFixed) {
+      return [
         this.railParts[0].startPoint,
         this.railParts[0].endPoint
       ]
-    })
-
+    } else {
+      return new Array(StraightRail.NUM_JOINTS).fill(this.props.position)
+    }
   }
-
 
   render() {
     const {
@@ -78,10 +79,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
       hasOpposingJoints
     } = this.props
 
-    const jointAngles = [
-      angle + 180,
-      angle
-    ]
+    const jointAngles = this.getJointAngles()
+    const jointPositions = this.getJointPositions()
 
     return (
       <React.Fragment>
@@ -98,14 +97,14 @@ export class StraightRail extends RailBase<StraightRailComposedProps, StraightRa
             partType: 'RailPart',
             partId: 0
           }}
-          onFixed={this.onRailPartFixed.bind(this)}
+          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railParts[0] = railPart}
         />
         {_.range(StraightRail.NUM_JOINTS).map(i => {
           return (
             <Joint
               angle={jointAngles[i]}
-              position={this.state.jointPosition[i]}
+              position={jointPositions[i]}
               opacity={opacity}
               name={'Rail'}
               data={{

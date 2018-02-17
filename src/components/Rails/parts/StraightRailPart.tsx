@@ -110,6 +110,7 @@ export default class StraightRailPart extends React.Component<StraightRailPartPr
         position={position}
         angle={angle}
         pivot={pivot}
+        pivotPartIndex={0}
         fillColors={fillColors}
         detectionEnabled={detectionEnabled}
         name={name}

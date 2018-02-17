@@ -35,8 +35,7 @@ export enum DetectionState {
 
 export default class DetectablePart extends React.Component<DetectablePartProps, DetectablePartState> {
 
-  _mainPart: PartBase<PartBaseProps, {}>
-  _detectionPart: PartBase<PartBaseProps, {}>
+  _partGroup: PartGroup
 
   constructor (props: DetectablePartProps) {
     super(props)
@@ -59,24 +58,24 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   // ========== Public APIs ==========
 
   get mainPart() {
-    return this._mainPart
+    return this._partGroup._children[0]
   }
 
   get detectionPart() {
-    return this._detectionPart
+    return this._partGroup._children[1]
   }
 
   get position() {
-    return this._mainPart.position
+    return this._partGroup.position
   }
 
   get angle() {
-    return this._mainPart.angle
+    return this._partGroup.angle
   }
 
   resetDetectionState() {
     this.setState({
-        detectionState: DetectionState.BEFORE_DETECT
+      detectionState: DetectionState.BEFORE_DETECT
     })
   }
 
@@ -111,22 +110,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
       })
     }
   }
-
-  // componentDidMount() {
-  //   this.fixDetectionPartPosition()
-  //   // this.rotate(30, new Point(0,0))
-  // }
-  //
-  // componentDidUpdate() {
-  //   this.fixDetectionPartPosition()
-  //   // this.rotate(30, new Point(0,0))
-  // }
-
-  // 本体と当たり判定の中心位置を合わせたいが、本体の位置が確定した後でないとそれができない。
-  // そのため両インスタンスを直接参照して位置を変更する
-  // fixDetectionPartPosition() {
-  //   this._detectionPart.path.position = this._mainPart.path.position
-  // }
 
   onMouseEnter = (e: MouseEvent) => {
     if (this.props.detectionEnabled && this.state.detectionState == DetectionState.BEFORE_DETECT) {
@@ -177,7 +160,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     let props: any = {}
     props.name = this.props.name
     props.data = this.props.data
-    props.ref = (_mainPart) => this._mainPart = _mainPart
     return props
   }
 
@@ -191,31 +173,45 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     props.onMouseLeave = this.onMouseLeave
     props.onClick = this.onClick
     props.onMouseMove = this.props.onMouseMove
-    props.ref = (_detectionPart) => this._detectionPart = _detectionPart
+
     return props
   }
 
+
   render() {
-    const {position, angle, pivot, pivotPartIndex, fillColors, onFixed, mainPart, detectionPart} = this.props
+    const {position, angle, pivot, pivotPartIndex, fillColors, onFixed, name, data, detectionEnabled,
+      mainPart, detectionPart} = this.props
 
-    const addedMainPartProps = this.additionalMainPartProps()
-    const addedDetectionPartProps = this.additionalDetectionPartProps()
+    let clonedMainPart = React.cloneElement(mainPart as any, {
+      ...mainPart.props,
+      visible: true,
+      fillColor: fillColors[this.state.detectionState]
+    })
+    let clonedDetectionPart = React.cloneElement(detectionPart as any, {
+      ...detectionPart.props,
+      visible: detectionEnabled ? this.state.detectionState : false,
+      fillColor: fillColors[this.state.detectionState]
+    })
 
-    let clonedMainPart = React.cloneElement(mainPart, Object.assign({}, mainPart.props, addedMainPartProps))
-    let clonedDetectionPart = React.cloneElement(detectionPart, Object.assign({}, detectionPart.props, addedDetectionPartProps))
 
-    return [
+    return (
       <PartGroup
         position={position}
         angle={angle}
         pivot={pivot}
         pivotPartIndex={pivotPartIndex}
-        fillColor={fillColors[this.state.detectionState]}
+        fillColor={undefined}
+        name={name}
+        data={data}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
+        onClick={this.onClick}
         onFixed={onFixed}
+        ref={(r) => this._partGroup = r}
       >
         {clonedMainPart}
         {clonedDetectionPart}
       </PartGroup>
-    ]
+    )
   }
 }

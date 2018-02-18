@@ -33,10 +33,10 @@ interface DefaultProps {
   fillColors?: string[]
 }
 
-export type CrossoverTurnoutRailPartProps = Props & DefaultProps;
+export type DoubleCrossTurnoutRailPartProps = Props & DefaultProps;
 
 
-export default class CrossoverTurnoutRailPart extends React.Component<CrossoverTurnoutRailPartProps, {}> {
+export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCrossTurnoutRailPartProps, {}> {
   public static defaultProps: DefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -63,7 +63,7 @@ export default class CrossoverTurnoutRailPart extends React.Component<CrossoverT
     this.props.angle + 180
   ]
 
-  constructor(props: CrossoverTurnoutRailPartProps) {
+  constructor(props: DoubleCrossTurnoutRailPartProps) {
     super(props)
   }
 

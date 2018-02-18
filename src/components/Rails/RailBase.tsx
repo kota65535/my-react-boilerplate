@@ -14,6 +14,7 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import RailFactory from "components/Rails/RailFactory";
 import * as update from "immutability-helper";
 import {RailComponents} from "components/Rails/index";
+import RailPartBase from "components/Rails/parts/RailPartBase";
 
 const LOGGER = getLogger(__filename)
 
@@ -71,7 +72,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     hasOpposingJoints: []
   }
 
-  railPart: any
+  railPart: RailPartBase<any, any>
   joints: Joint[]
   temporaryPivotJointIndex: number
   fixedJointsCount: number

@@ -40,8 +40,8 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
 
   // Pivotジョイントに応じて変わるレールの角度
   angles = [
-    this.props.angle,
-    this.props.angle + 180
+    () => this.props.angle,
+    () => this.props.angle + 180
   ]
 
   constructor(props: StraightRailPartProps) {
@@ -53,7 +53,7 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
   }
 
   getAngle(jointIndex: number) {
-    return this.angles[jointIndex]
+    return this.angles[jointIndex]()
   }
 
   render() {

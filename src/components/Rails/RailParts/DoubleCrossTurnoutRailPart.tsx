@@ -57,10 +57,10 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
   ]
 
   angles = [
-    this.props.angle,
-    this.props.angle + 180,
-    this.props.angle,
-    this.props.angle + 180
+    () => this.props.angle,
+    () => this.props.angle + 180,
+    () => this.props.angle,
+    () => this.props.angle + 180
   ]
 
   constructor(props: DoubleCrossTurnoutRailPartProps) {
@@ -72,7 +72,7 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
   }
 
   getAngle(jointIndex: number) {
-    return this.angles[jointIndex]
+    return this.angles[jointIndex]()
   }
 
   render() {

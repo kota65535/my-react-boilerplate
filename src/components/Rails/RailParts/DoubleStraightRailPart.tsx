@@ -46,10 +46,10 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
   ]
 
   angles = [
-    this.props.angle,
-    this.props.angle + 180,
-    this.props.angle,
-    this.props.angle + 180
+    () => this.props.angle,
+    () => this.props.angle + 180,
+    () => this.props.angle,
+    () => this.props.angle + 180
   ]
 
   constructor(props: DoubleStraightRailPartProps) {
@@ -61,7 +61,7 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
   }
 
   getAngle(jointIndex: number) {
-    return this.angles[jointIndex]
+    return this.angles[jointIndex]()
   }
 
   render() {

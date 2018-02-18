@@ -1,4 +1,4 @@
-import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
+import {ArcDirection} from "components/Rails/RailParts/Parts/ArcPart";
 
 class RailFactory {
 

@@ -2,8 +2,8 @@ import * as React from "react";
 import {ReactElement} from "react";
 import {Group} from "react-paper-bindings";
 import {Point} from "paper";
-import PartBase, {PartBaseProps} from "components/Rails/parts/primitives/PartBase";
-import PartGroup from "components/Rails/parts/primitives/PartGroup";
+import PartBase, {PartBaseProps} from "components/Rails/RailParts/Parts/PartBase";
+import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
 
 
 export interface DetectablePartProps extends PartBaseProps {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Group, Point} from "paper";
 import {Group as GroupComponent} from "react-paper-bindings";
-import PartBase, {PartBaseDefaultProps, PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
+import PartBase, {PartBaseDefaultProps, PartBaseProps, Pivot} from "components/Rails/RailParts/Parts/PartBase";
 
 
 interface MultiPartProps extends PartBaseProps {

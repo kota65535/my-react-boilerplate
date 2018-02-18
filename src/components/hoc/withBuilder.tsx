@@ -12,8 +12,8 @@ import {setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
 import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
-import {DetectionState} from "components/Rails/parts/primitives/DetectablePart";
 import * as update from "immutability-helper";
+import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 
 const LOGGER = getLogger(__filename)
 

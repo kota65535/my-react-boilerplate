@@ -27,16 +27,20 @@ import {Rectangle} from "react-paper-bindings"
 import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
-import FirstRailPutter from "components/Rails/parts/FirstRailPutter";
+import FirstRailPutter from "components/Rails/RailParts/FirstRailPutter";
 import {createRailComponent} from "components/Rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
 import StraightRail from "components/Rails/StraightRail";
 import CurveRail from "components/Rails/CurveRail";
 import SimpleTurnout from "components/Rails/SimpleTurnout";
-import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
-import ThreeWayTurnout from "components/Rails/ThreeWayTurnout";
-import CrossoverTurnout from 'components/Rails/CrossoverTurnout';
-import DoubleStraightRail from 'components/Rails/DoubleStraightRail';
+import DoubleStraightRail from "components/Rails/DoubleStraightRail";
+import DoubleCrossTurnout from "components/Rails/DoubleCrossTurnout";
+// import CurveRail from "components/Rails/CurveRail";
+// import SimpleTurnout from "components/Rails/SimpleTurnout";
+// import {ArcDirection} from "components/Rails/RailParts/primitives/ArcPart";
+// import ThreeWayTurnout from "components/Rails/ThreeWayTurnout";
+// import CrossoverTurnout from 'components/Rails/CrossoverTurnout';
+// import DoubleStraightRail from 'components/Rails/DoubleStraightRail';
 
 const LOGGER = getLogger(__filename)
 
@@ -204,35 +208,35 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             {/*/>*/}
             {/*<DoubleStraightRail*/}
               {/*position={new Point(840, 560)}*/}
-              {/*pivotJointIndex={1}*/}
-              {/*id={3}*/}
-              {/*layerId={1}*/}
-              {/*length={280}*/}
-              {/*angle={0}*/}
-            {/*/>*/}
-            {/*<CrossoverTurnout*/}
-              {/*position={new Point(840, 560)}*/}
               {/*pivotJointIndex={0}*/}
               {/*id={3}*/}
               {/*layerId={1}*/}
               {/*length={280}*/}
-              {/*angle={45}*/}
+              {/*angle={30}*/}
             {/*/>*/}
-
-
-            <StraightRail
-              position={new Point(770, 630)}
+            <DoubleCrossTurnout
+              position={new Point(840, 560)}
               pivotJointIndex={0}
-              angle={30}
-              length={200}
-              id={1}
+              id={3}
               layerId={1}
+              length={280}
+              angle={45}
             />
+
+
+            {/*<StraightRail*/}
+              {/*position={new Point(770, 630)}*/}
+              {/*pivotJointIndex={1}*/}
+              {/*angle={30}*/}
+              {/*length={200}*/}
+              {/*id={1}*/}
+              {/*layerId={1}*/}
+            {/*/>*/}
 
             {/*<CurveRail*/}
               {/*position={new Point(770, 770)}*/}
               {/*pivotJointIndex={1}*/}
-              {/*angle={135}*/}
+              {/*angle={15}*/}
               {/*radius={140}*/}
               {/*centerAngle={45}*/}
               {/*id={2}*/}

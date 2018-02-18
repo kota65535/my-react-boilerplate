@@ -1,33 +1,29 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart from "./primitives/RectPart";
-import DetectablePart from "./primitives/DetectablePart";
+import DetectablePart from "./Parts/DetectablePart";
+import ArcPart, {ArcDirection} from "./Parts/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
-import {Pivot} from "components/Rails/parts/primitives/PartBase";
-import {RailPartInfo} from "components/Rails/parts/types";
+import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import getLogger from "logging";
-import PartGroup from "components/Rails/parts/primitives/PartGroup";
+import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
 import {
   default as RailPartBase,
   RailPartBaseDefaultProps,
   RailPartBaseProps
-} from "components/Rails/parts/RailPartBase";
+} from "components/Rails/RailParts/RailPartBase";
 
 const LOGGER = getLogger(__filename)
 
 
-interface DoubleStraightRailPartProps extends RailPartBaseProps {
-  length: number
-  name?: string
-  data?: RailPartInfo
-  onLeftClick?: (e: MouseEvent) => void
-  onRightClick?: (e: MouseEvent) => void
-  onFixed?: () => void
+interface CurveRailPartProps extends RailPartBaseProps {
+  radius: number
+  centerAngle: number
+  direction: ArcDirection
 }
 
 
-export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightRailPartProps, {}> {
+export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> {
   public static defaultProps: RailPartBaseDefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -38,21 +34,28 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
     fillColors: RAIL_PART_FILL_COLORS
   }
 
+  detectablePart: DetectablePart
+
+  // Pivotにするジョイントの位置を指定するための情報
   pivots = [
     {pivotPartIndex: 0, pivot: Pivot.LEFT},
     {pivotPartIndex: 0, pivot: Pivot.RIGHT},
-    {pivotPartIndex: 1, pivot: Pivot.LEFT},
-    {pivotPartIndex: 1, pivot: Pivot.RIGHT}
   ]
 
+  // Pivotジョイントに応じて変わるレールの角度
   angles = [
-    this.props.angle,
-    this.props.angle + 180,
-    this.props.angle,
-    this.props.angle + 180
+    () => this.props.angle,
+    () => {
+      switch (this.props.direction) {
+        case ArcDirection.RIGHT:
+          return this.props.angle - this.props.centerAngle + 180
+        case ArcDirection.LEFT:
+          return this.props.angle + this.props.centerAngle - 180
+      }
+    }
   ]
 
-  constructor(props: DoubleStraightRailPartProps) {
+  constructor(props: CurveRailPartProps) {
     super(props)
   }
 
@@ -61,12 +64,12 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
   }
 
   getAngle(jointIndex: number) {
-    return this.angles[jointIndex]
+    return this.angles[jointIndex]()
   }
 
   render() {
     const {
-      length, position, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
+      radius, centerAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
       name, data, onLeftClick, onRightClick, onFixed
     } = this.props
 
@@ -77,16 +80,11 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
         pivotPartIndex={pivotPartIndex}
         pivot={pivot}
       >
-        <RectPart
-          width={length}
-          height={RAIL_PART_WIDTH}
-          pivot={Pivot.LEFT}
-        />
-        <RectPart
-          position={new Point(0, RailPartBase.RAIL_SPACE)}
-          width={length}
-          height={RAIL_PART_WIDTH}
-          pivot={Pivot.LEFT}
+        <ArcPart
+          direction={direction}
+          radius={radius}
+          centerAngle={centerAngle}
+          width={RAIL_PART_WIDTH}
         />
       </PartGroup>
     )

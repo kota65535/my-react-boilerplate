@@ -1,14 +1,14 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart from "./primitives/RectPart";
-import DetectablePart from "./primitives/DetectablePart";
-import ArcPart, {ArcDirection} from "./primitives/ArcPart";
+import RectPart from "./Parts/RectPart";
+import DetectablePart from "./Parts/DetectablePart";
+import ArcPart, {ArcDirection} from "./Parts/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
-import {Pivot} from "components/Rails/parts/primitives/PartBase";
-import {RailPartInfo} from "components/Rails/parts/types";
+import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
+import {RailPartInfo} from "components/Rails/RailParts/types";
 import getLogger from "logging";
-import PartGroup from "components/Rails/parts/primitives/PartGroup";
+import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
 import RailPartBase from "./RailPartBase";
 
 const LOGGER = getLogger(__filename)

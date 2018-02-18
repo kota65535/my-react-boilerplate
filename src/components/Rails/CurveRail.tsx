@@ -1,11 +1,11 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import CurveRailPart from "./parts/CurveRailPart";
-import Joint from "./parts/Joint";
-import {Pivot} from "components/Rails/parts/primitives/PartBase";
+import CurveRailPart from "./RailParts/CurveRailPart";
+import Joint from "./RailParts/Joint";
+import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import {connect} from "react-redux";
 import {compose} from "recompose";
-import {ArcDirection} from "components/Rails/parts/primitives/ArcPart";
+import {ArcDirection} from "components/Rails/RailParts/Parts/ArcPart";
 import {
   mapDispatchToProps,
   mapStateToProps,

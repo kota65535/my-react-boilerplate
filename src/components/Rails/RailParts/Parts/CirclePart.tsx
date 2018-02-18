@@ -1,20 +1,16 @@
 import * as React from "react";
-import {Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
-import PartBase, {PartBaseProps, Pivot} from "components/Rails/parts/primitives/PartBase";
+import PartBase, {PartBaseProps, Pivot} from "components/Rails/RailParts/Parts/PartBase";
+import {Point} from "paper";
 
-
-interface RectPartProps extends PartBaseProps {
-  width: number
-  height: number
+interface CirclePartProps extends PartBaseProps {
+  radius: number
 }
 
+export default class CirclePart extends PartBase<CirclePartProps, {}> {
 
-export default class RectPart extends PartBase<RectPartProps, {}> {
-
-  constructor(props: RectPartProps) {
+  constructor(props: CirclePartProps) {
     super(props)
-
   }
 
   getPivotAngle(pivot: Pivot) {
@@ -38,25 +34,25 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
   }
 
   getPrivatePivotPosition(pivot: Pivot) {
-    const {width, height} = this.props
+    const {radius} = this.props
     switch (pivot) {
       case Pivot.LEFT:
         return new Point(0, 0)
       case Pivot.TOP:
-        return new Point(width / 2, -height / 2)
+        return new Point(radius, -radius)
       case Pivot.RIGHT:
-        return new Point(width, 0)
+        return new Point(radius * 2, 0)
       case Pivot.BOTTOM:
-        return new Point(width / 2, height / 2)
+        return new Point(radius, radius)
       case Pivot.CENTER:
       default:
-        return new Point(width / 2, 0)
+        return new Point(radius, 0)
     }
   }
 
   render() {
     const {
-      width, height,
+      radius,
       position, angle, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
     } = this.props
@@ -64,7 +60,7 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
     const pivot = this.getPrivatePivotPosition(this.props.pivot)
 
     return <PathComponent
-      pathData={createRectPath(width, height)}
+      pathData={createCirclePath(radius)}
       pivot={pivot}     // pivot parameter MUST proceed to position
       position={position}
       rotation={angle}
@@ -89,7 +85,7 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
 }
 
 
-function createRectPath(width: number, height: number) {
-  let pathData = `M 0 0 L 0 ${-height / 2} ${width} ${-height / 2} L ${width}} 0 L ${width} ${height / 2} L 0 ${height / 2} Z`
+function createCirclePath(radius: number) {
+  const pathData = `M 0 0 A ${radius},${radius} 0 0,1 ${radius * 2} 0 A ${radius} ${radius} 0 0,1 0 0 Z`
   return pathData
 }

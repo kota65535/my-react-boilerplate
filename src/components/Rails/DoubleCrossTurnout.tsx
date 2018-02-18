@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import Joint from "./parts/Joint";
+import Joint from "./RailParts/Joint";
 import {connect} from "react-redux";
 import {compose} from "recompose";
 import {
@@ -11,7 +11,7 @@ import {
   RailBaseProps, RailBaseState
 } from "components/Rails/RailBase";
 import * as _ from "lodash";
-import DoubleCrossTurnoutPart from "components/Rails/parts/DoubleCrossTurnoutRailPart";
+import DoubleCrossTurnoutPart from "components/Rails/RailParts/DoubleCrossTurnoutRailPart";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
 import {BaseItemData} from "reducers/layout";
 

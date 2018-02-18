@@ -1,12 +1,12 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import DetectablePart from "./primitives/DetectablePart";
-import CirclePart from "./primitives/CirclePart";
-import {RailPartInfo} from "components/Rails/parts/types";
-import {Pivot} from "components/Rails/parts/primitives/PartBase";
+import DetectablePart from "./Parts/DetectablePart";
+import CirclePart from "./Parts/CirclePart";
+import {RailPartInfo} from "components/Rails/RailParts/types";
+import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import {JOINT_DETECTION_OPACITY_RATE, JOINT_FILL_COLORS} from "constants/parts";
-import TrianglePart from "components/Rails/parts/primitives/TrianglePart";
+import TrianglePart from "components/Rails/RailParts/Parts/TrianglePart";
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)

@@ -1,10 +1,10 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import Joint from "./parts/Joint";
+import Joint from "./RailParts/Joint";
 import getLogger from "logging";
 import {pointsEqual} from "components/Rails/utils";
-import {Pivot} from "components/Rails/parts/primitives/PartBase";
+import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import * as _ from "lodash";
 import {PaletteItem, RootState} from "store/type";
 import {ItemData} from "reducers/layout";
@@ -14,7 +14,7 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import RailFactory from "components/Rails/RailFactory";
 import * as update from "immutability-helper";
 import {RailComponents} from "components/Rails/index";
-import RailPartBase from "components/Rails/parts/RailPartBase";
+import RailPartBase from "components/Rails/RailParts/RailPartBase";
 
 const LOGGER = getLogger(__filename)
 

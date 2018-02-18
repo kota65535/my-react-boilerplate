@@ -2,16 +2,18 @@ import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import Joint from "./parts/Joint";
-import {ItemData} from "reducers/layout";
+import getLogger from "logging";
+import {pointsEqual} from "components/Rails/utils";
+import {Pivot} from "components/Rails/parts/primitives/PartBase";
+import * as _ from "lodash";
 import {PaletteItem, RootState} from "store/type";
+import {ItemData} from "reducers/layout";
 import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
-import * as _ from "lodash";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import RailFactory from "components/Rails/RailFactory";
 import * as update from "immutability-helper";
 import {RailComponents} from "components/Rails/index";
-import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)
 
@@ -22,6 +24,7 @@ export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
   id: number
   layerId: number    // このアイテムが所属するレイヤー
   name?: string
+  onFixed?: (ref: any) => void
 
   selectedItem: PaletteItem
   temporaryItem: ItemData
@@ -38,7 +41,7 @@ export interface RailBaseDefaultProps {
 }
 
 export interface RailBaseState {
-  railPartsFixed: boolean
+  jointPositions: Point[]
 }
 
 type RailBaseComposedProps = RailBaseProps & WithHistoryProps
@@ -67,12 +70,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     hasOpposingJoints: []
   }
 
-  public static RAIL_SPACE = 38
-
-  railParts: any[]
+  railPart: any
   joints: Joint[]
   temporaryPivotJointIndex: number
-  fixedRailPartsCount: number
+  fixedJointsCount: number
 
   constructor(props: P) {
     super(props)
@@ -81,32 +82,32 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     //   railPartsFixed: false
     // }
 
-    this.fixedRailPartsCount = 0
+    this.fixedJointsCount = 0
     this.onRailPartFixed = this.onRailPartFixed.bind(this)
+    this.onJointsFixed = this.onJointsFixed.bind(this)
   }
 
   // TODO: これでOK?
   // shouldComponentUpdate() {
   //   return false
   // }
+
+  // レールパーツの位置が確定後、
+  // ジョイントの位置を設定する
   onRailPartFixed() {
-    this.fixedRailPartsCount += 1
-    if (this.fixedRailPartsCount === this.railParts.length + this.joints.length) {
-      this.setState({
-        railPartsFixed: true
-      })
-    }
+    const jointPosititons =  _.range(this.joints.length).map(i => this.railPart.getJointPosition(i))
+    this.setState({
+      jointPositions: jointPosititons
+    })
   }
 
-
-  abstract getJointPositions()
-  abstract getJointAngles()
-
-  componentDidUpdate() {
-    LOGGER.debug('updated')
-    if (this.state.railPartsFixed) {
-      this.fixRailPartPosition()
-      this.fixJointsPosition()
+  // レールパーツに次いで、全てのジョイントの位置が確定したらonFixedコールバックを呼んでやる
+  onJointsFixed() {
+    this.fixedJointsCount += 1
+    if (this.fixedJointsCount === this.joints.length) {
+      if (this.props.onFixed) {
+        this.props.onFixed(this)
+      }
     }
   }
 
@@ -192,22 +193,5 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
 
   onJointMouseLeave = (jointId: number, e: MouseEvent) => {
     this.props.setTemporaryItem(null)
-  }
-
-
-  // レールパーツの位置・角度をPivotJointの指定に合わせる
-  fixRailPartPosition() {
-    // console.log(this.joints[0].angle, this.getJointPositions()[this.props.pivotJointIndex])
-    // const jointPosition = _.cloneDeep(this.getJointPositions()[this.props.pivotJointIndex])
-    // this.railParts.forEach(r => r.rotate(
-    //   this.joints[0].props.angle - this.joints[this.props.pivotJointIndex as number].props.angle + r.props.angle, jointPosition))
-    // this.railParts.forEach(r => r.move(
-    //   this.props.position, jointPosition))
-  }
-
-  // ジョイントの位置はレールパーツの位置が確定しないと合わせられないため、後から変更する
-  fixJointsPosition() {
-    // this.joints.forEach((joint, i) => joint.move(this.getJointPositions()[i]))
-    // this.joints.forEach((joint, i) => joint.rotate(this.getJointAngles()[i]))
   }
 }

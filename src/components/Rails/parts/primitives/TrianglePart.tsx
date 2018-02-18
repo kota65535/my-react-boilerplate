@@ -10,7 +10,7 @@ export interface TrianglePartProps extends PartBaseProps {
 
 export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
 
-  constructor (props: TrianglePartProps) {
+  constructor(props: TrianglePartProps) {
     super(props)
   }
 
@@ -44,9 +44,11 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
   }
 
   render() {
-    const {width, height,
+    const {
+      width, height,
       position, angle, fillColor, visible, opacity, selected, name, data,
-      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
+      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
+    } = this.props
 
     const pivot = this.getPrivatePivotPosition(this.props.pivot)
 
@@ -76,6 +78,6 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
 }
 
 export function createTrianglePath(width: number, height: number) {
-  let pathData = `M 0 0 L ${width/2} ${height} L ${-width/2} ${height} Z`
+  let pathData = `M 0 0 L ${width / 2} ${height} L ${-width / 2} ${height} Z`
   return pathData
 }

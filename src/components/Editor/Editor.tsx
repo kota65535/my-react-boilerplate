@@ -222,22 +222,22 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
             <StraightRail
               position={new Point(770, 630)}
-              pivotJointIndex={1}
+              pivotJointIndex={0}
               angle={30}
               length={200}
               id={1}
               layerId={1}
             />
 
-            <CurveRail
-              position={new Point(770, 770)}
-              pivotJointIndex={1}
-              angle={135}
-              radius={140}
-              centerAngle={45}
-              id={2}
-              layerId={1}
-            />
+            {/*<CurveRail*/}
+              {/*position={new Point(770, 770)}*/}
+              {/*pivotJointIndex={1}*/}
+              {/*angle={135}*/}
+              {/*radius={140}*/}
+              {/*centerAngle={45}*/}
+              {/*id={2}*/}
+              {/*layerId={1}*/}
+            {/*/>*/}
 
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}

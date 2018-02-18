@@ -5,6 +5,7 @@ import RectPart from "./primitives/RectPart";
 import DetectablePart from "./primitives/DetectablePart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {Pivot} from "components/Rails/parts/primitives/PartBase";
+import {RailPartInfo} from "components/Rails/parts/types";
 import getLogger from "logging";
 import PartGroup from "components/Rails/parts/primitives/PartGroup";
 import {
@@ -16,12 +17,17 @@ import {
 const LOGGER = getLogger(__filename)
 
 
-interface StraightRailPartProps extends RailPartBaseProps {
+interface DoubleStraightRailPartProps extends RailPartBaseProps {
   length: number
+  name?: string
+  data?: RailPartInfo
+  onLeftClick?: (e: MouseEvent) => void
+  onRightClick?: (e: MouseEvent) => void
+  onFixed?: () => void
 }
 
 
-export default class StraightRailPart extends RailPartBase<StraightRailPartProps, {}> {
+export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightRailPartProps, {}> {
   public static defaultProps: RailPartBaseDefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -34,15 +40,19 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
 
   pivots = [
     {pivotPartIndex: 0, pivot: Pivot.LEFT},
-    {pivotPartIndex: 0, pivot: Pivot.RIGHT}
+    {pivotPartIndex: 0, pivot: Pivot.RIGHT},
+    {pivotPartIndex: 1, pivot: Pivot.LEFT},
+    {pivotPartIndex: 1, pivot: Pivot.RIGHT}
   ]
 
   angles = [
     this.props.angle,
+    this.props.angle + 180,
+    this.props.angle,
     this.props.angle + 180
   ]
 
-  constructor(props: StraightRailPartProps) {
+  constructor(props: DoubleStraightRailPartProps) {
     super(props)
   }
 
@@ -56,7 +66,7 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
 
   render() {
     const {
-      length, position, pivotJointIndex, detectionEnabled, selected, fillColors,
+      length, position, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
       name, data, onLeftClick, onRightClick, onFixed
     } = this.props
 
@@ -70,6 +80,13 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
         <RectPart
           width={length}
           height={RAIL_PART_WIDTH}
+          pivot={Pivot.LEFT}
+        />
+        <RectPart
+          position={new Point(0, RailPartBase.RAIL_SPACE)}
+          width={length}
+          height={RAIL_PART_WIDTH}
+          pivot={Pivot.LEFT}
         />
       </PartGroup>
     )

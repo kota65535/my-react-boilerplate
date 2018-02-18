@@ -137,6 +137,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
               // onMouseMove={this.onJointMouseMove.bind(this, i)}
               onMouseEnter={this.onJointMouseEnter.bind(this, i)}
               onMouseLeave={this.onJointMouseLeave.bind(this, i)}
+              onFixed={this.onRailPartFixed}
               ref={(joint) => this.joints[i] = joint}
             />
           )

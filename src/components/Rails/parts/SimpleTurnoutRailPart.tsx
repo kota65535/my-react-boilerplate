@@ -3,25 +3,25 @@ import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import RectPart from "./primitives/RectPart";
 import DetectablePart from "./primitives/DetectablePart";
+import ArcPart, {ArcDirection} from "./primitives/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {Pivot} from "components/Rails/parts/primitives/PartBase";
 import getLogger from "logging";
 import PartGroup from "components/Rails/parts/primitives/PartGroup";
-import {
-  default as RailPartBase,
-  RailPartBaseDefaultProps,
-  RailPartBaseProps
-} from "components/Rails/parts/RailPartBase";
+import RailPartBase, {RailPartBaseDefaultProps, RailPartBaseProps} from "components/Rails/parts/RailPartBase";
 
 const LOGGER = getLogger(__filename)
 
 
-interface StraightRailPartProps extends RailPartBaseProps {
+interface SimpleTurnoutRailPartProps extends RailPartBaseProps {
   length: number
+  radius: number
+  centerAngle: number
+  direction: ArcDirection
 }
 
 
-export default class StraightRailPart extends RailPartBase<StraightRailPartProps, {}> {
+export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRailPartProps, {}> {
   public static defaultProps: RailPartBaseDefaultProps = {
     position: new Point(0, 0),
     angle: 0,
@@ -34,15 +34,24 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
 
   pivots = [
     {pivotPartIndex: 0, pivot: Pivot.LEFT},
-    {pivotPartIndex: 0, pivot: Pivot.RIGHT}
+    {pivotPartIndex: 0, pivot: Pivot.RIGHT},
+    {pivotPartIndex: 1, pivot: Pivot.RIGHT}
   ]
 
   angles = [
-    this.props.angle,
-    this.props.angle + 180
+    () => this.props.angle,
+    () => this.props.angle + 180,
+    () => {
+      switch (this.props.direction) {
+        case ArcDirection.RIGHT:
+          return this.props.angle - this.props.centerAngle + 180
+        case ArcDirection.LEFT:
+          return this.props.angle + this.props.centerAngle - 180
+      }
+    }
   ]
 
-  constructor(props: StraightRailPartProps) {
+  constructor(props: SimpleTurnoutRailPartProps) {
     super(props)
   }
 
@@ -51,12 +60,12 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
   }
 
   getAngle(jointIndex: number) {
-    return this.angles[jointIndex]
+    return this.angles[jointIndex]()
   }
 
   render() {
     const {
-      length, position, pivotJointIndex, detectionEnabled, selected, fillColors,
+      length, radius, centerAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
       name, data, onLeftClick, onRightClick, onFixed
     } = this.props
 
@@ -70,6 +79,14 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
         <RectPart
           width={length}
           height={RAIL_PART_WIDTH}
+          pivot={Pivot.LEFT}
+        />
+        <ArcPart
+          direction={direction}
+          radius={radius}
+          centerAngle={centerAngle}
+          width={RAIL_PART_WIDTH}
+          pivot={Pivot.LEFT}
         />
       </PartGroup>
     )

@@ -12,7 +12,7 @@ interface RectPartProps extends PartBaseProps {
 
 export default class RectPart extends PartBase<RectPartProps, {}> {
 
-  constructor (props: RectPartProps) {
+  constructor(props: RectPartProps) {
     super(props)
 
   }
@@ -39,21 +39,23 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
       case Pivot.LEFT:
         return new Point(0, 0)
       case Pivot.TOP:
-        return new Point(width/2, -height/2)
+        return new Point(width / 2, -height / 2)
       case Pivot.RIGHT:
         return new Point(width, 0)
       case Pivot.BOTTOM:
-        return new Point(width/2, height/2)
+        return new Point(width / 2, height / 2)
       case Pivot.CENTER:
       default:
-        return new Point(width/2, 0)
+        return new Point(width / 2, 0)
     }
   }
 
   render() {
-    const {width, height,
+    const {
+      width, height,
       position, angle, fillColor, visible, opacity, selected, name, data,
-      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
+      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
+    } = this.props
 
     const pivot = this.getPrivatePivotPosition(this.props.pivot)
 
@@ -84,6 +86,6 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
 
 
 function createRectPath(width: number, height: number) {
-  let pathData = `M 0 0 L 0 ${-height/2} ${width} ${-height/2} L ${width}} 0 L ${width} ${height/2} L 0 ${height/2} Z`
+  let pathData = `M 0 0 L 0 ${-height / 2} ${width} ${-height / 2} L ${width}} 0 L ${width} ${height / 2} L 0 ${height / 2} Z`
   return pathData
 }

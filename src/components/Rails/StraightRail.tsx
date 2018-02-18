@@ -65,10 +65,19 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
   }
 
   getJointAngles() {
-    return [
-      this.props.angle + 180,
-      this.props.angle
-    ]
+    if (this.state.railPartsFixed) {
+      return [
+        // this.railParts[0].startAngle + 180,
+        // this.railParts[0].endAngle
+        this.props.angle + 180,
+        this.props.angle
+      ]
+    } else {
+      return [
+        this.props.angle + 180,
+        this.props.angle
+      ]
+    }
   }
 
   render() {
@@ -116,6 +125,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
               // onMouseMove={this.onJointMouseMove.bind(this, i)}
               onMouseEnter={this.onJointMouseEnter.bind(this, i)}
               onMouseLeave={this.onJointMouseLeave.bind(this, i)}
+              onFixed={this.onRailPartFixed}
               ref={(joint) => this.joints[i] = joint}
             />
           )

@@ -9,7 +9,7 @@ interface CirclePartProps extends PartBaseProps {
 
 export default class CirclePart extends PartBase<CirclePartProps, {}> {
 
-  constructor (props: CirclePartProps) {
+  constructor(props: CirclePartProps) {
     super(props)
   }
 
@@ -47,9 +47,11 @@ export default class CirclePart extends PartBase<CirclePartProps, {}> {
   }
 
   render() {
-    const {radius,
+    const {
+      radius,
       position, angle, fillColor, visible, opacity, selected, name, data,
-      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave} = this.props
+      onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
+    } = this.props
 
     const pivot = this.getPrivatePivotPosition(this.props.pivot)
 
@@ -80,6 +82,6 @@ export default class CirclePart extends PartBase<CirclePartProps, {}> {
 
 
 function createCirclePath(radius: number) {
-  const pathData = `M 0 0 A ${radius},${radius} 0 0,1 ${radius*2} 0 A ${radius} ${radius} 0 0,1 0 0 Z`
+  const pathData = `M 0 0 A ${radius},${radius} 0 0,1 ${radius * 2} 0 A ${radius} ${radius} 0 0,1 0 0 Z`
   return pathData
 }

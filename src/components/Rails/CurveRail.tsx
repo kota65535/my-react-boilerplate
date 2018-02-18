@@ -64,10 +64,17 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
   }
 
   getJointAngles() {
-    return [
-      this.props.angle + 180,
-      this.props.angle + this.props.centerAngle
-    ]
+    if (this.state.railPartsFixed) {
+      return [
+        this.railParts[0].startAngle + 180,
+        this.railParts[0].endAngle
+      ]
+    } else {
+      return [
+        this.props.angle + 180,
+        this.props.angle + this.props.centerAngle
+      ]
+    }
   }
 
   render() {
@@ -118,6 +125,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
               // onMouseMove={this.onJointMouseMove.bind(this, i)}
               onMouseEnter={this.onJointMouseEnter.bind(this, i)}
               onMouseLeave={this.onJointMouseLeave.bind(this, i)}
+              onFixed={this.onRailPartFixed}
               ref={(joint) => this.joints[i] = joint}
             />
           )

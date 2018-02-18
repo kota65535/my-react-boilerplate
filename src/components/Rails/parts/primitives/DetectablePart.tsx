@@ -37,7 +37,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
 
   _partGroup: PartGroup
 
-  constructor (props: DetectablePartProps) {
+  constructor(props: DetectablePartProps) {
     super(props)
     if (this.props.detectionEnabled) {
       this.state = {
@@ -103,7 +103,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
 
   // detectionEnabledが OFF -> ON になった場合は状態をリセットする
   componentWillReceiveProps(nextProps: DetectablePartProps) {
-    if (! this.props.detectionEnabled && nextProps.detectionEnabled) {
+    if (!this.props.detectionEnabled && nextProps.detectionEnabled) {
       this.setState({
         detectionState: DetectionState.BEFORE_DETECT,
         detectionPartVisible: true
@@ -135,7 +135,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
   }
 
-  onClick = (e: MouseEvent|any) => {
+  onClick = (e: MouseEvent | any) => {
     // TODO: 左クリックと右クリックでイベントを分ける
     switch (e.event.button) {
       case 0:
@@ -179,8 +179,10 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
 
 
   render() {
-    const {position, angle, pivot, pivotPartIndex, fillColors, onFixed, name, data, detectionEnabled,
-      mainPart, detectionPart} = this.props
+    const {
+      position, angle, pivot, pivotPartIndex, fillColors, onFixed, name, data, detectionEnabled,
+      mainPart, detectionPart
+    } = this.props
 
     let clonedMainPart = React.cloneElement(mainPart as any, {
       ...mainPart.props,

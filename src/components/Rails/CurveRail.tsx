@@ -46,6 +46,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
       jointAngles: new Array(CurveRail.NUM_JOINTS).fill(props.angle)
     }
 
+    // カーブ系レールのジョイントに対して仮レールを設置する場合は向き(PivotJoint)を揃える
     this.temporaryPivotJointIndex = this.props.pivotJointIndex
     this.joints = new Array(CurveRail.NUM_JOINTS).fill(null)
   }

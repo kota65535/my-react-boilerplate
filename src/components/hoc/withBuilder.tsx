@@ -92,7 +92,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     mouseMove = (e: ToolEvent|any) => {
       const methodName = `mouseMove_${this.props.phase}`
       if (typeof this[methodName] === 'function') {
-        LOGGER.debug(`EventHandler: ${methodName}`)
+        // LOGGER.debug(`EventHandler: ${methodName}`)
         this[methodName](e)
       } else {
         LOGGER.error(`EventHandler: ${methodName} does not exist!`)

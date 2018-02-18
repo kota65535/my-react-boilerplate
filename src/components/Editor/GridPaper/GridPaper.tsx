@@ -75,23 +75,23 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
   render() {
 
     // 縦のグリッドを生成
-    // let verticalLines = _.range(this.props.width / this.props.gridSize).map(i => {
-    //   return (
-    //     <Line
-    //       from={new Point(this.props.gridSize * i, 0)}
-    //       to={new Point(this.props.gridSize * i, this.props.height)}
-    //       strokeColor={i % 10 === 0 ? 'white' : 'red'}
-    //     />)
-    // })
-    // // 横のグリッドを生成
-    // let horizontalLines = _.range(this.props.height / this.props.gridSize).map(i => {
-    //   return (
-    //     <Line
-    //       from={new Point(0, this.props.gridSize * i)}
-    //       to={new Point(this.props.width,this.props.gridSize * i)}
-    //       strokeColor={i % 10 === 0 ? 'white' : 'red'}
-    //     />)
-    // })
+    let verticalLines = _.range(this.props.width / this.props.gridSize).map(i => {
+      return (
+        <Line
+          from={new Point(this.props.gridSize * i, 0)}
+          to={new Point(this.props.gridSize * i, this.props.height)}
+          strokeColor={i % 10 === 0 ? 'white' : 'red'}
+        />)
+    })
+    // 横のグリッドを生成
+    let horizontalLines = _.range(this.props.height / this.props.gridSize).map(i => {
+      return (
+        <Line
+          from={new Point(0, this.props.gridSize * i)}
+          to={new Point(this.props.width,this.props.gridSize * i)}
+          strokeColor={i % 10 === 0 ? 'white' : 'red'}
+        />)
+    })
 
 
     return (
@@ -102,8 +102,8 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
               ref={(view) => this.view = view}
         >
           <Layer>
-            {/*{verticalLines}*/}
-            {/*{horizontalLines}*/}
+            {verticalLines}
+            {horizontalLines}
           </Layer>
           {this.props.children}
         </View>

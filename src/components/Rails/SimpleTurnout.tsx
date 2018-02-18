@@ -48,7 +48,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
       jointAngles: new Array(SimpleTurnout.NUM_JOINTS).fill(props.angle)
     }
 
-    this.temporaryPivotJointIndex = this.props.pivotJointIndex
+    this.temporaryPivotJointIndex = 0
     this.joints = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
   }
 

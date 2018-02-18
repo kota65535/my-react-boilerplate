@@ -68,10 +68,10 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
     // レールパーツ内部のGroupにおけるPartのPivotにおける角度を取得
     let localAngle = this.detectablePart.mainPart.children[pivotPartIndex].getPivotAngle(pivot)
     if (pivot === Pivot.LEFT) {
-      console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle} + 180`)
+      // console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle} + 180`)
       return globalAngle + localAngle + 180
     } else {
-      console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle}`)
+      // console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle}`)
       return globalAngle + localAngle
     }
   }

@@ -50,9 +50,10 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         detectionPartVisible: false
       }
     }
-    this.onMouseEnter.bind(this)
-    this.onMouseLeave.bind(this)
-    this.onClick.bind(this)
+    this.onMouseEnter = this.onMouseEnter.bind(this)
+    this.onMouseLeave = this.onMouseLeave.bind(this)
+    this.onMouseMove = this.onMouseMove.bind(this)
+    this.onClick = this.onClick.bind(this)
   }
 
   // ========== Public APIs ==========
@@ -101,6 +102,13 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
 
   // ========== Private methods ==========
 
+  isDetecting() {
+    return this.props.detectionEnabled && this.state.detectionState == DetectionState.DETECTING
+  }
+  isBeforeDetect() {
+    return this.props.detectionEnabled && this.state.detectionState == DetectionState.BEFORE_DETECT
+  }
+
   // detectionEnabledが OFF -> ON になった場合は状態をリセットする
   componentWillReceiveProps(nextProps: DetectablePartProps) {
     if (!this.props.detectionEnabled && nextProps.detectionEnabled) {
@@ -111,27 +119,36 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
   }
 
+  onMouseMove = (e: MouseEvent) => {
+    // 検出中状態を他のPathに邪魔されないよう、前面に出し続ける
+    if (this.isDetecting()) {
+      this._partGroup.group.bringToFront()
+    }
+  }
+
   onMouseEnter = (e: MouseEvent) => {
-    if (this.props.detectionEnabled && this.state.detectionState == DetectionState.BEFORE_DETECT) {
+    // 検出前状態なら検出中状態に移行し、コールバックを呼んでやる
+    if (this.isBeforeDetect()) {
       this.setState({
         detectionState: DetectionState.DETECTING,
         detectionPartVisible: true
       })
-    }
-    if (this.props.onMouseEnter) {
-      this.props.onMouseEnter(e)
+      if (this.props.onMouseEnter) {
+        this.props.onMouseEnter(e)
+      }
     }
   }
 
   onMouseLeave = (e: MouseEvent) => {
-    if (this.props.detectionEnabled && this.state.detectionState == DetectionState.DETECTING) {
+    // 検出中状態なら検出前状態に移行し、コールバックを呼んでやる
+    if (this.isDetecting()) {
       this.setState({
         detectionState: DetectionState.BEFORE_DETECT,
         detectionPartVisible: true
       })
-    }
-    if (this.props.onMouseLeave) {
-      this.props.onMouseLeave(e)
+      if (this.props.onMouseLeave) {
+        this.props.onMouseLeave(e)
+      }
     }
   }
 
@@ -155,28 +172,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
   }
 
-  // MainPartに追加するProps。既に指定されていたら上書き
-  additionalMainPartProps() {
-    let props: any = {}
-    props.name = this.props.name
-    props.data = this.props.data
-    return props
-  }
-
-  // DetectionPartに追加するProps。既に指定されていたら上書き
-  additionalDetectionPartProps() {
-    let props: any = {}
-    props.visible = this.props.detectionEnabled ? this.state.detectionPartVisible : false
-    props.name = this.props.name
-    props.data = this.props.data
-    props.onMouseEnter = this.onMouseEnter
-    props.onMouseLeave = this.onMouseLeave
-    props.onClick = this.onClick
-    props.onMouseMove = this.props.onMouseMove
-
-    return props
-  }
-
 
   render() {
     const {
@@ -184,17 +179,23 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
       mainPart, detectionPart
     } = this.props
 
+    // 主パーツの色を変更
     let clonedMainPart = React.cloneElement(mainPart as any, {
       ...mainPart.props,
       visible: true,
       fillColor: fillColors[this.state.detectionState]
     })
-    let clonedDetectionPart = React.cloneElement(detectionPart as any, {
-      ...detectionPart.props,
-      visible: detectionEnabled ? this.state.detectionState : false,
-      fillColor: fillColors[this.state.detectionState]
-    })
 
+    // 検出パーツの色を変更
+    // 検出無効状態なら描画しない
+    let clonedDetectionPart
+    if (detectionEnabled) {
+      clonedDetectionPart = React.cloneElement(detectionPart as any, {
+        ...detectionPart.props,
+        visible: detectionEnabled ? this.state.detectionState : false,
+        fillColor: fillColors[this.state.detectionState]
+      })
+    }
 
     return (
       <PartGroup
@@ -207,12 +208,13 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         data={data}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
+        onMouseMove={this.onMouseMove}
         onClick={this.onClick}
         onFixed={onFixed}
         ref={(r) => this._partGroup = r}
       >
         {clonedMainPart}
-        {clonedDetectionPart}
+        {detectionEnabled && clonedDetectionPart}
       </PartGroup>
     )
   }

@@ -69,26 +69,6 @@ export default class Joint extends React.Component<JointProps, {}> {
     return this.detectablePart.angle
   }
 
-  // 対向ジョイントの接続が解除されたら状態をリセットする（再び検出可能にする）
-  componentWillReceiveProps(nextProps: JointProps) {
-    if (this.props.hasOpposingJoint && !nextProps.hasOpposingJoint) {
-      this.detectablePart.resetDetectionState()
-    }
-  }
-
-  move(position: Point): void {
-    LOGGER.debug(`move ${this.detectablePart.position} ->  ${position}`)
-    this.detectablePart.move(position)
-  }
-
-  rotateRelatively(difference: number, pivot: Point = this.position) {
-    this.detectablePart.rotateRelatively(difference, pivot);
-  }
-
-  rotate(angle: number, pivot: Point = this.position) {
-    LOGGER.debug(`rotate ${this.detectablePart.angle} ->  ${angle} @ ${pivot}`)
-    this.detectablePart.rotate(angle, pivot);
-  }
 
   // ========== Private methods ==========
 
@@ -119,7 +99,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         fillColors={fillColors}
         detectionEnabled={!hasOpposingJoint}
         name={name}
-        // data={Object.assign(data, {detectionState})}
+        data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
         onMouseEnter={onMouseEnter}

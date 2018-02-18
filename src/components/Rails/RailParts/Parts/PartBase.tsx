@@ -18,7 +18,7 @@ export interface PartBaseProps extends Partial<PartBaseDefaultProps> {
   opacity?: number
   selected?: boolean
   name?: string
-  data?: object
+  data?: any
   onFrame?: any
   onMouseDown?: any
   onMouseDrag?: any

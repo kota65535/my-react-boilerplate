@@ -9,6 +9,7 @@ export function configureStore(initialState?: RootState) {
   if (process.env.NODE_ENV === 'development') {
     store = createStore(rootReducer, initialState, devToolsEnhancer({
       actionsBlacklist: [BUILDER_SET_MOUSE_POSITION, BUILDER_SET_MARKER_POSITION, BUILDER_SET_TEMPORARY_ITEM]
+      // actionsBlacklist: [BUILDER_SET_MOUSE_POSITION, BUILDER_SET_MARKER_POSITION]
     })) as Store<RootState>;
   } else {
     store = createStore(rootReducer, initialState) as Store<RootState>;

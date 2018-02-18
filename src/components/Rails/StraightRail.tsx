@@ -37,7 +37,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(StraightRail.NUM_JOINTS).fill(false)
+    hasOpposingJoints: new Array(StraightRail.NUM_JOINTS).fill(false),
+    enableJoints: true
   }
 
   constructor(props: StraightRailComposedProps) {
@@ -55,7 +56,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
   render() {
     const {
       position, angle, length, id, selected, pivotJointIndex, opacity,
-      hasOpposingJoints
+      hasOpposingJoints, enableJoints
     } = this.props
 
     return (
@@ -88,6 +89,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
                 partType: 'Joint',
                 partId: i
               }}
+              detectionEnabled={this.props.enableJoints}
               hasOpposingJoint={hasOpposingJoints[i]}
               onLeftClick={this.onJointLeftClick.bind(this, i)}
               onRightClick={this.onJointRightClick.bind(this, i)}

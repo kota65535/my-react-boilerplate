@@ -38,6 +38,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
     pivotJointIndex: 0,
     opacity: 1,
     hasOpposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(false),
+    enableJoints: true
   }
 
   constructor(props: SimpleTurnoutComposedProps) {
@@ -90,6 +91,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
                 partType: 'Joint',
                 partId: i
               }}
+              detectionEnabled={this.props.enableJoints}
               hasOpposingJoint={hasOpposingJoints[i]}
               onLeftClick={this.onJointLeftClick.bind(this, i)}
               onRightClick={this.onJointRightClick.bind(this, i)}

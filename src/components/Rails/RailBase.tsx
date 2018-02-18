@@ -39,6 +39,7 @@ export interface RailBaseDefaultProps {
   pivotJointIndex?: number
   opacity?: number
   hasOpposingJoints?: boolean[]
+  enableJoints: boolean
 }
 
 export interface RailBaseState {
@@ -69,7 +70,8 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: []
+    hasOpposingJoints: [],
+    enableJoints: true
   }
 
   railPart: RailPartBase<any, any>
@@ -185,11 +187,14 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       ...itemProps,
       id: -1,
       name: 'TemporaryRail',
-      position: this.joints[jointId].position,
-      angle: this.joints[jointId].angle,
+      // position: this.joints[jointId].position,
+      position: this.railPart.getJointPosition(jointId),
+      // angle: this.joints[jointId].angle,
+      angle: this.railPart.getJointAngle(jointId),
       layerId: 1,
       opacity: TEMPORARY_RAIL_OPACITY,
-      pivotJointIndex: this.temporaryPivotJointIndex
+      pivotJointIndex: this.temporaryPivotJointIndex,
+      enableJoints: false
     })
 
   }

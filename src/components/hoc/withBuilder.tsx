@@ -116,6 +116,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         position: this.props.markerPosition,
         angle: angle,
         opacity: TEMPORARY_RAIL_OPACITY,
+        enableJoints: false,
       })
     }
 

@@ -34,7 +34,8 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(DoubleStraightRail.NUM_JOINTS).fill(false)
+    hasOpposingJoints: new Array(DoubleStraightRail.NUM_JOINTS).fill(false),
+    enableJoints: true
   }
 
   constructor(props: DoubleStraightRailComposedProps) {
@@ -85,6 +86,7 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
                 partType: 'Joint',
                 partId: i
               }}
+              detectionEnabled={this.props.enableJoints}
               hasOpposingJoint={hasOpposingJoints[i]}
               onLeftClick={this.onJointLeftClick.bind(this, i)}
               onRightClick={this.onJointRightClick.bind(this, i)}

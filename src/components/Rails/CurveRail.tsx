@@ -36,6 +36,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
     pivotJointIndex: 0,
     opacity: 1,
     hasOpposingJoints: new Array(CurveRail.NUM_JOINTS).fill(false),
+    enableJoints: true
   }
 
   constructor(props: CurveRailComposedProps) {
@@ -87,6 +88,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
                 partType: 'Joint',
                 partId: i
               }}
+              detectionEnabled={this.props.enableJoints}
               hasOpposingJoint={hasOpposingJoints[i]}
               onLeftClick={this.onJointLeftClick.bind(this, i)}
               onRightClick={this.onJointRightClick.bind(this, i)}

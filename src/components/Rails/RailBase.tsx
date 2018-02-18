@@ -96,7 +96,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   // レールパーツの位置が確定後、ジョイントの位置と角度を決定する
   onRailPartFixed() {
     const jointPositions =  _.range(this.joints.length).map(i => this.railPart.getJointPosition(i))
-    const jointAngles =  _.range(this.joints.length).map(i => this.railPart.getAngle(i) + 180)
+    const jointAngles =  _.range(this.joints.length).map(i => this.railPart.getJointAngle(i))
     this.setState({
       jointPositions,
       jointAngles

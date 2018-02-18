@@ -17,6 +17,10 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
 
   }
 
+  getPivotAngle(pivot: Pivot) {
+    return this.angle
+  }
+
   getPublicPivotPosition(pivot: Pivot) {
     switch (pivot) {
       case Pivot.LEFT:

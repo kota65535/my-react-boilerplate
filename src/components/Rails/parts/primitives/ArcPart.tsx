@@ -22,7 +22,23 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
     super(props)
   }
 
-  // ========== Public APIs ==========
+  getPivotAngle(pivot: Pivot) {
+    switch (pivot) {
+      case Pivot.LEFT:
+        return this.angle
+      case Pivot.RIGHT:
+        switch (this.props.direction) {
+          case ArcDirection.RIGHT:
+            return this.angle + this.props.centerAngle
+          case ArcDirection.LEFT:
+            return this.angle - this.props.centerAngle
+          default:
+            throw Error(`Invalid direction ${this.props.direction} for ${this.constructor.name}`)
+        }
+      default:
+        throw Error(`Invalid pivot ${pivot} for ${this.constructor.name}`)
+    }
+  }
 
   getPublicPivotPosition(pivot: Pivot) {
     switch (pivot) {

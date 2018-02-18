@@ -32,11 +32,13 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
     fillColors: RAIL_PART_FILL_COLORS
   }
 
+  // Pivotにするジョイントの位置を指定するための情報
   pivots = [
     {pivotPartIndex: 0, pivot: Pivot.LEFT},
     {pivotPartIndex: 0, pivot: Pivot.RIGHT}
   ]
 
+  // Pivotジョイントに応じて変わるレールの角度
   angles = [
     this.props.angle,
     this.props.angle + 180

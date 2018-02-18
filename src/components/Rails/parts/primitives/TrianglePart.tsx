@@ -14,7 +14,9 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
     super(props)
   }
 
-  // ========== Public APIs ==========
+  getPivotAngle(pivot: Pivot) {
+    return this.angle
+  }
 
   getPublicPivotPosition(pivot: Pivot) {
     switch (pivot) {

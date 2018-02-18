@@ -36,11 +36,13 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
 
   detectablePart: DetectablePart
 
+  // Pivotにするジョイントの位置を指定するための情報
   pivots = [
     {pivotPartIndex: 0, pivot: Pivot.LEFT},
     {pivotPartIndex: 0, pivot: Pivot.RIGHT},
   ]
 
+  // Pivotジョイントに応じて変わるレールの角度
   angles = [
     () => this.props.angle,
     () => {

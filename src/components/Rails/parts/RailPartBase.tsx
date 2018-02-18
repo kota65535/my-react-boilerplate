@@ -4,6 +4,7 @@ import {Rectangle} from "react-paper-bindings";
 import DetectablePart from "./primitives/DetectablePart";
 import {RAIL_PART_FILL_COLORS} from "constants/parts";
 import {RailPartInfo} from "components/Rails/parts/types";
+import {Pivot} from "components/Rails/parts/primitives/PartBase";
 
 
 export interface RailPartBaseProps extends Partial<RailPartBaseDefaultProps> {
@@ -44,11 +45,35 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
     super(props)
   }
 
-  // 指定のインデックスのジョイントの位置を取得する。
-  // 決まった階層構造を前提としている。どのように実装を矯正すべきか？
-  getJointPosition(jointIndex) {
+  /**
+   * 指定のジョイントの位置を返す。
+   * @param {number} jointIndex
+   * @returns {paper.Point}
+   */
+  getJointPosition(jointIndex: number) {
+    // 決まった階層構造を前提としている。どのように実装を矯正すべきか？
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
     return this.detectablePart.mainPart.children[pivotPartIndex].getPublicPivotPosition(pivot)
+  }
+
+  /**
+   * 指定のジョイントの角度を返す。
+   * @param {number} jointIndex
+   * @returns {number}
+   */
+  getJointAngle(jointIndex: number) {
+    const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
+    // レールパーツのグローバルな角度を取得
+    const globalAngle = this.detectablePart.angle
+    // レールパーツ内部のGroupにおけるPartのPivotにおける角度を取得
+    let localAngle = this.detectablePart.mainPart.children[pivotPartIndex].getPivotAngle(pivot)
+    if (pivot === Pivot.LEFT) {
+      return globalAngle + localAngle + 180
+    } else {
+      return globalAngle + localAngle
+    }
+    // console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle}`)
+    // return globalAngle + localAngle
   }
 
   abstract getPivot(jointIndex: number)

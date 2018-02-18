@@ -53,6 +53,8 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   }
 
   _path: Path
+  // PaperJSのPathはデフォルトの挙動ではグローバルなrotationを保持しない
+  // そのためこのような形で保存しておく必要がある
   _angle: number
 
   constructor(props: P) {
@@ -75,12 +77,28 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   }
 
   componentWillReceiveProps(nextProps: PartBaseProps) {
+    // Angleを更新
     this._angle += (nextProps.angle - this.props.angle)
   }
 
-  abstract getPublicPivotPosition(pivot: Pivot)
+  /**
+   * 指定のPivotのAngleを返す
+   * PivotはLEFTとRIGHTくらいしか想定していない。実質ArcPart用
+   * @param {Pivot} pivot
+   */
+  abstract getPivotAngle(pivot: Pivot): number
 
-  abstract getPrivatePivotPosition(pivot: Pivot)
+  /**
+   * 指定のPivotのグローバルな位置を返す。親コンポーネントから使われる
+   * @param {Pivot} pivot
+   */
+  abstract getPublicPivotPosition(pivot: Pivot): Point
+
+  /**
+   * 指定のPivotのローカルな位置を返す。自クラス内部で使われる
+   * @param {Pivot} pivot
+   */
+  protected abstract getPrivatePivotPosition(pivot: Pivot): Point
 
   // shouldComponentUpdate(nextProps) {
   //   if (this.props.position.x === nextProps.position.x && this.props.position.y === nextProps.position.y) {

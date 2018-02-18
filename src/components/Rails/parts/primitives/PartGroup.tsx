@@ -88,6 +88,10 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
     }
   }
 
+  getPivotAngle(pivot: Pivot) {
+    return this.angle
+  }
+
   // TODO: BoundingBoxのPivotの座標を外から取れるようにする
   getPublicPivotPosition(pivot: Pivot) {
     if (this.props.pivotPartIndex !== undefined) {
@@ -149,7 +153,6 @@ export default class PartGroup extends PartBase<MultiPartProps, PartGroupState> 
       angle = this.props.angle
       position = this.props.position
     }
-    console.log(pivotPoint)
 
     return (
       <GroupComponent

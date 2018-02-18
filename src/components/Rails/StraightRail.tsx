@@ -44,7 +44,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
     super(props)
 
     this.state = {
-      jointPositions: new Array(StraightRail.NUM_JOINTS).fill(props.position)
+      jointPositions: new Array(StraightRail.NUM_JOINTS).fill(props.position),
+      jointAngles: new Array(StraightRail.NUM_JOINTS).fill(props.angle)
     }
     this.temporaryPivotJointIndex = 0
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
@@ -78,7 +79,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
         {_.range(StraightRail.NUM_JOINTS).map(i => {
           return (
             <Joint
-              angle={this.props.angle}
+              angle={this.state.jointAngles[i]}
               position={this.state.jointPositions[i]}
               opacity={opacity}
               name={'Rail'}

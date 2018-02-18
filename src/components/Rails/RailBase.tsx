@@ -42,6 +42,7 @@ export interface RailBaseDefaultProps {
 
 export interface RailBaseState {
   jointPositions: Point[]
+  jointAngles: number[]
 }
 
 type RailBaseComposedProps = RailBaseProps & WithHistoryProps
@@ -92,12 +93,13 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   //   return false
   // }
 
-  // レールパーツの位置が確定後、
-  // ジョイントの位置を設定する
+  // レールパーツの位置が確定後、ジョイントの位置と角度を決定する
   onRailPartFixed() {
-    const jointPosititons =  _.range(this.joints.length).map(i => this.railPart.getJointPosition(i))
+    const jointPositions =  _.range(this.joints.length).map(i => this.railPart.getJointPosition(i))
+    const jointAngles =  _.range(this.joints.length).map(i => this.railPart.getAngle(i) + 180)
     this.setState({
-      jointPositions: jointPosititons
+      jointPositions,
+      jointAngles
     })
   }
 

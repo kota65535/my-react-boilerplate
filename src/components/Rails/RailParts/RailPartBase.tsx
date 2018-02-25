@@ -53,7 +53,7 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
   getJointPosition(jointIndex: number) {
     // 決まった階層構造を前提としている。どのように実装を矯正すべきか？
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
-    return this.detectablePart.mainPart.children[pivotPartIndex].getPublicPivotPosition(pivot)
+    return this.detectablePart.mainPart.children[pivotPartIndex].getPivotPositionForGlobal(pivot)
   }
 
   /**

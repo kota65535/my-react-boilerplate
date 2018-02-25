@@ -59,7 +59,7 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
 
   constructor(props: P) {
     super(props)
-    this._angle = this.props.angle
+    this._angle = this.props.angle ? this.props.angle : 0
   }
 
   // ========== Public APIs ==========
@@ -76,6 +76,10 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
     return this._angle
   }
 
+  componentDidMount() {
+    console.log(`mounted ${this.props.name}: position=${this.position} pivot=${this.path.pivot}`)
+  }
+
   componentWillReceiveProps(nextProps: PartBaseProps) {
     // Angleを更新
     this._angle += (nextProps.angle - this.props.angle)
@@ -89,16 +93,28 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   abstract getPivotAngle(pivot: Pivot): number
 
   /**
-   * 指定のPivotのグローバルな位置を返す。親コンポーネントから使われる
+   * このパーツのローカル座標系における指定のPivotの位置を返す。
    * @param {Pivot} pivot
    */
-  abstract getPublicPivotPosition(pivot: Pivot): Point
+  protected abstract getLocalPivotPosition(pivot: Pivot): Point
 
   /**
-   * 指定のPivotのローカルな位置を返す。自クラス内部で使われる
+   * このパーツのParentの座標系における指定のPivotの位置を返す。
    * @param {Pivot} pivot
    */
-  protected abstract getPrivatePivotPosition(pivot: Pivot): Point
+  getPivotPositionForParent(pivot: Pivot) {
+    return this.path.localToParent(this.getLocalPivotPosition(pivot))
+  }
+
+  /**
+   * このパーツのGlobalの座標系における指定のPivotの位置を返す。
+   * @param {Pivot} pivot
+   */
+  getPivotPositionForGlobal(pivot: Pivot) {
+    return this.path.localToGlobal(this.getLocalPivotPosition(pivot))
+  }
+
+
 
   // shouldComponentUpdate(nextProps) {
   //   if (this.props.position.x === nextProps.position.x && this.props.position.y === nextProps.position.y) {
@@ -110,23 +126,23 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   //   return true
   // }
 
-  moveRelatively(difference: Point) {
-    this._path.position = this._path.position.add(difference);
-  }
-
-  move(position: Point, pivot: Point = this.position): void {
-    let difference = position.subtract(pivot);
-    this.moveRelatively(difference);
-  }
-
-  rotateRelatively(difference: number, pivot: Point = this.position) {
-    this._angle += difference
-    this.path.rotate(difference, pivot);
-  }
-
-  rotate(angle: number, pivot: Point = this.position) {
-    let relAngle = angle - this.angle
-    this.rotateRelatively(relAngle, pivot);
-  }
+  // moveRelatively(difference: Point) {
+  //   this._path.position = this._path.position.add(difference);
+  // }
+  //
+  // move(position: Point, pivot: Point = this.position): void {
+  //   let difference = position.subtract(pivot);
+  //   this.moveRelatively(difference);
+  // }
+  //
+  // rotateRelatively(difference: number, pivot: Point = this.position) {
+  //   this._angle += difference
+  //   this.path.rotate(difference, pivot);
+  // }
+  //
+  // rotate(angle: number, pivot: Point = this.position) {
+  //   let relAngle = angle - this.angle
+  //   this.rotateRelatively(relAngle, pivot);
+  // }
 }
 

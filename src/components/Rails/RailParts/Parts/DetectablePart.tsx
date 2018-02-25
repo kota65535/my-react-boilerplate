@@ -80,26 +80,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     })
   }
 
-  moveRelatively(difference: Point) {
-    this.mainPart.moveRelatively(difference)
-    this.detectionPart.moveRelatively(difference)
-  }
-
-  move(position: Point, anchor: Point = this.mainPart.position): void {
-    this.mainPart.move(position, anchor)
-    this.detectionPart.move(position, anchor)
-  }
-
-  rotateRelatively(difference: number, pivot: Point = this.position) {
-    this.mainPart.rotateRelatively(difference, pivot);
-    this.detectionPart.rotateRelatively(difference, pivot);
-  }
-
-  rotate(angle: number, pivot: Point = this.position) {
-    this.mainPart.rotate(angle, pivot);
-    this.detectionPart.rotate(angle, pivot);
-  }
-
   // ========== Private methods ==========
 
   isDetecting() {

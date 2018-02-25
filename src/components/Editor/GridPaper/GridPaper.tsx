@@ -99,6 +99,9 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
               height={this.props.height}
               matrix={this.props.matrix}
               onWheel={this.props.onWheel}
+              settings={{
+                applyMatrix: false
+              }}
               ref={(view) => this.view = view}
         >
           <Layer>

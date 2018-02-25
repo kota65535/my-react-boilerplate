@@ -81,6 +81,7 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
         pivot={pivot}
       >
         <ArcPart
+          pivot={Pivot.LEFT}
           direction={direction}
           radius={radius}
           centerAngle={centerAngle}

@@ -1,7 +1,7 @@
 import * as React from 'react'
 
-import { Line, Path, Layer, Raster, Tool, View } from 'react-paper-bindings'
-import {Point, Size} from 'paper';
+import {Layer, Line, Path, Raster, Tool, View} from 'react-paper-bindings'
+import {Point} from 'paper';
 import * as _ from "lodash";
 import {RootState} from "store/type";
 import {setPaperViewLoaded} from "actions/builder";

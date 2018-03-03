@@ -1,7 +1,7 @@
 import 'jsdom-global/register';
 import * as React from 'react'
-import withHistory, {WithHistoryProps, WithHistoryPublicProps} from "./withHistory";
-import {mount, shallow} from 'enzyme';
+import withHistory, {WithHistoryPublicProps} from "./withHistory";
+import {mount} from 'enzyme';
 import {configureStore} from "../../store";
 import {Provider} from "react-redux";
 import {compose} from 'recompose';

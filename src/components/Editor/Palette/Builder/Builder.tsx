@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {HideableDiv, } from "./Builder.style";
+import {ReactNode} from 'react'
+import {HideableDiv,} from "./Builder.style";
 import Selector from "./Selector/Selector"
 import {TitleDiv} from "../../Layers/Layers.style";
-import {ReactNode} from "react";
 import {connect} from "react-redux";
 import Paper from "material-ui/Paper";
 import {selectPaletteItem} from "actions/builder";

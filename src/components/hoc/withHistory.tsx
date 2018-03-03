@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as update from 'immutability-helper';
-import * as _ from "lodash"
-import {ItemData, LayerData, LayoutData, LayoutStoreState} from "reducers/layout";
+import {ItemData, LayerData, LayoutData} from "reducers/layout";
 import {connect} from "react-redux";
 import {RootState} from "store/type";
 import {clearHistory, setHistoryIndex, setLayers, setLayersNoHistory} from "actions/layout";

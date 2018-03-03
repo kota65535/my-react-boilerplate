@@ -3,7 +3,7 @@ import {RootState} from "store/type";
 import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
 import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, INITIAL_ZOOM, ZOOM_FACTOR, ZOOM_MAX, ZOOM_MIN} from "constants/tools";
-import {View, ToolEvent, Point, Size, PaperScope, view, project } from 'paper'
+import {PaperScope, Point, ToolEvent, View} from 'paper'
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)

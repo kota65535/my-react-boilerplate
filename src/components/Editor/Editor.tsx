@@ -1,29 +1,25 @@
 import * as React from 'react'
-import { compose } from 'recompose'
+import {compose} from 'recompose'
 import pick from 'lodash.pick'
 
-import { Layer, Raster, Tool, View } from 'react-paper-bindings'
+import {Layer, Raster, Rectangle, Tool, View} from 'react-paper-bindings'
 
 import withHistory, {WithHistoryProps} from '../hoc/withHistory'
 import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
-import {EditorBody, StyledPalette, StyledToolBar, StyledWrapper, StretchedView, StyledLayers} from "./Editor.style";
-import {
-  GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE,
-  Tools
-} from "constants/tools";
+import {EditorBody, StyledLayers, StyledPalette, StyledToolBar, StyledWrapper} from "./Editor.style";
+import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, Tools} from "constants/tools";
 
 import './Paper.css'
 import GridPaper from "./GridPaper/GridPaper";
 
-import {Path, Point, Size} from "paper";
+import {Point} from "paper";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
 import {RootState} from "store/type";
 import {connect} from "react-redux";
-import {ItemData, LayoutData, LayoutStoreState} from "reducers/layout";
-import {Rectangle} from "react-paper-bindings"
+import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";

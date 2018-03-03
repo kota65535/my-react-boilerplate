@@ -1,7 +1,4 @@
 import * as React from 'react'
-import LayersIcon from 'material-ui-icons/Layers'
-import {Grid, Checkbox, ListItemText, Tabs, Tab} from 'material-ui'
-import AppBar from "material-ui/AppBar";
 
 export interface SimulatorProps {
   // layers: string[]

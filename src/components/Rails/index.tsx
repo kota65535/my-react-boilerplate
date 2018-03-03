@@ -2,7 +2,7 @@ import StraightRail, {StraightRail as StraightRailComponent} from "./StraightRai
 import CurveRail, {CurveRail as CurveRailComponent} from "./CurveRail";
 import SimpleTurnout, {SimpleTurnout as SimpleTurnoutComponent} from "components/Rails/SimpleTurnout";
 // import ThreeWayTurnout, {ThreeWayTurnout as ThreeWayTurnoutComponent} from "components/Rails/ThreeWayTurnout";
-import DoubleStraightRail, {DoubleStraightRail as DoubleStraightRailComponent} from "components/Rails/DoubleStraightRail";
+import {DoubleStraightRail as DoubleStraightRailComponent} from "components/Rails/DoubleStraightRail";
 import DoubleCrossTurnout, {DoubleCrossTurnout as DoubleCrossTurnoutComponent} from "components/Rails/DoubleCrossTurnout";
 
 // クラス名の文字列とクラスオブジェクトを関連付ける連想配列

@@ -6,7 +6,6 @@ import StraightRailIcon from '../ToolBar/Icon/StraightRail'
 import CurveRailIcon from '../ToolBar/Icon/CurveRail'
 import TurnoutIcon from "../ToolBar/Icon/Turnout";
 import Builder from "./Builder/Builder"
-import {StyledRnd} from "./Palette.style";
 import Rnd from "react-rnd"
 import {RootState} from "store/type";
 

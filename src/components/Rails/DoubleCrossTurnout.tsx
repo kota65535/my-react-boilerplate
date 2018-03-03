@@ -12,7 +12,6 @@ import {
 } from "components/Rails/RailBase";
 import DoubleCrossTurnoutPart from "components/Rails/RailParts/DoubleCrossTurnoutRailPart";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
-import {BaseItemData} from "reducers/layout";
 
 
 export interface DoubleCrossTurnoutProps extends RailBaseProps {
@@ -75,9 +74,6 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
     )
   }
 }
-
-
-export type StraightRailItemData = BaseItemData & DoubleCrossTurnoutProps
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(compose<DoubleCrossTurnoutProps, DoubleCrossTurnoutProps>(

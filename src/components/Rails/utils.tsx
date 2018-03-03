@@ -1,13 +1,25 @@
 import * as React from "react";
 import RailContainers from "components/Rails/index";
 import {ItemData} from "reducers/layout";
+import getLogger from "logging";
 
+const LOGGER = getLogger(__filename)
+
+/**
+ * レールコンポーネントを生成する。
+ * @param {ItemData} item
+ * @param addItem
+ * @param updateItem
+ * @returns {any}
+ */
 export const createRailComponent = (item: ItemData, addItem: any, updateItem: any) => {
   const {id: id, type: type, ...props} = item
-  let RailComponent = RailContainers[type]
-  // LOGGER.debug(props)
+  let RailContainer = RailContainers[type]
+  if (RailContainer == null) {
+    throw Error(`'${type}' is not a valid rail type!`)
+  }
   return (
-    <RailComponent
+    <RailContainer
       key={id}
       id={id}
       {...props}
@@ -36,3 +48,4 @@ export const pointsEqual = (p1, p2, tolerance = 0.0000001) => {
     return false
   }
 }
+

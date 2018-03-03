@@ -147,7 +147,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     )
 
 
-    LOGGER.debug(this.props.mousePosition)
+    // LOGGER.debug(this.props.mousePosition)
 
     return (
 

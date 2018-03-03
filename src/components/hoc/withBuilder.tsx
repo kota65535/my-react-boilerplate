@@ -108,7 +108,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
       const itemProps = RailFactory[this.props.selectedItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
-      LOGGER.info(`FirstAngle: ${angle}`)
+      LOGGER.debug(`FirstAngle: ${angle}`)
       this.props.setTemporaryItem({
         ...itemProps,
         id: -1,

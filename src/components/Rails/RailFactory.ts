@@ -122,6 +122,26 @@ class RailFactory {
     }
   }
 
+  ['PL280-30']() {
+    return {
+      type: 'SimpleTurnout',
+      length: 140,
+      radius: 280,
+      centerAngle: 30,
+      branchDirection: ArcDirection.LEFT
+    }
+  }
+
+  ['PR280-30']() {
+    return {
+      type: 'SimpleTurnout',
+      length: 140,
+      radius: 280,
+      centerAngle: 30,
+      branchDirection: ArcDirection.RIGHT
+    }
+  }
+
   ['PRL541/280-15']() {
     return {
       type: 'ThreeWayTurnout',
@@ -139,20 +159,11 @@ class RailFactory {
 
   ['N-PX280']() {
     return {
-      type: 'CrossoverTurnout',
+      type: 'DoubleCrossTurnout',
       length: 280,
     }
   }
 
-  // PL280_30() {
-  //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 280, 30, TurnoutDirection.LEFT);
-  // }
-  // PR280_30() {
-  //   return new SimpleTurnout(DEFAULT_POSITION, 0, 140, 280, 30, TurnoutDirection.RIGHT);
-  // }
-  // PY280_15() {
-  //   return new SymmetricalTurnout(DEFAULT_POSITION, 0, 280, 15);
-  // }
   // CPR317_280_45() {
   //   return new CurvedTurnout(DEFAULT_POSITION, 0, 317, 280, 45, TurnoutDirection.RIGHT);
   // }

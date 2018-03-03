@@ -105,7 +105,6 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
   }
 }
 
-export type SimpleTurnoutItemData = BaseItemData & SimpleTurnoutProps
 
 export default connect(mapStateToProps, mapDispatchToProps)(compose<SimpleTurnoutProps, SimpleTurnoutProps>(
   withHistory

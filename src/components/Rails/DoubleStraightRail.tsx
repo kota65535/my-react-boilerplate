@@ -33,7 +33,7 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
     hasOpposingJoints: new Array(DoubleStraightRail.NUM_JOINTS).fill(false),
     enableJoints: true
   }
-  public static PIVOT_JOINT_CHANGING_STRIDE = 1
+  public static PIVOT_JOINT_CHANGING_STRIDE = 2
 
   constructor(props: DoubleStraightRailComposedProps) {
     super(props)

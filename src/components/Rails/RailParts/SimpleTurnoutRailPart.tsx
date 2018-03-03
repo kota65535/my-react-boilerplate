@@ -105,6 +105,7 @@ export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRai
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        selected={selected}
         ref={(part) => this.detectablePart = part}
       />
     )

@@ -40,7 +40,8 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
 
     this.state = {
       jointPositions: new Array(DoubleStraightRail.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(DoubleStraightRail.NUM_JOINTS).fill(props.angle)
+      jointAngles: new Array(DoubleStraightRail.NUM_JOINTS).fill(props.angle),
+      selected: false
     }
     this.temporaryPivotJointIndex = 0
     this.joints = new Array(DoubleStraightRail.NUM_JOINTS).fill(null)

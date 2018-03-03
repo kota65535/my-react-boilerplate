@@ -150,6 +150,7 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        selected={selected}
         ref={(part) => this.detectablePart = part}
       />
     )

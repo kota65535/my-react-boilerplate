@@ -40,7 +40,8 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
 
     this.state = {
       jointPositions: new Array(StraightRail.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(StraightRail.NUM_JOINTS).fill(props.angle)
+      jointAngles: new Array(StraightRail.NUM_JOINTS).fill(props.angle),
+      selected: false
     }
     this.temporaryPivotJointIndex = 0
     this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
@@ -59,7 +60,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
           position={position}
           angle={angle}
           pivotJointIndex={pivotJointIndex}
-          selected={selected}
+          selected={selected || this.state.selected}
           opacity={opacity}
           name={'Rail'}
           data={{
@@ -67,6 +68,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
             partType: 'RailPart',
             partId: 0
           }}
+          onLeftClick={this.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}
         />
         {this.createJointComponents()}

@@ -101,11 +101,11 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
         pivotPartIndex={0}
         fillColors={fillColors}
         detectionEnabled={detectionEnabled}
-        // name={name}
-        name={'Detect'}
+        name={name}
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        selected={selected}
         ref={(part) => this.detectablePart = part}
       />
     )

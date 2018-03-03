@@ -88,9 +88,8 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        ref={(part) => {
-          if (part) this.detectablePart = part
-        }}
+        selected={selected}
+        ref={(part) => this.detectablePart = part}
       />
     )
   }

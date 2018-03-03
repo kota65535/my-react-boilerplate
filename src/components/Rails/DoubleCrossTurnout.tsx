@@ -40,7 +40,8 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
 
     this.state = {
       jointPositions: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(props.angle)
+      jointAngles: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(props.angle),
+      selected: false
     }
     this.temporaryPivotJointIndex = 0
     this.joints = new Array(DoubleCrossTurnout.NUM_JOINTS).fill(null)

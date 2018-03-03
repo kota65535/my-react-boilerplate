@@ -104,6 +104,7 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        selected={selected}
         ref={(part) => this.detectablePart = part}
       />
     )

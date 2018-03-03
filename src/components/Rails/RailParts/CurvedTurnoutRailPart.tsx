@@ -111,6 +111,7 @@ export default class CurvedTurnoutRailPart extends RailPartBase<CurvedTurnoutRai
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
+        selected={selected}
         ref={(part) => this.detectablePart = part}
       />
     )

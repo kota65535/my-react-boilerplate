@@ -15,7 +15,6 @@ import {
 import * as _ from "lodash";
 import SimpleTurnoutRailPart from "components/Rails/RailParts/SimpleTurnoutRailPart";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
-import {BaseItemData} from "reducers/layout";
 
 
 export interface SimpleTurnoutProps extends RailBaseProps {
@@ -44,7 +43,8 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
     super(props)
     this.state = {
       jointPositions: new Array(SimpleTurnout.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(SimpleTurnout.NUM_JOINTS).fill(props.angle)
+      jointAngles: new Array(SimpleTurnout.NUM_JOINTS).fill(props.angle),
+      selected: false
     }
 
     this.temporaryPivotJointIndex = 0

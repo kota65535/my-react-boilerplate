@@ -44,6 +44,7 @@ export interface RailBaseDefaultProps {
 export interface RailBaseState {
   jointPositions: Point[]
   jointAngles: number[]
+  selected: boolean
 }
 
 type RailBaseComposedProps = RailBaseProps & WithHistoryProps
@@ -76,6 +77,14 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   railPart: RailPartBase<any, any>
   joints: Joint[]
   temporaryPivotJointIndex: number
+
+
+  onRailPartLeftClick(e: MouseEvent) {
+    this.setState({
+      selected: !this.state.selected
+    })
+  }
+
   /**
    * ジョイントを右クリックしたら、仮レールが接続するジョイントを変更する
    * @param {number} jointId
@@ -96,6 +105,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   // shouldComponentUpdate() {
   //   return false
   // }
+
   /**
    * ジョイントを左クリックしたら、仮レールの位置にレールを設置する
    * @param {number} jointId
@@ -128,8 +138,17 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     // 仮レールを消去する
     this.props.setTemporaryItem(null)
   }
+
+  /**
+   * ジョイント上でマウスが動いた場合
+   * 今は何もしない
+   * @param {number} jointId
+   * @param {MouseEvent} e
+   */
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
   }
+
+
   /**
    * ジョイントにマウスが乗ったら、仮レールを表示する
    * @param {number} jointId
@@ -152,8 +171,8 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       pivotJointIndex: this.temporaryPivotJointIndex,
       enableJoints: false
     })
-
   }
+
   /**
    * ジョイントからマウスが離れたら、仮レールを消す
    * @param {number} jointId
@@ -163,13 +182,16 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     this.props.setTemporaryItem(null)
   }
 
+
   constructor(props: P) {
     super(props)
-    // 本当はここに書きたいがエラーになる。Typescriptが糞
-    // this.state = {
-    //   railPartsFixed: false
-    // }
+    this.setState({
+      jointPositions: null,
+      jointAngles: null,
+      selected: false,
+    })
 
+    this.onRailPartLeftClick = this.onRailPartLeftClick.bind(this)
   }
 
   componentDidUpdate() {
@@ -180,7 +202,11 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     this.setJointPositionsAndAngles()
   }
 
-  createJointComponents() {
+  /**
+   * ジョイントコンポーネントを生成する
+   * @returns {any[]}
+   */
+  protected createJointComponents() {
     const {id, opacity, hasOpposingJoints, enableJoints} = this.props
     const {jointPositions, jointAngles} = this.state
 

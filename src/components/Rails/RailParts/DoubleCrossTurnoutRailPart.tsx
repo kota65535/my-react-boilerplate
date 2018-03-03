@@ -20,7 +20,6 @@ interface Props extends Partial<DefaultProps> {
   data?: RailPartInfo
   onLeftClick?: (e: MouseEvent) => void
   onRightClick?: (e: MouseEvent) => void
-  onFixed?: () => void
 }
 
 interface DefaultProps {
@@ -78,7 +77,7 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
   render() {
     const {
       length, position, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick, onFixed
+      name, data, onLeftClick, onRightClick
     } = this.props
 
     // TODO: 方程式を解いてちゃんと値を出す
@@ -151,7 +150,6 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

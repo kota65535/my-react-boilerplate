@@ -70,7 +70,7 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
   render() {
     const {
       radius, centerAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick, onFixed
+      name, data, onLeftClick, onRightClick
     } = this.props
 
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
@@ -78,7 +78,8 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
     const part = (
       <PartGroup
         pivotPartIndex={pivotPartIndex}
-        pivot={pivot}
+        pivot={Pivot.LEFT}
+        name={'Part'}
       >
         <ArcPart
           pivot={Pivot.LEFT}
@@ -100,11 +101,11 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
         pivotPartIndex={0}
         fillColors={fillColors}
         detectionEnabled={detectionEnabled}
-        name={name}
+        // name={name}
+        name={'Detect'}
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

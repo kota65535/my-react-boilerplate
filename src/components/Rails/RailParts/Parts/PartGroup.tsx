@@ -1,17 +1,18 @@
 import * as React from "react";
-import {Group, Point} from "paper";
+import {Point} from "paper";
 import {Group as GroupComponent} from "react-paper-bindings";
 import PartBase, {PartBaseDefaultProps, PartBaseProps, Pivot} from "components/Rails/RailParts/Parts/PartBase";
-import {pointsEqual} from "components/Rails/utils";
+import getLogger from "logging";
+
+const logger = getLogger(__filename)
 
 
 interface PartGroupProps extends PartBaseProps {
   pivotPartIndex?: number
-  onFixed?: () => void
 }
 
 interface PartGroupState {
-  pivotPoint: Point
+  fixed: boolean
 }
 
 export default class PartGroup extends PartBase<PartGroupProps, PartGroupState> {
@@ -28,130 +29,39 @@ export default class PartGroup extends PartBase<PartGroupProps, PartGroupState> 
   constructor(props: PartGroupProps) {
     super(props)
     this.state = {
-      pivotPoint: null
+      fixed: false
     }
     this._children = this.props.children ? new Array((this.props.children as any[]).length) : []
-    this._isFixed = false
   }
 
-  _group: Group
   _children: any[]
-  _isFixed: boolean
 
   // ========== Public APIs ==========
-
-  get group() {
-    return this._group
-  }
-
-  get position() {
-    return this._group.position
-  }
-
-  get angle() {
-    return this._angle
-  }
 
   get children() {
     return this._children
   }
 
-  // PivotPointが設定された状態でレンダリングが終わって初めて位置・回転が確定する
-  componentDidUpdate() {
-    // 位置確定状態なら何もしない
-    if (! this._isFixed) {
-      if (this.state.pivotPoint) {
-        // Pivot計算を行った直後の状態。onFixedコールバックを呼んでやる
-        this._isFixed = true
-        if (this.props.onFixed) {
-          this.props.onFixed()
-        }
-      } else {
-        // Pivotリセットを行った直後の状態。Pivotを再計算する。
-        this.setState({
-          pivotPoint: this.getLocalPivotPosition(this.props.pivot)
-        })
-      }
-    }
-    console.log(`${this.props.name} updated: position=${this.group.position} pivot=${this.group.pivot}`)
+  get group() {
+    return this._path
   }
 
-  componentWillReceiveProps(nextProps: PartGroupProps) {
-    super.componentWillReceiveProps(nextProps)
+  componentDidUpdate() {
+    this.setPivotAndPosition()
 
-    // 位置確定済みのレールパーツにposition, angleの変更があったらPivotを再計算する
-    if (this._isFixed && this.props.data && this.props.data.partType === 'RailPart') {
-      if (! pointsEqual(this.props.position, nextProps.position)
-        || this.props.angle !==  nextProps.angle) {
-        // 位置を未確定にし、Pivotをリセットする
-        this._isFixed = false
-        this.setState({
-          pivotPoint: null
-        })
-      }
-    }
+    logger.trace(
+      `[PartGroup][${name}] update(): 
+      position=${this.group.position}, pivot=${this.group.pivot}, bounds=${this.group.bounds}`)
   }
 
   componentDidMount() {
-    // マウントされたらrefでGroupオブジェクトが取れているので、Pivotを計算して再描画する
-    let pivotPoint = this.getLocalPivotPosition(this.props.pivot)
+    // PivotまたはPivotPartの指定がある場合、ここでPivot位置を確定させて再描画する
+    this.setPivotAndPosition()
+    this.setState({fixed: true})
 
-    console.log(`${this.props.name} mounted. Group: position=${this.group.position} pivot=${this.group.pivot}`)
-    console.log(`${this.props.name} calc pivot: pivotIndex=${this.props.pivotPartIndex}, pivot=${pivotPoint}`)
-
-    // Hackyだが、親がこのGroupの位置を使ってPivotを計算できるよう、ここで実際に移動をさせてしまう
-    // TODO: より洗練された方法があるか考える
-    this.group.pivot = pivotPoint
-    this.group.position = this.props.position
-
-    this.setState({
-      pivotPoint: pivotPoint
-    })
-  }
-
-  getPivotAngle(pivot: Pivot) {
-    return this.angle
-  }
-
-  getPivotPositionForGlobal(pivot: Pivot) {
-    //TODO: impl
-    return new Point(0, 0)
-  }
-
-  getPivotPositionForParent(pivot: Pivot) {
-    // PivotPartIndexが指定されていたら、指定のパーツのPivotを使用する
-    // そうでなければBoundingBoxのPivotを使用する
-    if (this.props.pivotPartIndex !== undefined) {
-      return this.group.localToParent(this._children[this.props.pivotPartIndex].getPivotPositionForParent(pivot))
-    } else {
-      return this.getPivotPositionFromBounds(pivot)
-    }
-  }
-
-  getLocalPivotPosition(pivot: Pivot) {
-    // PivotPartIndexが指定されていたら、指定のパーツのPivotを使用する
-    // そうでなければBoundingBoxのPivotを使用する
-    if (this.props.pivotPartIndex !== undefined) {
-      return this._children[this.props.pivotPartIndex].getPivotPositionForParent(pivot)
-    } else {
-      return this.getPivotPositionFromBounds(pivot)
-    }
-  }
-
-  getPivotPositionFromBounds(pivot: Pivot) {
-    switch (pivot) {
-      case Pivot.LEFT:
-        return this.group.bounds.leftCenter
-      case Pivot.TOP:
-        return this.group.bounds.topCenter
-      case Pivot.RIGHT:
-        return this.group.bounds.rightCenter
-      case Pivot.BOTTOM:
-        return this.group.bounds.bottomCenter
-      case Pivot.CENTER:
-      default:
-        return this.group.bounds.center
-    }
+    logger.trace(
+      `[PartGroup][${name}] mount(): 
+      position=${this.group.position}, pivot=${this.group.pivot}, bounds=${this.group.bounds}`)
   }
 
   render() {
@@ -175,25 +85,16 @@ export default class PartGroup extends PartBase<PartGroupProps, PartGroupState> 
       return null
     })
 
-    // Pivotの座標を計算するには角度0でのGroupのBoundingBoxが必要なため、
-    // Pivotの影響を受ける position, rotation をいったん無指定にして描画する。
-    // その後、refによってGroupオブジェクトが取れたら上記を計算し、改めて描画する。
+    // 最初のrenderが呼ばれた時点ではまだ子が描画されていないので、Pivotの位置を確定できない
+    // componentDidMountが呼ばれたらPivotを計算して再描画する
     let pivotPoint, position, angle
-    if (this.state.pivotPoint) {
-      pivotPoint = this.state.pivotPoint
-      position = this.props.position
-      angle = this.props.angle
-    } else {
-      // undefinedは入れない。再描画時におかしくなる
-      pivotPoint = new Point(0, 0)
-      position = new Point(0, 0)
-      angle = 0
-      // pivotPoint = undefined
-      // position = undefined
-      // angle = undefined
+    if (this.props.pivotPartIndex != null && this.state.fixed) {
+      pivotPoint = this.getInternalPivotPosition(pivot)
     }
+    position = this.props.position
+    angle = this.props.angle
 
-    console.log(`${name} rendering : position=${position}, pivot=${pivotPoint}`)
+    logger.trace(`[PartGroup][${name}] render(): position=${position}, pivot=${pivotPoint}`)
 
     return (
       <GroupComponent
@@ -217,11 +118,50 @@ export default class PartGroup extends PartBase<PartGroupProps, PartGroupState> 
         onMouseLeave={onMouseLeave}
         // refには一瞬だけ引数にnullが入ってくることがある。(https://github.com/facebook/react/issues/4533)
         // 直後に再度呼ばれて本物が入ってくるが、あまり凝ったことはせずにシンプルに保つべき
-        ref={(group) => this._group = group}
+        ref={(group) => this._path = group}
       >
         {children}
       </GroupComponent>
     )
+  }
+
+  protected getInternalPivotPosition(pivot: Pivot) {
+    // PivotPartIndexが指定されていたら、指定のパーツのPivotを使用する
+    // そうでなければBoundingBoxのPivotを使用する
+    if (this.props.pivotPartIndex != null) {
+      return this._children[this.props.pivotPartIndex].getPosition(pivot)
+    } else {
+      return this.getPivotPositionFromBounds(pivot)
+    }
+  }
+
+  protected getPivotPositionFromBounds(pivot: Pivot) {
+    switch (pivot) {
+      case Pivot.LEFT:
+        return this.group.parentToLocal(this.group.bounds.leftCenter)
+      case Pivot.TOP:
+        return this.group.parentToLocal(this.group.bounds.topCenter)
+      case Pivot.RIGHT:
+        return this.group.parentToLocal(this.group.bounds.rightCenter)
+      case Pivot.BOTTOM:
+        return this.group.parentToLocal(this.group.bounds.bottomCenter)
+      case Pivot.CENTER:
+      default:
+        return this.group.parentToLocal(this.group.bounds.center)
+    }
+  }
+
+  private setPivotAndPosition() {
+    // もしGroupが入れ子になっていて、親GroupがこのGroupをPivotとして指定した場合、再描画を待たなければならない問題がある
+    // それでは不便なので、ここでPaperJSのGroupを直接触ってpivot, positionを実質的に設定する
+    // TODO: より上手い方法が無いか考える
+    const {pivot, pivotPartIndex} = this.props
+    if (pivot == null && pivotPartIndex == null) {
+      this.group.position = this.props.position
+    } else {
+      this.group.pivot = this.getInternalPivotPosition(this.props.pivot)
+      this.group.position = this.props.position
+    }
   }
 }
 

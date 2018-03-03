@@ -14,37 +14,18 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
     super(props)
   }
 
-  getPivotAngle(pivot: Pivot) {
-    return this.angle
-  }
-
-  // ========== Private methods ==========
-
-  getLocalPivotPosition(pivot: Pivot) {
-    const {height} = this.props
-    switch (pivot) {
-      case Pivot.TOP:
-        return new Point(0, 0)
-      case Pivot.BOTTOM:
-        return new Point(0, height)
-      case Pivot.CENTER:
-      default:
-        return new Point(0, height / 3 * 2)
-    }
-  }
-
   render() {
     const {
       width, height,
-      position, angle, fillColor, visible, opacity, selected, name, data,
+      position, angle, pivot, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
     } = this.props
 
-    const pivot = this.getLocalPivotPosition(this.props.pivot)
+    const pivotPosition = this.getInternalPivotPosition(pivot)
 
     return <PathComponent
       pathData={createTrianglePath(width, height)}
-      pivot={pivot}     // pivot parameter MUST proceed to position
+      pivot={pivotPosition}     // pivot parameter MUST proceed to position
       position={position}
       rotation={angle}
       fillColor={fillColor}
@@ -65,7 +46,21 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
       ref={(Path) => this._path = Path}
     />
   }
+
+  protected getInternalPivotPosition(pivot: Pivot) {
+    const {width, height} = this.props
+    switch (pivot) {
+      case Pivot.TOP:
+        return new Point(0, 0)
+      case Pivot.BOTTOM:
+        return new Point(0, height)
+      case Pivot.CENTER:
+      default:
+        return new Point(0, height / 3 * 2)
+    }
+  }
 }
+
 
 export function createTrianglePath(width: number, height: number) {
   let pathData = `M 0 0 L ${width / 2} ${height} L ${-width / 2} ${height} Z`

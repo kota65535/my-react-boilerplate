@@ -13,39 +13,18 @@ export default class CirclePart extends PartBase<CirclePartProps, {}> {
     super(props)
   }
 
-  getPivotAngle(pivot: Pivot) {
-    return this.angle
-  }
-
-  getLocalPivotPosition(pivot: Pivot) {
-    const {radius} = this.props
-    switch (pivot) {
-      case Pivot.LEFT:
-        return new Point(0, 0)
-      case Pivot.TOP:
-        return new Point(radius, -radius)
-      case Pivot.RIGHT:
-        return new Point(radius * 2, 0)
-      case Pivot.BOTTOM:
-        return new Point(radius, radius)
-      case Pivot.CENTER:
-      default:
-        return new Point(radius, 0)
-    }
-  }
-
   render() {
     const {
       radius,
-      position, angle, fillColor, visible, opacity, selected, name, data,
+      position, angle, pivot, fillColor, visible, opacity, selected, name, data,
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
     } = this.props
 
-    const pivot = this.getLocalPivotPosition(this.props.pivot)
+    const pivotPosition = this.getInternalPivotPosition(pivot)
 
     return <PathComponent
       pathData={createCirclePath(radius)}
-      pivot={pivot}     // pivot parameter MUST proceed to position
+      pivot={pivotPosition}     // pivot parameter MUST proceed to position
       position={position}
       rotation={angle}
       fillColor={fillColor}
@@ -65,6 +44,23 @@ export default class CirclePart extends PartBase<CirclePartProps, {}> {
       onMouseLeave={onMouseLeave}
       ref={(Path) => this._path = Path}
     />
+  }
+
+  protected getInternalPivotPosition(pivot: Pivot) {
+    const {radius} = this.props
+    switch (pivot) {
+      case Pivot.LEFT:
+        return new Point(0, 0)
+      case Pivot.TOP:
+        return new Point(radius, -radius)
+      case Pivot.RIGHT:
+        return new Point(radius * 2, 0)
+      case Pivot.BOTTOM:
+        return new Point(radius, radius)
+      case Pivot.CENTER:
+      default:
+        return new Point(radius, 0)
+    }
   }
 }
 

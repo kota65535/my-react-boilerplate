@@ -1,7 +1,6 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart from "./Parts/RectPart";
 import DetectablePart from "./Parts/DetectablePart";
 import ArcPart, {ArcDirection} from "./Parts/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
@@ -71,7 +70,7 @@ export default class CurvedTurnoutRailPart extends RailPartBase<CurvedTurnoutRai
   render() {
     const {
       innerRadius, outerRadius, innerCenterAngle, outerCenterAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick, onFixed
+      name, data, onLeftClick, onRightClick
     } = this.props
 
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
@@ -112,7 +111,6 @@ export default class CurvedTurnoutRailPart extends RailPartBase<CurvedTurnoutRai
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

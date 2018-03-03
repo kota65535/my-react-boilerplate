@@ -56,7 +56,7 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
   render() {
     const {
       length, position, pivotJointIndex, detectionEnabled, selected, fillColors,
-      name, data, onLeftClick, onRightClick, onFixed
+      name, data, onLeftClick, onRightClick
     } = this.props
 
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
@@ -64,7 +64,8 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
     const part = (
       <PartGroup
         pivotPartIndex={pivotPartIndex}
-        pivot={pivot}
+        pivot={Pivot.LEFT}
+        name={'Part'}
       >
         <RectPart
           width={length}
@@ -87,8 +88,9 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        onFixed={onFixed}
-        ref={(part) => this.detectablePart = part}
+        ref={(part) => {
+          if (part) this.detectablePart = part
+        }}
       />
     )
   }

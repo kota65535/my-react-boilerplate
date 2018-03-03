@@ -1,7 +1,6 @@
 import * as React from "react";
 import {ReactElement} from "react";
 import {Group} from "react-paper-bindings";
-import {Point} from "paper";
 import PartBase, {PartBaseProps} from "components/Rails/RailParts/Parts/PartBase";
 import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
 
@@ -14,7 +13,6 @@ export interface DetectablePartProps extends PartBaseProps {
   onRightClick?: (e: MouseEvent) => void
   detectionEnabled: boolean
   pivotPartIndex?: number
-  onFixed?: () => void
 }
 
 export interface DetectablePartState {
@@ -35,77 +33,12 @@ export enum DetectionState {
 
 export default class DetectablePart extends React.Component<DetectablePartProps, DetectablePartState> {
 
-  _partGroup: PartGroup
-
-  constructor(props: DetectablePartProps) {
-    super(props)
-    if (this.props.detectionEnabled) {
-      this.state = {
-        detectionState: DetectionState.BEFORE_DETECT,
-        detectionPartVisible: true
-      }
-    } else {
-      this.state = {
-        detectionState: DetectionState.DISABLED,
-        detectionPartVisible: false
-      }
-    }
-    this.onMouseEnter = this.onMouseEnter.bind(this)
-    this.onMouseLeave = this.onMouseLeave.bind(this)
-    this.onMouseMove = this.onMouseMove.bind(this)
-    this.onClick = this.onClick.bind(this)
-  }
-
-  // ========== Public APIs ==========
-
-  get mainPart() {
-    return this._partGroup._children[0]
-  }
-
-  get detectionPart() {
-    return this._partGroup._children[1]
-  }
-
-  get position() {
-    return this._partGroup.position
-  }
-
-  get angle() {
-    return this._partGroup.angle
-  }
-
-  resetDetectionState() {
-    this.setState({
-      detectionState: DetectionState.BEFORE_DETECT
-    })
-  }
-
-  // ========== Private methods ==========
-
-  isDetecting() {
-    return this.props.detectionEnabled && this.state.detectionState == DetectionState.DETECTING
-  }
-  isBeforeDetect() {
-    return this.props.detectionEnabled && this.state.detectionState == DetectionState.BEFORE_DETECT
-  }
-
-  // detectionEnabledが OFF -> ON になった場合は状態をリセットする
-  componentWillReceiveProps(nextProps: DetectablePartProps) {
-    if (!this.props.detectionEnabled && nextProps.detectionEnabled) {
-      this.setState({
-        detectionState: DetectionState.BEFORE_DETECT,
-        detectionPartVisible: true
-      })
-    }
-  }
-
   onMouseMove = (e: MouseEvent) => {
     // 検出中状態を他のPathに邪魔されないよう、前面に出し続ける
     if (this.isDetecting()) {
       this._partGroup.group.bringToFront()
     }
   }
-
   onMouseEnter = (e: MouseEvent) => {
     // 検出前状態なら検出中状態に移行し、コールバックを呼んでやる
     if (this.isBeforeDetect()) {
@@ -119,6 +52,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
   }
 
+  // ========== Public APIs ==========
   onMouseLeave = (e: MouseEvent) => {
     // 検出中状態なら検出前状態に移行し、コールバックを呼んでやる
     if (this.isDetecting()) {
@@ -131,7 +65,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
       }
     }
   }
-
   onClick = (e: MouseEvent | any) => {
     // TODO: 左クリックと右クリックでイベントを分ける
     switch (e.event.button) {
@@ -152,10 +85,76 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
   }
 
+  constructor(props: DetectablePartProps) {
+    super(props)
+    if (this.props.detectionEnabled) {
+      this.state = {
+        detectionState: DetectionState.BEFORE_DETECT,
+        detectionPartVisible: true
+      }
+    } else {
+      this.state = {
+        detectionState: DetectionState.DISABLED,
+        detectionPartVisible: false
+      }
+    }
+    this.onMouseEnter = this.onMouseEnter.bind(this)
+    this.onMouseLeave = this.onMouseLeave.bind(this)
+    this.onMouseMove = this.onMouseMove.bind(this)
+    this.onClick = this.onClick.bind(this)
+  }
+
+  _partGroup: PartGroup
+
+  get partGroup() {
+    return this._partGroup
+  }
+
+  get mainPart() {
+    return this._partGroup._children[0]
+  }
+
+  // ========== Private methods ==========
+
+  get detectionPart() {
+    return this._partGroup._children[1]
+  }
+
+  get position() {
+    return this._partGroup.position
+  }
+
+  get angle() {
+    return this._partGroup.angle
+  }
+
+  resetDetectionState() {
+    this.setState({
+      detectionState: DetectionState.BEFORE_DETECT
+    })
+  }
+
+  isDetecting() {
+    return this.props.detectionEnabled && this.state.detectionState == DetectionState.DETECTING
+  }
+
+  isBeforeDetect() {
+    return this.props.detectionEnabled && this.state.detectionState == DetectionState.BEFORE_DETECT
+  }
+
+  // detectionEnabledが OFF -> ON になった場合は状態をリセットする
+  componentWillReceiveProps(nextProps: DetectablePartProps) {
+    if (!this.props.detectionEnabled && nextProps.detectionEnabled) {
+      this.setState({
+        detectionState: DetectionState.BEFORE_DETECT,
+        detectionPartVisible: true
+      })
+    }
+  }
 
   render() {
     const {
-      position, angle, pivot, pivotPartIndex, fillColors, onFixed, name, data, detectionEnabled,
+      position, angle, pivot, pivotPartIndex, fillColors, name, data, detectionEnabled,
       mainPart, detectionPart
     } = this.props
 
@@ -190,7 +189,6 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         onMouseLeave={this.onMouseLeave}
         onMouseMove={this.onMouseMove}
         onClick={this.onClick}
-        onFixed={onFixed}
         ref={(r) => this._partGroup = r}
       >
         {clonedMainPart}

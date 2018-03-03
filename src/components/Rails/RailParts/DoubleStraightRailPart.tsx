@@ -23,7 +23,6 @@ interface DoubleStraightRailPartProps extends RailPartBaseProps {
   data?: RailPartInfo
   onLeftClick?: (e: MouseEvent) => void
   onRightClick?: (e: MouseEvent) => void
-  onFixed?: () => void
 }
 
 
@@ -67,7 +66,7 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
   render() {
     const {
       length, position, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick, onFixed
+      name, data, onLeftClick, onRightClick
     } = this.props
 
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
@@ -105,7 +104,6 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

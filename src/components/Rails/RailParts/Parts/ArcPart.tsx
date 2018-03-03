@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Point, Path} from "paper";
+import {Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
 import {default as PartBase, PartBaseProps, Pivot} from "components/Rails/RailParts/Parts/PartBase";
 
@@ -22,90 +22,13 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
     super(props)
   }
 
-  getPivotAngle(pivot: Pivot) {
-    switch (pivot) {
-      case Pivot.LEFT:
-        return this.angle
-      case Pivot.RIGHT:
-        switch (this.props.direction) {
-          case ArcDirection.RIGHT:
-            return this.angle + this.props.centerAngle
-          case ArcDirection.LEFT:
-            return this.angle - this.props.centerAngle
-          default:
-            throw Error(`Invalid direction ${this.props.direction} for ${this.constructor.name}`)
-        }
-      default:
-        throw Error(`Invalid pivot ${pivot} for ${this.constructor.name}`)
-    }
+  getAngle(pivot: Pivot) {
+    return super.getAngle(pivot) + this.getInternalPivotAngle(pivot)
   }
 
-  getLocalPivotPosition(pivot: Pivot) {
-    if (this._path) {
-      return this.getPrivatePivotPointFromPath(pivot)
-    } else {
-      return this.getInitialPrivatePivotPoint(pivot)
-    }
+  getGlobalAngle(pivot: Pivot) {
+    return super.getGlobalAngle(pivot) + this.getInternalPivotAngle(pivot)
   }
-
-  getPrivatePivotPointFromPath(pivot: Pivot) {
-    switch (pivot) {
-      case Pivot.LEFT:
-        return this.path.getPointAt(0)
-      case Pivot.RIGHT:
-        // 90度ごとに右端のセグメントのインデックスがインクリメントされている？
-        const correction = Math.floor((Math.abs(this.props.centerAngle) + 1) / 90)
-        return this.path.curves[3 + correction].point1
-      default:
-        throw Error(`Invalid pivot ${pivot} for ${this.constructor.name}`)
-    }
-  }
-
-  getInitialPrivatePivotPoint(pivot: Pivot) {
-    switch (this.props.direction) {
-      case ArcDirection.RIGHT:
-        return this.getPivotPointRight(pivot)
-      case ArcDirection.LEFT:
-        return this.getPivotPointLeft(pivot)
-    }
-  }
-
-  getPivotPointRight(pivot: Pivot) {
-    const {radius, width, centerAngle} = this.props
-    // 曲線の始点・終点の座標を計算
-    const outerEndX = (radius + width / 2) * Math.sin(centerAngle / 180 * Math.PI);
-    const outerEndY = (radius + width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) - width / 2;
-    const innerEndX = (radius - width / 2) * Math.sin(centerAngle / 180 * Math.PI);
-    const innerEndY = (radius - width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) + width / 2;
-
-    switch (pivot) {
-      case Pivot.RIGHT:
-        return new Point((outerEndX + innerEndX) / 2, (outerEndY + innerEndY) / 2)
-      case Pivot.LEFT:
-      // same as default
-      default:
-        return new Point(0, 0)
-    }
-  }
-
-  getPivotPointLeft(pivot: Pivot) {
-    const {radius, width, centerAngle, direction} = this.props
-    // 曲線の始点・終点の座標を計算
-    const outerEndX = (radius + width / 2) * Math.sin(centerAngle / 180 * Math.PI);
-    const outerEndY = -(radius + width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) + width / 2;
-    const innerEndX = (radius - width / 2) * Math.sin(centerAngle / 180 * Math.PI);
-    const innerEndY = -(radius - width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) - width / 2;
-
-    switch (pivot) {
-      case Pivot.RIGHT:
-        return new Point((outerEndX + innerEndX) / 2, (outerEndY + innerEndY) / 2)
-      case Pivot.LEFT:
-      // same as default
-      default:
-        return new Point(0, 0)
-    }
-  }
-
 
   render() {
     const {
@@ -114,9 +37,11 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
       onFrame, onMouseDown, onMouseDrag, onMouseUp, onClick, onDoubleClick, onMouseMove, onMouseEnter, onMouseLeave
     } = this.props
 
+    const pivotPosition = this.getInternalPivotPosition(pivot)
+
     return <PathComponent
       pathData={createArcPath(width, radius, centerAngle, direction)}
-      pivot={this.getLocalPivotPosition(pivot)}
+      pivot={pivotPosition}
       position={position}
       rotation={angle}
       fillColor={fillColor}
@@ -136,6 +61,69 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
       onMouseLeave={onMouseLeave}
       ref={(Path) => this._path = Path}
     />
+  }
+
+  protected getInternalPivotPosition(pivot: Pivot) {
+    switch (this.props.direction) {
+      case ArcDirection.RIGHT:
+        return this.getInternalPivotPositionRight(pivot)
+      case ArcDirection.LEFT:
+        return this.getInternalPivotPositionLeft(pivot)
+    }
+  }
+
+  private getInternalPivotAngle(pivot: Pivot) {
+    switch (pivot) {
+      case Pivot.LEFT:
+        return 0
+      case Pivot.RIGHT:
+        switch (this.props.direction) {
+          case ArcDirection.RIGHT:
+            return this.props.centerAngle
+          case ArcDirection.LEFT:
+            return this.props.centerAngle
+          default:
+            throw Error(`Invalid direction ${this.props.direction} for ${this.constructor.name}`)
+        }
+      default:
+        throw Error(`Invalid pivot ${pivot} for ${this.constructor.name}`)
+    }
+  }
+
+  private getInternalPivotPositionRight(pivot: Pivot) {
+    const {radius, width, centerAngle} = this.props
+    // 曲線の始点・終点の座標を計算
+    const outerEndX = (radius + width / 2) * Math.sin(centerAngle / 180 * Math.PI);
+    const outerEndY = (radius + width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) - width / 2;
+    const innerEndX = (radius - width / 2) * Math.sin(centerAngle / 180 * Math.PI);
+    const innerEndY = (radius - width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) + width / 2;
+
+    switch (pivot) {
+      case Pivot.RIGHT:
+        return new Point((outerEndX + innerEndX) / 2, (outerEndY + innerEndY) / 2)
+      case Pivot.LEFT:
+      // same as default
+      default:
+        return new Point(0, 0)
+    }
+  }
+
+  private getInternalPivotPositionLeft(pivot: Pivot) {
+    const {radius, width, centerAngle, direction} = this.props
+    // 曲線の始点・終点の座標を計算
+    const outerEndX = (radius + width / 2) * Math.sin(centerAngle / 180 * Math.PI);
+    const outerEndY = -(radius + width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) + width / 2;
+    const innerEndX = (radius - width / 2) * Math.sin(centerAngle / 180 * Math.PI);
+    const innerEndY = -(radius - width / 2) * (1 - Math.cos(centerAngle / 180 * Math.PI)) - width / 2;
+
+    switch (pivot) {
+      case Pivot.RIGHT:
+        return new Point((outerEndX + innerEndX) / 2, (outerEndY + innerEndY) / 2)
+      case Pivot.LEFT:
+      // same as default
+      default:
+        return new Point(0, 0)
+    }
   }
 }
 

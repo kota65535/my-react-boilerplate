@@ -66,7 +66,7 @@ export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRai
   render() {
     const {
       length, radius, centerAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick, onFixed
+      name, data, onLeftClick, onRightClick
     } = this.props
 
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
@@ -105,7 +105,6 @@ export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRai
         data={data}
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
-        onFixed={onFixed}
         ref={(part) => this.detectablePart = part}
       />
     )

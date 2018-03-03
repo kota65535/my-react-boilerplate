@@ -5,14 +5,20 @@ import DetectablePart from "./Parts/DetectablePart";
 import {RAIL_PART_FILL_COLORS} from "constants/parts";
 import {RailPartInfo} from "components/Rails/RailParts/types";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
+import getLogger from "logging";
 
+const logger = getLogger(__filename)
+
+export interface PivotInfo {
+  pivot: Pivot
+  pivotPartIndex: number
+}
 
 export interface RailPartBaseProps extends Partial<RailPartBaseDefaultProps> {
   name?: string
   data?: RailPartInfo
   onLeftClick?: (e: MouseEvent) => void
   onRightClick?: (e: MouseEvent) => void
-  onFixed?: () => void
 }
 
 export interface RailPartBaseDefaultProps {
@@ -45,38 +51,59 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
     super(props)
   }
 
+  componentDidUpdate() {
+    logger.trace('updated')
+    logger.trace(`[RailPart][${this.props.name}] j0: ${this.getGlobalJointPosition(0)}, ${this.getGlobalJointAngle(0)}`);
+    logger.trace(`[RailPart][${this.props.name}] j1: ${this.getGlobalJointPosition(1)}, ${this.getGlobalJointAngle(1)}`);
+  }
+
+  componentDidMount() {
+    logger.trace('mounted')
+    logger.trace(`[RailPart][${this.props.name}] j0: ${this.getGlobalJointPosition(0)}, ${this.getGlobalJointAngle(0)}`);
+    logger.trace(`[RailPart][${this.props.name}] j1: ${this.getGlobalJointPosition(1)}, ${this.getGlobalJointAngle(1)}`);
+  }
+
   /**
-   * 指定のジョイントの位置を返す。
+   * グローバル座標系における指定のジョイントの位置を返す。
    * @param {number} jointIndex
    * @returns {paper.Point}
    */
-  getJointPosition(jointIndex: number) {
+  getGlobalJointPosition(jointIndex: number) {
     // 決まった階層構造を前提としている。どのように実装を矯正すべきか？
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
-    return this.detectablePart.mainPart.children[pivotPartIndex].getPivotPositionForGlobal(pivot)
+    return this.detectablePart.mainPart.children[pivotPartIndex].getGlobalPosition(pivot)
   }
 
   /**
-   * 指定のジョイントの角度を返す。
+   * グローバル座標系における指定のジョイントの角度を返す。
    * @param {number} jointIndex
    * @returns {number}
    */
-  getJointAngle(jointIndex: number) {
+  getGlobalJointAngle(jointIndex: number) {
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
-    // レールパーツのグローバルな角度を取得
-    const globalAngle = this.detectablePart.angle
     // レールパーツ内部のGroupにおけるPartのPivotにおける角度を取得
-    let localAngle = this.detectablePart.mainPart.children[pivotPartIndex].getPivotAngle(pivot)
+    let globalRotation = this.detectablePart.mainPart.children[pivotPartIndex].getGlobalAngle(pivot)
     if (pivot === Pivot.LEFT) {
-      // console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle} + 180`)
-      return globalAngle + localAngle + 180
+      return (globalRotation + 180) % 360
     } else {
-      // console.log(`Joint ${jointIndex} ${globalAngle} + ${localAngle}`)
-      return globalAngle + localAngle
+      return globalRotation
     }
   }
 
-  abstract getPivot(jointIndex: number)
+  /**
+   * 指定のジョイントのPivot情報を返す。
+   * 派生クラスに要実装。
+   * @param {number} jointIndex
+   * @returns {PivotInfo}
+   */
+  abstract getPivot(jointIndex: number): PivotInfo
 
-  abstract getAngle(jointIndex: number)
+  /**
+   * 指定のジョイントがPivotとして指定された時のRailPartの角度を返す。
+   * 派生クラスに要実装。
+   * TODO: componentDidMountで角度を決定するようにすれば無くせるかも
+   * @param {number} jointIndex
+   * @returns {number}
+   */
+  abstract getAngle(jointIndex: number): number
 }

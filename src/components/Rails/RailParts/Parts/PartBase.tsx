@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Path, Point} from "paper";
+import {Group, Path, Point} from "paper";
 
 export enum Pivot {
   CENTER = 'Center',
@@ -52,15 +52,11 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
     selected: false,
   }
 
-  _path: Path
-  // PaperJSのPathはデフォルトの挙動ではグローバルなrotationを保持しない
-  // そのためこのような形で保存しておく必要がある
-  _angle: number
-
   constructor(props: P) {
     super(props)
-    this._angle = this.props.angle ? this.props.angle : 0
   }
+
+  protected _path: Path | Group
 
   // ========== Public APIs ==========
 
@@ -73,47 +69,55 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   }
 
   get angle() {
-    return this._angle
+    return this.getAngle(Pivot.CENTER)
+  }
+
+  /**
+   * ローカル座標系における指定のPivotの角度を返す。
+   * @param {Pivot} pivot
+   */
+  getAngle(pivot: Pivot) {
+    return this.path.rotation
+  }
+
+  /**
+   * グローバル座標系における指定のPivotの角度を返す。
+   * @param {Pivot} pivot
+   */
+  getGlobalAngle(pivot: Pivot) {
+    return (this.path as any).getGlobalMatrix().decompose().rotation
+  }
+
+  /**
+   * ローカル座標系における指定のPivotの位置を返す。
+   * @param {Pivot} pivot
+   */
+  getPosition(pivot: Pivot) {
+    return this.path.localToParent(this.getInternalPivotPosition(pivot))
+  }
+
+  /**
+   * グローバル座標系における指定のPivotの位置を返す。
+   * @param {Pivot} pivot
+   */
+  getGlobalPosition(pivot: Pivot) {
+    // This is a workaround of
+    (this.path as any)._project._updateVersion += 1
+    return this.path.localToGlobal(this.getInternalPivotPosition(pivot))
   }
 
   componentDidMount() {
-    console.log(`mounted ${this.props.name}: position=${this.position} pivot=${this.path.pivot}`)
   }
 
   componentWillReceiveProps(nextProps: PartBaseProps) {
-    // Angleを更新
-    this._angle += (nextProps.angle - this.props.angle)
   }
 
   /**
-   * 指定のPivotのAngleを返す
-   * PivotはLEFTとRIGHTくらいしか想定していない。実質ArcPart用
+   * Path内部における指定のPivotの位置を返す。
+   * 派生クラスで要実装。
    * @param {Pivot} pivot
    */
-  abstract getPivotAngle(pivot: Pivot): number
-
-  /**
-   * このパーツのローカル座標系における指定のPivotの位置を返す。
-   * @param {Pivot} pivot
-   */
-  protected abstract getLocalPivotPosition(pivot: Pivot): Point
-
-  /**
-   * このパーツのParentの座標系における指定のPivotの位置を返す。
-   * @param {Pivot} pivot
-   */
-  getPivotPositionForParent(pivot: Pivot) {
-    return this.path.localToParent(this.getLocalPivotPosition(pivot))
-  }
-
-  /**
-   * このパーツのGlobalの座標系における指定のPivotの位置を返す。
-   * @param {Pivot} pivot
-   */
-  getPivotPositionForGlobal(pivot: Pivot) {
-    return this.path.localToGlobal(this.getLocalPivotPosition(pivot))
-  }
-
+  protected abstract getInternalPivotPosition(pivot: Pivot)
 
 
   // shouldComponentUpdate(nextProps) {

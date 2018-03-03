@@ -8,6 +8,7 @@ import {Tools} from "constants/tools";
 import {connect} from "react-redux";
 import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'
+import DeleteIcon from 'material-ui-icons/Delete'
 import PanToolIcon from 'material-ui-icons/PanTool'
 import TouchAppIcon from 'material-ui-icons/TouchApp'
 import AspectRatioIcon from "material-ui-icons/AspectRatio";
@@ -26,6 +27,7 @@ export interface ToolBarProps {
   redo: () => void
   canUndo: boolean
   canRedo: boolean
+  removeSelectedItems: () => void
   resetViewPosition: () => void
 }
 
@@ -108,6 +110,11 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
             className={`${this.isActive('redo') && this.props.canRedo}`}
             onClick={() => this.props.redo()}>
             <RedoIcon/>
+          </StyledIconButton>
+          <StyledIconButton
+            className={``}
+            onClick={() => this.props.removeSelectedItems()}>
+            <DeleteIcon/>
           </StyledIconButton>
           <StyledIconButton
             className={`${this.isActive(Tools.SELECT)}`}

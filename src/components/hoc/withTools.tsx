@@ -43,20 +43,20 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
     }
 
     keyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && this.props.activeTool !== 'move') {
-        this._prevTool = this.props.activeTool
-        this.props.setTool('move')
-      } else if (e.key === 's') {
-        this.props.setTool('Builder')
-      } else if (e.key === 'c') {
-        this.props.setTool('select')
-      } else if (e.key === 'p') {
-        this.props.setTool('circle')
-      } else if (e.key === 'r') {
-        this.props.setTool('rectangle')
-      } else if (e.key === 'd') {
-        this.props.setTool('delete')
-      }
+      // if (e.code === 'Space' && this.props.activeTool !== 'move') {
+      //   this._prevTool = this.props.activeTool
+      //   this.props.setTool('move')
+      // } else if (e.key === 's') {
+      //   this.props.setTool('Builder')
+      // } else if (e.key === 'c') {
+      //   this.props.setTool('select')
+      // } else if (e.key === 'p') {
+      //   this.props.setTool('circle')
+      // } else if (e.key === 'r') {
+      //   this.props.setTool('rectangle')
+      // } else if (e.key === 'd') {
+      //   this.props.setTool('delete')
+      // }
     }
 
     keyUp = (e: KeyboardEvent) => {

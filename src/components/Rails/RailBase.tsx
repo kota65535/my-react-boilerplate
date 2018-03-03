@@ -80,9 +80,11 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
 
 
   onRailPartLeftClick(e: MouseEvent) {
-    this.setState({
-      selected: !this.state.selected
-    })
+    // レールの選択状態をトグルする
+    this.props.updateItem(this.props as any, update(this.props, {
+        selected: {$set: !this.props.selected}
+      }
+    ), false)
   }
 
   /**

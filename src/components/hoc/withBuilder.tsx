@@ -21,6 +21,7 @@ const LOGGER = getLogger(__filename)
 export interface WithBuilderPublicProps {
   builderMouseDown: any
   builderMouseMove: any
+  builderKeyDown: any
 }
 
 interface WithBuilderPrivateProps {
@@ -68,8 +69,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
   class WithBuilderComponent extends React.Component<WithBuilderProps, {}> {
 
-    detecting: any
-
     constructor (props: WithBuilderProps) {
       super(props)
 
@@ -77,15 +76,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.mouseLeftDown = this.mouseLeftDown.bind(this)
       this.mouseRightDown = this.mouseRightDown.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
+      this.keyDown = this.keyDown.bind(this)
     }
 
-    // componentDidMount() {
-    //   if (this.props.isLayoutEmpty) {
-    //     this.state = BuilderState.FIRST_POSITION
-    //   } else {
-    //     this.state = BuilderState.SUBSEQUENT
-    //   }
-    // }
 
     //==================== MouseMove Handlers ====================
 
@@ -121,23 +114,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     mouseMove_Subsequent = (e: ToolEvent|any) => {
-      // const result = getRailPartAt(e.point)
-      // if (result) {
-      //   switch (result.partType) {
-      //     case 'Joint':
-      //       this.mouseMove_Subsequent_OnJoint(e, result.railId, result.partId)
-      //       break
-      //     default:
-      //   }
-      // } else {
-      //   if (this.detecting) {
-      //     const newItem = update(this.detecting, {
-      //       detectionState: {$set: Array(this.detecting.detectionState.length).fill(DetectionState.BEFORE_DETECT)}
-      //     })
-      //     this.props.updateItem(this.detecting, newItem as any)
-      //   }
-      //   this.props.setTemporaryItem(null);
-      // }
     }
 
 
@@ -265,17 +241,31 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
+    removeSelectedRails() {
+      let selectedRails = _.flatMap(this.props.layout.layers, layer => layer.children)
+        .filter(item => item.selected)
+      LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
+      selectedRails.forEach(item => {
+        this.props.removeItem(item)
+      })
+    }
+
+
     mouseRightDown(e: ToolEvent|any) {
       // noop
     }
 
-
-    setJointState = (item: ItemData, jointId: number, detectionState: DetectionState) => {
-      const newItem = update(item, {
-        detectionState: {$splice: [[jointId, 1, detectionState]]}
-      })
-      this.props.updateItem(item, newItem)
+    keyDown(e: ToolEvent|any) {
+      switch (e.key) {
+        case 'd':
+          LOGGER.info(`d pressed`)
+          this.removeSelectedRails()
+          break
+        case 'c':
+          break
+      }
     }
+
 
     render() {
       return (
@@ -283,6 +273,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           {...this.props}
           builderMouseDown={this.mouseDown}
           builderMouseMove={this.mouseMove}
+          builderKeyDown={this.keyDown}
         />
       )
     }

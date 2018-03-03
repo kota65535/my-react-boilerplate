@@ -197,42 +197,16 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               {/*rightRadius={541}*/}
               {/*rightCenterAngle={15}*/}
             {/*/>*/}
-            {/*<DoubleStraightRail*/}
-              {/*position={new Point(840, 560)}*/}
-              {/*pivotJointIndex={0}*/}
-              {/*id={3}*/}
-              {/*layerId={1}*/}
-              {/*length={280}*/}
-              {/*angle={30}*/}
-            {/*/>*/}
-            {/*<DoubleCrossTurnout*/}
-              {/*position={new Point(840, 560)}*/}
-              {/*pivotJointIndex={0}*/}
-              {/*id={3}*/}
-              {/*layerId={1}*/}
-              {/*length={280}*/}
-              {/*angle={45}*/}
-            {/*/>*/}
-
-
-            {/*<CurveRail*/}
-              {/*position={new Point(770, 770)}*/}
-              {/*pivotJointIndex={1}*/}
-              {/*angle={15}*/}
-              {/*radius={140}*/}
-              {/*centerAngle={45}*/}
-              {/*id={2}*/}
-              {/*layerId={1}*/}
-            {/*/>*/}
 
             <Tool
-              active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS)}
+              active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS || Tools.TURNOUTS)}
               name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.builderMouseDown}
               onMouseMove={(e) => {
                 this.props.builderMouseMove(e)
                 this.props.moveToolMouseMove(e)
               }}
+              onKeyDown={this.props.builderKeyDown}
             />
             <Tool
               active={this.isActive(Tools.PAN)}

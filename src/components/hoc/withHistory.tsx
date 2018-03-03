@@ -132,7 +132,7 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
     removeItem = (item: ItemData) => {
       // 対象のレイヤー、アイテムを探す
       const layerIndex = this.props.layout.layers.findIndex(layer => layer.id === item.layerId)
-      const itemIndex = this.props.layout.layers[layerIndex].children.findIndex((item) => item.id === item.id)
+      const itemIndex = this.props.layout.layers[layerIndex].children.findIndex((c) => c.id === item.id)
       const newLayout = update(this.props.layout, {
         layers: {
           [layerIndex]: { children: { $splice: [[itemIndex, 1]] } }

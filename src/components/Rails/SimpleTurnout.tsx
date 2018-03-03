@@ -1,7 +1,6 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import Joint from "./RailParts/Joint";
-import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import {connect} from "react-redux";
 import {compose} from "recompose";
 import {ArcDirection} from "components/Rails/RailParts/Parts/ArcPart";
@@ -10,7 +9,8 @@ import {
   mapStateToProps,
   RailBase,
   RailBaseDefaultProps,
-  RailBaseProps, RailBaseState
+  RailBaseProps,
+  RailBaseState
 } from "components/Rails/RailBase";
 import * as _ from "lodash";
 import SimpleTurnoutRailPart from "components/Rails/RailParts/SimpleTurnoutRailPart";
@@ -30,8 +30,6 @@ export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
 
 export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBaseState> {
   public static NUM_JOINTS = 3
-  public static PIVOT_JOINT_CHANGING_STRIDE = 1
-
   public static defaultProps: RailBaseDefaultProps = {
     type: 'SimpleTurnout',
     selected: false,
@@ -40,6 +38,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
     hasOpposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(false),
     enableJoints: true
   }
+  public static PIVOT_JOINT_CHANGING_STRIDE = 1
 
   constructor(props: SimpleTurnoutComposedProps) {
     super(props)
@@ -76,7 +75,6 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
             partType: 'RailPart',
             partId: 0
           }}
-          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railPart = railPart}
         />
         {_.range(SimpleTurnout.NUM_JOINTS).map(i => {
@@ -98,7 +96,6 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
               // onMouseMove={this.onJointMouseMove.bind(this, i)}
               onMouseEnter={this.onJointMouseEnter.bind(this, i)}
               onMouseLeave={this.onJointMouseLeave.bind(this, i)}
-              onFixed={this.onJointsFixed}
               ref={(joint) => this.joints[i] = joint}
             />
           )

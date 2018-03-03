@@ -30,12 +30,6 @@ import getLogger from "logging";
 import FirstRailPutter from "./FirstRailPutter";
 import {createRailComponent} from "components/Rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
-import StraightRail from "components/Rails/StraightRail";
-import CurveRail from "components/Rails/CurveRail";
-import SimpleTurnout from "components/Rails/SimpleTurnout";
-import DoubleStraightRail from "components/Rails/DoubleStraightRail";
-import DoubleCrossTurnout from "components/Rails/DoubleCrossTurnout";
-import StraightRailPart from "../Rails/RailParts/StraightRailPart";
 // import CurveRail from "components/Rails/CurveRail";
 // import SimpleTurnout from "components/Rails/SimpleTurnout";
 // import {ArcDirection} from "components/Rails/RailParts/primitives/ArcPart";
@@ -157,7 +151,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     )
 
 
-    console.log(this.props.mousePosition)
+    LOGGER.debug(this.props.mousePosition)
 
     return (
 
@@ -224,21 +218,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               {/*angle={45}*/}
             {/*/>*/}
 
-            <StraightRailPart
-              position={new Point(700, 700)}
-              pivotJointIndex={1}
-              angle={30}
-              length={200}
-            />
-
-            <StraightRail
-              position={new Point(700, 700)}
-              pivotJointIndex={1}
-              angle={30}
-              length={200}
-              id={1}
-              layerId={1}
-            />
 
             {/*<CurveRail*/}
               {/*position={new Point(770, 770)}*/}

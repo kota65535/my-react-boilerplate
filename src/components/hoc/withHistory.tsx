@@ -6,7 +6,9 @@ import {connect} from "react-redux";
 import {RootState} from "store/type";
 import {clearHistory, setHistoryIndex, setLayers, setLayersNoHistory} from "actions/layout";
 import {currentLayoutData, nextRailId} from "selectors";
+import getLogger from "logging";
 
+const LOGGER = getLogger(__filename)
 
 
 
@@ -164,9 +166,9 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
 
     undo = () => {
       if (this.canUndo()) {
-        console.warn(this.props.historyIndex)
         const historyIndex = this.props.historyIndex - 1
         // this.props.setLayers(this.props.histories[historyIndex].layers)
+        LOGGER.info(`historyIndex: ${this.props.historyIndex} -> ${historyIndex}`)
         this.props.setHistoryIndex(historyIndex)
       }
     }

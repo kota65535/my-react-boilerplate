@@ -1,6 +1,5 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import Joint from "./RailParts/Joint";
 import {connect} from "react-redux";
 import {compose} from "recompose";
 import {
@@ -8,9 +7,9 @@ import {
   mapStateToProps,
   RailBase,
   RailBaseDefaultProps,
-  RailBaseProps, RailBaseState
+  RailBaseProps,
+  RailBaseState
 } from "components/Rails/RailBase";
-import * as _ from "lodash";
 import DoubleCrossTurnoutPart from "components/Rails/RailParts/DoubleCrossTurnoutRailPart";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
 import {BaseItemData} from "reducers/layout";
@@ -27,8 +26,6 @@ export type DoubleCrossTurnoutComposedProps = DoubleCrossTurnoutProps & WithHist
 export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps, RailBaseState> {
 
   public static NUM_JOINTS = 4
-  public static PIVOT_JOINT_CHANGING_STRIDE = 1
-
   public static defaultProps: RailBaseDefaultProps = {
     type: 'DoubleCrossTurnout',
     selected: false,
@@ -37,6 +34,7 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
     hasOpposingJoints: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(false),
     enableJoints: true
   }
+  public static PIVOT_JOINT_CHANGING_STRIDE = 2
 
   constructor(props: DoubleCrossTurnoutComposedProps) {
     super(props)
@@ -53,7 +51,6 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
   render() {
     const {
       position, angle, length, id, selected, pivotJointIndex, opacity,
-      hasOpposingJoints
     } = this.props
 
     return (
@@ -71,37 +68,14 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
             partType: 'RailPart',
             partId: 0
           }}
-          onFixed={this.onRailPartFixed}
           ref={(railPart) => this.railPart = railPart}
         />
-        {_.range(DoubleCrossTurnout.NUM_JOINTS).map(i => {
-          return (
-            <Joint
-              angle={this.state.jointAngles[i]}
-              position={this.state.jointPositions[i]}
-              opacity={opacity}
-              name={'Rail'}
-              data={{
-                railId: id,
-                partType: 'Joint',
-                partId: i
-              }}
-              detectionEnabled={this.props.enableJoints}
-              hasOpposingJoint={hasOpposingJoints[i]}
-              onLeftClick={this.onJointLeftClick.bind(this, i)}
-              onRightClick={this.onJointRightClick.bind(this, i)}
-              onMouseMove={this.onJointMouseMove.bind(this, i)}
-              onMouseEnter={this.onJointMouseEnter.bind(this, i)}
-              onMouseLeave={this.onJointMouseLeave.bind(this, i)}
-              onFixed={this.onJointsFixed}
-              ref={(joint) => this.joints[i] = joint}
-            />
-          )
-        })}
+        {this.createJointComponents()}
       </React.Fragment>
     )
   }
 }
+
 
 export type StraightRailItemData = BaseItemData & DoubleCrossTurnoutProps
 

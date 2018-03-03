@@ -4,17 +4,16 @@ import {Rectangle} from "react-paper-bindings";
 import Joint from "./RailParts/Joint";
 import getLogger from "logging";
 import {pointsEqual} from "components/Rails/utils";
-import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import * as _ from "lodash";
-import {PaletteItem, RootState} from "store/type";
+import RailPartBase from "components/Rails/RailParts/RailPartBase";
+import {RailComponents} from "components/Rails/index";
+import * as update from "immutability-helper";
+import RailFactory from "components/Rails/RailFactory";
 import {ItemData} from "reducers/layout";
+import {PaletteItem, RootState} from "store/type";
 import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import RailFactory from "components/Rails/RailFactory";
-import * as update from "immutability-helper";
-import {RailComponents} from "components/Rails/index";
-import RailPartBase from "components/Rails/RailParts/RailPartBase";
 
 const LOGGER = getLogger(__filename)
 
@@ -77,57 +76,6 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   railPart: RailPartBase<any, any>
   joints: Joint[]
   temporaryPivotJointIndex: number
-  fixedJointsCount: number
-
-  constructor(props: P) {
-    super(props)
-    // 本当はここに書きたいがエラーになる。Typescriptが糞
-    // this.state = {
-    //   railPartsFixed: false
-    // }
-
-    this.fixedJointsCount = 0
-    this.onRailPartFixed = this.onRailPartFixed.bind(this)
-    this.onJointsFixed = this.onJointsFixed.bind(this)
-  }
-
-  // TODO: これでOK?
-  // shouldComponentUpdate() {
-  //   return false
-  // }
-
-  // レールパーツの位置が確定後、ジョイントの位置と角度を決定する
-  onRailPartFixed() {
-    // オブジェクトをStateにセットする場合はきちんとCloneすること
-    const jointPositions =  _.range(this.joints.length).map(i => _.clone(this.railPart.getJointPosition(i)))
-    const jointAngles =  _.range(this.joints.length).map(i => _.clone(this.railPart.getJointAngle(i)))
-
-    _.range(this.joints.length).forEach(i => {
-      console.log(`Joint ${i} ${this.state.jointPositions[i]} -> ${jointPositions[i]}`)
-    })
-
-    this.setState({
-      jointPositions,
-      jointAngles
-    })
-  }
-
-  // レールパーツに次いで、全てのジョイントの位置が確定したらonFixedコールバックを呼んでやる
-  onJointsFixed() {
-    this.fixedJointsCount += 1
-    if (this.fixedJointsCount === this.joints.length) {
-      if (this.props.onFixed) {
-        this.props.onFixed(this)
-      }
-    }
-  }
-
-  // componentDidMount() {
-  //   LOGGER.debug('mounted')
-  //   this.fixRailPartPosition()
-  //   this.fixJointsPosition()
-  // }
-
   /**
    * ジョイントを右クリックしたら、仮レールが接続するジョイントを変更する
    * @param {number} jointId
@@ -144,6 +92,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     ))
   }
 
+  // TODO: これでOK?
+  // shouldComponentUpdate() {
+  //   return false
+  // }
   /**
    * ジョイントを左クリックしたら、仮レールの位置にレールを設置する
    * @param {number} jointId
@@ -176,10 +128,8 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     // 仮レールを消去する
     this.props.setTemporaryItem(null)
   }
-
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
   }
-
   /**
    * ジョイントにマウスが乗ったら、仮レールを表示する
    * @param {number} jointId
@@ -194,9 +144,9 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       id: -1,
       name: 'TemporaryRail',
       // position: this.joints[jointId].position,
-      position: this.railPart.getJointPosition(jointId),
+      position: this.railPart.getGlobalJointPosition(jointId),
       // angle: this.joints[jointId].angle,
-      angle: this.railPart.getJointAngle(jointId),
+      angle: this.railPart.getGlobalJointAngle(jointId),
       layerId: 1,
       opacity: TEMPORARY_RAIL_OPACITY,
       pivotJointIndex: this.temporaryPivotJointIndex,
@@ -204,8 +154,82 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     })
 
   }
-
+  /**
+   * ジョイントからマウスが離れたら、仮レールを消す
+   * @param {number} jointId
+   * @param {MouseEvent} e
+   */
   onJointMouseLeave = (jointId: number, e: MouseEvent) => {
     this.props.setTemporaryItem(null)
+  }
+
+  constructor(props: P) {
+    super(props)
+    // 本当はここに書きたいがエラーになる。Typescriptが糞
+    // this.state = {
+    //   railPartsFixed: false
+    // }
+
+  }
+
+  componentDidUpdate() {
+    this.setJointPositionsAndAngles()
+  }
+
+  componentDidMount() {
+    this.setJointPositionsAndAngles()
+  }
+
+  createJointComponents() {
+    const {id, opacity, hasOpposingJoints, enableJoints} = this.props
+    const {jointPositions, jointAngles} = this.state
+
+    return _.range(this.joints.length).map(i => {
+      return (
+        <Joint
+          position={jointPositions[i]}
+          angle={jointAngles[i]}
+          opacity={opacity}
+          name={'Rail'}
+          data={{
+            railId: id,
+            partType: 'Joint',
+            partId: i
+          }}
+          detectionEnabled={enableJoints}
+          hasOpposingJoint={hasOpposingJoints[i]}
+          onLeftClick={this.onJointLeftClick.bind(this, i)}
+          onRightClick={this.onJointRightClick.bind(this, i)}
+          onMouseMove={this.onJointMouseMove.bind(this, i)}
+          onMouseEnter={this.onJointMouseEnter.bind(this, i)}
+          onMouseLeave={this.onJointMouseLeave.bind(this, i)}
+          ref={(joint) => this.joints[i] = joint}
+        />
+      )
+    })
+  }
+
+  // レールパーツの位置・角度に合わせてジョイントの位置・角度を変更する
+  private setJointPositionsAndAngles() {
+    // 注意: オブジェクトをStateにセットする場合はきちんとCloneすること
+    const jointPositions = _.range(this.joints.length).map(i => _.clone(this.railPart.getGlobalJointPosition(i)))
+    const jointAngles = _.range(this.joints.length).map(i => _.clone(this.railPart.getGlobalJointAngle(i)))
+
+    _.range(this.joints.length).forEach(i => {
+      LOGGER.debug(`[Rail][${this.props.name}] Joint${i} position: ${this.state.jointPositions[i]} -> ${jointPositions[i]}`)
+      LOGGER.debug(`[Rail][${this.props.name}] Joint${i} angle: ${this.state.jointAngles[i]} -> ${jointAngles[i]}`)
+    })
+
+    // レールパーツから取得したジョイントの位置・角度が現在のものと異なれば再描画
+    if (_.range(this.joints.length).every(i =>
+        pointsEqual(this.state.jointPositions[i], jointPositions[i])
+        && this.state.jointAngles[i] === jointAngles[i])) {
+      // noop
+    } else {
+      this.setState({
+        jointPositions,
+        jointAngles
+      })
+    }
   }
 }

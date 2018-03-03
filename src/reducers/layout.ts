@@ -1,5 +1,4 @@
-import {StraightRailItemData} from "components/Rails/StraightRail";
-import {CurveRailItemData} from "components/Rails/CurveRail";
+import {StraightRailProps} from "components/Rails/StraightRail";
 import {Action, handleActions} from 'redux-actions';
 import {
   LAYOUT_ADD_ITEM, LAYOUT_CLEAR_HISTORY, LAYOUT_REMOVE_ITEM, LAYOUT_SET_HISTORY_INDEX, LAYOUT_SET_LAYER_VISIBLE,
@@ -7,6 +6,7 @@ import {
   LAYOUT_UPDATE_ITEM
 } from "constants/actions";
 import * as update from 'immutability-helper';
+import {CurveRailProps} from "components/Rails/CurveRail";
 
 export interface LayoutStoreState {
   histories: LayoutData[]
@@ -33,7 +33,7 @@ export interface BaseItemData {
   selected: boolean
 }
 
-export type ItemData = BaseItemData | StraightRailItemData | CurveRailItemData
+export type ItemData = BaseItemData | StraightRailProps | CurveRailProps
 
 
 export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {

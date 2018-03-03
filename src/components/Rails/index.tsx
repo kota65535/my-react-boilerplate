@@ -9,7 +9,7 @@ import DoubleCrossTurnout, {DoubleCrossTurnout as DoubleCrossTurnoutComponent} f
 // 新しいレールクラスを作成したらここに追加する必要がある
 const RailContainers = {
   StraightRail,
-  DoubleStraightRail,
+  // DoubleStraightRail,
   CurveRail,
   SimpleTurnout,
   DoubleCrossTurnout

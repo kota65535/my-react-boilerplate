@@ -31,15 +31,15 @@ export interface BaseItemData {
   type: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   layerId: number    // このアイテムが所属するレイヤー
   selected: boolean
-  // joints: JointInfo[]
+  opposingJoints: JointInfo[]
 }
 
-// export interface JointInfo {
-//   railId: number
-//   jointId: number
-// }
+export interface JointInfo {
+  railId: number
+  jointId: number
+}
 
-export type ItemData = BaseItemData | StraightRailProps | CurveRailProps
+export type ItemData = BaseItemData | BaseItemData & StraightRailProps | BaseItemData & CurveRailProps
 
 
 export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {

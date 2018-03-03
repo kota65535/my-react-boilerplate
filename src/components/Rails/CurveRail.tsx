@@ -30,7 +30,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(CurveRail.NUM_JOINTS).fill(false),
+    opposingJoints: new Array(CurveRail.NUM_JOINTS).fill(null),
     enableJoints: true
   }
   public static PIVOT_JOINT_CHANGING_STRIDE = 1
@@ -38,15 +38,15 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
   constructor(props: CurveRailComposedProps) {
     super(props)
     this.state = {
-      jointPositions: new Array(CurveRail.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(CurveRail.NUM_JOINTS).fill(props.angle),
-      selected: false
+      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
+      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
     }
 
     // カーブ系レールのジョイントに対して仮レールを設置する場合は向き(PivotJoint)を揃える
     this.temporaryPivotJointIndex = this.props.pivotJointIndex
-    this.joints = new Array(CurveRail.NUM_JOINTS).fill(null)
   }
+
+  get NUM_JOINTS() { return CurveRail.NUM_JOINTS }
 
   render() {
     const {
@@ -70,6 +70,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
             partType: 'RailPart',
             partId: 0
           }}
+          onLeftClick={this.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}
         />
         {this.createJointComponents()}

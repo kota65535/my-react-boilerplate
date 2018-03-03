@@ -30,22 +30,20 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(StraightRail.NUM_JOINTS).fill(false),
+    opposingJoints: new Array(StraightRail.NUM_JOINTS).fill(null),
     enableJoints: true
   }
   public static PIVOT_JOINT_CHANGING_STRIDE = 1
 
   constructor(props: StraightRailComposedProps) {
     super(props)
-
     this.state = {
-      jointPositions: new Array(StraightRail.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(StraightRail.NUM_JOINTS).fill(props.angle),
-      selected: false
+      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
+      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
     }
-    this.temporaryPivotJointIndex = 0
-    this.joints = new Array(StraightRail.NUM_JOINTS).fill(null)
   }
+
+  get NUM_JOINTS() { return StraightRail.NUM_JOINTS }
 
 
   render() {
@@ -60,7 +58,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
           position={position}
           angle={angle}
           pivotJointIndex={pivotJointIndex}
-          selected={selected || this.state.selected}
+          selected={selected}
           opacity={opacity}
           name={'Rail'}
           data={{

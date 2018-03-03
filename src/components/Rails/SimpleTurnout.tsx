@@ -34,7 +34,7 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(false),
+    opposingJoints: new Array(SimpleTurnout.NUM_JOINTS).fill(null),
     enableJoints: true
   }
   public static PIVOT_JOINT_CHANGING_STRIDE = 1
@@ -42,19 +42,17 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
   constructor(props: SimpleTurnoutComposedProps) {
     super(props)
     this.state = {
-      jointPositions: new Array(SimpleTurnout.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(SimpleTurnout.NUM_JOINTS).fill(props.angle),
-      selected: false
+      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
+      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
     }
-
-    this.temporaryPivotJointIndex = 0
-    this.joints = new Array(SimpleTurnout.NUM_JOINTS).fill(null)
   }
+
+  get NUM_JOINTS() { return SimpleTurnout.NUM_JOINTS }
+
 
   render() {
     const {
       position, angle, length, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
-      hasOpposingJoints
     } = this.props
 
     return (
@@ -75,31 +73,10 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
             partType: 'RailPart',
             partId: 0
           }}
+          onLeftClick={this.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}
         />
-        {_.range(SimpleTurnout.NUM_JOINTS).map(i => {
-          return (
-            <Joint
-              angle={this.state.jointAngles[i]}
-              position={this.state.jointPositions[i]}
-              opacity={opacity}
-              name={'Rail'}
-              data={{
-                railId: id,
-                partType: 'Joint',
-                partId: i
-              }}
-              detectionEnabled={this.props.enableJoints}
-              hasOpposingJoint={hasOpposingJoints[i]}
-              onLeftClick={this.onJointLeftClick.bind(this, i)}
-              onRightClick={this.onJointRightClick.bind(this, i)}
-              // onMouseMove={this.onJointMouseMove.bind(this, i)}
-              onMouseEnter={this.onJointMouseEnter.bind(this, i)}
-              onMouseLeave={this.onJointMouseLeave.bind(this, i)}
-              ref={(joint) => this.joints[i] = joint}
-            />
-          )
-        })}
+        {this.createJointComponents()}
       </React.Fragment>
     )
   }

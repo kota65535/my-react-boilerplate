@@ -13,7 +13,7 @@ const LOGGER = getLogger(__filename)
 
 
 export interface WithHistoryPublicProps {
-  addItem: (layerId: number, item: ItemData) => void
+  addItem: (layerId: number, item: ItemData) => number
   updateItem: (oldItem: ItemData, newItem: ItemData, addHistory?: boolean) => void
   removeItem: (item: ItemData) => void
   setLayers: (layers: LayerData[]) => void
@@ -111,6 +111,7 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
         }
       })
       this.addHistory(newLayout)
+      return item.id
     }
 
     updateItem = (oldItem: ItemData, newItem: any, addHistory = true) => {

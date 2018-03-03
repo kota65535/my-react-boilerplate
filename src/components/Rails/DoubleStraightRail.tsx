@@ -30,23 +30,20 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(DoubleStraightRail.NUM_JOINTS).fill(false),
+    opposingJoints: new Array(DoubleStraightRail.NUM_JOINTS).fill(null),
     enableJoints: true
   }
   public static PIVOT_JOINT_CHANGING_STRIDE = 2
 
   constructor(props: DoubleStraightRailComposedProps) {
     super(props)
-
     this.state = {
-      jointPositions: new Array(DoubleStraightRail.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(DoubleStraightRail.NUM_JOINTS).fill(props.angle),
-      selected: false
+      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
+      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
     }
-    this.temporaryPivotJointIndex = 0
-    this.joints = new Array(DoubleStraightRail.NUM_JOINTS).fill(null)
   }
 
+  get NUM_JOINTS() { return DoubleStraightRail.NUM_JOINTS }
 
   render() {
     const {
@@ -68,6 +65,7 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
             partType: 'RailPart',
             partId: 0
           }}
+          onLeftClick={this.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}
         />
         {this.createJointComponents()}

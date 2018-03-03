@@ -14,6 +14,7 @@ import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import * as update from "immutability-helper";
 import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
+import {RailComponentClasses} from "components/Rails";
 
 const LOGGER = getLogger(__filename)
 
@@ -196,7 +197,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
         layerId: this.props.activeLayerId,
-        hasOpposingJoints: [false, false]
+        opposingJoints: new Array(RailComponentClasses[this.props.selectedItem.type].NUM_JOINTS).fill(null)
       } as ItemData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.SUBSEQUENT)
@@ -242,10 +243,21 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
 
     removeSelectedRails() {
-      let selectedRails = _.flatMap(this.props.layout.layers, layer => layer.children)
+      const selectedRails = _.flatMap(this.props.layout.layers, layer => layer.children)
         .filter(item => item.selected)
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
+
       selectedRails.forEach(item => {
+        item.opposingJoints.forEach(joint => {
+          if (joint) {
+            const railData = getRailDataById(this.props.layout, joint.railId)
+            this.props.updateItem(railData, update(railData, {
+              opposingJoints: {
+                [joint.jointId]: {$set: null}
+              }
+            }), false)
+          }
+        })
         this.props.removeItem(item)
       })
     }

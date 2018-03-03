@@ -30,23 +30,20 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(false),
+    opposingJoints: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(null),
     enableJoints: true
   }
   public static PIVOT_JOINT_CHANGING_STRIDE = 2
 
   constructor(props: DoubleCrossTurnoutComposedProps) {
     super(props)
-
     this.state = {
-      jointPositions: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(DoubleCrossTurnout.NUM_JOINTS).fill(props.angle),
-      selected: false
+      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
+      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
     }
-    this.temporaryPivotJointIndex = 0
-    this.joints = new Array(DoubleCrossTurnout.NUM_JOINTS).fill(null)
   }
 
+  get NUM_JOINTS() { return DoubleCrossTurnout.NUM_JOINTS }
 
   render() {
     const {

@@ -6,10 +6,10 @@ import getLogger from "logging";
 import {pointsEqual} from "components/Rails/utils";
 import * as _ from "lodash";
 import RailPartBase from "components/Rails/RailParts/RailPartBase";
-import {RailComponents} from "components/Rails/index";
+import {RailComponentClasses} from "components/Rails/index";
 import * as update from "immutability-helper";
 import RailFactory from "components/Rails/RailFactory";
-import {ItemData} from "reducers/layout";
+import {ItemData, JointInfo} from "reducers/layout";
 import {PaletteItem, RootState} from "store/type";
 import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
@@ -37,14 +37,13 @@ export interface RailBaseDefaultProps {
   selected?: boolean
   pivotJointIndex?: number
   opacity?: number
-  hasOpposingJoints?: boolean[]
+  opposingJoints?: JointInfo[]
   enableJoints: boolean
 }
 
 export interface RailBaseState {
   jointPositions: Point[]
   jointAngles: number[]
-  selected: boolean
 }
 
 type RailBaseComposedProps = RailBaseProps & WithHistoryProps
@@ -70,13 +69,29 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
-    hasOpposingJoints: [],
+    opposingJoints: [],
     enableJoints: true
   }
 
   railPart: RailPartBase<any, any>
   joints: Joint[]
   temporaryPivotJointIndex: number
+
+
+  constructor(props: P) {
+    super(props)
+    this.joints = new Array(this.NUM_JOINTS).fill(null)
+    this.temporaryPivotJointIndex = 0
+
+    this.onRailPartLeftClick = this.onRailPartLeftClick.bind(this)
+  }
+
+  /**
+   * このレールのジョイント数を返す。
+   * 要実装。
+   * @constructor
+   */
+  abstract get NUM_JOINTS()
 
 
   onRailPartLeftClick(e: MouseEvent) {
@@ -94,8 +109,8 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
    */
   onJointRightClick = (jointId: number, e: MouseEvent) => {
     // 仮レールのPivotJointをインクリメントする
-    const numJoints = RailComponents[this.props.temporaryItem.type].NUM_JOINTS
-    const stride = RailComponents[this.props.temporaryItem.type].PIVOT_JOINT_CHANGING_STRIDE
+    const numJoints = RailComponentClasses[this.props.temporaryItem.type].NUM_JOINTS
+    const stride = RailComponentClasses[this.props.temporaryItem.type].PIVOT_JOINT_CHANGING_STRIDE
     this.temporaryPivotJointIndex = (this.temporaryPivotJointIndex + stride) % numJoints
     this.props.setTemporaryItem(update(this.props.temporaryItem, {
         pivotJointIndex: {$set: this.temporaryPivotJointIndex}
@@ -117,23 +132,31 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     // パレットで選択したレール生成のためのPropsを取得
     const itemProps = RailFactory[this.props.selectedItem.name]()
     // PivotJointだけ接続状態にする
-    let hasOpposingJoints = new Array(this.props.hasOpposingJoints.length).fill(false)
-    hasOpposingJoints[this.temporaryPivotJointIndex] = true
+    let opposingJoints = new Array(this.props.opposingJoints.length).fill(null)
+    // このレールのIDとJointIDが対向ジョイント
+    opposingJoints[this.temporaryPivotJointIndex] = {
+      railId: this.props.id,
+      jointId: jointId
+    }
 
     // 仮レールの位置にレールを設置
-    this.props.addItem(this.props.activeLayerId, {
+    const newId = this.props.addItem(this.props.activeLayerId, {
       ...itemProps,
       position: (this.props.temporaryItem as any).position,
       angle: (this.props.temporaryItem as any).angle,
       layerId: this.props.activeLayerId,
-      hasOpposingJoints: hasOpposingJoints,
+      opposingJoints: opposingJoints,
       pivotJointIndex: this.temporaryPivotJointIndex
     } as ItemData)
 
     // 仮レールに接続しているジョイントを接続状態にする
     this.props.updateItem(this.props as any, update(this.props, {
-        hasOpposingJoints: {
-          [jointId]: {$set: true}
+        opposingJoints: {
+          [jointId]: {$set: {
+              railId: newId,
+              jointId: this.temporaryPivotJointIndex
+            }
+          }
         }
       }
     ), false)
@@ -184,18 +207,6 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     this.props.setTemporaryItem(null)
   }
 
-
-  constructor(props: P) {
-    super(props)
-    this.setState({
-      jointPositions: null,
-      jointAngles: null,
-      selected: false,
-    })
-
-    this.onRailPartLeftClick = this.onRailPartLeftClick.bind(this)
-  }
-
   componentDidUpdate() {
     this.setJointPositionsAndAngles()
   }
@@ -209,7 +220,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
    * @returns {any[]}
    */
   protected createJointComponents() {
-    const {id, opacity, hasOpposingJoints, enableJoints} = this.props
+    const {id, opacity, opposingJoints, enableJoints} = this.props
     const {jointPositions, jointAngles} = this.state
 
     return _.range(this.joints.length).map(i => {
@@ -225,7 +236,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
             partId: i
           }}
           detectionEnabled={enableJoints}
-          hasOpposingJoint={hasOpposingJoints[i]}
+          hasOpposingJoint={opposingJoints[i] != null}
           onLeftClick={this.onJointLeftClick.bind(this, i)}
           onRightClick={this.onJointRightClick.bind(this, i)}
           onMouseMove={this.onJointMouseMove.bind(this, i)}

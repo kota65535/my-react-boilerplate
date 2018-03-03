@@ -7,7 +7,7 @@ import DoubleCrossTurnout, {DoubleCrossTurnout as DoubleCrossTurnoutComponent} f
 
 // クラス名の文字列とクラスオブジェクトを関連付ける連想配列
 // 新しいレールクラスを作成したらここに追加する必要がある
-const RailContainers = {
+const RailContainerClasses = {
   StraightRail,
   CurveRail,
   SimpleTurnout,
@@ -15,7 +15,7 @@ const RailContainers = {
   DoubleCrossTurnout
 }
 
-export const RailComponents = {
+export const RailComponentClasses = {
   'StraightRail': StraightRailComponent,
   'CurveRail': CurveRailComponent,
   'SimpleTurnout': SimpleTurnoutComponent,
@@ -24,6 +24,6 @@ export const RailComponents = {
   // 'ThreeWayTurnout': ThreeWayTurnoutComponent,
 }
 
-export default RailContainers
+export default RailContainerClasses
 
 

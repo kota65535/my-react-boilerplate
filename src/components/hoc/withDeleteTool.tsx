@@ -143,7 +143,7 @@ export const hitTestAll = (point: Point): HitResult[] => {
 
 
   };
-  let hitResults = (paperScope.project as any).hitTestAll(point, hitOptions);
+  let hitResults = (PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
   // Groupがひっかかるとうざいので取り除く
   // let hitResultsPathOnly = hitResults.filter(r => r.item.data.type === "Path");
   // return hitResultsPathOnly;

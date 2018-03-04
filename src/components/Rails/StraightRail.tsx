@@ -10,7 +10,7 @@ import {
   RailBaseProps,
   RailBaseState
 } from "components/Rails/RailBase";
-import withHistory, {WithHistoryProps} from "components/hoc/withHistory";
+import withHistory, {WithHistoryProps, WithHistoryPublicProps} from "components/hoc/withHistory";
 import {compose} from "recompose";
 
 
@@ -60,7 +60,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
-          name={'Rail'}
+          name={`Rail-${id}`}
           data={{
             railId: id,
             partType: 'RailPart',
@@ -75,7 +75,11 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
   }
 }
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(compose<StraightRailProps, StraightRailProps>(
+export default compose<StraightRailProps, StraightRailProps>(
+  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
   withHistory
-)(StraightRail))
+)(StraightRail)
+
+// export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(compose<StraightRailProps, StraightRailProps>(
+//   withHistory
+// )(StraightRail))

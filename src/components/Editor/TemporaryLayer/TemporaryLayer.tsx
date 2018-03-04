@@ -30,7 +30,7 @@ export class TemporaryLayer extends React.Component<ComposedProps, {}> {
     return (
       <Layer
         key={-1}
-        data={{id: -1}}
+        data={{id: -1, name: 'Temporary'}}
       >
         {this.props.temporaryItem &&
         createRailComponent(this.props.temporaryItem, this.props.addItem, this.props.updateItem)}

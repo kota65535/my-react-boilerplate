@@ -1,6 +1,6 @@
 // PaperScopeオブジェクト
 // Editorコンポーネントがマウントされると有効になる
-paperScope = null;
+PAPER_SCOPE = null;
 
 // Rail系コンポーネントのレジストリ
 // IDをキーに各コンポーネントを参照できる

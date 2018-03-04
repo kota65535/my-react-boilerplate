@@ -85,12 +85,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     //==================== MouseMove Handlers ====================
 
     mouseMove = (e: ToolEvent|any) => {
-      const methodName = `mouseMove_${this.props.phase}`
+      const methodName = `mouseMove_${this.props.phase}` //`
       if (typeof this[methodName] === 'function') {
         // LOGGER.debug(`EventHandler: ${methodName}`)
         this[methodName](e)
       } else {
-        LOGGER.error(`EventHandler: ${methodName} does not exist!`)
+        LOGGER.error(`EventHandler: ${methodName} does not exist!`) //`
       }
     }
 
@@ -103,7 +103,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
       const itemProps = RailFactory[this.props.selectedItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
-      LOGGER.debug(`FirstAngle: ${angle}`)
+      LOGGER.debug(`FirstAngle: ${angle}`) // `
       this.props.setTemporaryItem({
         ...itemProps,
         id: -1,
@@ -171,13 +171,13 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
 
     mouseLeftDown(e: ToolEvent|any) {
-      const methodName = `mouseLeftDown_${this.props.phase}`
+      const methodName = `mouseLeftDown_${this.props.phase}`; // `
 
       if (typeof this[methodName] === 'function') {
-        LOGGER.info(`EventHandler: ${methodName}`)
+        LOGGER.info(`EventHandler: ${methodName}`); // `
         this[methodName](e)
       } else {
-        LOGGER.error(`EventHandler: ${methodName} does not exist!`)
+        LOGGER.error(`EventHandler: ${methodName} does not exist!`); // `
       }
     }
 
@@ -246,7 +246,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     removeSelectedRails() {
       const selectedRails = _.flatMap(this.props.layout.layers, layer => layer.children)
         .filter(item => item.selected)
-      LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
+      LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`); // `
 
       selectedRails.forEach(item => {
         this.disconnectJoint(item)
@@ -262,7 +262,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     keyDown(e: ToolEvent|any) {
       switch (e.key) {
         case 'backspace':
-          LOGGER.info(`backspape pressed`)
+          LOGGER.info('backspape pressed');
           this.removeSelectedRails()
           break
         case 'c':
@@ -274,11 +274,13 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       railData.opposingJoints.forEach(joint => {
         if (joint) {
           const railData = getRailDataById(this.props.layout, joint.railId)
-          this.props.updateItem(railData, update(railData, {
-            opposingJoints: {
-              [joint.jointId]: {$set: null}
-            }
-          }), false)
+          if (railData) {
+            this.props.updateItem(railData, update(railData, {
+              opposingJoints: {
+                [joint.jointId]: {$set: null}
+              }
+            }), false)
+          }
         }
       })
     }
@@ -315,7 +317,7 @@ export const hitTestAll = (point: Point): HitResult[] => {
 
 
   };
-  let hitResults = (paperScope.project as any).hitTestAll(point, hitOptions);
+  let hitResults = (PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
   // Groupがひっかかるとうざいので取り除く
   // let hitResultsPathOnly = hitResults.filter(r => r.item.data.type === "Path");
   // return hitResultsPathOnly;
@@ -330,7 +332,7 @@ export const hitTestAll = (point: Point): HitResult[] => {
  * @param {number} id
  * @returns {ItemData | undefined}
  */
-const getRailDataById = (layout: LayoutData, id: number) => {
+export const getRailDataById = (layout: LayoutData, id: number) => {
   let found = _.flatMap(layout.layers, layer => layer.children)
     .find(item => item.id === id)
   return found

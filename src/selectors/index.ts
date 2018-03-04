@@ -1,7 +1,8 @@
 import {RootState} from "store/type";
 import * as _ from "lodash";
+import {LayoutData} from "reducers/layout";
 
-export const currentLayoutData = (state: RootState) => {
+export const currentLayoutData = (state: RootState): LayoutData => {
   return state.layout.histories[state.layout.historyIndex]
 }
 

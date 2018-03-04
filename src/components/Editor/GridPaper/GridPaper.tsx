@@ -62,7 +62,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
     this.setState({ mounted: true })
     window.addEventListener('resize', this.resizePaper)
     this.mounted = true
-    paperScope = this.view.paper
+    PAPER_SCOPE = this.view.paper
     this.props.setPaperViewLoaded(true)
   }
 

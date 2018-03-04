@@ -41,7 +41,7 @@ export type WithHistoryProps = WithHistoryPublicProps & WithHistoryPrivateProps
 /**
  * ヒストリー機能を提供するHOC
  */
-export default function withHistory(WrappedComponent: React.ComponentClass<WithHistoryProps>) {
+export default function withHistory(WrappedComponent: React.ComponentClass<WithHistoryPublicProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
@@ -204,7 +204,6 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
           canUndo={this.canUndo()}
           canRedo={this.canRedo()}
           clearHistory={this.clearHistory}
-
         />
       )
     }

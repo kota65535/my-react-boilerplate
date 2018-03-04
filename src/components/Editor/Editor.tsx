@@ -27,6 +27,7 @@ import FirstRailPutter from "./FirstRailPutter";
 import {createRailComponent} from "components/Rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
 import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
+import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";
 
 const LOGGER = getLogger(__filename)
 
@@ -55,6 +56,7 @@ type ComposedEditorProps = EditorProps
   & WithMoveToolProps
   & WithBuilderPublicProps
   & WithDeleteToolProps
+  & WithSelectToolPublicProps
 
 
 const mapStateToProps = (state: RootState) => {
@@ -134,7 +136,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     // データから各レイヤーを生成する
     let layers = this.props.layout.layers.map(layer =>
       <Layer
-        data={{id: layer.id}}
+        data={{id: layer.id, name: 'Layout'}}
         visible={layer.visible}
         key={layer.id}
       >
@@ -144,6 +146,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
 
     // LOGGER.debug(this.props.mousePosition)
+    LOGGER.debug(`from=${this.props.selectionRectFrom}, to=${this.props.selectionRectTo}`)
 
     return (
 
@@ -159,26 +162,14 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             onWheel={this.props.moveToolMouseWheel}
             matrix={matrix}
           >
-            {(this.props.builderPhase == BuilderPhase.FIRST_POSITION ||
-              this.props.builderPhase === BuilderPhase.FIRST_ANGLE) &&
-              <FirstRailPutter
-              />
+            {this.props.isLayoutEmpty &&
+            <FirstRailPutter
+            />
             }
             <TemporaryLayer />
 
             {layers}
 
-            {/*<SimpleTurnout*/}
-              {/*position={new Point(700, 700)}*/}
-              {/*branchDirection={ArcDirection.RIGHT}*/}
-              {/*pivotJointIndex={2}*/}
-              {/*angle={30}*/}
-              {/*length={140}*/}
-              {/*radius={541}*/}
-              {/*centerAngle={15}*/}
-              {/*id={1}*/}
-              {/*layerId={1}*/}
-            {/*/>*/}
             {/*<ThreeWayTurnout*/}
               {/*position={new Point(700, 840)}*/}
               {/*pivotJointIndex={1}*/}
@@ -217,14 +208,13 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               onMouseUp={this.props.moveToolMouseUp}
               onMouseMove={this.props.moveToolMouseMove}
             />
-              {/*active={this.isActive(Tools.SELECT)}*/}
-              {/*name={Tools.SELECT}*/}
-              {/*onKeyDown={this.props.selectToolKeyDown}*/}
-              {/*onKeyUp={this.props.selectToolKeyUp}*/}
-              {/*onMouseDown={this.props.selectToolMouseDown}*/}
-              {/*onMouseDrag={this.props.selectToolMouseDrag}*/}
-              {/*onMouseUp={this.props.selectToolMouseUp}*/}
-            {/*/>*/}
+            <Tool
+              active={this.isActive(Tools.SELECT)}
+              name={Tools.SELECT}
+              onMouseDown={this.props.selectToolMouseDown}
+              onMouseDrag={this.props.selectToolMouseDrag}
+              onMouseUp={this.props.selectToolMouseUp}
+            />
           </GridPaper>
         </EditorBody>
       </StyledWrapper>
@@ -244,5 +234,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps,
   // withStraightRail,
   // withCurveRail
   withBuilder,
-  withDeleteTool
+  withDeleteTool,
+  withSelectTool
 )(Editor))

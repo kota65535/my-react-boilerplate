@@ -51,6 +51,8 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
     super(props)
   }
 
+  get path() { return this.detectablePart.mainPart.path }
+
   componentDidUpdate() {
     logger.trace('updated')
     logger.trace(`[RailPart][${this.props.name}] j0: ${this.getGlobalJointPosition(0)}, ${this.getGlobalJointAngle(0)}`);

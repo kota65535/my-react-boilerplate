@@ -220,11 +220,11 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
     }
 
     resetViewPosition = () => {
-      if (paperScope) {
-        const windowCenter = paperScope.view.viewToProject(new Point(window.innerWidth /2, window.innerHeight/2))
+      if (PAPER_SCOPE) {
+        const windowCenter = PAPER_SCOPE.view.viewToProject(new Point(window.innerWidth /2, window.innerHeight/2))
         const boardCenter = new Point(GRID_PAPER_WIDTH/2, GRID_PAPER_HEIGHT/2)
         const diff = windowCenter.subtract(boardCenter)
-        paperScope.view.translate(diff.x, diff.y)
+        PAPER_SCOPE.view.translate(diff.x, diff.y)
       }
     }
 

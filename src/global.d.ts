@@ -14,7 +14,7 @@ declare module '*.svg' {
   export default data;
 }
 
-declare var paperScope: PaperScope|any
+declare var PAPER_SCOPE: PaperScope|any
 declare var RAIL_COMPONENTS: any
 
 

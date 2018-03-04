@@ -1,36 +1,47 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import {setTool} from "../../actions/tools";
-import {RootState} from "store/type";
+import {PaletteItem, RootState} from "store/type";
+import {Tools} from "constants/tools";
+import {selectPaletteItem} from "actions/builder";
 
-export interface WithToolsInjectedProps {
+export interface WithToolsPrivateProps {
   activeTool: string
-  /**
-   * @param {string} tool 選択するツール名
-   * @param {any} mode ツールのモードを制御するための任意の情報
-   */
   setTool: (tool: string, mode?: any) => void
+  lastSelectedItems: object
+  selectPaletteItem: (item: PaletteItem) => void
 }
 
+export interface WithToolsPublicProps {
+  // None
+}
 
-export default function withTools(WrappedComponent: React.ComponentClass<WithToolsInjectedProps>) {
+type WithToolsProps =  WithToolsPublicProps & WithToolsPrivateProps
+
+
+/**
+ * キーボードでのツールの切替機能を提供するHOC。
+ */
+export default function withTools(WrappedComponent: React.ComponentClass<WithToolsPublicProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
-      activeTool: state.tools.activeTool
+      activeTool: state.tools.activeTool,
+      lastSelectedItems: state.builder.lastSelectedItems
     }
   }
 
   const mapDispatchToProps = (dispatch: any) => {
     return {
-      setTool: (tool: string) => dispatch(setTool(tool))
+      setTool: (tool: string) => dispatch(setTool(tool)),
+      selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
     }
   }
 
-  class WithToolsComponent extends React.Component<WithToolsInjectedProps, {}> {
+  class WithToolsComponent extends React.Component<WithToolsProps, {}> {
     private _prevTool: string | null;
 
-    constructor(props: WithToolsInjectedProps) {
+    constructor(props: WithToolsProps) {
       super(props)
       this.state = {
         activeTool: 'select',
@@ -38,31 +49,36 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
       this._prevTool = null
     }
 
-    setTool = (activeTool: string) => {
-      this.setState({ activeTool })
-    }
-
     keyDown = (e: KeyboardEvent) => {
-      // if (e.code === 'Space' && this.props.activeTool !== 'move') {
-      //   this._prevTool = this.props.activeTool
-      //   this.props.setTool('move')
-      // } else if (e.key === 's') {
-      //   this.props.setTool('Builder')
-      // } else if (e.key === 'c') {
-      //   this.props.setTool('select')
-      // } else if (e.key === 'p') {
-      //   this.props.setTool('circle')
-      // } else if (e.key === 'r') {
-      //   this.props.setTool('rectangle')
-      // } else if (e.key === 'd') {
-      //   this.props.setTool('delete')
-      // }
+      switch (e.key) {
+        case 'Shift':
+          // シフトを押している間はPANツールが有効になる。離すと元に戻る
+          this._prevTool = this.props.activeTool
+          this.props.setTool(Tools.PAN)
+          break
+        case 's':
+          this.props.setTool(Tools.STRAIGHT_RAILS)
+          this.props.selectPaletteItem(this.props.lastSelectedItems[Tools.STRAIGHT_RAILS])
+          break
+        case 'c':
+          this.props.setTool(Tools.CURVE_RAILS)
+          this.props.selectPaletteItem(this.props.lastSelectedItems[Tools.CURVE_RAILS])
+          break
+        case 't':
+          this.props.setTool(Tools.TURNOUTS)
+          this.props.selectPaletteItem(this.props.lastSelectedItems[Tools.TURNOUTS])
+          break
+        case 'd':
+          this.props.setTool(Tools.DELETE)
+          break
+      }
     }
 
     keyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && this.props.activeTool === 'move' && this._prevTool !== 'move') {
-        this.setTool(this._prevTool!)
-        this._prevTool = null
+      switch (e.key) {
+        case 'Shift':
+          this.props.setTool(this._prevTool)
+          break
       }
     }
 
@@ -80,8 +96,6 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
       return (
         <WrappedComponent
           {...this.props}
-          // activeTool={this.props.activeTool}
-          // setTool={this.setTool}
         />
       )
     }

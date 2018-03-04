@@ -36,6 +36,18 @@ export interface ToolBarState {
   el: HTMLElement | undefined
 }
 
+const mapStateToProps = (state: RootState) => {
+  return {
+    lastSelectedItems: state.builder.lastSelectedItems
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
+  }
+};
+
 export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
 
   constructor(props: ToolBarProps) {
@@ -112,8 +124,8 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
             <RedoIcon/>
           </StyledIconButton>
           <StyledIconButton
-            className={``}
-            onClick={() => this.props.removeSelectedItems()}>
+            className={`${this.isActive(Tools.DELETE)}`}
+            onClick={() => this.props.setTool(Tools.DELETE)}>
             <DeleteIcon/>
           </StyledIconButton>
           <StyledIconButton
@@ -140,16 +152,5 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    lastSelectedItems: state.builder.lastSelectedItems
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
-  }
-};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ToolBar)

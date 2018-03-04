@@ -94,6 +94,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   abstract get NUM_JOINTS()
 
 
+  /**
+   * レールパーツを左クリックしたら、レールの選択状態をトグルする。
+   * @param {MouseEvent} e
+   */
   onRailPartLeftClick(e: MouseEvent) {
     // レールの選択状態をトグルする
     this.props.updateItem(this.props as any, update(this.props, {

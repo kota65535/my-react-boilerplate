@@ -9,6 +9,14 @@ const initialState: ToolsStoreState = {
 
 export default handleActions<ToolsStoreState, any>({
   [Actions.SET_TOOL]: (state: ToolsStoreState, action: Action<string>) => {
+    // カーソル形状を変更する
+    switch (action.payload) {
+      case Tools.PAN:
+        document.body.style.cursor = 'move'
+        break
+      default:
+        document.body.style.cursor = ''
+    }
     return {
       ...state,
       activeTool: action.payload,

@@ -6,7 +6,7 @@ import {Layer, Raster, Rectangle, Tool, View} from 'react-paper-bindings'
 
 import withHistory, {WithHistoryProps} from '../hoc/withHistory'
 import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
-import withTools, {WithToolsInjectedProps} from '../hoc/withTools'
+import withTools, {WithToolsPrivateProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledLayers, StyledPalette, StyledToolBar, StyledWrapper} from "./Editor.style";
@@ -26,12 +26,7 @@ import getLogger from "logging";
 import FirstRailPutter from "./FirstRailPutter";
 import {createRailComponent} from "components/Rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
-// import CurveRail from "components/Rails/CurveRail";
-// import SimpleTurnout from "components/Rails/SimpleTurnout";
-// import {ArcDirection} from "components/Rails/RailParts/primitives/ArcPart";
-// import ThreeWayTurnout from "components/Rails/ThreeWayTurnout";
-// import CrossoverTurnout from 'components/Rails/CrossoverTurnout';
-// import DoubleStraightRail from 'components/Rails/DoubleStraightRail';
+import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
 
 const LOGGER = getLogger(__filename)
 
@@ -56,9 +51,10 @@ export interface EditorState {
 type ComposedEditorProps = EditorProps
   & WithHistoryProps
   & WithFullscreenProps
-  & WithToolsInjectedProps
+  & WithToolsPrivateProps
   & WithMoveToolProps
   & WithBuilderPublicProps
+  & WithDeleteToolProps
 
 
 const mapStateToProps = (state: RootState) => {
@@ -209,6 +205,11 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               onKeyDown={this.props.builderKeyDown}
             />
             <Tool
+              active={this.isActive(Tools.DELETE)}
+              name={Tools.DELETE}
+              onMouseDown={this.props.deleteToolMouseDown}
+            />
+            <Tool
               active={this.isActive(Tools.PAN)}
               name={Tools.PAN}
               onMouseDown={this.props.moveToolMouseDown}
@@ -243,4 +244,5 @@ export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps,
   // withStraightRail,
   // withCurveRail
   withBuilder,
+  withDeleteTool
 )(Editor))

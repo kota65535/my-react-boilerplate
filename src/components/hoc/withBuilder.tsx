@@ -43,9 +43,10 @@ export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps 
 
 
 /**
- * レールを設置する機能を提供するHOC。このアプリの中核機能。
+ * レールの設置に関連する機能を提供するHOC。
+ * 依存: WithHistory
  */
-export default function withBuilder(WrappedComponent: React.ComponentClass<WithBuilderProps>) {
+export default function withBuilder(WrappedComponent: React.ComponentClass<WithBuilderPublicProps & WithHistoryProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
@@ -248,16 +249,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
 
       selectedRails.forEach(item => {
-        item.opposingJoints.forEach(joint => {
-          if (joint) {
-            const railData = getRailDataById(this.props.layout, joint.railId)
-            this.props.updateItem(railData, update(railData, {
-              opposingJoints: {
-                [joint.jointId]: {$set: null}
-              }
-            }), false)
-          }
-        })
+        this.disconnectJoint(item)
         this.props.removeItem(item)
       })
     }
@@ -269,13 +261,26 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     keyDown(e: ToolEvent|any) {
       switch (e.key) {
-        case 'd':
-          LOGGER.info(`d pressed`)
+        case 'backspace':
+          LOGGER.info(`backspape pressed`)
           this.removeSelectedRails()
           break
         case 'c':
           break
       }
+    }
+
+    disconnectJoint(railData: ItemData) {
+      railData.opposingJoints.forEach(joint => {
+        if (joint) {
+          const railData = getRailDataById(this.props.layout, joint.railId)
+          this.props.updateItem(railData, update(railData, {
+            opposingJoints: {
+              [joint.jointId]: {$set: null}
+            }
+          }), false)
+        }
+      })
     }
 
 
@@ -289,8 +294,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         />
       )
     }
-
-
   }
 
 
@@ -320,6 +323,13 @@ export const hitTestAll = (point: Point): HitResult[] => {
 }
 
 
+
+/**
+ * 指定のRailIDを持つレールをレイアウトから探して返す。
+ * @param {LayoutData} layout
+ * @param {number} id
+ * @returns {ItemData | undefined}
+ */
 const getRailDataById = (layout: LayoutData, id: number) => {
   let found = _.flatMap(layout.layers, layer => layer.children)
     .find(item => item.id === id)
@@ -327,7 +337,14 @@ const getRailDataById = (layout: LayoutData, id: number) => {
 }
 
 
-const getFirstRailAngle = (anchor: Point, cursor: Point) => {
+/**
+ * 指定の点からマウスカーソルの位置を結ぶ直線の角度をstep刻みで返す。
+ * @param {paper.Point} anchor
+ * @param {paper.Point} cursor
+ * @param {number} step
+ * @returns {number}
+ */
+const getFirstRailAngle = (anchor: Point, cursor: Point, step: number = 45) => {
   const diffX = cursor.x - anchor.x
   const diffY = cursor.y - anchor.y
   const angle = Math.atan2(diffY, diffX) * 180 / Math.PI
@@ -335,7 +352,7 @@ const getFirstRailAngle = (anchor: Point, cursor: Point) => {
   // const diff = cursor.subtract(anchor)
   // const unit = new Point(1,0)
   // const angle = Math.acos(unit.dot(diff) / (unit.length * diff.length))
-  const candidates =_.range(-180, 180, 45)
+  const candidates =_.range(-180, 180, step)
   return getClosest(angle, candidates)
 }
 

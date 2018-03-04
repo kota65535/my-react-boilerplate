@@ -6,7 +6,8 @@ export enum Tools {
   GAP = 'Gaps',
   SELECT = 'Select',
   PAN = 'Pan',
-  RESET_VIEW = 'Reset View'
+  RESET_VIEW = 'Reset View',
+  DELETE = 'Delete',
 }
 
 export const GRID_PAPER_WIDTH = 2100

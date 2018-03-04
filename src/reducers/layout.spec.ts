@@ -8,7 +8,8 @@ const createItem = (id, layerId, name='Test') => {
     name: name,
     type: 'Test',
     layerId: layerId,
-    selected: false
+    selected: false,
+    opposingJoints: [null, null]
   }
 }
 

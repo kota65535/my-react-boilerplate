@@ -9,7 +9,7 @@ import getLogger from "logging";
 const LOGGER = getLogger(__filename)
 
 
-export interface WithMoveToolOutputProps {
+export interface WithMoveToolPublicProps {
   moveToolMouseWheel: (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => void
   moveToolMouseMove: (e: ToolEvent) => void
   moveToolMouseDown: (e: ToolEvent) => void
@@ -34,9 +34,12 @@ interface WithMoveToolState {
   zoom: number
 }
 
-export type WithMoveToolProps = WithMoveToolOutputProps & WithMoveToolPrivateProps
+export type WithMoveToolProps = WithMoveToolPublicProps & WithMoveToolPrivateProps
 
-export default function withMoveTool(WrappedComponent: React.ComponentClass<WithMoveToolProps>) {
+/**
+ * キャンバスのパニング・ズーム機能を提供するHOC。
+ */
+export default function withMoveTool(WrappedComponent: React.ComponentClass<WithMoveToolPublicProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {

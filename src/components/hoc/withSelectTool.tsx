@@ -2,14 +2,15 @@ import * as React from 'react';
 import {RootState} from "store/type";
 import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
-import {PaperScope, Path, Point, ToolEvent, View} from 'paper'
+import {PaperScope, Group, Path, Point, ToolEvent, View, Item} from 'paper'
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {getRailDataById, hitTestAll} from "components/hoc/withBuilder";
+import {hitTestAll, WithBuilderPublicProps} from "components/hoc/withBuilder";
 import {WithHistoryProps, WithHistoryPublicProps} from "components/hoc/withHistory";
 import {currentLayoutData} from "selectors";
 import {LayoutData, LayoutStoreState} from "reducers/layout";
 import * as update from "immutability-helper";
+import {getRailDataById} from "components/hoc/common";
 
 const LOGGER = getLogger(__filename)
 
@@ -33,13 +34,13 @@ interface WithSelectToolState {
 }
 
 
-type WithSelectToolProps = WithSelectToolPublicProps & WithSelectToolPrivateProps & WithHistoryPublicProps
+type WithSelectToolProps = WithSelectToolPublicProps & WithSelectToolPrivateProps & WithHistoryPublicProps & WithBuilderPublicProps
 
 /**
  * レールの矩形選択機能を提供するHOC。
- * 依存: WithHistory
+ * 依存: WithHistory, WithBuilder
  */
-export default function withSelectTool(WrappedComponent: React.ComponentClass<WithSelectToolPublicProps & WithHistoryPublicProps>) {
+export default function withSelectTool(WrappedComponent: React.ComponentClass<WithSelectToolProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
@@ -75,6 +76,11 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
     mouseDown = (e: ToolEvent|any) => {
       // Pathを毎回生成・削除する場合、PaperRendererで描画するよりも
       // 生のPaperJSオブジェクトを操作したほうが都合が良い。
+      // 新規矩形選択を開始
+      if (! e.modifiers.shift) {
+        this.props.builderDeselectAllRails()
+      }
+
       this.selectionRectFrom = e.point
       this.selectionRect = new Path.Rectangle({
           from: this.selectionRectFrom,
@@ -102,17 +108,24 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
 
     mouseUp = (e: ToolEvent) => {
       if (this.selectionRect) {
-        // 矩形の内側または重なる図形があれば選択状態にする
-        PAPER_SCOPE.project.activeLayer.getItems().forEach(item => {
-          if (item.data.partType === 'RailPart') {
-            if (item.isInside(this.selectionRect.bounds) || item.intersects(this.selectionRect)) {
-              LOGGER.info(item.data.railId)
-              const railData = getRailDataById(this.props.layout, item.data.railId)
-              this.props.updateItem(railData, update(railData, {
-                  selected: { $set: true }
-                }
-              ), false)
-            }
+        // 選択対象は現在のレイヤーのレールとする
+        PAPER_SCOPE.project.activeLayer.getItems().forEach((item: any) => {
+          if (!(item instanceof Group && item.data && item.data.type === 'RailPart')) {
+            return
+          }
+
+          // 矩形がRailPartを構成するPathを含むか、交わっているか確認する
+          let result = item.children['main'].children.map(path => {
+            let isIntersected = this.selectionRect.intersects(path)
+            let isContained = this.selectionRect.contains((path as any).localToOther(this.selectionRect, path.position))
+            return isIntersected || isContained
+          }).every((e) => e)
+
+          // 上記の条件を満たしていれば選択状態にする
+          if (result) {
+            LOGGER.info(item.data.railId)
+            const railData = getRailDataById(this.props.layout, item.data.railId)
+            this.props.builderSelectRail(railData)
           }
         })
         this.selectionRect.remove()

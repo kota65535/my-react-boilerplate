@@ -233,11 +233,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
           position={jointPositions[i]}
           angle={jointAngles[i]}
           opacity={opacity}
-          name={'Rail'}
           data={{
+            type: 'Joint',
+            partId: i,
             railId: id,
-            partType: 'Joint',
-            partId: i
           }}
           detectionEnabled={enableJoints}
           hasOpposingJoint={opposingJoints[i] != null}
@@ -258,10 +257,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     const jointPositions = _.range(this.joints.length).map(i => _.clone(this.railPart.getGlobalJointPosition(i)))
     const jointAngles = _.range(this.joints.length).map(i => _.clone(this.railPart.getGlobalJointAngle(i)))
 
-    _.range(this.joints.length).forEach(i => {
-      LOGGER.debug(`[Rail][${this.props.name}] Joint${i} position: ${this.state.jointPositions[i]} -> ${jointPositions[i]}`)
-      LOGGER.debug(`[Rail][${this.props.name}] Joint${i} angle: ${this.state.jointAngles[i]} -> ${jointAngles[i]}`)
-    })
+    // _.range(this.joints.length).forEach(i => {
+    //   LOGGER.debug(`[Rail][${this.props.name}] Joint${i} position: ${this.state.jointPositions[i]} -> ${jointPositions[i]}`)
+    //   LOGGER.debug(`[Rail][${this.props.name}] Joint${i} angle: ${this.state.jointAngles[i]} -> ${jointAngles[i]}`)
+    // })
 
     // レールパーツから取得したジョイントの位置・角度が現在のものと異なれば再描画
     if (_.range(this.joints.length).every(i =>

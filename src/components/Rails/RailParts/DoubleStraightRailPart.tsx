@@ -80,12 +80,18 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
           width={length}
           height={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
         <RectPart
           position={new Point(0, RailPartBase.RAIL_SPACE)}
           width={length}
           height={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
       </PartGroup>
     )

@@ -79,7 +79,6 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
       <PartGroup
         pivotPartIndex={pivotPartIndex}
         pivot={Pivot.LEFT}
-        name={'Part'}
       >
         <ArcPart
           pivot={Pivot.LEFT}
@@ -87,6 +86,9 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
           radius={radius}
           centerAngle={centerAngle}
           width={RAIL_PART_WIDTH}
+          data={{
+            type: 'Part'
+          }}
         />
       </PartGroup>
     )

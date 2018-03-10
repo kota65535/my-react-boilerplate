@@ -162,7 +162,8 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     let clonedMainPart = React.cloneElement(mainPart as any, {
       ...mainPart.props,
       visible: true,
-      fillColor: fillColors[this.state.detectionState]
+      fillColor: fillColors[this.state.detectionState],
+      name: 'main'
     })
 
     // 検出パーツの色を変更
@@ -172,7 +173,8 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
       clonedDetectionPart = React.cloneElement(detectionPart as any, {
         ...detectionPart.props,
         visible: detectionEnabled ? this.state.detectionState : false,
-        fillColor: fillColors[this.state.detectionState]
+        fillColor: fillColors[this.state.detectionState],
+        name: 'detect'
       })
     }
 

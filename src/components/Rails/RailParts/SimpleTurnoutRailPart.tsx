@@ -80,6 +80,9 @@ export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRai
           width={length}
           height={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
         <ArcPart
           direction={direction}
@@ -87,6 +90,9 @@ export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRai
           centerAngle={centerAngle}
           width={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
       </PartGroup>
     )

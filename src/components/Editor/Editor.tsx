@@ -102,8 +102,8 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     })
   }
 
-  isActive = (tool: string) => {
-    return this.props.activeTool === tool
+  isActive = (... tools: string[]) => {
+    return tools.includes(this.props.activeTool)
   }
 
 
@@ -146,7 +146,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
 
     // LOGGER.debug(this.props.mousePosition)
-    LOGGER.debug(`from=${this.props.selectionRectFrom}, to=${this.props.selectionRectTo}`)
+    // LOGGER.debug(`from=${this.props.selectionRectFrom}, to=${this.props.selectionRectTo}`)
 
     return (
 
@@ -186,7 +186,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             {/*/>*/}
 
             <Tool
-              active={this.isActive(Tools.STRAIGHT_RAILS || Tools.CURVE_RAILS || Tools.TURNOUTS)}
+              active={this.isActive(Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS)}
               name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.builderMouseDown}
               onMouseMove={(e) => {
@@ -228,12 +228,12 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
 export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps, EditorProps>(
   withHistory,
+  withBuilder,
   withFullscreen,
   withTools,
   withMoveTool,
   // withStraightRail,
   // withCurveRail
-  withBuilder,
   withDeleteTool,
   withSelectTool
 )(Editor))

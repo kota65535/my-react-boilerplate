@@ -59,11 +59,10 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
-          name={'Rail'}
           data={{
+            type: 'RailPart',
+            partId: 0,
             railId: id,
-            partType: 'RailPart',
-            partId: 0
           }}
           onLeftClick={this.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}

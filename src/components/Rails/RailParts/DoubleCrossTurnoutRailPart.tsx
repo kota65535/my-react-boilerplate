@@ -93,12 +93,18 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
           width={length}
           height={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
         <RectPart
           position={new Point(0, RailPartBase.RAIL_SPACE)}
           width={length}
           height={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
         <ArcPart
           direction={ArcDirection.RIGHT}
@@ -106,6 +112,9 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
           centerAngle={15}
           width={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
         <ArcPart
           position={new Point(length, 0)}
@@ -115,6 +124,9 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
           centerAngle={15}
           width={RAIL_PART_WIDTH}
           pivot={Pivot.RIGHT}
+          data={{
+            type: 'Part'
+          }}
         />
         <ArcPart
           position={new Point(0, RailPartBase.RAIL_SPACE)}
@@ -123,6 +135,9 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
           centerAngle={15}
           width={RAIL_PART_WIDTH}
           pivot={Pivot.LEFT}
+          data={{
+            type: 'Part'
+          }}
         />
         <ArcPart
           position={new Point(length, RailPartBase.RAIL_SPACE)}
@@ -132,6 +147,9 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
           centerAngle={15}
           width={RAIL_PART_WIDTH}
           pivot={Pivot.RIGHT}
+          data={{
+            type: 'Part'
+          }}
         />
       </PartGroup>
     )

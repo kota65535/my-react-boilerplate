@@ -15,6 +15,7 @@ import getLogger from "logging";
 import * as update from "immutability-helper";
 import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 import {RailComponentClasses} from "components/Rails";
+import {getAllRails, getRailDataById} from "components/hoc/common";
 
 const LOGGER = getLogger(__filename)
 
@@ -23,10 +24,16 @@ export interface WithBuilderPublicProps {
   builderMouseDown: any
   builderMouseMove: any
   builderKeyDown: any
+  builderConnectJoint: (fromRail: ItemData, fromJoint: number, toRail: ItemData, toJoint: number) => void
+  builderDisconnectJoint: (railData: ItemData) => void
+  builderSelectRail: (railData: ItemData) => void
+  builderDeselectRail: (railData: ItemData) => void
+  builderDeselectAllRails: () => void
 }
 
+
 interface WithBuilderPrivateProps {
-  layout: LayoutStoreState
+  layout: LayoutData
   selectedItem: PaletteItem
   activeLayerId: number
   isLayoutEmpty: boolean
@@ -79,7 +86,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.mouseRightDown = this.mouseRightDown.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
       this.keyDown = this.keyDown.bind(this)
-    }
+      this.connectJoint = this.connectJoint.bind(this)
+      this.disconnectJoint = this.disconnectJoint.bind(this)
+      this.selectRail = this.selectRail.bind(this)
+      this.deselectRail = this.deselectRail.bind(this)
+
+      }
 
 
     //==================== MouseMove Handlers ====================
@@ -270,7 +282,11 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
-    disconnectJoint(railData: ItemData) {
+    /**
+     * 指定のレールのジョイント接続を解除する。
+     * @param {ItemData} railData
+     */
+    disconnectJoint = (railData: ItemData) => {
       railData.opposingJoints.forEach(joint => {
         if (joint) {
           const railData = getRailDataById(this.props.layout, joint.railId)
@@ -285,6 +301,73 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
     }
 
+    /**
+     * ２つのレール同士のジョイントを接続する。
+     * @param {ItemData} fromRail
+     * @param {number} fromJoint
+     * @param {ItemData} toRail
+     * @param {number} toJoint
+     */
+    connectJoint = (fromRail: ItemData, fromJoint: number, toRail: ItemData, toJoint: number) => {
+      this.props.updateItem(fromRail, update(fromRail, {
+          opposingJoints: {
+            [fromJoint]: {$set: {
+                railId: toRail.id,
+                jointId: toJoint
+              }
+            }
+          }
+        }
+      ), false)
+      this.props.updateItem(toRail, update(toRail, {
+          opposingJoints: {
+            [toJoint]: {$set: {
+                railId: fromRail.id,
+                jointId: fromJoint
+              }
+            }
+          }
+        }
+      ), false)
+    }
+
+    /**
+     * レールを選択する。
+     * @param {ItemData} railData
+     */
+    selectRail = (railData: ItemData) => {
+      LOGGER.info(`selectRail: ${railData.id}`) //`
+      this.props.updateItem(railData, update(railData, {
+          selected: { $set: true }
+        }
+      ), false)
+    }
+
+    /**
+     * レールの選択を解除する。
+     * @param {ItemData} railData
+     */
+    deselectRail = (railData: ItemData) => {
+      LOGGER.info(`deselectRail: ${railData.id}`) //`
+      this.props.updateItem(railData, update(railData, {
+          selected: { $set: false }
+        }
+      ), false)
+    }
+
+    /**
+     * レールの選択を解除する。
+     * @param {ItemData} railData
+     */
+    deselectAllRails = () => {
+      LOGGER.info(`deselectAllRails`) //`
+      getAllRails(this.props.layout).forEach(railData => {
+        this.props.updateItem(railData, update(railData, {
+            selected: { $set: false }
+          }
+        ), false)
+      })
+    }
 
     render() {
       return (
@@ -293,6 +376,11 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           builderMouseDown={this.mouseDown}
           builderMouseMove={this.mouseMove}
           builderKeyDown={this.keyDown}
+          builderConnectJoint={this.connectJoint}
+          builderDisconnectJoint={this.disconnectJoint}
+          builderSelectRail={this.selectRail}
+          builderDeselectRail={this.deselectRail}
+          builderDeselectAllRails={this.deselectAllRails}
         />
       )
     }
@@ -324,19 +412,6 @@ export const hitTestAll = (point: Point): HitResult[] => {
   return hitResults;
 }
 
-
-
-/**
- * 指定のRailIDを持つレールをレイアウトから探して返す。
- * @param {LayoutData} layout
- * @param {number} id
- * @returns {ItemData | undefined}
- */
-export const getRailDataById = (layout: LayoutData, id: number) => {
-  let found = _.flatMap(layout.layers, layer => layer.children)
-    .find(item => item.id === id)
-  return found
-}
 
 
 /**

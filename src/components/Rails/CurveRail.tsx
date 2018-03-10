@@ -64,10 +64,9 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
-          name={'Rail'}
           data={{
             railId: id,
-            partType: 'RailPart',
+            type: 'RailPart',
             partId: 0
           }}
           onLeftClick={this.onRailPartLeftClick}
@@ -80,6 +79,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<CurveRailProps, CurveRailProps>(
+export default compose<CurveRailProps, CurveRailProps>(
+  connect(mapStateToProps, mapDispatchToProps),
   withHistory
-)(CurveRail))
+)(CurveRail)

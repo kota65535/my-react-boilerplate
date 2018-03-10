@@ -60,11 +60,10 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
-          name={`Rail-${id}`}
           data={{
+            type: 'RailPart',
+            partId: 0,
             railId: id,
-            partType: 'RailPart',
-            partId: 0
           }}
           onLeftClick={this.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}

@@ -41,9 +41,9 @@
   version "8.5.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.2.tgz#83b8103fa9a2c2e83d78f701a9aa7c9539739aa5"
 
-"@types/paper@^0.9.11":
-  version "0.9.11"
-  resolved "https://registry.yarnpkg.com/@types/paper/-/paper-0.9.11.tgz#7f3ddbfd5f3979e031e3bf1886de62d9af3e0d01"
+"@types/paper@^0.9.15":
+  version "0.9.15"
+  resolved "https://registry.yarnpkg.com/@types/paper/-/paper-0.9.15.tgz#1a3c863b2895a196527000e0f89fa14f805ed4be"
 
 "@types/react-dom@^16.0.3":
   version "16.0.3"

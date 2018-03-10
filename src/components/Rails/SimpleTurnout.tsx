@@ -67,10 +67,9 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
-          name={'Rail'}
           data={{
             railId: id,
-            partType: 'RailPart',
+            type: 'RailPart',
             partId: 0
           }}
           onLeftClick={this.onRailPartLeftClick}

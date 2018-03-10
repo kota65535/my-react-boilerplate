@@ -15,6 +15,7 @@ import {
 import * as _ from "lodash";
 import SimpleTurnoutRailPart from "components/Rails/RailParts/SimpleTurnoutRailPart";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
+import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 
 export interface SimpleTurnoutProps extends RailBaseProps {
@@ -24,7 +25,7 @@ export interface SimpleTurnoutProps extends RailBaseProps {
   branchDirection: ArcDirection
 }
 
-export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps
+export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps & WithBuilderPublicProps
 
 
 export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBaseState> {
@@ -83,5 +84,6 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(compose<SimpleTurnoutProps, SimpleTurnoutProps>(
-  withHistory
+  withHistory,
+  // withBuilder
 )(SimpleTurnout))

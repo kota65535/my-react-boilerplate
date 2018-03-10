@@ -12,6 +12,7 @@ import {
 } from "components/Rails/RailBase";
 import DoubleCrossTurnoutPart from "components/Rails/RailParts/DoubleCrossTurnoutRailPart";
 import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
+import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 
 export interface DoubleCrossTurnoutProps extends RailBaseProps {
@@ -19,7 +20,7 @@ export interface DoubleCrossTurnoutProps extends RailBaseProps {
 }
 
 
-export type DoubleCrossTurnoutComposedProps = DoubleCrossTurnoutProps & WithHistoryProps
+export type DoubleCrossTurnoutComposedProps = DoubleCrossTurnoutProps & WithHistoryProps & WithBuilderPublicProps
 
 
 export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps, RailBaseState> {
@@ -74,5 +75,6 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(compose<DoubleCrossTurnoutProps, DoubleCrossTurnoutProps>(
-  withHistory
+  withHistory,
+  // withBuilder
 )(DoubleCrossTurnout))

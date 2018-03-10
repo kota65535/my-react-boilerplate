@@ -27,7 +27,7 @@ export interface LayerData {
 
 export interface BaseItemData {
   id: number
-  name: string
+  name?: string
   type: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   layerId: number    // このアイテムが所属するレイヤー
   selected: boolean

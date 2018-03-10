@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {WithHistoryProps} from "./withHistory";
+import {WithHistoryProps, WithHistoryPublicProps} from "./withHistory";
 import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
@@ -46,14 +46,14 @@ interface WithBuilderPrivateProps {
   temporaryItem: ItemData
 }
 
-export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps & WithHistoryProps
+export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps & WithHistoryPublicProps
 
 
 /**
  * レールの設置に関連する機能を提供するHOC。
  * 依存: WithHistory
  */
-export default function withBuilder(WrappedComponent: React.ComponentClass<WithBuilderPublicProps & WithHistoryProps>) {
+export default function withBuilder(WrappedComponent: React.ComponentClass<WithBuilderPublicProps & WithHistoryPublicProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
@@ -76,7 +76,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
   }
 
-  class WithBuilderComponent extends React.Component<WithBuilderProps, {}> {
+  class WithBuilder extends React.Component<WithBuilderProps, {}> {
 
     constructor (props: WithBuilderProps) {
       super(props)
@@ -387,7 +387,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
   }
 
 
-  return connect(mapStateToProps, mapDispatchToProps)(WithBuilderComponent)
+  return connect(mapStateToProps, mapDispatchToProps)(WithBuilder)
 }
 
 

@@ -10,8 +10,10 @@ import {
   RailBaseProps,
   RailBaseState
 } from "components/Rails/RailBase";
-import withHistory, {WithHistoryProps, WithHistoryPublicProps} from "components/hoc/withHistory";
 import {compose} from "recompose";
+import withHistory, {WithHistoryProps, WithHistoryPublicProps} from "components/hoc/withHistory";
+import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
+import withFullscreen from "components/hoc/withFullscreen";
 
 
 export interface StraightRailProps extends RailBaseProps {
@@ -19,7 +21,7 @@ export interface StraightRailProps extends RailBaseProps {
 }
 
 
-export type StraightRailComposedProps = StraightRailProps & WithHistoryProps
+export type StraightRailComposedProps = StraightRailProps & WithHistoryProps & WithBuilderPublicProps
 
 
 export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseState> {
@@ -76,9 +78,7 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
 
 export default compose<StraightRailProps, StraightRailProps>(
   connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
-  withHistory
+  withHistory,
+  withFullscreen
 )(StraightRail)
 
-// export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(compose<StraightRailProps, StraightRailProps>(
-//   withHistory
-// )(StraightRail))

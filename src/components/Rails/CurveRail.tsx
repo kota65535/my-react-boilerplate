@@ -13,6 +13,7 @@ import {
 } from "./RailBase";
 import {compose} from "recompose";
 import withHistory, {WithHistoryProps} from "components/hoc/withHistory";
+import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 
 export interface CurveRailProps extends RailBaseProps {
@@ -20,7 +21,7 @@ export interface CurveRailProps extends RailBaseProps {
   centerAngle: number
 }
 
-export type CurveRailComposedProps = CurveRailProps & WithHistoryProps
+export type CurveRailComposedProps = CurveRailProps & WithHistoryProps & WithBuilderPublicProps
 
 
 export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
@@ -81,5 +82,6 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
 
 export default compose<CurveRailProps, CurveRailProps>(
   connect(mapStateToProps, mapDispatchToProps),
-  withHistory
+  withHistory,
+  // withBuilder
 )(CurveRail)

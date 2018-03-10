@@ -14,6 +14,7 @@ import {PaletteItem, RootState} from "store/type";
 import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
+import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 const LOGGER = getLogger(__filename)
 
@@ -33,7 +34,7 @@ export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
 }
 
 export interface RailBaseDefaultProps {
-  type?: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
+  type: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
   selected?: boolean
   pivotJointIndex?: number
   opacity?: number
@@ -46,7 +47,7 @@ export interface RailBaseState {
   jointAngles: number[]
 }
 
-type RailBaseComposedProps = RailBaseProps & WithHistoryProps
+type RailBaseComposedProps = RailBaseProps & WithHistoryProps & WithBuilderPublicProps
 
 export const mapStateToProps = (state: RootState) => {
   return {
@@ -154,16 +155,8 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     } as ItemData)
 
     // 仮レールに接続しているジョイントを接続状態にする
-    this.props.updateItem(this.props as any, update(this.props, {
-        opposingJoints: {
-          [jointId]: {$set: {
-              railId: newId,
-              jointId: this.temporaryPivotJointIndex
-            }
-          }
-        }
-      }
-    ), false)
+    this.props.builderConnectJoint(this.props as any, jointId, this.props.temporaryItem, this.temporaryPivotJointIndex)
+
     // 仮レールを消去する
     this.props.setTemporaryItem(null)
   }
@@ -275,3 +268,4 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     }
   }
 }
+

@@ -79,6 +79,6 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
 export default compose<StraightRailProps, StraightRailProps>(
   connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
   withHistory,
-  withFullscreen
+  withBuilder
 )(StraightRail)
 

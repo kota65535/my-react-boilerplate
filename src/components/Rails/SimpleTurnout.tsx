@@ -83,7 +83,8 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<SimpleTurnoutProps, SimpleTurnoutProps>(
+export default compose<SimpleTurnoutProps, SimpleTurnoutProps>(
+  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
   withHistory,
-  // withBuilder
-)(SimpleTurnout))
+  withBuilder
+)(SimpleTurnout)

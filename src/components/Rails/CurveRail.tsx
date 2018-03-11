@@ -81,7 +81,7 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
 
 
 export default compose<CurveRailProps, CurveRailProps>(
-  connect(mapStateToProps, mapDispatchToProps),
+  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
   withHistory,
-  // withBuilder
+  withBuilder
 )(CurveRail)

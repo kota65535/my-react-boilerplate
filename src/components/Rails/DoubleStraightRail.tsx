@@ -75,7 +75,8 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<DoubleStraightRailProps, DoubleStraightRailProps>(
+export default compose<DoubleStraightRailProps, DoubleStraightRailProps>(
+  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
   withHistory,
-  // withBuilder
-)(DoubleStraightRail))
+  withBuilder
+)(DoubleStraightRail)

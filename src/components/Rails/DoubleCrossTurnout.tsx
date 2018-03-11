@@ -74,7 +74,8 @@ export class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutComposedProps
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<DoubleCrossTurnoutProps, DoubleCrossTurnoutProps>(
+export default compose<DoubleCrossTurnoutProps, DoubleCrossTurnoutProps>(
+  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
   withHistory,
-  // withBuilder
-)(DoubleCrossTurnout))
+  withBuilder
+)(DoubleCrossTurnout)

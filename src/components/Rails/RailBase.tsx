@@ -145,7 +145,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     }
 
     // 仮レールの位置にレールを設置
-    const newId = this.props.addItem(this.props.activeLayerId, {
+    const newRail = this.props.addItem(this.props.activeLayerId, {
       ...itemProps,
       position: (this.props.temporaryItem as any).position,
       angle: (this.props.temporaryItem as any).angle,
@@ -155,7 +155,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     } as ItemData)
 
     // 仮レールに接続しているジョイントを接続状態にする
-    this.props.builderConnectJoint(this.props as any, jointId, this.props.temporaryItem, this.temporaryPivotJointIndex)
+    this.props.builderConnectJoint(this.props as any, jointId, newRail, this.temporaryPivotJointIndex)
 
     // 仮レールを消去する
     this.props.setTemporaryItem(null)

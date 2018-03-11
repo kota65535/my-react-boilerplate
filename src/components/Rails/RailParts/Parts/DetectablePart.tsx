@@ -37,6 +37,10 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     // 検出中状態を他のPathに邪魔されないよう、前面に出し続ける
     if (this.isDetecting()) {
       this._partGroup.group.bringToFront()
+      // TODO: 位置はここでいいか？
+      if (this.props.onMouseMove) {
+        this.props.onMouseMove(e)
+      }
     }
   }
   onMouseEnter = (e: MouseEvent) => {

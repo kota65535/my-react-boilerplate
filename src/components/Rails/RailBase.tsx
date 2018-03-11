@@ -15,6 +15,8 @@ import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {WithBuilderPublicProps} from "components/hoc/withBuilder";
+import Combinatorics from "js-combinatorics"
+import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 
 const LOGGER = getLogger(__filename)
 
@@ -78,12 +80,14 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
   railPart: RailPartBase<any, any>
   joints: Joint[]
   temporaryPivotJointIndex: number
+  reasonablyCloseJoints: Joint[]
 
 
   constructor(props: P) {
     super(props)
     this.joints = new Array(this.NUM_JOINTS).fill(null)
     this.temporaryPivotJointIndex = 0
+    this.reasonablyCloseJoints = null
 
     this.onRailPartLeftClick = this.onRailPartLeftClick.bind(this)
   }
@@ -122,6 +126,11 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
         pivotJointIndex: {$set: this.temporaryPivotJointIndex}
       }
     ))
+
+    // 新たに仮レールの近傍ジョイントを探索して検出状態にする
+    const temporaryRail = window.RAIL_COMPONENTS["-1"]
+    this.undetectCloseJoints()
+    this.detectCloseJoints(temporaryRail)
   }
 
   // TODO: これでOK?
@@ -164,11 +173,66 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
 
   /**
    * ジョイント上でマウスが動いた場合
-   * 今は何もしない
+   * 仮レールのジョイントが他のジョイントに十分近い場合、そのジョイントの検出状態を変更する
    * @param {number} jointId
    * @param {MouseEvent} e
    */
   onJointMouseMove = (jointId: number, e: MouseEvent) => {
+    // 仮レールのマウントがまだ完了していなかったら何もしない
+    const temporaryRail = window.RAIL_COMPONENTS["-1"]
+    if (! temporaryRail) {
+      return // noop
+    }
+    // すでに一度処理していたら何もしない
+    if (this.reasonablyCloseJoints != null) {
+      return // noop
+    }
+    // 仮レールの近傍にあるジョイントを検出中状態に変更する
+    this.detectCloseJoints(temporaryRail)
+  }
+
+  /**
+   * 指定のレールの近傍にあるジョイントを検出中状態に変更する
+   * @param {RailBase<any, any>} rail
+   */
+  detectCloseJoints(rail: RailBase<any, any>) {
+    let ret = []
+    // 自分以外の全てのレールに対して実行する
+    Object.keys(window.RAIL_COMPONENTS)
+      .filter(id => id !== rail.props.id.toString())  // IDが文字列での比較になることに注意
+      .map(k => window.RAIL_COMPONENTS[k])
+      .forEach(rc => {
+        // 仮レールと対象レールのジョイントの組み合わせ
+        const combinations = Combinatorics.cartesianProduct(rc.joints, rail.joints).toArray()
+        combinations.forEach(cmb => {
+          // ジョイントが十分近ければリストに加える
+          const isClose = pointsEqual(cmb[0].position, cmb[1].position, 0.1)
+          if (isClose) {
+            ret.push(cmb[0])
+          }
+        })
+      })
+
+    // 検出中状態にする
+    ret.forEach(joint => joint.part.setState({
+      detectionState: DetectionState.DETECTING,
+      detectionPartVisible: true
+    }))
+    this.reasonablyCloseJoints = ret
+  }
+
+  /**
+   * 全ての近傍ジョイントを非検出状態に戻す
+   * @param {RailBase<any, any>} rail
+   */
+  undetectCloseJoints() {
+    if (this.reasonablyCloseJoints != null) {
+      this.reasonablyCloseJoints.forEach(joint => joint.part.setState({
+        detectionState: DetectionState.BEFORE_DETECT,
+        detectionPartVisible: true
+      }))
+      this.reasonablyCloseJoints = null
+    }
   }
 
 
@@ -195,18 +259,16 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       enableJoints: false
     })
 
-    _.flatMap(window.RAIL_COMPONENTS, rc => rc.joints).forEach(joint => {
-
-    })
   }
 
   /**
-   * ジョイントからマウスが離れたら、仮レールを消す
+   * ジョイントからマウスが離れたら、仮レールを消し、近傍ジョイントの検出状態を戻す
    * @param {number} jointId
    * @param {MouseEvent} e
    */
   onJointMouseLeave = (jointId: number, e: MouseEvent) => {
     this.props.setTemporaryItem(null)
+    this.undetectCloseJoints()
   }
 
   componentDidUpdate() {

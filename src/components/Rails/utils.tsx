@@ -44,7 +44,7 @@ export const createRailComponent = (item: ItemData, addItem: any, updateItem: an
  */
 export const pointsEqual = (p1, p2, tolerance = 0.0000001) => {
   if (p1 && p2) {
-    return (p1.x - p2.x < tolerance && p1.y - p2.y < tolerance)
+    return (Math.abs(p1.x - p2.x) < tolerance && Math.abs(p1.y - p2.y) < tolerance)
   } else if (!p1 && !p2) {
     return true
   } else {
@@ -52,3 +52,7 @@ export const pointsEqual = (p1, p2, tolerance = 0.0000001) => {
   }
 }
 
+// 上記メソッド、これで良かった説
+// export const pointsReasonablyClose = (p1, p2, tolerance) => {
+//   return p1.isClose(p2, 0.001)
+// }

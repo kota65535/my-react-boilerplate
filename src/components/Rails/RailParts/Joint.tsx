@@ -54,7 +54,7 @@ export default class Joint extends React.Component<JointProps, {}> {
   static ANIMATION_MAX = 30
   static ANIMATION_MIN = 60
 
-  detectablePart: DetectablePart
+  part: DetectablePart
 
   constructor(props: JointProps) {
     super(props)
@@ -63,11 +63,11 @@ export default class Joint extends React.Component<JointProps, {}> {
   // ========== Public APIs ==========
 
   get position() {
-    return this.detectablePart.position
+    return this.part.position
   }
 
   get angle() {
-    return this.detectablePart.angle
+    return this.part.angle
   }
 
 
@@ -106,7 +106,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onMouseMove={onMouseMove}
-        ref={(part) => this.detectablePart = part}
+        ref={(part) => this.part = part}
       />
     )
   }

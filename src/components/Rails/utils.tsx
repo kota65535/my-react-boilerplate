@@ -28,7 +28,10 @@ export const createRailComponent = (item: ItemData, addItem: any, updateItem: an
       // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
       addItem={addItem}
       updateItem={updateItem}
-      ref={(c) => RAIL_COMPONENTS[id] = c}
+      // HOCでラップされた中身のRailComponentを取得する
+      refInstance={(i) => {
+        window.RAIL_COMPONENTS[id] = i
+      }}
     />)
 }
 

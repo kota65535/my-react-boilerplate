@@ -20,6 +20,7 @@
     "immutability-helper": "^2.6.2",
     "immutable": "^3.8.2",
     "jest": "^22.1.4",
+    "js-combinatorics": "^0.5.3",
     "lodash": "^4.17.4",
     "lodash.pick": "^4.4.0",
     "logdown": "^3.2.3",

@@ -4,5 +4,8 @@ import App from './App'
 import './index.css'
 import registerServiceWorker from './registerServiceWorker'
 
+window.RAIL_COMPONENTS = {}
+window.PAPER_SCOPE = null
+
 ReactDOM.render(<App />, document.getElementById('root'))
 registerServiceWorker()

@@ -9,7 +9,6 @@ import {hitTestAll, WithBuilderPublicProps} from "components/hoc/withBuilder";
 import {WithHistoryProps, WithHistoryPublicProps} from "components/hoc/withHistory";
 import {currentLayoutData} from "selectors";
 import {LayoutData, LayoutStoreState} from "reducers/layout";
-import * as update from "immutability-helper";
 import {getRailDataById} from "components/hoc/common";
 
 const LOGGER = getLogger(__filename)
@@ -109,7 +108,7 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
     mouseUp = (e: ToolEvent) => {
       if (this.selectionRect) {
         // 選択対象は現在のレイヤーのレールとする
-        PAPER_SCOPE.project.activeLayer.getItems().forEach((item: any) => {
+        window.PAPER_SCOPE.project.activeLayer.getItems().forEach((item: any) => {
           if (!(item instanceof Group && item.data && item.data.type === 'RailPart')) {
             return
           }

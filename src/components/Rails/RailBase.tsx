@@ -7,7 +7,7 @@ import {pointsEqual} from "components/Rails/utils";
 import * as _ from "lodash";
 import RailPartBase from "components/Rails/RailParts/RailPartBase";
 import {RailComponentClasses} from "components/Rails/index";
-import * as update from "immutability-helper";
+import update from "immutability-helper";
 import RailFactory from "components/Rails/RailFactory";
 import {ItemData, JointInfo} from "reducers/layout";
 import {PaletteItem, RootState} from "store/type";
@@ -19,13 +19,14 @@ import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 const LOGGER = getLogger(__filename)
 
 
-export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
+export interface RailBaseProps extends RailBaseDefaultProps {
   position: Point
   angle: number
   id: number
   layerId: number    // このアイテムが所属するレイヤー
   name?: string
   onFixed?: (ref: any) => void
+  refInstance?: any
 
   selectedItem: PaletteItem
   temporaryItem: ItemData
@@ -35,10 +36,10 @@ export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
 
 export interface RailBaseDefaultProps {
   type: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
-  selected?: boolean
-  pivotJointIndex?: number
-  opacity?: number
-  opposingJoints?: JointInfo[]
+  selected: boolean
+  pivotJointIndex: number
+  opacity: number
+  opposingJoints: JointInfo[]
   enableJoints: boolean
 }
 
@@ -193,6 +194,10 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       pivotJointIndex: this.temporaryPivotJointIndex,
       enableJoints: false
     })
+
+    _.flatMap(window.RAIL_COMPONENTS, rc => rc.joints).forEach(joint => {
+
+    })
   }
 
   /**
@@ -210,6 +215,9 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
 
   componentDidMount() {
     this.setJointPositionsAndAngles()
+    // HOCを用いる場合、refではラップされたコンテナを取得することになってしまう
+    // そのためrefInstanceコールバックでコンポーネントインスタンスを取得する手段を与える
+    this.props.refInstance(this)
   }
 
   /**

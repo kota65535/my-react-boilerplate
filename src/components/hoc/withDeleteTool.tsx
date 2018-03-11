@@ -8,7 +8,7 @@ import {currentLayoutData} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {selectPaletteItem} from "actions/builder";
 import getLogger from "logging";
-import * as update from "immutability-helper";
+import update from "immutability-helper";
 
 const LOGGER = getLogger(__filename)
 
@@ -143,7 +143,7 @@ export const hitTestAll = (point: Point): HitResult[] => {
 
 
   };
-  let hitResults = (PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
+  let hitResults = (window.PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
   // Groupがひっかかるとうざいので取り除く
   // let hitResultsPathOnly = hitResults.filter(r => r.item.data.type === "Path");
   // return hitResultsPathOnly;

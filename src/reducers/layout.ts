@@ -5,7 +5,7 @@ import {
   LAYOUT_SET_LAYERS, LAYOUT_SET_LAYERS_NO_HISTORY,
   LAYOUT_UPDATE_ITEM
 } from "constants/actions";
-import * as update from 'immutability-helper';
+import update from 'immutability-helper';
 import {CurveRailProps} from "components/Rails/CurveRail";
 
 export interface LayoutStoreState {

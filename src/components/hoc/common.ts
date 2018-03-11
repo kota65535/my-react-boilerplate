@@ -1,6 +1,5 @@
 import {ItemData, LayoutData} from "reducers/layout";
 import * as _ from "lodash";
-import * as update from "immutability-helper";
 
 /**
  * 指定のRailIDを持つレールをレイアウトから探して返す。

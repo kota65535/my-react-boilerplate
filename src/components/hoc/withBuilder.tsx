@@ -12,10 +12,11 @@ import {setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
-import * as update from "immutability-helper";
+import update from "immutability-helper";
 import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 import {RailComponentClasses} from "components/Rails";
 import {getAllRails, getRailDataById} from "components/hoc/common";
+import Combinatorics from "js-combinatorics"
 
 const LOGGER = getLogger(__filename)
 
@@ -128,13 +129,29 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     mouseMove_Subsequent = (e: ToolEvent|any) => {
+      // const combinations = Combinatorics.combination(_.flatMap(window.RAIL_COMPONENTS, rc => rc.joints), 2)
+      // let closePairs = []
+      // combinations.forEach(cmb => {
+      //   if (cmb[0].props.position.isClode(cmb[1].props.position, 0.1)) {
+      //     closePairs.push(cmb)
+      //   }
+      // })
+      //
+      // if (closePairs.length > 0) {
+      //
+      // }
+
     }
 
+
+    // private _isReasonablyClose(point1, point2) {
+    //   return point1.isClose(point2, 0.1)
+    // }
 
     mouseMove_Subsequent_OnJoint = (e: ToolEvent|any, railId: number, jointId: number) => {
       // 対象のレールのジョイントをDetectingにする
       // const railData = getRailDataById(this.props.layout, railId)
-      // const joint = RAIL_COMPONENTS[railId].joints[jointId]
+      // const joint = window.RAIL_COMPONENTS[railId].joints[jointId]
       // if (joint.props.detectionState === DetectionState.AFTER_DETECT) {
       //   return
       // }
@@ -386,8 +403,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
   }
 
-
-  return connect(mapStateToProps, mapDispatchToProps)(WithBuilder)
+  return connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(WithBuilder)
 }
 
 
@@ -405,7 +421,7 @@ export const hitTestAll = (point: Point): HitResult[] => {
 
 
   };
-  let hitResults = (PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
+  let hitResults = (window.PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
   // Groupがひっかかるとうざいので取り除く
   // let hitResultsPathOnly = hitResults.filter(r => r.item.data.type === "Path");
   // return hitResultsPathOnly;

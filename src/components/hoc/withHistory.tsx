@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as update from 'immutability-helper';
+import update from 'immutability-helper';
 import {ItemData, LayerData, LayoutData} from "reducers/layout";
 import {connect} from "react-redux";
 import {RootState} from "store/type";
@@ -209,5 +209,5 @@ export default function withHistory(WrappedComponent: React.ComponentClass<WithH
     }
   }
 
-  return connect(mapStateToProps, mapDispatchToProps)(WithHistory)
+  return connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(WithHistory)
 }

@@ -4,7 +4,7 @@ import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {LayoutData, RailData} from "reducers/layout";
-import {currentLayoutData, isLayoutEmpty} from "selectors";
+import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {getClosest} from "constants/utils";
 import {setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
@@ -43,6 +43,7 @@ interface WithBuilderPrivateProps {
   phase: BuilderPhase
   setMarkerPosition: (position: Point) => void
   markerPosition: Point
+  nextRailId: number
   temporaryItem: RailData
   addRail: (item: RailData, overwrite?: boolean) => void
   updateRail: (item: RailData, overwrite?: boolean) => void
@@ -72,7 +73,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       mousePosition: state.builder.mousePosition,
       phase: state.builder.phase,
       temporaryItem: state.builder.temporaryItem,
-      markerPosition: state.builder.markerPosition
+      markerPosition: state.builder.markerPosition,
+      nextRailId: nextRailId(state)
     }
   }
 
@@ -256,6 +258,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // 仮レールの位置にレールを設置
       this.props.addRail({
         ...itemProps,
+        id: this.props.nextRailId,
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
         layerId: this.props.activeLayerId,
@@ -391,7 +394,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
 
       Object.keys(updatedRails).forEach(key => {
-        this.props.updateRail(updatedRails[key])
+        this.props.updateRail(updatedRails[key], true)
       })
     }
 

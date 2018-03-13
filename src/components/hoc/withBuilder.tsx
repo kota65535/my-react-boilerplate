@@ -1,10 +1,9 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {WithHistoryProps, WithHistoryPublicProps} from "./withHistory";
 import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
-import {ItemData, LayoutData, LayoutStoreState} from "reducers/layout";
+import {LayoutData, RailData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {getClosest} from "constants/utils";
@@ -13,10 +12,9 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 import {RailComponentClasses} from "components/Rails";
-import {getAllRails, getRailDataById} from "components/hoc/common";
-import Combinatorics from "js-combinatorics"
+import {getRailDataById} from "components/hoc/common";
+import {addRail, removeRail, updateRail} from "actions/layout";
 
 const LOGGER = getLogger(__filename)
 
@@ -25,10 +23,11 @@ export interface WithBuilderPublicProps {
   builderMouseDown: any
   builderMouseMove: any
   builderKeyDown: any
-  builderConnectJoint: (fromRail: ItemData, fromJoint: number, toRail: ItemData, toJoint: number) => void
-  builderDisconnectJoint: (railData: ItemData) => void
-  builderSelectRail: (railData: ItemData) => void
-  builderDeselectRail: (railData: ItemData) => void
+  builderConnectJoints: (pairs: JointPair[]) => void
+  builderDisconnectJoint: (railData: RailData) => void
+  builderSelectRail: (railData: RailData) => void
+  builderDeselectRail: (railData: RailData) => void
+  builderToggleRail:  (railData: RailData) => void
   builderDeselectAllRails: () => void
 }
 
@@ -39,22 +38,30 @@ interface WithBuilderPrivateProps {
   activeLayerId: number
   isLayoutEmpty: boolean
   mousePosition: Point
-  setTemporaryItem: (item: ItemData) => void
+  setTemporaryItem: (item: RailData) => void
   setPhase: (phase: BuilderPhase) => void
   phase: BuilderPhase
   setMarkerPosition: (position: Point) => void
   markerPosition: Point
-  temporaryItem: ItemData
+  temporaryItem: RailData
+  addRail: (item: RailData, overwrite?: boolean) => void
+  updateRail: (item: RailData, overwrite?: boolean) => void
+  removeRail: (item: RailData, overwrite?: boolean) => void
 }
 
-export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps & WithHistoryPublicProps
+export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
 
+
+export interface JointPair {
+  from: { rail: RailData, jointId: number }
+  to: { rail: RailData, jointId: number }
+}
 
 /**
  * レールの設置に関連する機能を提供するHOC。
  * 依存: WithHistory
  */
-export default function withBuilder(WrappedComponent: React.ComponentClass<WithBuilderPublicProps & WithHistoryPublicProps>) {
+export default function withBuilder(WrappedComponent: React.ComponentClass<WithBuilderPublicProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
@@ -71,15 +78,18 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
   const mapDispatchToProps = (dispatch: any) => {
     return {
-      setTemporaryItem: (item: ItemData) => dispatch(setTemporaryItem(item)),
+      setTemporaryItem: (item: RailData) => dispatch(setTemporaryItem(item)),
       setPhase: (phase: BuilderPhase) => dispatch(setPhase(phase)),
-      setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position))
+      setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position)),
+      addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
+      updateRail: (item: RailData, overwrite = false) => dispatch(updateRail({item, overwrite})),
+      removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
     }
   }
 
   class WithBuilder extends React.Component<WithBuilderProps, {}> {
 
-    constructor (props: WithBuilderProps) {
+    constructor(props: WithBuilderProps) {
       super(props)
 
       this.mouseDown = this.mouseDown.bind(this)
@@ -87,17 +97,39 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.mouseRightDown = this.mouseRightDown.bind(this)
       this.mouseMove = this.mouseMove.bind(this)
       this.keyDown = this.keyDown.bind(this)
-      this.connectJoint = this.connectJoint.bind(this)
+      this.connectJoints = this.connectJoints.bind(this)
       this.disconnectJoint = this.disconnectJoint.bind(this)
       this.selectRail = this.selectRail.bind(this)
       this.deselectRail = this.deselectRail.bind(this)
+      this.toggleRail = this.toggleRail.bind(this)
+    }
 
-      }
-
+    // /**
+    //  * 追加されるキー操作。
+    //  * @param {KeyboardEvent} e
+    //  */
+    // keyDown = (e: KeyboardEvent) => {
+    //   switch (e.key) {
+    //     case 'ArrowLeft':
+    //       this.undo()
+    //       break;
+    //     case 'ArrowRight':
+    //       this.redo()
+    //       break;
+    //   }
+    // }
+    //
+    // componentDidMount() {
+    //   document.addEventListener('keydown', this.keyDown)
+    // }
+    //
+    // componentWillUnmount() {
+    //   document.removeEventListener('keydown', this.keyDown)
+    // }
 
     //==================== MouseMove Handlers ====================
 
-    mouseMove = (e: ToolEvent|any) => {
+    mouseMove = (e: ToolEvent | any) => {
       const methodName = `mouseMove_${this.props.phase}` //`
       if (typeof this[methodName] === 'function') {
         // LOGGER.debug(`EventHandler: ${methodName}`)
@@ -107,12 +139,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
-    mouseMove_FirstPosition = (e: ToolEvent|any) => {
+    mouseMove_FirstPosition = (e: ToolEvent | any) => {
       // noop
     }
 
 
-    mouseMove_FirstAngle = (e: ToolEvent|any) => {
+    mouseMove_FirstAngle = (e: ToolEvent | any) => {
       // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
       const itemProps = RailFactory[this.props.selectedItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
@@ -128,7 +160,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
     }
 
-    mouseMove_Subsequent = (e: ToolEvent|any) => {
+    mouseMove_Subsequent = (e: ToolEvent | any) => {
       // const combinations = Combinatorics.combination(_.flatMap(window.RAIL_COMPONENTS, rc => rc.joints), 2)
       // let closePairs = []
       // combinations.forEach(cmb => {
@@ -148,7 +180,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     //   return point1.isClose(point2, 0.1)
     // }
 
-    mouseMove_Subsequent_OnJoint = (e: ToolEvent|any, railId: number, jointId: number) => {
+    mouseMove_Subsequent_OnJoint = (e: ToolEvent | any, railId: number, jointId: number) => {
       // 対象のレールのジョイントをDetectingにする
       // const railData = getRailDataById(this.props.layout, railId)
       // const joint = window.RAIL_COMPONENTS[railId].joints[jointId]
@@ -187,7 +219,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     //==================== MouseDown Handlers ====================
 
-    mouseDown(e: ToolEvent|any) {
+    mouseDown(e: ToolEvent | any) {
       switch (e.event.button) {
         case 0:
           this.mouseLeftDown(e)
@@ -199,7 +231,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    mouseLeftDown(e: ToolEvent|any) {
+    mouseLeftDown(e: ToolEvent | any) {
       const methodName = `mouseLeftDown_${this.props.phase}`; // `
 
       if (typeof this[methodName] === 'function') {
@@ -211,24 +243,24 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    mouseLeftDown_FirstPosition = (e: ToolEvent|any) => {
+    mouseLeftDown_FirstPosition = (e: ToolEvent | any) => {
       // this.props.setPhase(BuilderPhase.FIRST_ANGLE)
       // クリックして即座に仮レールを表示したいので、手動で呼び出す
       // this.mouseMove_FirstAngle(e)
     }
 
 
-    mouseLeftDown_FirstAngle  = (e: ToolEvent|any) => {
+    mouseLeftDown_FirstAngle = (e: ToolEvent | any) => {
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.selectedItem.name]()
       // 仮レールの位置にレールを設置
-      this.props.addItem(this.props.activeLayerId, {
+      this.props.addRail({
         ...itemProps,
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
         layerId: this.props.activeLayerId,
         opposingJoints: new Array(RailComponentClasses[itemProps.type].NUM_JOINTS).fill(null)
-      } as ItemData)
+      } as RailData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.SUBSEQUENT)
       // マーカーはもう不要なので削除
@@ -237,7 +269,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    mouseLeftDown_Subsequent = (e: ToolEvent|any) => {
+    mouseLeftDown_Subsequent = (e: ToolEvent | any) => {
       const result = getRailPartAt(e.point)
       if (result) {
         switch (result.partType) {
@@ -252,7 +284,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    mouseLeftDown_Subsequent_OnJoint = (e: ToolEvent|any, railId: number, jointId: number) => {
+    mouseLeftDown_Subsequent_OnJoint = (e: ToolEvent | any, railId: number, jointId: number) => {
       // 対象のレールのジョイントをAfterDetectにする
       // const oldItem = getRailDataById(this.props.layout, railId)
       // this.setJointState(oldItem, jointId, DetectionState.AFTER_DETECT)
@@ -260,35 +292,34 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // // パレットで選択したレール生成のためのPropsを取得
       // const itemProps = RailFactory[this.props.selectedItem.name]()
       // // 仮レールの位置にレールを設置
-      // this.props.addItem(this.props.activeLayerId, {
+      // this.props.addRail(this.props.activeLayerId, {
       //   ...itemProps,
       //   position: (this.props.temporaryItem as any).position,
       //   angle: (this.props.temporaryItem as any).angle,
       //   detectionState: [DetectionState.AFTER_DETECT, DetectionState.BEFORE_DETECT],
       //   layerId: this.props.activeLayerId,
-      // } as ItemData)
+      // } as RailData)
       // this.detecting = null
 
     }
 
 
     removeSelectedRails() {
-      const selectedRails = _.flatMap(this.props.layout.layers, layer => layer.children)
-        .filter(item => item.selected)
+      const selectedRails = this.props.layout.rails.filter(r => r.selected)
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`); // `
 
       selectedRails.forEach(item => {
         this.disconnectJoint(item)
-        this.props.removeItem(item)
+        this.props.removeRail(item)
       })
     }
 
 
-    mouseRightDown(e: ToolEvent|any) {
+    mouseRightDown(e: ToolEvent | any) {
       // noop
     }
 
-    keyDown(e: ToolEvent|any) {
+    keyDown(e: ToolEvent | any) {
       switch (e.key) {
         case 'backspace':
           LOGGER.info('backspape pressed');
@@ -301,88 +332,111 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     /**
      * 指定のレールのジョイント接続を解除する。
-     * @param {ItemData} railData
+     * @param {RailData} railData
      */
-    disconnectJoint = (railData: ItemData) => {
+    disconnectJoint = (railData: RailData) => {
       railData.opposingJoints.forEach(joint => {
         if (joint) {
           const railData = getRailDataById(this.props.layout, joint.railId)
           if (railData) {
-            this.props.updateItem(railData, update(railData, {
+            this.props.updateRail(update(railData, {
               opposingJoints: {
                 [joint.jointId]: {$set: null}
               }
-            }), false)
+            }), true)
           }
         }
       })
     }
 
     /**
-     * ２つのレール同士のジョイントを接続する。
-     * @param {ItemData} fromRail
-     * @param {number} fromJoint
-     * @param {ItemData} toRail
-     * @param {number} toJoint
+     * レール同士のジョイントを接続する。
+     * 複数指定可能。特に同一レールの複数ジョイントを接続する場合は一度の呼び出しで実行すること
      */
-    connectJoint = (fromRail: ItemData, fromJoint: number, toRail: ItemData, toJoint: number) => {
-      this.props.updateItem(fromRail, update(fromRail, {
+    connectJoints = (pairs: JointPair[]) => {
+      let updatedRails = {}
+      pairs.forEach(({from, to}) => {
+        let target
+        if (from.rail.id in updatedRails) {
+          target = updatedRails[from.rail.id]
+        } else {
+          target = from.rail
+        }
+        updatedRails[from.rail.id] = update(target, {
           opposingJoints: {
-            [fromJoint]: {$set: {
-                railId: toRail.id,
-                jointId: toJoint
+            [from.jointId]: {
+              $set: {
+                railId: to.rail.id,
+                jointId: to.jointId
               }
             }
           }
+        })
+
+        if (to.rail.id in updatedRails) {
+          target = updatedRails[to.rail.id]
+        } else {
+          target = to.rail
         }
-      ), false)
-      this.props.updateItem(toRail, update(toRail, {
+        updatedRails[to.rail.id] = update(target, {
           opposingJoints: {
-            [toJoint]: {$set: {
-                railId: fromRail.id,
-                jointId: fromJoint
+            [to.jointId]: {
+              $set: {
+                railId: from.rail.id,
+                jointId: from.jointId
               }
             }
           }
-        }
-      ), false)
+        })
+      })
+
+      Object.keys(updatedRails).forEach(key => {
+        this.props.updateRail(updatedRails[key])
+      })
     }
 
     /**
      * レールを選択する。
-     * @param {ItemData} railData
+     * @param {RailData} railData
      */
-    selectRail = (railData: ItemData) => {
-      LOGGER.info(`selectRail: ${railData.id}`) //`
-      this.props.updateItem(railData, update(railData, {
-          selected: { $set: true }
+    selectRail = (railData: RailData) => {
+      this.props.updateRail(update(railData, {
+          selected: {$set: true}
         }
-      ), false)
+      ), true)
+    }
+
+    /**
+     * レールを選択する。
+     * @param {RailData} railData
+     */
+    toggleRail = (railData: RailData) => {
+      this.props.updateRail(update(railData, {
+          selected: {$set: ! railData.selected}
+        }
+      ), true)
     }
 
     /**
      * レールの選択を解除する。
-     * @param {ItemData} railData
+     * @param {RailData} railData
      */
-    deselectRail = (railData: ItemData) => {
-      LOGGER.info(`deselectRail: ${railData.id}`) //`
-      this.props.updateItem(railData, update(railData, {
-          selected: { $set: false }
+    deselectRail = (railData: RailData) => {
+      this.props.updateRail(update(railData, {
+          selected: {$set: false}
         }
-      ), false)
+      ), true)
     }
 
     /**
-     * レールの選択を解除する。
-     * @param {ItemData} railData
+     * 全てのレールの選択を解除する。
      */
     deselectAllRails = () => {
-      LOGGER.info(`deselectAllRails`) //`
-      getAllRails(this.props.layout).forEach(railData => {
-        this.props.updateItem(railData, update(railData, {
-            selected: { $set: false }
+      this.props.layout.rails.forEach(railData => {
+        this.props.updateRail(update(railData, {
+            selected: {$set: false}
           }
-        ), false)
+        ), true)
       })
     }
 
@@ -393,23 +447,23 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           builderMouseDown={this.mouseDown}
           builderMouseMove={this.mouseMove}
           builderKeyDown={this.keyDown}
-          builderConnectJoint={this.connectJoint}
+          builderConnectJoints={this.connectJoints}
           builderDisconnectJoint={this.disconnectJoint}
           builderSelectRail={this.selectRail}
           builderDeselectRail={this.deselectRail}
+          builderToggleRail={this.toggleRail}
           builderDeselectAllRails={this.deselectAllRails}
         />
       )
     }
   }
 
-  return connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(WithBuilder)
+  return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithBuilder)
 }
 
 
-
 export const hitTestAll = (point: Point): HitResult[] => {
-  let hitOptions :any = {
+  let hitOptions: any = {
     // class: Path,
     segments: true,
     stroke: true,
@@ -429,7 +483,6 @@ export const hitTestAll = (point: Point): HitResult[] => {
 }
 
 
-
 /**
  * 指定の点からマウスカーソルの位置を結ぶ直線の角度をstep刻みで返す。
  * @param {paper.Point} anchor
@@ -445,10 +498,9 @@ const getFirstRailAngle = (anchor: Point, cursor: Point, step: number = 45) => {
   // const diff = cursor.subtract(anchor)
   // const unit = new Point(1,0)
   // const angle = Math.acos(unit.dot(diff) / (unit.length * diff.length))
-  const candidates =_.range(-180, 180, step)
+  const candidates = _.range(-180, 180, step)
   return getClosest(angle, candidates)
 }
-
 
 
 const getRailPartAt = (point: Point) => {

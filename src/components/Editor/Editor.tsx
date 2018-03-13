@@ -4,7 +4,6 @@ import pick from 'lodash.pick'
 
 import {Layer, Raster, Rectangle, Tool, View} from 'react-paper-bindings'
 
-import withHistory, {WithHistoryProps} from '../hoc/withHistory'
 import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsPrivateProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
@@ -50,7 +49,6 @@ export interface EditorState {
 }
 
 type ComposedEditorProps = EditorProps
-  & WithHistoryProps
   & WithFullscreenProps
   & WithToolsPrivateProps
   & WithMoveToolProps
@@ -136,11 +134,13 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
     // データから各レイヤーを生成する
     let layers = this.props.layout.layers.map(layer =>
       <Layer
-        data={{id: layer.id, name: 'Layout'}}
+        data={layer}
         visible={layer.visible}
         key={layer.id}
       >
-        {layer.children.map(item => createRailComponent(item, this.props.addItem, this.props.updateItem))}
+        {this.props.layout.rails
+          .filter(r => r.layerId === layer.id)
+          .map(item => createRailComponent(item))}
       </Layer>
     )
 
@@ -227,7 +227,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps, EditorProps>(
-  withHistory,
   withBuilder,
   withFullscreen,
   withTools,

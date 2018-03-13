@@ -1,6 +1,5 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import Joint from "./RailParts/Joint";
 import {connect} from "react-redux";
 import {compose} from "recompose";
 import {ArcDirection} from "components/Rails/RailParts/Parts/ArcPart";
@@ -12,9 +11,7 @@ import {
   RailBaseProps,
   RailBaseState
 } from "components/Rails/RailBase";
-import * as _ from "lodash";
 import SimpleTurnoutRailPart from "components/Rails/RailParts/SimpleTurnoutRailPart";
-import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
 import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 
@@ -25,7 +22,7 @@ export interface SimpleTurnoutProps extends RailBaseProps {
   branchDirection: ArcDirection
 }
 
-export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithHistoryProps & WithBuilderPublicProps
+export type SimpleTurnoutComposedProps = SimpleTurnoutProps & WithBuilderPublicProps
 
 
 export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBaseState> {
@@ -84,7 +81,6 @@ export class SimpleTurnout extends RailBase<SimpleTurnoutComposedProps, RailBase
 
 
 export default compose<SimpleTurnoutProps, SimpleTurnoutProps>(
+  withBuilder,
   connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
-  withHistory,
-  withBuilder
 )(SimpleTurnout)

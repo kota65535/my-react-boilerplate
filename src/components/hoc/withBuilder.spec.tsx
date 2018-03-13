@@ -1,18 +1,18 @@
 import 'jsdom-global/register';
 import * as React from 'react'
-import withHistory, {WithHistoryPublicProps} from "./withHistory";
 import {mount} from 'enzyme';
 import {configureStore} from "../../store";
 import {Provider} from "react-redux";
 import {compose} from 'recompose';
 import {LAYOUT_STORE_INITIAL_STATE} from "../../reducers/layout";
+import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 
-class Wrapped extends React.Component<WithHistoryPublicProps, {}> {
+class Wrapped extends React.Component<WithBuilderPublicProps, {}> {
   render () { return ( <div></div> ) }
 }
 
-const TestComponent = compose(withHistory)(Wrapped)
+const TestComponent = compose(withBuilder)(Wrapped)
 
 
 const createItem = (id, layerId, name='Test') => {
@@ -25,7 +25,7 @@ const createItem = (id, layerId, name='Test') => {
   }
 }
 
-describe('withHistory', () => {
+describe('withBuilder', () => {
 
   let wrapper, sut, store
 

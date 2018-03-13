@@ -11,7 +11,6 @@ import {
   RailBaseState
 } from "components/Rails/RailBase";
 import DoubleStraightRailPart from "components/Rails/RailParts/DoubleStraightRailPart";
-import {default as withHistory, WithHistoryProps} from "components/hoc/withHistory";
 import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 
@@ -20,7 +19,7 @@ export interface DoubleStraightRailProps extends RailBaseProps {
 }
 
 
-export type DoubleStraightRailComposedProps = DoubleStraightRailProps & WithHistoryProps & WithBuilderPublicProps
+export type DoubleStraightRailComposedProps = DoubleStraightRailProps & WithBuilderPublicProps
 
 
 export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps, RailBaseState> {
@@ -76,7 +75,6 @@ export class DoubleStraightRail extends RailBase<DoubleStraightRailComposedProps
 
 
 export default compose<DoubleStraightRailProps, DoubleStraightRailProps>(
+  withBuilder,
   connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
-  withHistory,
-  withBuilder
 )(DoubleStraightRail)

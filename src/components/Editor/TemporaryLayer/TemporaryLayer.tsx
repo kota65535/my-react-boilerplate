@@ -1,14 +1,14 @@
-import {ItemData} from "reducers/layout";
+import {RailData} from "reducers/layout";
 import {RootState} from "store/type";
 import * as React from "react";
 import {Layer} from "react-paper-bindings";
 import {createRailComponent} from "components/Rails/utils";
 import {connect} from "react-redux";
-import {compose} from "recompose";
-import withHistory, {WithHistoryProps} from "components/hoc/withHistory";
 
 export interface TemporaryLayerProps {
-  temporaryItem: ItemData
+  temporaryItem: RailData
+  // addRail: (item: RailData, overwrite?: boolean) => void
+  // updateRail: (item: RailData, overwrite?: boolean) => void
 }
 
 const mapStateToProps = (state: RootState) => {
@@ -19,10 +19,12 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    // addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
+    // updateRail: (item: RailData, overwrite = false) => dispatch(updateRail({item, overwrite})),
   }
 }
 
-type ComposedProps = TemporaryLayerProps & WithHistoryProps
+type ComposedProps = TemporaryLayerProps
 
 
 export class TemporaryLayer extends React.Component<ComposedProps, {}> {
@@ -33,12 +35,10 @@ export class TemporaryLayer extends React.Component<ComposedProps, {}> {
         data={{id: -1, name: 'Temporary'}}
       >
         {this.props.temporaryItem &&
-        createRailComponent(this.props.temporaryItem, this.props.addItem, this.props.updateItem)}
+        createRailComponent(this.props.temporaryItem)}
       </Layer>
     )
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(compose<TemporaryLayerProps, TemporaryLayerProps>(
-  withHistory
-)(TemporaryLayer))
+export default connect(mapStateToProps, mapDispatchToProps)(TemporaryLayer)

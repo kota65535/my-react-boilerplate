@@ -1,18 +1,18 @@
 import * as React from "react";
 import RailContainers from "components/Rails/index";
-import {ItemData} from "reducers/layout";
+import {RailData} from "reducers/layout";
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)
 
 /**
  * レールコンポーネントを生成する。
- * @param {ItemData} item
+ * @param {RailData} item
  * @param addItem
  * @param updateItem
  * @returns {any}
  */
-export const createRailComponent = (item: ItemData, addItem: any, updateItem: any) => {
+export const createRailComponent = (item: RailData) => {
   const {id: id, type: type, ...props} = item
   let RailContainer = RailContainers[type]
   if (RailContainer == null) {
@@ -26,8 +26,6 @@ export const createRailComponent = (item: ItemData, addItem: any, updateItem: an
       // data={{ id: id, type: Type }}
       // (activeTool === Tools.SELECT)
       // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
-      addItem={addItem}
-      updateItem={updateItem}
       // HOCでラップされた中身のRailComponentを取得する
       refInstance={(i) => {
         window.RAIL_COMPONENTS[id] = i

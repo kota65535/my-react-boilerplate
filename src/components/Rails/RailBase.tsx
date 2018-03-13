@@ -9,14 +9,15 @@ import RailPartBase from "components/Rails/RailParts/RailPartBase";
 import {RailComponentClasses} from "components/Rails/index";
 import update from "immutability-helper";
 import RailFactory from "components/Rails/RailFactory";
-import {ItemData, JointInfo} from "reducers/layout";
+import {JointInfo, RailData} from "reducers/layout";
 import {PaletteItem, RootState} from "store/type";
-import {WithHistoryProps} from "components/hoc/withHistory";
 import {setTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import {WithBuilderPublicProps} from "components/hoc/withBuilder";
+import {JointPair, WithBuilderPublicProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
 import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
+import {addRail} from "actions/layout";
+import {nextRailId} from "selectors";
 
 const LOGGER = getLogger(__filename)
 
@@ -31,9 +32,12 @@ export interface RailBaseProps extends RailBaseDefaultProps {
   refInstance?: any
 
   selectedItem: PaletteItem
-  temporaryItem: ItemData
-  setTemporaryItem: (item: ItemData) => void
+  temporaryItem: RailData
   activeLayerId: number
+  nextRailId: number
+
+  setTemporaryItem: (item: RailData) => void
+  addRail: (item: RailData, overwrite?: boolean) => void
 }
 
 export interface RailBaseDefaultProps {
@@ -50,19 +54,21 @@ export interface RailBaseState {
   jointAngles: number[]
 }
 
-type RailBaseComposedProps = RailBaseProps & WithHistoryProps & WithBuilderPublicProps
+type RailBaseComposedProps = RailBaseProps & WithBuilderPublicProps
 
 export const mapStateToProps = (state: RootState) => {
   return {
     selectedItem: state.builder.selectedItem,
     temporaryItem: state.builder.temporaryItem,
-    activeLayerId: state.builder.activeLayerId
+    activeLayerId: state.builder.activeLayerId,
+    nextRailId: nextRailId(state)
   }
 }
 
 export const mapDispatchToProps = (dispatch: any) => {
   return {
-    setTemporaryItem: (item: ItemData) => dispatch(setTemporaryItem(item)),
+    setTemporaryItem: (item: RailData) => dispatch(setTemporaryItem(item)),
+    addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
   }
 }
 
@@ -106,10 +112,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
    */
   onRailPartLeftClick(e: MouseEvent) {
     // レールの選択状態をトグルする
-    this.props.updateItem(this.props, update(this.props, {
-        selected: {$set: !this.props.selected}
-      }
-    ), false)
+    this.props.builderToggleRail(this.props)
   }
 
   /**
@@ -156,24 +159,38 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     }
 
     // 仮レールの位置にレールを設置
-    const newRail = this.props.addItem(this.props.activeLayerId, {
+    const newRail = {
       ...itemProps,
+      id: this.props.nextRailId,
       position: (this.props.temporaryItem as any).position,
       angle: (this.props.temporaryItem as any).angle,
       layerId: this.props.activeLayerId,
       opposingJoints: opposingJoints,
       pivotJointIndex: this.temporaryPivotJointIndex
-    } as ItemData)
+    }
+    this.props.addRail(newRail)
 
     // 仮レールを消去する
     this.props.setTemporaryItem(null)
 
     // 近傍ジョイントを接続状態にする
     this.undetectCloseJoints(false)
-    this.reasonablyCloseJoints.forEach(cmb => {
-      LOGGER.info(`Rail-${this.props.id}-${cmb[0].props.data.partId} & Rail-${newRail.id}-${cmb[1].props.data.partId}`) //`
-      this.props.builderConnectJoint(this.props, cmb[0].props.data.partId, newRail, cmb[1].props.data.partId)
+
+    // LOGGER.info(`Rail-${this.props.id}-${cmb[0].props.data.partId} & Rail-${railData.id}-${cmb[1].props.data.partId}`) //`
+    const jointPairs: JointPair[] = this.reasonablyCloseJoints.map(cmb => {
+      return {
+        from: {
+          rail: this.props,
+          jointId: cmb[0].props.data.partId
+        },
+        to: {
+          rail: newRail,
+          jointId: cmb[1].props.data.partId
+        }
+      }
     })
+
+    this.props.builderConnectJoints(jointPairs)
   }
 
   /**

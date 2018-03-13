@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {WithHistoryProps} from "./withHistory";
-import * as _ from "lodash";
 import {PaletteItem, RootState} from "store/type";
-import {ItemData, LayoutData, LayoutStoreState} from "reducers/layout";
+import {LayoutData, RailData} from "reducers/layout";
 import {currentLayoutData} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {selectPaletteItem} from "actions/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
+import {getRailDataById} from "components/hoc/common";
+import {removeRail, updateRail} from "actions/layout";
 
 const LOGGER = getLogger(__filename)
 
@@ -17,20 +17,23 @@ export interface WithDeleteToolPublicProps {
 }
 
 interface WithDeleteToolPrivateProps {
-  layout: LayoutStoreState
+  layout: LayoutData
   activeLayerId: number
   lastSelectedItems: object
   selectPaletteItem: (item: PaletteItem) => void
+
+  updateRail: (item: RailData, overwrite?: boolean) => void
+  removeRail: (item: RailData, overwrite?: boolean) => void
 }
 
-export type WithDeleteToolProps = WithDeleteToolPublicProps & WithDeleteToolPrivateProps & WithHistoryProps
+export type WithDeleteToolProps = WithDeleteToolPublicProps & WithDeleteToolPrivateProps
 
 
 /**
  * レールの削除モードを提供するHOC。
  * 依存: WithHistory
  */
-export default function withDeleteTool(WrappedComponent: React.ComponentClass<WithDeleteToolPublicProps & WithHistoryProps>) {
+export default function withDeleteTool(WrappedComponent: React.ComponentClass<WithDeleteToolPublicProps>) {
 
   const mapStateToProps = (state: RootState) => {
     return {
@@ -42,7 +45,9 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
 
   const mapDispatchToProps = (dispatch: any) => {
     return {
-      selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
+      selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item)),
+      updateRail: (item: RailData, overwrite = false) => dispatch(updateRail({item, overwrite})),
+      removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
     }
   }
 
@@ -74,13 +79,13 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
     }
 
     removeSelectedRails() {
-      const selectedRails = _.flatMap(this.props.layout.layers, layer => layer.children)
+      const selectedRails = this.props.layout.rails.filter(r => r.selected)
         .filter(item => item.selected)
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
 
       selectedRails.forEach(item => {
         this.disconnectJoint(item)
-        this.props.removeItem(item)
+        this.props.removeRail(item)
       })
     }
 
@@ -100,15 +105,15 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
       }
     }
 
-    disconnectJoint(railData: ItemData) {
+    disconnectJoint(railData: RailData) {
       railData.opposingJoints.forEach(joint => {
         if (joint) {
           const railData = getRailDataById(this.props.layout, joint.railId)
-          this.props.updateItem(railData, update(railData, {
+          this.props.updateRail(update(railData, {
             opposingJoints: {
               [joint.jointId]: {$set: null}
             }
-          }), false)
+          }), true)
         }
       })
     }
@@ -151,16 +156,4 @@ export const hitTestAll = (point: Point): HitResult[] => {
 }
 
 
-
-/**
- * 指定のRailIDを持つレールをレイアウトから探して返す。
- * @param {LayoutData} layout
- * @param {number} id
- * @returns {ItemData | undefined}
- */
-const getRailDataById = (layout: LayoutData, id: number) => {
-  let found = _.flatMap(layout.layers, layer => layer.children)
-    .find(item => item.id === id)
-  return found
-}
 

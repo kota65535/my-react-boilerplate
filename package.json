@@ -137,7 +137,8 @@
         "tsConfigFile": "/Users/tozawa/Projects/my-react-boilerplate/tsconfig.test.json"
       }
     },
-    "setupTestFrameworkScriptFile": "<rootDir>/config/jest/setup.js"
+    "setupTestFrameworkScriptFile": "<rootDir>/config/jest/setup.js",
+    "modulePaths": ["src"]
   },
   "babel": {
     "presets": [

@@ -2,13 +2,12 @@ import * as React from 'react';
 import {RootState} from "store/type";
 import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
-import {PaperScope, Group, Path, Point, ToolEvent, View, Item} from 'paper'
+import {Group, Path, Point, ToolEvent} from 'paper'
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {hitTestAll, WithBuilderPublicProps} from "components/hoc/withBuilder";
-import {WithHistoryProps, WithHistoryPublicProps} from "components/hoc/withHistory";
+import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 import {currentLayoutData} from "selectors";
-import {LayoutData, LayoutStoreState} from "reducers/layout";
+import {LayoutData} from "reducers/layout";
 import {getRailDataById} from "components/hoc/common";
 
 const LOGGER = getLogger(__filename)
@@ -33,7 +32,7 @@ interface WithSelectToolState {
 }
 
 
-type WithSelectToolProps = WithSelectToolPublicProps & WithSelectToolPrivateProps & WithHistoryPublicProps & WithBuilderPublicProps
+type WithSelectToolProps = WithSelectToolPublicProps & WithSelectToolPrivateProps & WithBuilderPublicProps
 
 /**
  * レールの矩形選択機能を提供するHOC。

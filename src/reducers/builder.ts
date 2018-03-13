@@ -2,7 +2,7 @@ import {Action, handleActions} from 'redux-actions';
 import * as Actions from 'constants/actions';
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
-import {ItemData} from "reducers/layout";
+import {RailData} from "reducers/layout";
 
 export enum BuilderPhase {
   FIRST_POSITION = 'FirstPosition',
@@ -17,7 +17,7 @@ export interface BuilderStoreState {
   activeLayerId: number
   mousePosition: Point
   paperViewLoaded: boolean
-  temporaryItem: ItemData
+  temporaryItem: RailData
   phase: BuilderPhase
   markerPosition: Point
 }
@@ -69,7 +69,7 @@ export default handleActions<BuilderStoreState, any>({
       paperViewLoaded: action.payload
     } as BuilderStoreState
   },
-  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<ItemData>) => {
+  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>) => {
     return {
       ...state,
       temporaryItem: action.payload

@@ -227,7 +227,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
         layerId: this.props.activeLayerId,
-        opposingJoints: new Array(RailComponentClasses[this.props.selectedItem.type].NUM_JOINTS).fill(null)
+        opposingJoints: new Array(RailComponentClasses[itemProps.type].NUM_JOINTS).fill(null)
       } as ItemData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.SUBSEQUENT)

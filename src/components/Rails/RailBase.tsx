@@ -106,7 +106,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
    */
   onRailPartLeftClick(e: MouseEvent) {
     // レールの選択状態をトグルする
-    this.props.updateItem(this.props as any, update(this.props, {
+    this.props.updateItem(this.props, update(this.props, {
         selected: {$set: !this.props.selected}
       }
     ), false)
@@ -129,8 +129,9 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
 
     // 新たに仮レールの近傍ジョイントを探索して検出状態にする
     const temporaryRail = window.RAIL_COMPONENTS["-1"]
-    this.undetectCloseJoints()
+    this.undetectCloseJoints(true)
     this.detectCloseJoints(temporaryRail)
+    LOGGER.info(`close joints: ${this.reasonablyCloseJoints}`)
   }
 
   // TODO: これでOK?
@@ -164,11 +165,15 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       pivotJointIndex: this.temporaryPivotJointIndex
     } as ItemData)
 
-    // 仮レールに接続しているジョイントを接続状態にする
-    this.props.builderConnectJoint(this.props as any, jointId, newRail, this.temporaryPivotJointIndex)
-
     // 仮レールを消去する
     this.props.setTemporaryItem(null)
+
+    // 近傍ジョイントを接続状態にする
+    this.undetectCloseJoints(false)
+    this.reasonablyCloseJoints.forEach(cmb => {
+      LOGGER.info(`Rail-${this.props.id}-${cmb[0].props.data.partId} & Rail-${newRail.id}-${cmb[1].props.data.partId}`) //`
+      this.props.builderConnectJoint(this.props, cmb[0].props.data.partId, newRail, cmb[1].props.data.partId)
+    })
   }
 
   /**
@@ -201,20 +206,20 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
     Object.keys(window.RAIL_COMPONENTS)
       .filter(id => id !== rail.props.id.toString())  // IDが文字列での比較になることに注意
       .map(k => window.RAIL_COMPONENTS[k])
-      .forEach(rc => {
-        // 仮レールと対象レールのジョイントの組み合わせ
-        const combinations = Combinatorics.cartesianProduct(rc.joints, rail.joints).toArray()
+      .forEach(target => {
+        // 対象レールと指定レールのジョイントの組み合わせ
+        const combinations = Combinatorics.cartesianProduct(target.joints, rail.joints).toArray()
         combinations.forEach(cmb => {
           // ジョイントが十分近ければリストに加える
           const isClose = pointsEqual(cmb[0].position, cmb[1].position, 0.1)
           if (isClose) {
-            ret.push(cmb[0])
+            ret.push(cmb)
           }
         })
       })
 
     // 検出中状態にする
-    ret.forEach(joint => joint.part.setState({
+    ret.forEach(cmb => cmb[0].part.setState({
       detectionState: DetectionState.DETECTING,
       detectionPartVisible: true
     }))
@@ -225,13 +230,15 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
    * 全ての近傍ジョイントを非検出状態に戻す
    * @param {RailBase<any, any>} rail
    */
-  undetectCloseJoints() {
+  undetectCloseJoints(doNullify: boolean) {
     if (this.reasonablyCloseJoints != null) {
-      this.reasonablyCloseJoints.forEach(joint => joint.part.setState({
+      this.reasonablyCloseJoints.forEach(cmb => cmb[0].part.setState({
         detectionState: DetectionState.BEFORE_DETECT,
         detectionPartVisible: true
       }))
-      this.reasonablyCloseJoints = null
+      if (doNullify) {
+        this.reasonablyCloseJoints = null
+      }
     }
   }
 
@@ -249,9 +256,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
       ...itemProps,
       id: -1,
       name: 'TemporaryRail',
-      // position: this.joints[jointId].position,
       position: this.railPart.getGlobalJointPosition(jointId),
-      // angle: this.joints[jointId].angle,
       angle: this.railPart.getGlobalJointAngle(jointId),
       layerId: 1,
       opacity: TEMPORARY_RAIL_OPACITY,
@@ -268,7 +273,7 @@ export abstract class RailBase<P extends RailBaseComposedProps, S extends RailBa
    */
   onJointMouseLeave = (jointId: number, e: MouseEvent) => {
     this.props.setTemporaryItem(null)
-    this.undetectCloseJoints()
+    this.undetectCloseJoints(true)
   }
 
   componentDidUpdate() {

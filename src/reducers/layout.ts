@@ -1,11 +1,14 @@
 import {StraightRailProps} from "components/Rails/StraightRail";
 import {Action, handleActions} from 'redux-actions';
 import {
+  LAYOUT_ADD_LAYER,
   LAYOUT_ADD_RAIL,
   LAYOUT_CLEAR_HISTORY,
   LAYOUT_REDO,
+  LAYOUT_REMOVE_LAYER,
   LAYOUT_REMOVE_RAIL,
   LAYOUT_UNDO,
+  LAYOUT_UPDATE_LAYER,
   LAYOUT_UPDATE_RAIL
 } from "constants/actions";
 import update from 'immutability-helper';
@@ -66,14 +69,15 @@ export interface RailDataPayload {
   overwrite?: boolean
 }
 
-export interface SetLayersPayload {
-  layers: LayerData[]
+export interface LayerDataPayload {
+  item: LayerData
+  overwrite?: boolean
 }
 
-export interface SetLayerVisiblePayload {
-  layerId: number
-  visible: boolean
-}
+// export interface SetLayerVisiblePayload {
+//   layerId: number
+//   visible: boolean
+// }
 
 
 export default handleActions<LayoutStoreState, any>({
@@ -94,7 +98,7 @@ export default handleActions<LayoutStoreState, any>({
   },
 
   /**
-   * レイアウトのレールを更新する。
+   * レールを更新する。
    * @param {LayoutStoreState} state
    * @param {Action<RailDataPayload>} action
    * @returns {*}
@@ -114,7 +118,7 @@ export default handleActions<LayoutStoreState, any>({
   },
 
   /**
-   * レイアウトのレールを削除する。
+   * レールを削除する。
    * @param {LayoutStoreState} state
    * @param {Action<RailDataPayload>} action
    * @returns {*}
@@ -126,6 +130,60 @@ export default handleActions<LayoutStoreState, any>({
     // レイアウトを更新
     const newLayout = update(layout, {
       rails: {$splice: [[itemIndex, 1]]}
+    })
+    // ヒストリを更新
+    return addHistory(state, newLayout, action.payload.overwrite)
+  },
+
+  /**
+   * レイヤーをレイアウトに追加する。
+   * @param {LayoutStoreState} state
+   * @param {Action<RailDataPayload>} action
+   * @returns {*}
+   */
+  [LAYOUT_ADD_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+    const layout = state.histories[state.historyIndex]
+    // レイアウトを更新
+    const newLayout = update(layout, {
+      layers: {$push: [action.payload.item]}
+    })
+    // ヒストリを更新
+    return addHistory(state, newLayout, action.payload.overwrite)
+  },
+
+  /**
+   * レイヤーを更新する。
+   * @param {LayoutStoreState} state
+   * @param {Action<LayerDataPayload>} action
+   * @returns {*}
+   */
+  [LAYOUT_UPDATE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+    const layout = state.histories[state.historyIndex]
+    // 対象のアイテムを探す
+    const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
+    // レイアウトを更新
+    const newLayout = update(layout, {
+      layers: {
+        [itemIndex]: {$set: action.payload.item}
+      }
+    })
+    // ヒストリを更新
+    return addHistory(state, newLayout, action.payload.overwrite)
+  },
+
+  /**
+   * レイヤーを削除する。
+   * @param {LayoutStoreState} state
+   * @param {Action<LayerDataPayload>} action
+   * @returns {*}
+   */
+  [LAYOUT_REMOVE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+    const layout = state.histories[state.historyIndex]
+    // 対象のアイテムを探す
+    const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
+    // レイアウトを更新
+    const newLayout = update(layout, {
+      layers: {$splice: [[itemIndex, 1]]}
     })
     // ヒストリを更新
     return addHistory(state, newLayout, action.payload.overwrite)
@@ -177,33 +235,6 @@ export default handleActions<LayoutStoreState, any>({
       historyIndex: 0
     }
   },
-
-  // [LAYOUT_SET_LAYERS]: (state: LayoutStoreState, action: Action<SetLayersPayload>) => {
-  //   return update(state, {
-  //     histories: {
-  //       $splice: [[state.historyIndex + 1, 1, {layers: action.payload.layers}]],
-  //     },
-  //     historyIndex: {$set: state.historyIndex + 1}
-  //   })
-  // },
-  //
-  // [LAYOUT_SET_LAYERS_NO_HISTORY]: (state: LayoutStoreState, action: Action<SetLayersPayload>) => {
-  //   return update(state, {
-  //     histories: {
-  //       $splice: [[state.historyIndex, 1, {layers: action.payload.layers}]],
-  //     }
-  //   })
-  // },
-
-  // [LAYOUT_SET_LAYER_VISIBLE]: (state: LayoutStoreState, action: Action<SetLayerVisiblePayload>) => {
-  //   // 対象のレイヤーを探す
-  //   const layerIndex = state.layers.findIndex(layer => layer.id === action.payload.layerId)
-  //   return update(state, {
-  //     layers: {
-  //       [layerIndex]: {visible: {$set: action.payload.visible}}
-  //     }
-  //   }) as LayoutStoreState
-  // },
 
 }, LAYOUT_STORE_INITIAL_STATE);
 

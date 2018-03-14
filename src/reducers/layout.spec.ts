@@ -1,8 +1,8 @@
-import reducer from './layout'
-import {addRail, removeRail, setLayerVisible, updateRail} from "actions/layout";
+import reducer, {LayerData, RailData} from './layout'
+import {addLayer, addRail, removeLayer, removeRail, updateLayer, updateRail} from "actions/layout";
 
 
-const createRail = (id, layerId) => {
+const createRail = (id, layerId): RailData => {
   return {
     id: id,
     name: 'hoge',
@@ -10,6 +10,14 @@ const createRail = (id, layerId) => {
     layerId: layerId,
     selected: false,
     opposingJoints: [null, null]
+  }
+}
+
+const createLayer = (id, name): LayerData => {
+  return {
+    id: id,
+    name: name,
+    visible: true
   }
 }
 
@@ -174,28 +182,105 @@ describe('layout reducer', () => {
   )
 
 
-  it('set layer visible', () => {
-    //========== Given ==========
-    const item = createRail(1, 1)
-    let state = reducer(undefined, setLayerVisible({
-      layerId: 1,
-      visible: false
-    }))
+  it('adds, updates, removes a layer of the layout', () => {
+      //========== When ========== 1個目のアイテムを追加
+      let item = createLayer(2, 'Layer 2')
+      let state = reducer(undefined, addLayer({
+        item: item,
+      }))
 
-    expect(state).toEqual({
-      histories: [
-        {
-          layers: [
+      //========== Then ==========
+      expect(state).toEqual({
+          histories: [
             {
-              id: 1,
-              name: 'Layer 1',
-              visible: false
-            }
+              layers: [
+                {id: 1, name: 'Layer 1', visible: true}
+              ],
+              rails: []
+            },
+            {
+              layers: [
+                {id: 1, name: 'Layer 1', visible: true},
+                {id: 2, name: 'Layer 2', visible: true},
+              ],
+              rails: []
+            },
           ],
-          rails: []
+          historyIndex: 1,
         }
-      ],
-      historyIndex: 0,
-    })
-  })
+      )
+
+      //========== When ========== 1個目のアイテムを更新
+      let item3 = createLayer(1, 'Layer first')
+      state = reducer(state, updateLayer({
+        item: item3
+      }))
+
+      //========== Then ==========
+      expect(state).toEqual({
+        histories: [
+          {
+            layers: [
+              {id: 1, name: 'Layer 1', visible: true}
+            ],
+            rails: []
+          },
+          {
+            layers: [
+              {id: 1, name: 'Layer 1', visible: true},
+              {id: 2, name: 'Layer 2', visible: true},
+            ],
+            rails: []
+          },
+          {
+            layers: [
+              {id: 1, name: 'Layer first', visible: true},
+              {id: 2, name: 'Layer 2', visible: true},
+            ],
+            rails: []
+          },
+        ],
+          historyIndex: 2,
+        }
+      )
+
+      //========== When ========== 1個目のアイテムを削除
+      state = reducer(state, removeLayer({
+        item: item3,
+      }))
+      //========== Then ==========
+      expect(state).toEqual({
+        histories: [
+          {
+            layers: [
+              {id: 1, name: 'Layer 1', visible: true}
+            ],
+            rails: []
+          },
+          {
+            layers: [
+              {id: 1, name: 'Layer 1', visible: true},
+              {id: 2, name: 'Layer 2', visible: true},
+            ],
+            rails: []
+          },
+          {
+            layers: [
+              {id: 1, name: 'Layer first', visible: true},
+              {id: 2, name: 'Layer 2', visible: true},
+            ],
+            rails: []
+          },
+          {
+            layers: [
+              {id: 2, name: 'Layer 2', visible: true},
+            ],
+            rails: []
+          },
+        ],
+        historyIndex: 3,
+        }
+      )
+    }
+  )
 })

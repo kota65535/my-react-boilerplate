@@ -85,15 +85,11 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
 
   railPart: RailPartBase<any, any>
   joints: Joint[]
-  // temporaryPivotJointIndex: number
-  // reasonablyCloseJoints: Joint[]
 
 
   constructor(props: P) {
     super(props)
     this.joints = new Array(this.props.numJoints).fill(null)
-    // this.temporaryPivotJointIndex = 0
-    // this.reasonablyCloseJoints = null
   }
 
   componentDidUpdate() {

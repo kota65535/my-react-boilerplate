@@ -170,19 +170,13 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
             {layers}
 
-            {/*<ThreeWayTurnout*/}
-              {/*position={new Point(700, 840)}*/}
+            {/*<StraightRailContainer*/}
+              {/*position={new Point(700, 700)}*/}
               {/*pivotJointIndex={1}*/}
               {/*angle={30}*/}
               {/*length={140}*/}
               {/*id={1}*/}
               {/*layerId={1}*/}
-              {/*leftStart={0}*/}
-              {/*leftRadius={541}*/}
-              {/*leftCenterAngle={15}*/}
-              {/*rightStart={0}*/}
-              {/*rightRadius={541}*/}
-              {/*rightCenterAngle={15}*/}
             {/*/>*/}
 
             <Tool

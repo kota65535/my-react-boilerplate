@@ -1,26 +1,28 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import CurveRailPart from "./RailParts/CurveRailPart";
-import {ArcDirection} from "./RailParts/Parts/ArcPart";
+import {ArcDirection} from "components/Rails/RailParts/Parts/ArcPart";
 import {RailBase, RailBaseDefaultProps, RailBaseProps, RailBaseState} from "components/Rails/RailBase";
+import SimpleTurnoutRailPart from "components/Rails/RailParts/SimpleTurnoutRailPart";
 
 
-export interface CurveRailProps extends RailBaseProps {
+export interface SimpleTurnoutProps extends RailBaseProps {
+  length: number
   radius: number
   centerAngle: number
+  branchDirection: ArcDirection
 }
 
 
-export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
+export default class SimpleTurnout extends RailBase<SimpleTurnoutProps, RailBaseState> {
   public static defaultProps: RailBaseDefaultProps = {
     ...RailBase.defaultProps,
-    type: 'CurveRail',
-    numJoints: 2,
+    type: 'SimpleTurnout',
+    numJoints: 3,
     pivotJointChangingStride: 1,
-    opposingJoints: new Array(2).fill(null),
+    opposingJoints: new Array(3).fill(null),
   }
 
-  constructor(props: CurveRailProps) {
+  constructor(props: SimpleTurnoutProps) {
     super(props)
     this.state = {
       jointPositions: new Array(this.props.numJoints).fill(props.position),
@@ -31,15 +33,16 @@ export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
 
   render() {
     const {
-      position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity,
+      position, angle, length, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
     } = this.props
 
     return (
       <React.Fragment>
-        <CurveRailPart
+        <SimpleTurnoutRailPart
+          length={length}
           radius={radius}
           centerAngle={centerAngle}
-          direction={ArcDirection.RIGHT}
+          direction={branchDirection}
           position={position}
           angle={angle}
           pivotJointIndex={pivotJointIndex}
@@ -48,7 +51,7 @@ export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
           data={{
             type: 'RailPart',
             railId: id,
-            partId: 0,
+            partId: 0
           }}
           onLeftClick={this.props.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}

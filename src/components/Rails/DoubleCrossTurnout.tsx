@@ -1,26 +1,25 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import CurveRailPart from "./RailParts/CurveRailPart";
-import {ArcDirection} from "./RailParts/Parts/ArcPart";
 import {RailBase, RailBaseDefaultProps, RailBaseProps, RailBaseState} from "components/Rails/RailBase";
+import DoubleCrossTurnoutPart from "components/Rails/RailParts/DoubleCrossTurnoutRailPart";
 
 
-export interface CurveRailProps extends RailBaseProps {
-  radius: number
-  centerAngle: number
+export interface DoubleCrossTurnoutProps extends RailBaseProps {
+  length: number
 }
 
 
-export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
+export default class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutProps, RailBaseState> {
+
   public static defaultProps: RailBaseDefaultProps = {
     ...RailBase.defaultProps,
-    type: 'CurveRail',
-    numJoints: 2,
-    pivotJointChangingStride: 1,
-    opposingJoints: new Array(2).fill(null),
+    type: 'DoubleCrossTurnout',
+    numJoints: 4,
+    pivotJointChangingStride: 2,
+    opposingJoints: new Array(4).fill(null),
   }
 
-  constructor(props: CurveRailProps) {
+  constructor(props: DoubleCrossTurnoutProps) {
     super(props)
     this.state = {
       jointPositions: new Array(this.props.numJoints).fill(props.position),
@@ -31,15 +30,13 @@ export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
 
   render() {
     const {
-      position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity,
+      position, angle, length, id, selected, pivotJointIndex, opacity,
     } = this.props
 
     return (
       <React.Fragment>
-        <CurveRailPart
-          radius={radius}
-          centerAngle={centerAngle}
-          direction={ArcDirection.RIGHT}
+        <DoubleCrossTurnoutPart
+          length={length}
           position={position}
           angle={angle}
           pivotJointIndex={pivotJointIndex}

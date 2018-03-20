@@ -1,17 +1,7 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import StraightRailPart from "./RailParts/StraightRailPart";
-import {connect} from "react-redux";
-import {
-  mapDispatchToProps,
-  mapStateToProps,
-  RailBase,
-  RailBaseDefaultProps,
-  RailBaseProps,
-  RailBaseState
-} from "components/Rails/RailBase";
-import {compose} from "recompose";
-import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
+import {RailBase, RailBaseDefaultProps, RailBaseProps, RailBaseState} from "components/Rails/RailBase";
 
 
 export interface StraightRailProps extends RailBaseProps {
@@ -19,31 +9,22 @@ export interface StraightRailProps extends RailBaseProps {
 }
 
 
-export type StraightRailComposedProps = StraightRailProps & WithBuilderPublicProps
-
-
-export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseState> {
-
-  public static NUM_JOINTS = 2
+export default class StraightRail extends RailBase<StraightRailProps, RailBaseState> {
   public static defaultProps: RailBaseDefaultProps = {
+    ...RailBase.defaultProps,
     type: 'StraightRail',
-    selected: false,
-    pivotJointIndex: 0,
-    opacity: 1,
-    opposingJoints: new Array(StraightRail.NUM_JOINTS).fill(null),
-    enableJoints: true
+    numJoints: 2,
+    pivotJointChangingStride: 1,
+    opposingJoints: new Array(2).fill(null),
   }
-  public static PIVOT_JOINT_CHANGING_STRIDE = 1
 
-  constructor(props: StraightRailComposedProps) {
+  constructor(props: StraightRailProps) {
     super(props)
     this.state = {
-      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
+      jointPositions: new Array(this.props.numJoints).fill(props.position),
+      jointAngles: new Array(this.props.numJoints).fill(props.angle),
     }
   }
-
-  get NUM_JOINTS() { return StraightRail.NUM_JOINTS }
 
 
   render() {
@@ -62,10 +43,10 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
           opacity={opacity}
           data={{
             type: 'RailPart',
-            partId: 0,
             railId: id,
+            partId: 0,
           }}
-          onLeftClick={this.onRailPartLeftClick}
+          onLeftClick={this.props.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}
         />
         {this.createJointComponents()}
@@ -73,9 +54,3 @@ export class StraightRail extends RailBase<StraightRailComposedProps, RailBaseSt
     )
   }
 }
-
-export default compose<StraightRailProps, StraightRailProps>(
-  withBuilder,
-  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
-)(StraightRail)
-

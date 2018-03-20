@@ -1,18 +1,8 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import CurveRailPart from "./RailParts/CurveRailPart";
-import {connect} from "react-redux";
 import {ArcDirection} from "./RailParts/Parts/ArcPart";
-import {
-  mapDispatchToProps,
-  mapStateToProps,
-  RailBase,
-  RailBaseDefaultProps,
-  RailBaseProps,
-  RailBaseState
-} from "./RailBase";
-import {compose} from "recompose";
-import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
+import {RailBase, RailBaseDefaultProps, RailBaseProps, RailBaseState} from "components/Rails/RailBase";
 
 
 export interface CurveRailProps extends RailBaseProps {
@@ -20,33 +10,24 @@ export interface CurveRailProps extends RailBaseProps {
   centerAngle: number
 }
 
-export type CurveRailComposedProps = CurveRailProps & WithBuilderPublicProps
 
-
-export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
-  public static NUM_JOINTS = 2
+export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
   public static defaultProps: RailBaseDefaultProps = {
-    type: 'CurveRail',
-    selected: false,
-    pivotJointIndex: 0,
-    opacity: 1,
-    opposingJoints: new Array(CurveRail.NUM_JOINTS).fill(null),
-    enableJoints: true
+    ...RailBase.defaultProps,
+    type: 'StraightRail',
+    numJoints: 2,
+    pivotJointChangingStride: 1,
+    opposingJoints: new Array(2).fill(null),
   }
-  public static PIVOT_JOINT_CHANGING_STRIDE = 1
 
-  constructor(props: CurveRailComposedProps) {
+  constructor(props: CurveRailProps) {
     super(props)
     this.state = {
-      jointPositions: new Array(this.NUM_JOINTS).fill(props.position),
-      jointAngles: new Array(this.NUM_JOINTS).fill(props.angle),
+      jointPositions: new Array(this.props.numJoints).fill(props.position),
+      jointAngles: new Array(this.props.numJoints).fill(props.angle),
     }
-
-    // カーブ系レールのジョイントに対して仮レールを設置する場合は向き(PivotJoint)を揃える
-    this.temporaryPivotJointIndex = this.props.pivotJointIndex
   }
 
-  get NUM_JOINTS() { return CurveRail.NUM_JOINTS }
 
   render() {
     const {
@@ -65,11 +46,11 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
           selected={selected}
           opacity={opacity}
           data={{
-            railId: id,
             type: 'RailPart',
-            partId: 0
+            railId: id,
+            partId: 0,
           }}
-          onLeftClick={this.onRailPartLeftClick}
+          onLeftClick={this.props.onRailPartLeftClick}
           ref={(railPart) => this.railPart = railPart}
         />
         {this.createJointComponents()}
@@ -77,9 +58,3 @@ export class CurveRail extends RailBase<CurveRailComposedProps, RailBaseState> {
     )
   }
 }
-
-
-export default compose<CurveRailProps, CurveRailProps>(
-  withBuilder,
-  connect(mapStateToProps, mapDispatchToProps, null, { withRef: true }),
-)(CurveRail)

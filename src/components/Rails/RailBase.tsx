@@ -46,8 +46,8 @@ export interface RailBaseDefaultProps {
   enableJoints: boolean
 
   // イベントハンドラ
-  onRailPartLeftClick: (e: MouseEvent) => void
-  onRailPartRightClick: (e: MouseEvent) => void
+  onRailPartLeftClick: (e: MouseEvent) => boolean
+  onRailPartRightClick: (e: MouseEvent) => boolean
   onJointLeftClick: (jointId: number, e: MouseEvent) => void
   onJointRightClick: (jointId: number, e: MouseEvent) => void
   onJointMouseMove: (jointId: number, e: MouseEvent) => void
@@ -74,8 +74,9 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     opposingJoints: [],
     enableJoints: true,
 
-    onRailPartLeftClick: (e: MouseEvent) => {},
-    onRailPartRightClick: (e: MouseEvent) => {},
+    // 何もしないハンドラをセットしておく
+    onRailPartLeftClick: (e: MouseEvent) => false,
+    onRailPartRightClick: (e: MouseEvent) => false,
     onJointLeftClick: (jointId: number, e: MouseEvent) => {},
     onJointRightClick: (jointId: number, e: MouseEvent) => {},
     onJointMouseMove: (jointId: number, e: MouseEvent) => {},

@@ -9,8 +9,8 @@ export interface DetectablePartProps extends PartBaseProps {
   mainPart: ReactElement<PartBase<PartBaseProps, {}>>         // 本体のコンポーネント
   detectionPart: ReactElement<PartBase<PartBaseProps, {}>>    //  当たり判定のコンポーネント
   fillColors: string[]    // DetectionState ごとの本体、当たり判定の色
-  onLeftClick?: (e: MouseEvent) => void
-  onRightClick?: (e: MouseEvent) => void
+  onLeftClick?: (e: MouseEvent) => boolean
+  onRightClick?: (e: MouseEvent) => boolean
   detectionEnabled: boolean
   pivotPartIndex?: number
 }
@@ -70,22 +70,25 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     }
   }
   onClick = (e: MouseEvent | any) => {
-    // TODO: 左クリックと右クリックでイベントを分ける
+    let shouldChangeState = false
     switch (e.event.button) {
       case 0:
-        this.setState({
-          detectionState: DetectionState.AFTER_DETECT,
-          detectionPartVisible: false
-        })
         if (this.props.onLeftClick) {
-          this.props.onLeftClick(e)
+          shouldChangeState = this.props.onLeftClick(e)
         }
         break
       case 2:
         if (this.props.onRightClick) {
-          this.props.onRightClick(e)
+          shouldChangeState = this.props.onRightClick(e)
         }
         break
+    }
+    // コールバックがtrueを返した時のみ状態を変更する
+    if (shouldChangeState) {
+      this.setState({
+        detectionState: DetectionState.AFTER_DETECT,
+        detectionPartVisible: false
+      })
     }
   }
 

@@ -35,7 +35,6 @@ export interface BuilderStoreState {
   temporaryItem: RailData
   phase: BuilderPhase
   markerPosition: Point
-  temporaryPivotJointIndex: number
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -51,7 +50,6 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   temporaryItem: null,
   phase: BuilderPhase.FIRST_POSITION,
   markerPosition: null,
-  temporaryPivotJointIndex: 0
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -134,7 +132,10 @@ export default handleActions<BuilderStoreState, any>({
   [BUILDER_SET_TEMPORARY_PIVOT_JOINT]: (state: BuilderStoreState, action: Action<number>) => {
     return {
       ...state,
-      temporaryPivotJointIndex: action.payload
+      temporaryItem: {
+        ...state.temporaryItem,
+        pivotJointIndex: action.payload
+      },
     } as BuilderStoreState
   },
 }, BUILDER_INITIAL_STATE);

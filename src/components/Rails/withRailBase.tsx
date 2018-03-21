@@ -2,7 +2,6 @@ import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
 import {pointsEqual} from "components/Rails/utils";
-import update from "immutability-helper";
 import RailFactory from "components/Rails/RailFactory";
 import {RailData} from "reducers/layout";
 import {PaletteItem, RootState} from "store/type";
@@ -12,7 +11,7 @@ import {JointPair, WithBuilderProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
 import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 import {addRail} from "actions/layout";
-import {nextRailId} from "selectors";
+import {nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps} from "components/Rails/RailBase";
 import {connect} from "react-redux";
 import Joint from "components/Rails/RailParts/Joint";
@@ -22,10 +21,10 @@ const LOGGER = getLogger(__filename)
 
 export interface WithRailBaseProps {
   // Injected Props
-  onRailPartLeftClick: (e: MouseEvent) => void
-  onRailPartRightClick: (e: MouseEvent) => void
-  onJointLeftClick: (jointId: number, e: MouseEvent) => void
-  onJointRightClick: (jointId: number, e: MouseEvent) => void
+  onRailPartLeftClick: (e: MouseEvent) => boolean
+  onRailPartRightClick: (e: MouseEvent) => boolean
+  onJointLeftClick: (jointId: number, e: MouseEvent) => boolean
+  onJointRightClick: (jointId: number, e: MouseEvent) => boolean
   onJointMouseMove: (jointId: number, e: MouseEvent) => void
   onJointMouseEnter: (jointId: number, e: MouseEvent) => void
   onJointMouseLeave: (jointId: number, e: MouseEvent) => void
@@ -56,7 +55,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     return {
       paletteItem: state.builder.paletteItem,
       temporaryItem: state.builder.temporaryItem,
-      temporaryPivotJointIndex: state.builder.temporaryPivotJointIndex,
+      temporaryPivotJointIndex: temporaryPivotJointIndex(state),
       activeLayerId: state.builder.activeLayerId,
       nextRailId: nextRailId(state),
     }
@@ -99,13 +98,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     onRailPartLeftClick(e: MouseEvent) {
       // レールの選択状態をトグルする
       this.props.builderToggleRail(this.props as any)
+      return true
     }
 
     /**
-     * レールパーツを右クリックしたら、
+     * レールパーツを右クリックしたら？
      * @param {MouseEvent} e
      */
     onRailPartRightClick(e: MouseEvent) {
+      return true
     }
 
     /**
@@ -114,21 +115,19 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {MouseEvent} e
      */
     onJointRightClick = (jointId: number, e: MouseEvent) => {
-      // 仮レールのPivotJointをインクリメントする
-      const numJoints = window.RAIL_COMPONENTS["-1"].props.numJoints
-      const stride = window.RAIL_COMPONENTS["-1"].props.pivotJointChangingStride
+      const temporaryRail = getTemporaryRailComponent()
+      const numJoints = temporaryRail.props.numJoints
+      const stride = temporaryRail.props.pivotJointChangingStride
+
+      // 仮レールのPivotJointを加算する
       let temporaryPivotJointIndex = (this.props.temporaryPivotJointIndex + stride) % numJoints
       this.props.setTemporaryPivotJoint(temporaryPivotJointIndex)
-      this.props.setTemporaryItem(update(this.props.temporaryItem, {
-          pivotJointIndex: {$set: temporaryPivotJointIndex}
-        }
-      ))
 
       // 新たに仮レールの近傍ジョイントを探索して検出状態にする
-      const temporaryRail = window.RAIL_COMPONENTS["-1"]
       this.undetectCloseJoints(true)
       this.detectCloseJoints(temporaryRail)
       LOGGER.info(`close joints: ${this.reasonablyCloseJoints}`)
+      return true
     }
 
     // TODO: これでOK?
@@ -137,24 +136,55 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     // }
 
     /**
+     * 仮レールが現在のレイヤーの他のレールに衝突しているかどうか調べる
+     * @param {RailData} railData
+     */
+    private temporaryRailIntersects() {
+      // 仮レールを構成するPathオブジェクト
+      const targetRailPaths = getTemporaryRailComponent().railPart.path.children
+      // 現在のレイヤーにおける各レールと仮レールが重なっていないか調べる
+      const result = getRailComponentsOfLayer(this.props.activeLayerId)
+        .filter(r => r.props.id !== this.props.id)
+        .map(r => r.railPart.path)
+        .map(group => {
+          // 両レールを構成するパス同士の組み合わせを作成し、重なりを調べる
+          const combinations = Combinatorics.cartesianProduct(group.children, targetRailPaths).toArray()
+          const result = combinations.map(cmb => cmb[0].intersects(cmb[1])).every(e => e)
+          LOGGER.debug(`Rail ${group.data.railId}: ${result}`)
+          return result
+        })
+        .some(e => e)   // 重なっているものが一つ以上あればtrue
+
+      // LOGGER.debug(`tempo intersected ${result}`)
+      return result
+    }
+
+
+    /**
      * ジョイントを左クリックしたら、仮レールの位置にレールを設置する
      * @param {number} jointId
      * @param {MouseEvent} e
      */
     onJointLeftClick = (jointId: number, e: MouseEvent) => {
+      // 仮レールがこのレイヤーの他のレールと重なっていないか調べる
+      const intersects = this.temporaryRailIntersects()
+      if (intersects) {
+        LOGGER.info("Rail intersects.")
+        return false
+      }
+
       // 仮レールのRailDataを取得
-      const itemProps = this.props.temporaryItem
-      // PivotJointだけ接続状態にする
+      const temporaryItemData = this.props.temporaryItem
+      // 対向ジョイントの情報にこのレールのIDとJointIDをセットする
       let opposingJoints = new Array(this.props.opposingJoints.length).fill(null)
-      // このレールのIDとJointIDが対向ジョイント
       opposingJoints[this.props.temporaryPivotJointIndex] = {
         railId: this.props.id,
         jointId: jointId
       }
 
       // 仮レールの位置にレールを設置
-      const newRail = {
-        ...itemProps,
+      const newRailData = {
+        ...temporaryItemData,
         id: this.props.nextRailId,
         name: '',
         layerId: this.props.activeLayerId,
@@ -162,7 +192,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         opposingJoints: opposingJoints,
         enableJoints: true,
       }
-      this.props.addRail(newRail)
+      this.props.addRail(newRailData)
 
       // 仮レールを消去する
       this.props.setTemporaryItem(null)
@@ -178,13 +208,14 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
             jointId: cmb[0].props.data.partId
           },
           to: {
-            rail: newRail,
+            rail: newRailData,
             jointId: cmb[1].props.data.partId
           }
         }
       }) as any
 
       this.props.builderConnectJoints(jointPairs)
+      return true
     }
 
     /**
@@ -195,7 +226,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onJointMouseMove = (jointId: number, e: MouseEvent) => {
       // 仮レールのマウントがまだ完了していなかったら何もしない
-      const temporaryRail = window.RAIL_COMPONENTS["-1"]
+      const temporaryRail = getTemporaryRailComponent()
       if (!temporaryRail) {
         return // noop
       }
@@ -278,7 +309,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         name: 'TemporaryRail',
         position: this.railPart.getGlobalJointPosition(jointId),
         angle: this.railPart.getGlobalJointAngle(jointId),
-        layerId: 1,
+        layerId: -1,
         opacity: TEMPORARY_RAIL_OPACITY,
         pivotJointIndex: pivotJointIndex,
         enableJoints: false
@@ -323,3 +354,18 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
   return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithRailBase)
 }
 
+const getRailComponent = (id: number): RailBase<RailBaseProps, any> => {
+  return window.RAIL_COMPONENTS[id.toString()]
+}
+
+const getTemporaryRailComponent = (): RailBase<RailBaseProps, any> => {
+  return window.RAIL_COMPONENTS["-1"]
+}
+
+const getAllRailComponents = (): Array<RailBase<RailBaseProps, any>> => {
+  return Object.keys(window.RAIL_COMPONENTS).map(key => window.RAIL_COMPONENTS[key])
+}
+
+const getRailComponentsOfLayer = (layerId: number): Array<RailBase<RailBaseProps, any>> => {
+  return getAllRailComponents().filter(r => r.props.layerId === layerId)
+}

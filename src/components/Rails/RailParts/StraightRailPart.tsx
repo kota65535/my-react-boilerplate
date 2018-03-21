@@ -65,6 +65,7 @@ export default class StraightRailPart extends RailPartBase<StraightRailPartProps
       <PartGroup
         pivotPartIndex={pivotPartIndex}
         pivot={Pivot.LEFT}
+        data={data}
       >
         <RectPart
           width={length}

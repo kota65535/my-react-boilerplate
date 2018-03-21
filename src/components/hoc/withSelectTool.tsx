@@ -71,6 +71,10 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
     }
 
 
+    /**
+     * 任意の地点を左クリックしたら、矩形選択を開始する。
+     * @param {paper.ToolEvent | any} e
+     */
     mouseDown = (e: ToolEvent|any) => {
       // Pathを毎回生成・削除する場合、PaperRendererで描画するよりも
       // 生のPaperJSオブジェクトを操作したほうが都合が良い。
@@ -90,6 +94,10 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
     }
 
 
+    /**
+     * ドラッグ中は、矩形選択の開始地点からマウスカーソルに至る矩形を表示し続ける。
+     * @param {paper.ToolEvent | any} e
+     */
     mouseDrag = (e: ToolEvent|any) => {
       if (this.selectionRect) {
         this.selectionRect.remove()
@@ -104,6 +112,10 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
     }
 
 
+    /**
+     * ドラッグを終了したら、一部または全体が矩形に含まれるレールを選択状態にする。
+     * @param {paper.ToolEvent} e
+     */
     mouseUp = (e: ToolEvent) => {
       if (this.selectionRect) {
         // 選択対象は現在のレイヤーのレールとする

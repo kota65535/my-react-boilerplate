@@ -17,8 +17,8 @@ export interface PivotInfo {
 export interface RailPartBaseProps extends Partial<RailPartBaseDefaultProps> {
   name?: string
   data?: RailPartInfo
-  onLeftClick?: (e: MouseEvent) => void
-  onRightClick?: (e: MouseEvent) => void
+  onLeftClick?: (e: MouseEvent) => boolean
+  onRightClick?: (e: MouseEvent) => boolean
 }
 
 export interface RailPartBaseDefaultProps {

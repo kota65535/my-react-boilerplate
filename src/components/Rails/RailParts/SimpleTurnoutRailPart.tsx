@@ -75,6 +75,7 @@ export default class SimpleTurnoutRailPart extends RailPartBase<SimpleTurnoutRai
       <PartGroup
         pivotPartIndex={pivotPartIndex}
         pivot={pivot}
+        data={data}
       >
         <RectPart
           width={length}

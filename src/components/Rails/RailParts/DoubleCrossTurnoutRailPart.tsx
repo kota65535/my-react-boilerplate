@@ -6,37 +6,24 @@ import DetectablePart from "./Parts/DetectablePart";
 import ArcPart, {ArcDirection} from "./Parts/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
-import {RailPartInfo} from "components/Rails/RailParts/types";
 import getLogger from "logging";
 import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
-import RailPartBase from "./RailPartBase";
+import {
+  default as RailPartBase,
+  RailPartBaseDefaultProps,
+  RailPartBaseProps
+} from "components/Rails/RailParts/RailPartBase";
 
 const LOGGER = getLogger(__filename)
 
 
-interface Props extends Partial<DefaultProps> {
+interface DoubleCrossTurnoutRailPartProps extends RailPartBaseProps {
   length: number
-  name?: string
-  data?: RailPartInfo
-  onLeftClick?: (e: MouseEvent) => void
-  onRightClick?: (e: MouseEvent) => void
 }
-
-interface DefaultProps {
-  position?: Point
-  angle?: number
-  pivotJointIndex?: number
-  detectionEnabled?: boolean
-  selected?: boolean
-  opacity?: number
-  fillColors?: string[]
-}
-
-export type DoubleCrossTurnoutRailPartProps = Props & DefaultProps;
 
 
 export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCrossTurnoutRailPartProps, {}> {
-  public static defaultProps: DefaultProps = {
+  public static defaultProps: RailPartBaseDefaultProps = {
     position: new Point(0, 0),
     angle: 0,
     pivotJointIndex: 0,
@@ -45,8 +32,6 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
     opacity: 1,
     fillColors: RAIL_PART_FILL_COLORS
   }
-
-  detectablePart: DetectablePart
 
   pivots = [
     {pivotPartIndex: 0, pivot: Pivot.LEFT},
@@ -88,6 +73,7 @@ export default class DoubleCrossTurnoutRailPart extends RailPartBase<DoubleCross
       <PartGroup
         pivotPartIndex={pivotPartIndex}
         pivot={pivot}
+        data={data}
       >
         <RectPart
           width={length}

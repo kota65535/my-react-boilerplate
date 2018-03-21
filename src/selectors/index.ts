@@ -21,3 +21,12 @@ export const canUndo = (state: RootState) => {
 export const canRedo = (state: RootState) => {
   return state.layout.histories.length > 1 && state.layout.historyIndex + 1 < state.layout.histories.length
 }
+
+export const temporaryPivotJointIndex = (state: RootState|any) => {
+  const temporaryItem = state.builder.temporaryItem
+  if (temporaryItem) {
+    return temporaryItem.pivotJointIndex
+  } else {
+    return 0
+  }
+}

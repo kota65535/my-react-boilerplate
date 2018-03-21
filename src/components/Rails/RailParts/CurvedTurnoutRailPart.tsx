@@ -79,6 +79,7 @@ export default class CurvedTurnoutRailPart extends RailPartBase<CurvedTurnoutRai
       <PartGroup
         pivotPartIndex={pivotPartIndex}
         pivot={pivot}
+        data={data}
       >
         <ArcPart
           direction={direction}

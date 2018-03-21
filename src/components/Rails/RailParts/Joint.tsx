@@ -15,8 +15,8 @@ interface Props extends Partial<DefaultProps> {
   name?: string
   data?: RailPartInfo
   onMouseMove?: (e: MouseEvent) => void
-  onLeftClick?: (e: MouseEvent) => void
-  onRightClick?: (e: MouseEvent) => void
+  onLeftClick?: (e: MouseEvent) => boolean
+  onRightClick?: (e: MouseEvent) => boolean
   onMouseEnter?: (e: MouseEvent) => void
   onMouseLeave?: (e: MouseEvent) => void
 }

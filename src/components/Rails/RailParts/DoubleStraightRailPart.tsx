@@ -5,7 +5,6 @@ import RectPart from "./Parts/RectPart";
 import DetectablePart from "./Parts/DetectablePart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
-import {RailPartInfo} from "components/Rails/RailParts/types";
 import getLogger from "logging";
 import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
 import {
@@ -19,10 +18,6 @@ const LOGGER = getLogger(__filename)
 
 interface DoubleStraightRailPartProps extends RailPartBaseProps {
   length: number
-  name?: string
-  data?: RailPartInfo
-  onLeftClick?: (e: MouseEvent) => void
-  onRightClick?: (e: MouseEvent) => void
 }
 
 
@@ -75,6 +70,7 @@ export default class DoubleStraightRailPart extends RailPartBase<DoubleStraightR
       <PartGroup
         pivotPartIndex={pivotPartIndex}
         pivot={pivot}
+        data={data}
       >
         <RectPart
           width={length}

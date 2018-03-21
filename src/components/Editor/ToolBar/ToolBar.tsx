@@ -17,17 +17,21 @@ import GapIcon from "./Icon/Gap";
 import {selectPaletteItem} from "actions/builder";
 import {PaletteItem, RootState} from "store/type";
 import {LastPaletteItems} from "reducers/builder";
+import {redo, undo} from "actions/layout";
+import {canRedo, canUndo} from "selectors";
 
 
 export interface ToolBarProps {
   activeTool: string
   setTool: any
-  selectPaletteItem: (item: PaletteItem) => void
+
   lastPaletteItems: LastPaletteItems
-  undo: () => void
-  redo: () => void
   canUndo: boolean
   canRedo: boolean
+
+  selectPaletteItem: (item: PaletteItem) => void
+  undo: () => void
+  redo: () => void
   removeSelectedItems: () => void
   resetViewPosition: () => void
 }
@@ -39,13 +43,17 @@ export interface ToolBarState {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    lastPaletteItems: state.builder.lastPaletteItems
+    lastPaletteItems: state.builder.lastPaletteItems,
+    canUndo: canUndo(state),
+    canRedo: canRedo(state)
   }
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
+    selectPaletteItem: (item: PaletteItem) => dispatch(selectPaletteItem(item)),
+    undo: () => dispatch(undo({})),
+    redo: () => dispatch(redo({}))
   }
 };
 

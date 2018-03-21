@@ -6,19 +6,34 @@ import {connect} from 'react-redux';
 import Rnd from 'react-rnd'
 import {LayerData} from "reducers/layout";
 import {setActiveLayer} from "actions/builder";
-import {setLayerVisible} from "actions/layout";
 import {RootState} from "store/type";
+import {currentLayoutData} from "selectors";
 
 export interface LayersProps {
   layers: LayerData[]
   activeLayerId: number
   setActiveLayer: (layerId: number) => void
-  setLayerVisible: (layerId: number, visible: boolean) => void
+  updateLayer: (layer: LayerData) => void
   className?: string
 }
 
 export interface LayersState {
 }
+
+const mapStateToProps = (state: RootState): Partial<LayersProps> => {
+  return {
+    layers: currentLayoutData(state).layers,
+    activeLayerId: state.builder.activeLayerId
+  }
+}
+
+const mapDispatchToProps = (dispatch): Partial<LayersProps>  => {
+  return {
+    setActiveLayer: (layerId: number) => dispatch(setActiveLayer(layerId)),
+    updateLayer: (layer: LayerData) => dispatch(layer),
+  }
+}
+
 
 class Layers extends React.Component<LayersProps, LayersState> {
 
@@ -29,7 +44,9 @@ class Layers extends React.Component<LayersProps, LayersState> {
   }
 
   handleSetVisible(e: React.SyntheticEvent<HTMLInputElement>) {
-    this.props.setLayerVisible(Number(e.currentTarget.value), e.currentTarget.checked)
+    let newLayer = this.props.layers.find(layer => layer.id === Number(e.currentTarget.value))
+    newLayer.visible = e.currentTarget.checked
+    this.props.updateLayer(newLayer)
   }
 
   handleSetActive(layerId: number, e: React.MouseEvent<HTMLElement>) {
@@ -65,7 +82,7 @@ class Layers extends React.Component<LayersProps, LayersState> {
                   <StyledListItem
                     button
                     active={activeLayerId === value.id}
-                    onClick={this.handleSetActive.bind(this, value)}
+                    // onClick={this.handleSetActive.bind(this, value)}
                   >
                     <ListItemText primary={value.name}/>
                   </StyledListItem>
@@ -79,17 +96,5 @@ class Layers extends React.Component<LayersProps, LayersState> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    activeLayerId: state.builder.activeLayerId
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    setActiveLayer: (layerId: number) => dispatch(setActiveLayer(layerId)),
-    setLayerVisible: (layerId: number, visible: boolean) => dispatch(setLayerVisible({layerId, visible}))
-  }
-};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layers)

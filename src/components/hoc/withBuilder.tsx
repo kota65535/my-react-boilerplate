@@ -34,7 +34,7 @@ export interface WithBuilderPublicProps {
 
 interface WithBuilderPrivateProps {
   layout: LayoutData
-  selectedItem: PaletteItem
+  paletteItem: PaletteItem
   activeLayerId: number
   isLayoutEmpty: boolean
   mousePosition: Point
@@ -67,7 +67,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
   const mapStateToProps = (state: RootState) => {
     return {
       layout: currentLayoutData(state),
-      selectedItem: state.builder.selectedItem,
+      paletteItem: state.builder.paletteItem,
       activeLayerId: state.builder.activeLayerId,
       isLayoutEmpty: isLayoutEmpty(state),
       mousePosition: state.builder.mousePosition,
@@ -148,7 +148,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     mouseMove_FirstAngle = (e: ToolEvent | any) => {
       // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
-      const itemProps = RailFactory[this.props.selectedItem.name]()
+      const itemProps = RailFactory[this.props.paletteItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
       LOGGER.debug(`FirstAngle: ${angle}`) // `
       this.props.setTemporaryItem({
@@ -196,7 +196,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // this.detecting = railData
       //
       // // 仮レールを設置する
-      // const itemProps = RailFactory[this.props.selectedItem.name]()
+      // const itemProps = RailFactory[this.props.paletteItem.name]()
       // this.props.setTemporaryItem({
       //   ...itemProps,
       //   id: -1,
@@ -254,7 +254,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     mouseLeftDown_FirstAngle = (e: ToolEvent | any) => {
       // パレットで選択したレール生成のためのPropsを取得
-      const itemProps = RailFactory[this.props.selectedItem.name]()
+      const itemProps = RailFactory[this.props.paletteItem.name]()
       // 仮レールの位置にレールを設置
       this.props.addRail({
         ...itemProps,
@@ -293,7 +293,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       // this.setJointState(oldItem, jointId, DetectionState.AFTER_DETECT)
       //
       // // パレットで選択したレール生成のためのPropsを取得
-      // const itemProps = RailFactory[this.props.selectedItem.name]()
+      // const itemProps = RailFactory[this.props.paletteItem.name]()
       // // 仮レールの位置にレールを設置
       // this.props.addRail(this.props.activeLayerId, {
       //   ...itemProps,

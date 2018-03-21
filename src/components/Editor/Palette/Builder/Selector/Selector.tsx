@@ -5,7 +5,7 @@ import {PaletteItem} from "store/type";
 
 export interface SelectorProps {
   items: PaletteItem[]
-  selectedItem: PaletteItem
+  paletteItem: PaletteItem
   selectItem: (item: PaletteItem) => void
 }
 
@@ -27,7 +27,7 @@ export default class Selector extends React.Component<SelectorProps, {}> {
           return [
               <StyledListItem
                 button
-                active={this.props.selectedItem.name === value.name}
+                active={this.props.paletteItem.name === value.name}
                 // TODO: Performance issue?
                 onClick={this.handleClick.bind(this, value)}
                 key={index}

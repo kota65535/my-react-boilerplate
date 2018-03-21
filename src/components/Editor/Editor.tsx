@@ -108,7 +108,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
   render() {
 
     const toolbarProps = Object.assign(pick(this.props,
-      ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'selectedItem', 'resetViewPosition']), {
+      ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'paletteItem', 'resetViewPosition']), {
       save: this.save,
       toggleLayers: this.toggleLayers,
     })

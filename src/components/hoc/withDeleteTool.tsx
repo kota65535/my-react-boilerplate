@@ -9,6 +9,7 @@ import getLogger from "logging";
 import update from "immutability-helper";
 import {getRailDataById} from "components/hoc/common";
 import {removeRail, updateRail} from "actions/layout";
+import {LastPaletteItems} from "reducers/builder";
 
 const LOGGER = getLogger(__filename)
 
@@ -19,7 +20,7 @@ export interface WithDeleteToolPublicProps {
 interface WithDeleteToolPrivateProps {
   layout: LayoutData
   activeLayerId: number
-  lastSelectedItems: object
+  lastPaletteItems: LastPaletteItems
   selectPaletteItem: (item: PaletteItem) => void
 
   updateRail: (item: RailData, overwrite?: boolean) => void
@@ -35,11 +36,11 @@ export type WithDeleteToolProps = WithDeleteToolPublicProps & WithDeleteToolPriv
  */
 export default function withDeleteTool(WrappedComponent: React.ComponentClass<WithDeleteToolPublicProps>) {
 
-  const mapStateToProps = (state: RootState) => {
+  const mapStateToProps = (state: RootState): Partial<WithDeleteToolPrivateProps> => {
     return {
       layout: currentLayoutData(state),
       activeLayerId: state.builder.activeLayerId,
-      lastSelectedItems: state.builder.lastSelectedItems
+      lastPaletteItems: state.builder.lastPaletteItems
     }
   }
 

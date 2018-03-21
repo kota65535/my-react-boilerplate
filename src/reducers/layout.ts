@@ -12,7 +12,6 @@ import {
   LAYOUT_UPDATE_RAIL
 } from "constants/actions";
 import update from 'immutability-helper';
-import {CurveRailProps} from "components/Rails/CurveRail";
 
 export interface LayoutStoreState {
   histories: LayoutData[]
@@ -44,7 +43,7 @@ export interface JointInfo {
   jointId: number
 }
 
-export type RailData = BaseRailData | BaseRailData & StraightRailProps | BaseRailData & CurveRailProps
+export type RailData = BaseRailData | BaseRailData & StraightRailProps
 
 
 export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {

@@ -16,13 +16,14 @@ import FeederIcon from "./Icon/Feeder";
 import GapIcon from "./Icon/Gap";
 import {selectPaletteItem} from "actions/builder";
 import {PaletteItem, RootState} from "store/type";
+import {LastPaletteItems} from "reducers/builder";
 
 
 export interface ToolBarProps {
   activeTool: string
   setTool: any
   selectPaletteItem: (item: PaletteItem) => void
-  lastSelectedItems: object
+  lastPaletteItems: LastPaletteItems
   undo: () => void
   redo: () => void
   canUndo: boolean
@@ -38,7 +39,7 @@ export interface ToolBarState {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    lastSelectedItems: state.builder.lastSelectedItems
+    lastPaletteItems: state.builder.lastPaletteItems
   }
 };
 
@@ -65,7 +66,7 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
   handleBuilderToolsClick = (tool: Tools, e: MouseEvent) => {
     this.props.setTool(tool)
     // 最後に選択していたアイテムを選択する
-    this.props.selectPaletteItem(this.props.lastSelectedItems[tool])
+    this.props.selectPaletteItem(this.props.lastPaletteItems[tool])
   }
 
   render() {

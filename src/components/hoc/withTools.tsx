@@ -4,11 +4,12 @@ import {setTool} from "../../actions/tools";
 import {PaletteItem, RootState} from "store/type";
 import {Tools} from "constants/tools";
 import {selectPaletteItem} from "actions/builder";
+import {LastPaletteItems} from "reducers/builder";
 
 export interface WithToolsPrivateProps {
   activeTool: string
   setTool: (tool: string, mode?: any) => void
-  lastSelectedItems: object
+  lastPaletteItems: LastPaletteItems
   selectPaletteItem: (item: PaletteItem) => void
 }
 
@@ -24,10 +25,10 @@ type WithToolsProps =  WithToolsPublicProps & WithToolsPrivateProps
  */
 export default function withTools(WrappedComponent: React.ComponentClass<WithToolsPublicProps>) {
 
-  const mapStateToProps = (state: RootState) => {
+  const mapStateToProps = (state: RootState): Partial<WithToolsPrivateProps> => {
     return {
       activeTool: state.tools.activeTool,
-      lastSelectedItems: state.builder.lastSelectedItems
+      lastPaletteItems: state.builder.lastPaletteItems
     }
   }
 
@@ -58,15 +59,15 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
           break
         case 's':
           this.props.setTool(Tools.STRAIGHT_RAILS)
-          this.props.selectPaletteItem(this.props.lastSelectedItems[Tools.STRAIGHT_RAILS])
+          this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.STRAIGHT_RAILS])
           break
         case 'c':
           this.props.setTool(Tools.CURVE_RAILS)
-          this.props.selectPaletteItem(this.props.lastSelectedItems[Tools.CURVE_RAILS])
+          this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.CURVE_RAILS])
           break
         case 't':
           this.props.setTool(Tools.TURNOUTS)
-          this.props.selectPaletteItem(this.props.lastSelectedItems[Tools.TURNOUTS])
+          this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.TURNOUTS])
           break
         case 'd':
           this.props.setTool(Tools.DELETE)

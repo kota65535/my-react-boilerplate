@@ -14,9 +14,22 @@ export interface BuilderProps {
   title: string
   icon: ReactNode
   items: PaletteItem[]
-  selectedItem: PaletteItem
+  paletteItem: PaletteItem
   selectItem: (item: PaletteItem) => void
 }
+
+const mapStateToProps = (state: RootState) => {
+  return {
+    paletteItem: state.builder.paletteItem
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    selectItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
+  }
+};
+
 
 class Builder extends React.Component<BuilderProps, {}> {
 
@@ -37,7 +50,7 @@ class Builder extends React.Component<BuilderProps, {}> {
             <Selector
               items={this.props.items}
               selectItem={this.props.selectItem}
-              selectedItem={this.props.selectedItem}
+              paletteItem={this.props.paletteItem}
             />
           </Paper>
         </HideableDiv>
@@ -46,16 +59,5 @@ class Builder extends React.Component<BuilderProps, {}> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    selectedItem: state.builder.selectedItem
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    selectItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
-  }
-};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Builder)

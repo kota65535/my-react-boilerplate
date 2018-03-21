@@ -1,5 +1,14 @@
 import {Action, handleActions} from 'redux-actions';
-import * as Actions from 'constants/actions';
+import {
+  BUILDER_SELECT_PALETTE_ITEM,
+  BUILDER_SET_ACTIVE_LAYER,
+  BUILDER_SET_MARKER_POSITION,
+  BUILDER_SET_MOUSE_POSITION,
+  BUILDER_SET_PAPER_VIEW_LOADED,
+  BUILDER_SET_PHASE,
+  BUILDER_SET_TEMPORARY_ITEM,
+  BUILDER_SET_TEMPORARY_PIVOT_JOINT
+} from 'constants/actions';
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {RailData} from "reducers/layout";
@@ -10,21 +19,28 @@ export enum BuilderPhase {
   SUBSEQUENT = 'Subsequent'
 }
 
+export interface LastPaletteItems {
+  [key: string]: PaletteItem
+}
+
 
 export interface BuilderStoreState {
-  selectedItem: PaletteItem
-  lastSelectedItems: object
+  // パレットで選択中のレール
+  paletteItem: PaletteItem
+  // 直前に選択していたレール
+  lastPaletteItems: LastPaletteItems
   activeLayerId: number
   mousePosition: Point
   paperViewLoaded: boolean
   temporaryItem: RailData
   phase: BuilderPhase
   markerPosition: Point
+  temporaryPivotJointIndex: number
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {
-  selectedItem: {type: 'StraightRail', name: 'S280'},
-  lastSelectedItems: {
+  paletteItem: {type: 'StraightRail', name: 'S280'},
+  lastPaletteItems: {
     'Straight Rails': {type: 'StraightRail', name: 'S280'},
     'Curve Rails': {type: 'CurveRail', name: 'C280-45'},
     'Turnouts': {type: 'Turnout', name: 'PR541-15'}
@@ -34,57 +50,91 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   paperViewLoaded: false,
   temporaryItem: null,
   phase: BuilderPhase.FIRST_POSITION,
-  markerPosition: null
+  markerPosition: null,
+  temporaryPivotJointIndex: 0
 }
 
 export default handleActions<BuilderStoreState, any>({
-  [Actions.BUILDER_SET_ACTIVE_LAYER]: (state: BuilderStoreState, action: Action<number>) => {
+  /**
+   * アクティブなレイヤーを変更する。
+   * @param {BuilderStoreState} state
+   * @param {Action<number>} action
+   * @returns {BuilderStoreState}
+   */
+  [BUILDER_SET_ACTIVE_LAYER]: (state: BuilderStoreState, action: Action<number>) => {
     return {
       ...state,
       activeLayerid: action.payload
     } as BuilderStoreState
   },
 
-  [Actions.BUILDER_SELECT_PALETTE_ITEM]: (state: BuilderStoreState, action: Action<PaletteItem>) => {
+  /**
+   * パレットで選択中のレールを変更する。
+   * @param {BuilderStoreState} state
+   * @param {Action<PaletteItem>} action
+   * @returns {BuilderStoreState}
+   */
+  [BUILDER_SELECT_PALETTE_ITEM]: (state: BuilderStoreState, action: Action<PaletteItem>) => {
     return {
       ...state,
-      selectedItem: action.payload,
-      lastSelectedItems: {
-        ...state.lastSelectedItems,
-        [action.payload!.type]: action.payload
-      }
+      paletteItem: action.payload,
+      lastPaletteItems: {
+        ...state.lastPaletteItems,
+        [action.payload.type]: action.payload
+      },
+      temporaryPivotJointIndex: 0   // PivotJointをリセットする
     } as BuilderStoreState
   },
 
-  [Actions.BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
+  [BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
     return {
       ...state,
       mousePosition: action.payload
     } as BuilderStoreState
   },
 
-  [Actions.BUILDER_SET_PAPER_VIEW_LOADED]: (state: BuilderStoreState, action: Action<boolean>) => {
+  [BUILDER_SET_PAPER_VIEW_LOADED]: (state: BuilderStoreState, action: Action<boolean>) => {
     return {
       ...state,
       paperViewLoaded: action.payload
     } as BuilderStoreState
   },
-  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>) => {
+
+  /**
+   * 仮レールを設定する。
+   * @param {BuilderStoreState} state
+   * @param {Action<RailData>} action
+   * @returns {BuilderStoreState}
+   */
+  [BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>) => {
     return {
       ...state,
       temporaryItem: action.payload
     } as BuilderStoreState
   },
-  [Actions.BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>) => {
+  [BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>) => {
     return {
       ...state,
       phase: action.payload
     } as BuilderStoreState
   },
-  [Actions.BUILDER_SET_MARKER_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
+  [BUILDER_SET_MARKER_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
     return {
       ...state,
       markerPosition: action.payload
+    } as BuilderStoreState
+  },
+
+  /**
+   * 仮レールのPivotJointを変更する。
+   * @param {BuilderStoreState} state
+   * @param {Action<number>} action
+   * @returns {BuilderStoreState}
+   */
+  [BUILDER_SET_TEMPORARY_PIVOT_JOINT]: (state: BuilderStoreState, action: Action<number>) => {
+    return {
+      ...state,
+      temporaryPivotJointIndex: action.payload
     } as BuilderStoreState
   },
 }, BUILDER_INITIAL_STATE);

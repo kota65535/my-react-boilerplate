@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {pointsEqual} from "components/Rails/utils";
+import {anglesEqual, pointsEqual} from "components/Rails/utils";
 import RailFactory from "components/Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {setTemporaryItem, setTemporaryPivotJoint} from "actions/builder";
@@ -81,7 +81,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.onJointMouseEnter = this.onJointMouseEnter.bind(this)
       this.onJointMouseLeave = this.onJointMouseLeave.bind(this)
 
-      this.closeJointPairs = null
+      this.closeJointPairs = []
     }
 
     rail: RailBase<any, any>
@@ -272,10 +272,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           // 仮レールと対向レールのジョイントの組み合わせ
           const combinations = Combinatorics.cartesianProduct(temporaryRail.joints, target.joints).toArray()
           combinations.forEach(cmb => {
-            // ジョイントが十分近ければリストに加える
-            LOGGER.debug(cmb)
+            // ジョイント同士が十分近く、かつ角度が一致していればリストに加える
+            LOGGER.debug(cmb[0].props.data.railId, cmb[0].angle, cmb[1].props.data.railId, cmb[1].angle)
             const isClose = pointsEqual(cmb[0].position, cmb[1].position, 0.1)
-            if (isClose) {
+            const isSameAngle = anglesEqual(cmb[0].angle, cmb[1].angle + 180, 0.1)
+            if (isClose && isSameAngle) {
               closeJointPairs.push({
                 from: {
                   rail: temporaryRail.props,
@@ -298,7 +299,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {DetectionState} state
      */
     private setCloseJointStates(state: DetectionState) {
-      if (this.closeJointPairs != null) {
+      if (this.closeJointPairs.length > 0) {
         // 仮レールの対向レールのジョイントの状態を変更する
         this.closeJointPairs.forEach(pair => {
           const rail = getRailComponent(pair.to.rail.id)
@@ -317,7 +318,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // 仮レールを構成するPathオブジェクト
       const targetRailPaths = getTemporaryRailComponent().railPart.path.children
       // 近傍ジョイントを持つレールは衝突検査の対象から外す
-      const excludedRailIds = this.closeJointPairs.map(pair => pair.to.rail.id)
+      const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.rail.id))
       LOGGER.debug(`exluded: ${excludedRailIds}`) //`
       // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
       const result = getRailComponentsOfLayer(this.props.activeLayerId)

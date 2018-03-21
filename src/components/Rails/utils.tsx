@@ -1,6 +1,5 @@
 import * as React from "react";
-import RailContainers from "components/Rails/index";
-import {RailData} from "reducers/layout";
+import RailContainers, {RailData} from "components/Rails/index";
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)

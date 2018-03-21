@@ -11,7 +11,7 @@ import {
 } from 'constants/actions';
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
-import {RailData} from "reducers/layout";
+import {RailData} from "components/Rails";
 
 export enum BuilderPhase {
   FIRST_POSITION = 'FirstPosition',

@@ -2,8 +2,8 @@ import {createAction} from 'redux-actions';
 import * as Actions from "constants/actions";
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
-import {RailData} from "reducers/layout";
 import {BuilderPhase} from "reducers/builder";
+import {RailData} from "components/Rails";
 
 export const selectPaletteItem = createAction<PaletteItem>(Actions.BUILDER_SELECT_PALETTE_ITEM);
 export const setPaletteMode = createAction<string>(Actions.SET_PALETTE_MODE);

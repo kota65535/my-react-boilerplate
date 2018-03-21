@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import {PaletteItem, RootState} from "store/type";
-import {LayoutData, RailData} from "reducers/layout";
+import {LayoutData} from "reducers/layout";
 import {currentLayoutData} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {selectPaletteItem} from "actions/builder";
@@ -10,6 +10,7 @@ import update from "immutability-helper";
 import {getRailDataById} from "components/hoc/common";
 import {removeRail, updateRail} from "actions/layout";
 import {LastPaletteItems} from "reducers/builder";
+import {RailData} from "components/Rails";
 
 const LOGGER = getLogger(__filename)
 

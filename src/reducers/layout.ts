@@ -1,4 +1,3 @@
-import {StraightRailProps} from "components/Rails/StraightRail";
 import {Action, handleActions} from 'redux-actions';
 import {
   LAYOUT_ADD_LAYER,
@@ -12,6 +11,8 @@ import {
   LAYOUT_UPDATE_RAIL
 } from "constants/actions";
 import update from 'immutability-helper';
+import {RailData} from "components/Rails";
+
 
 export interface LayoutStoreState {
   histories: LayoutData[]
@@ -29,21 +30,15 @@ export interface LayerData {
   visible: boolean
 }
 
-export interface BaseRailData {
-  id: number
-  name?: string
-  type: string    // アイテムの種類、すなわちコンポーネントクラス。この文字列がReactElementのタグ名として用いられる
-  layerId: number    // このアイテムが所属するレイヤー
-  selected: boolean
-  opposingJoints: JointInfo[]
+export interface RailDataPayload {
+  item: RailData
+  overwrite?: boolean
 }
 
-export interface JointInfo {
-  railId: number
-  jointId: number
+export interface LayerDataPayload {
+  item: LayerData
+  overwrite?: boolean
 }
-
-export type RailData = BaseRailData | BaseRailData & StraightRailProps
 
 
 export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
@@ -61,22 +56,6 @@ export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
   ],
   historyIndex: 0,
 }
-
-
-export interface RailDataPayload {
-  item: RailData
-  overwrite?: boolean
-}
-
-export interface LayerDataPayload {
-  item: LayerData
-  overwrite?: boolean
-}
-
-// export interface SetLayerVisiblePayload {
-//   layerId: number
-//   visible: boolean
-// }
 
 
 export default handleActions<LayoutStoreState, any>({

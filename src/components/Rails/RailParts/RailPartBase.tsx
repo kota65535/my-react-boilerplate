@@ -3,7 +3,7 @@ import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import DetectablePart from "./Parts/DetectablePart";
 import {RAIL_PART_FILL_COLORS} from "constants/parts";
-import {RailPartInfo} from "components/Rails/RailParts/types";
+import {RailPartMeta} from "components/Rails/RailParts/types";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import getLogger from "logging";
 
@@ -16,7 +16,7 @@ export interface PivotInfo {
 
 export interface RailPartBaseProps extends Partial<RailPartBaseDefaultProps> {
   name?: string
-  data?: RailPartInfo
+  data?: RailPartMeta
   onLeftClick?: (e: MouseEvent) => boolean
   onRightClick?: (e: MouseEvent) => boolean
 }

@@ -3,7 +3,6 @@ import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
 import {pointsEqual} from "components/Rails/utils";
 import RailFactory from "components/Rails/RailFactory";
-import {RailData} from "reducers/layout";
 import {PaletteItem, RootState} from "store/type";
 import {setTemporaryItem, setTemporaryPivotJoint} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
@@ -14,6 +13,7 @@ import {addRail} from "actions/layout";
 import {nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps} from "components/Rails/RailBase";
 import {connect} from "react-redux";
+import {RailData} from "components/Rails/index";
 
 const LOGGER = getLogger(__filename)
 
@@ -81,11 +81,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.onJointMouseEnter = this.onJointMouseEnter.bind(this)
       this.onJointMouseLeave = this.onJointMouseLeave.bind(this)
 
-      this.reasonablyCloseJoints = null
+      this.closeJointPairs = null
     }
 
     rail: RailBase<any, any>
-    reasonablyCloseJoints: JointPair[]
+    closeJointPairs: JointPair[]
 
     get railPart() { return this.rail.railPart }
     get joints() { return this.rail.joints }
@@ -101,7 +101,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onRailPartLeftClick(e: MouseEvent) {
       // レールの選択状態をトグルする
-      this.props.builderToggleRail(this.props as any)
+      this.props.builderToggleRail(this.props)
       return true
     }
 
@@ -115,6 +115,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
     /**
      * ジョイントを左クリックしたら、仮レールの位置にレールを設置する
+     * この時近くに接続できそうなジョイントがあったら自動的に接続する
      * @param {number} jointId
      * @param {MouseEvent} e
      */
@@ -123,17 +124,28 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       const intersects = this.temporaryRailIntersects()
       if (intersects) {
         LOGGER.info("Rail intersects.")
+        // ジョイントの検出状態を変更させない
         return false
       }
 
-      // 仮レールのRailDataを取得
+      // 近傍ジョイントを非検出状態に戻す
+      this.setCloseJointStates(DetectionState.BEFORE_DETECT)
+
+      // 仮レールのRailData
       const temporaryItemData = this.props.temporaryItem
-      // 対向ジョイントの情報にこのレールのIDとJointIDをセットする
+      // クリックしたジョイントを対向ジョイントにセットする
       let opposingJoints = new Array(this.props.opposingJoints.length).fill(null)
       opposingJoints[this.props.temporaryPivotJointIndex] = {
         railId: this.props.id,
         jointId: jointId
       }
+      // 近傍ジョイントを対向ジョイントにセットする
+      this.closeJointPairs.forEach(pair => {
+        opposingJoints[pair.from.jointId] = {
+          railId: pair.to.rail.id,
+          jointId: pair.to.jointId
+        }
+      })
 
       // 仮レールの位置にレールを設置
       const newRailData = {
@@ -149,11 +161,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
       // 仮レールを消去する
       this.props.setTemporaryItem(null)
-
-      // 近傍ジョイントを接続状態にする
-      // this.undetectCloseJoints(false)
-
-      this.props.builderConnectJoints(this.reasonablyCloseJoints)
+      // クリックされたジョイント、近傍ジョイントを接続する
+      this.props.builderConnectJoints(this.closeJointPairs)
+      // ジョイントの検出状態を変更させる
       return true
     }
 
@@ -172,9 +182,10 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.props.setTemporaryPivotJoint(temporaryPivotJointIndex)
 
       // 新たに仮レールの近傍ジョイントを探索して検出状態にする
-      this.undetectCloseJoints(true)
-      this.detectCloseJoints()
-      LOGGER.info(`close joints: ${this.reasonablyCloseJoints}`)
+      this.setCloseJointStates(DetectionState.BEFORE_DETECT)
+      this.searchCloseJoints()
+      this.setCloseJointStates(DetectionState.DETECTING)
+      LOGGER.info(`close joints: ${this.closeJointPairs}`)
       return true
     }
 
@@ -190,12 +201,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       if (!temporaryRail) {
         return // noop
       }
-      // すでに一度処理していたら何もしない
-      if (this.reasonablyCloseJoints != null) {
-        return // noop
-      }
       // 仮レールの近傍にあるジョイントを検出中状態に変更する
-      this.detectCloseJoints()
+      this.searchCloseJoints()
+      this.setCloseJointStates(DetectionState.DETECTING)
     }
 
     /**
@@ -236,7 +244,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onJointMouseLeave = (jointId: number, e: MouseEvent) => {
       this.props.setTemporaryItem(null)
-      this.undetectCloseJoints(true)
+      this.setCloseJointStates(DetectionState.BEFORE_DETECT)
     }
 
     /**
@@ -251,18 +259,17 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
     /**
-     * 仮レールの近傍にあるジョイントを検出中状態に変更する
-     * @param {RailBase<any, any>} rail
+     * 仮レールのジョイントの近傍にある対向レールのジョイントを探索する
      */
-    private detectCloseJoints() {
+    private searchCloseJoints() {
       let closeJointPairs: JointPair[] = []
       // 仮レール
       const temporaryRail = getTemporaryRailComponent()
       // 自分以外の全てのレールに対して実行する
       getRailComponentsOfLayer(this.props.activeLayerId)
-        // .filter(r => r.props.id !== this.props.id)
+      // .filter(r => r.props.id !== this.props.id)
         .forEach(target => {
-          // 仮レールと対象のレールのジョイントの組み合わせ
+          // 仮レールと対向レールのジョイントの組み合わせ
           const combinations = Combinatorics.cartesianProduct(temporaryRail.joints, target.joints).toArray()
           combinations.forEach(cmb => {
             // ジョイントが十分近ければリストに加える
@@ -271,11 +278,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
             if (isClose) {
               closeJointPairs.push({
                 from: {
-                  rail: temporaryRail.props as any,
+                  rail: temporaryRail.props,
                   jointId: cmb[0].props.data.partId
                 },
                 to: {
-                  rail: target.props as any,
+                  rail: target.props,
                   jointId: cmb[1].props.data.partId
                 }
               })
@@ -283,44 +290,38 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           })
         })
 
-      // 検出中状態にする
-      closeJointPairs.forEach(pair => {
-        const rail = getRailComponent(pair.to.rail.id)
-        rail.joints[pair.to.jointId].part.setState({
-          detectionState: DetectionState.DETECTING,
-          detectionPartVisible: true
-        })
-      })
-      this.reasonablyCloseJoints = closeJointPairs
+      this.closeJointPairs = closeJointPairs
     }
 
     /**
-     * 全ての近傍ジョイントを非検出状態に戻す
+     * 探索した近傍ジョイントの状態を変更する
+     * @param {DetectionState} state
      */
-    private undetectCloseJoints(doNullify: boolean) {
-      if (this.reasonablyCloseJoints != null) {
-        this.reasonablyCloseJoints.forEach(pair => {
+    private setCloseJointStates(state: DetectionState) {
+      if (this.closeJointPairs != null) {
+        // 仮レールの対向レールのジョイントの状態を変更する
+        this.closeJointPairs.forEach(pair => {
           const rail = getRailComponent(pair.to.rail.id)
           rail.joints[pair.to.jointId].part.setState({
-            detectionState: DetectionState.BEFORE_DETECT,
+            detectionState: state,
             detectionPartVisible: true
           })
         })
-        if (doNullify) {
-          this.reasonablyCloseJoints = null
-        }
       }
     }
 
     /**
      * 仮レールが現在のレイヤーの他のレールに衝突しているかどうか調べる
      */
-    private temporaryRailIntersects() {
+    private temporaryRailIntersects(): boolean {
       // 仮レールを構成するPathオブジェクト
       const targetRailPaths = getTemporaryRailComponent().railPart.path.children
-      // 現在のレイヤーにおける各レールと仮レールが重なっていないか調べる
+      // 近傍ジョイントを持つレールは衝突検査の対象から外す
+      const excludedRailIds = this.closeJointPairs.map(pair => pair.to.rail.id)
+      LOGGER.debug(`exluded: ${excludedRailIds}`) //`
+      // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
       const result = getRailComponentsOfLayer(this.props.activeLayerId)
-        .filter(r => r.props.id !== this.props.id)
+        .filter(r => ! excludedRailIds.includes(r.props.id))
         .map(r => r.railPart.path)
         .map(group => {
           // 両レールを構成するパス同士の組み合わせを作成し、重なりを調べる

@@ -1,4 +1,4 @@
-import {LayoutData, RailData} from "reducers/layout";
+import {LayoutData} from "reducers/layout";
 
 /**
  * 指定のRailIDを持つレールをレイアウトから探して返す。

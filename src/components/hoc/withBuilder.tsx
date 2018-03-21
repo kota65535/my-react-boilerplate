@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import * as _ from "lodash";
 import RailFactory from "../Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
-import {LayoutData, RailData} from "reducers/layout";
+import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {getClosest} from "constants/utils";
@@ -12,7 +12,7 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {RailComponentClasses} from "components/Rails";
+import {RailComponentClasses, RailData} from "components/Rails";
 import {getRailDataById} from "components/hoc/common";
 import {addRail, removeRail, updateRail} from "actions/layout";
 

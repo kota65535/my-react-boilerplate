@@ -3,7 +3,7 @@ import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
 import DetectablePart from "./Parts/DetectablePart";
 import CirclePart from "./Parts/CirclePart";
-import {RailPartInfo} from "components/Rails/RailParts/types";
+import {JointMeta} from "components/Rails/RailParts/types";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import {JOINT_DETECTION_OPACITY_RATE, JOINT_FILL_COLORS} from "constants/parts";
 import TrianglePart from "components/Rails/RailParts/Parts/TrianglePart";
@@ -11,9 +11,9 @@ import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)
 
-interface Props extends Partial<DefaultProps> {
+interface JointProps extends Partial<DefaultProps> {
   name?: string
-  data?: RailPartInfo
+  data?: JointMeta
   onMouseMove?: (e: MouseEvent) => void
   onLeftClick?: (e: MouseEvent) => boolean
   onRightClick?: (e: MouseEvent) => boolean
@@ -32,7 +32,6 @@ interface DefaultProps {
   detectionEnabled?: boolean
 }
 
-export type JointProps = Props & DefaultProps;
 
 
 export default class Joint extends React.Component<JointProps, {}> {

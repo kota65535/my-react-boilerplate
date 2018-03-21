@@ -14,7 +14,6 @@ import {addRail} from "actions/layout";
 import {nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps} from "components/Rails/RailBase";
 import {connect} from "react-redux";
-import Joint from "components/Rails/RailParts/Joint";
 
 const LOGGER = getLogger(__filename)
 
@@ -86,7 +85,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
     rail: RailBase<any, any>
-    reasonablyCloseJoints: Joint[]
+    reasonablyCloseJoints: JointPair[]
 
     get railPart() { return this.rail.railPart }
     get joints() { return this.rail.joints }
@@ -152,23 +151,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.props.setTemporaryItem(null)
 
       // 近傍ジョイントを接続状態にする
-      this.undetectCloseJoints(false)
+      // this.undetectCloseJoints(false)
 
-      // LOGGER.info(`Rail-${this.props.id}-${cmb[0].props.data.partId} & Rail-${railData.id}-${cmb[1].props.data.partId}`) //`
-      const jointPairs: JointPair[] = this.reasonablyCloseJoints.map(cmb => {
-        return {
-          from: {
-            rail: this.props,
-            jointId: cmb[0].props.data.partId
-          },
-          to: {
-            rail: newRailData,
-            jointId: cmb[1].props.data.partId
-          }
-        }
-      }) as any
-
-      this.props.builderConnectJoints(jointPairs)
+      this.props.builderConnectJoints(this.reasonablyCloseJoints)
       return true
     }
 
@@ -188,7 +173,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
       // 新たに仮レールの近傍ジョイントを探索して検出状態にする
       this.undetectCloseJoints(true)
-      this.detectCloseJoints(temporaryRail)
+      this.detectCloseJoints()
       LOGGER.info(`close joints: ${this.reasonablyCloseJoints}`)
       return true
     }
@@ -210,7 +195,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         return // noop
       }
       // 仮レールの近傍にあるジョイントを検出中状態に変更する
-      this.detectCloseJoints(temporaryRail)
+      this.detectCloseJoints()
     }
 
     /**
@@ -266,33 +251,47 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
     /**
-     * 指定のレールの近傍にあるジョイントを検出中状態に変更する
+     * 仮レールの近傍にあるジョイントを検出中状態に変更する
      * @param {RailBase<any, any>} rail
      */
-    private detectCloseJoints(rail: RailBase<any, any>) {
-      let ret = []
+    private detectCloseJoints() {
+      let closeJointPairs: JointPair[] = []
+      // 仮レール
+      const temporaryRail = getTemporaryRailComponent()
       // 自分以外の全てのレールに対して実行する
-      Object.keys(window.RAIL_COMPONENTS)
-        .filter(id => id !== rail.props.id.toString())  // IDが文字列での比較になることに注意
-        .map(k => window.RAIL_COMPONENTS[k])
+      getRailComponentsOfLayer(this.props.activeLayerId)
+        // .filter(r => r.props.id !== this.props.id)
         .forEach(target => {
-          // 対象レールと指定レールのジョイントの組み合わせ
-          const combinations = Combinatorics.cartesianProduct(target.joints, rail.joints).toArray()
+          // 仮レールと対象のレールのジョイントの組み合わせ
+          const combinations = Combinatorics.cartesianProduct(temporaryRail.joints, target.joints).toArray()
           combinations.forEach(cmb => {
             // ジョイントが十分近ければリストに加える
+            LOGGER.debug(cmb)
             const isClose = pointsEqual(cmb[0].position, cmb[1].position, 0.1)
             if (isClose) {
-              ret.push(cmb)
+              closeJointPairs.push({
+                from: {
+                  rail: temporaryRail.props as any,
+                  jointId: cmb[0].props.data.partId
+                },
+                to: {
+                  rail: target.props as any,
+                  jointId: cmb[1].props.data.partId
+                }
+              })
             }
           })
         })
 
       // 検出中状態にする
-      ret.forEach(cmb => cmb[0].part.setState({
-        detectionState: DetectionState.DETECTING,
-        detectionPartVisible: true
-      }))
-      this.reasonablyCloseJoints = ret
+      closeJointPairs.forEach(pair => {
+        const rail = getRailComponent(pair.to.rail.id)
+        rail.joints[pair.to.jointId].part.setState({
+          detectionState: DetectionState.DETECTING,
+          detectionPartVisible: true
+        })
+      })
+      this.reasonablyCloseJoints = closeJointPairs
     }
 
     /**
@@ -300,10 +299,13 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     private undetectCloseJoints(doNullify: boolean) {
       if (this.reasonablyCloseJoints != null) {
-        this.reasonablyCloseJoints.forEach(cmb => cmb[0].part.setState({
-          detectionState: DetectionState.BEFORE_DETECT,
-          detectionPartVisible: true
-        }))
+        this.reasonablyCloseJoints.forEach(pair => {
+          const rail = getRailComponent(pair.to.rail.id)
+          rail.joints[pair.to.jointId].part.setState({
+            detectionState: DetectionState.BEFORE_DETECT,
+            detectionPartVisible: true
+          })
+        })
         if (doNullify) {
           this.reasonablyCloseJoints = null
         }

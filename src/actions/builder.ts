@@ -11,6 +11,6 @@ export const setActiveLayer = createAction<number>(Actions.BUILDER_SET_ACTIVE_LA
 export const setMousePosition = createAction<Point>(Actions.BUILDER_SET_MOUSE_POSITION);
 export const setPaperViewLoaded = createAction<boolean>(Actions.BUILDER_SET_PAPER_VIEW_LOADED);
 export const setTemporaryItem = createAction<RailData>(Actions.BUILDER_SET_TEMPORARY_ITEM);
-export const setTemporaryPivotJoint = createAction<number>(Actions.BUILDER_SET_TEMPORARY_PIVOT_JOINT);
+export const updateTemporaryItem = createAction<Partial<RailData>>(Actions.BUILDER_UPDATE_TEMPORARY_ITEM);
 export const setPhase = createAction<BuilderPhase>(Actions.BUILDER_SET_PHASE);
 export const setMarkerPosition = createAction<Point>(Actions.BUILDER_SET_MARKER_POSITION);

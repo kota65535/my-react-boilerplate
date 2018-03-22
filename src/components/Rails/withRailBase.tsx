@@ -4,7 +4,7 @@ import getLogger from "logging";
 import {anglesEqual, pointsEqual} from "components/Rails/utils";
 import RailFactory from "components/Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
-import {setTemporaryItem, setTemporaryPivotJoint} from "actions/builder";
+import {setTemporaryItem, updateTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {JointPair, WithBuilderProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
@@ -37,7 +37,7 @@ export interface WithRailBaseProps {
   nextRailId: number
   // actions
   setTemporaryItem: (item: RailData) => void
-  setTemporaryPivotJoint: (index: number) => void
+  updateTemporaryItem: (item: Partial<RailData>) => void
   addRail: (item: RailData, overwrite?: boolean) => void
 }
 
@@ -63,7 +63,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
   const mapDispatchToProps = (dispatch: any) => {
     return {
       setTemporaryItem: (item: RailData) => dispatch(setTemporaryItem(item)),
-      setTemporaryPivotJoint: (index: number) => dispatch(setTemporaryPivotJoint(index)),
+      updateTemporaryItem: (item: Partial<RailData>) => dispatch(updateTemporaryItem(item)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
     }
   }
@@ -160,7 +160,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.props.addRail(newRailData)
 
       // 仮レールを消去する
-      this.props.setTemporaryItem(null)
+      this.props.updateTemporaryItem({visible: false})
       // クリックされたジョイント、近傍ジョイントを接続する
       this.props.builderConnectJoints(this.closeJointPairs)
       // ジョイントの検出状態を変更させる
@@ -179,14 +179,17 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
       // 仮レールのPivotJointを加算する
       let temporaryPivotJointIndex = (this.props.temporaryPivotJointIndex + stride) % numJoints
-      this.props.setTemporaryPivotJoint(temporaryPivotJointIndex)
+      this.props.updateTemporaryItem({
+        pivotJointIndex: temporaryPivotJointIndex
+      })
 
       // 新たに仮レールの近傍ジョイントを探索して検出状態にする
       this.setCloseJointStates(DetectionState.BEFORE_DETECT)
       this.searchCloseJoints()
       this.setCloseJointStates(DetectionState.DETECTING)
       LOGGER.info(`close joints: ${this.closeJointPairs}`)
-      return true
+      // 検出状態は変更させない
+      return false
     }
 
     /**
@@ -243,7 +246,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {MouseEvent} e
      */
     onJointMouseLeave = (jointId: number, e: MouseEvent) => {
-      this.props.setTemporaryItem(null)
+      this.props.updateTemporaryItem({visible: false})
       this.setCloseJointStates(DetectionState.BEFORE_DETECT)
     }
 

@@ -7,7 +7,7 @@ import {
   BUILDER_SET_PAPER_VIEW_LOADED,
   BUILDER_SET_PHASE,
   BUILDER_SET_TEMPORARY_ITEM,
-  BUILDER_SET_TEMPORARY_PIVOT_JOINT
+  BUILDER_UPDATE_TEMPORARY_ITEM
 } from 'constants/actions';
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
@@ -110,6 +110,23 @@ export default handleActions<BuilderStoreState, any>({
       temporaryItem: action.payload
     } as BuilderStoreState
   },
+
+  /**
+   * 仮レールを更新する。
+   * @param {BuilderStoreState} state
+   * @param {Action<number>} action
+   * @returns {BuilderStoreState}
+   */
+  [BUILDER_UPDATE_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<Partial<RailData>>) => {
+    return {
+      ...state,
+      temporaryItem: {
+        ...state.temporaryItem,
+        ...action.payload
+      },
+    } as BuilderStoreState
+  },
+
   [BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>) => {
     return {
       ...state,
@@ -123,19 +140,4 @@ export default handleActions<BuilderStoreState, any>({
     } as BuilderStoreState
   },
 
-  /**
-   * 仮レールのPivotJointを変更する。
-   * @param {BuilderStoreState} state
-   * @param {Action<number>} action
-   * @returns {BuilderStoreState}
-   */
-  [BUILDER_SET_TEMPORARY_PIVOT_JOINT]: (state: BuilderStoreState, action: Action<number>) => {
-    return {
-      ...state,
-      temporaryItem: {
-        ...state.temporaryItem,
-        pivotJointIndex: action.payload
-      },
-    } as BuilderStoreState
-  },
 }, BUILDER_INITIAL_STATE);

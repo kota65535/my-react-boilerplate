@@ -29,7 +29,7 @@ export default class StraightRail extends RailBase<StraightRailProps, RailBaseSt
 
   render() {
     const {
-      position, angle, length, id, selected, pivotJointIndex, opacity,
+      position, angle, length, id, selected, pivotJointIndex, opacity, visible,
     } = this.props
 
     return (
@@ -41,6 +41,7 @@ export default class StraightRail extends RailBase<StraightRailProps, RailBaseSt
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
+          visible={visible}
           data={{
             type: 'RailPart',
             railId: id,

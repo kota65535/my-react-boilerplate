@@ -28,6 +28,7 @@ export interface RailPartBaseDefaultProps {
   detectionEnabled?: boolean
   selected?: boolean
   opacity?: number
+  visible?: boolean
   fillColors?: string[]
 }
 
@@ -40,6 +41,7 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
     detectionEnabled: false,
     selected: false,
     opacity: 1,
+    visible: true,
     fillColors: RAIL_PART_FILL_COLORS
   }
 
@@ -108,4 +110,35 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
    * @returns {number}
    */
   abstract getAngle(jointIndex: number): number
+
+
+  protected createComponent(mainPart, detectionPart) {
+    const { position, pivotJointIndex, detectionEnabled, selected, fillColors,
+      name, data, onLeftClick, onRightClick, visible
+    } = this.props
+
+    const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
+
+    return (
+      <DetectablePart
+        mainPart={mainPart}
+        detectionPart={detectionPart}
+        position={position}
+        angle={this.getAngle(pivotJointIndex)}
+        pivot={pivot}
+        pivotPartIndex={0}
+        fillColors={fillColors}
+        visible={visible}
+        detectionEnabled={detectionEnabled}
+        name={name}
+        data={data}
+        onLeftClick={onLeftClick}
+        onRightClick={onRightClick}
+        selected={selected}
+        ref={(part) => this.detectablePart = part}
+      />
+    )
+  }
+
+
 }

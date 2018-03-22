@@ -1,20 +1,14 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import DetectablePart from "./Parts/DetectablePart";
 import ArcPart, {ArcDirection} from "./Parts/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
-import getLogger from "logging";
 import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
-import {
-  default as RailPartBase,
-  RailPartBaseDefaultProps,
-  RailPartBaseProps
-} from "components/Rails/RailParts/RailPartBase";
+import RailPartBase, {RailPartBaseDefaultProps, RailPartBaseProps} from "components/Rails/RailParts/RailPartBase";
+import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)
-
 
 interface CurveRailPartProps extends RailPartBaseProps {
   radius: number
@@ -33,8 +27,6 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
     opacity: 1,
     fillColors: RAIL_PART_FILL_COLORS
   }
-
-  detectablePart: DetectablePart
 
   // Pivotにするジョイントの位置を指定するための情報
   pivots = [
@@ -68,11 +60,7 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
   }
 
   render() {
-    const {
-      radius, centerAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick
-    } = this.props
-
+    const { radius, centerAngle, direction, pivotJointIndex, data } = this.props
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
 
     const part = (
@@ -94,23 +82,6 @@ export default class CurveRailPart extends RailPartBase<CurveRailPartProps, {}> 
       </PartGroup>
     )
 
-    return (
-      <DetectablePart
-        mainPart={part}
-        detectionPart={part}
-        position={position}
-        angle={this.getAngle(pivotJointIndex)}
-        pivot={pivot}
-        pivotPartIndex={0}
-        fillColors={fillColors}
-        detectionEnabled={detectionEnabled}
-        name={name}
-        data={data}
-        onLeftClick={onLeftClick}
-        onRightClick={onRightClick}
-        selected={selected}
-        ref={(part) => this.detectablePart = part}
-      />
-    )
+    return this.createComponent(part, part)
   }
 }

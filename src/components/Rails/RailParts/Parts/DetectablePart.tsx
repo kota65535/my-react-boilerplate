@@ -162,7 +162,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
   render() {
     const {
       position, angle, pivot, pivotPartIndex, fillColors, selected, name, data, detectionEnabled,
-      mainPart, detectionPart
+      mainPart, detectionPart, visible
     } = this.props
 
     // 主パーツの色を変更
@@ -192,6 +192,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         pivot={pivot}
         pivotPartIndex={pivotPartIndex}
         fillColor={undefined}
+        visible={visible}
         selected={selected}
         name={name}
         data={data}

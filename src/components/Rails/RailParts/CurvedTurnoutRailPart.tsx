@@ -1,13 +1,14 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import DetectablePart from "./Parts/DetectablePart";
 import ArcPart, {ArcDirection} from "./Parts/ArcPart";
 import {RAIL_PART_FILL_COLORS, RAIL_PART_WIDTH} from "constants/parts";
 import {Pivot} from "components/Rails/RailParts/Parts/PartBase";
 import PartGroup from "components/Rails/RailParts/Parts/PartGroup";
 import RailPartBase, {RailPartBaseDefaultProps, RailPartBaseProps} from "components/Rails/RailParts/RailPartBase";
+import getLogger from "logging";
 
+const LOGGER = getLogger(__filename)
 
 interface CurvedTurnoutRailPartProps extends RailPartBaseProps {
   innerRadius: number
@@ -68,11 +69,7 @@ export default class CurvedTurnoutRailPart extends RailPartBase<CurvedTurnoutRai
   }
 
   render() {
-    const {
-      innerRadius, outerRadius, innerCenterAngle, outerCenterAngle, position, direction, pivotJointIndex, detectionEnabled, selected, fillColors, opacity,
-      name, data, onLeftClick, onRightClick
-    } = this.props
-
+    const { innerRadius, outerRadius, innerCenterAngle, outerCenterAngle, direction, pivotJointIndex, data } = this.props
     const {pivotPartIndex, pivot} = this.getPivot(pivotJointIndex)
 
     const part = (
@@ -98,23 +95,6 @@ export default class CurvedTurnoutRailPart extends RailPartBase<CurvedTurnoutRai
       </PartGroup>
     )
 
-    return (
-      <DetectablePart
-        mainPart={part}
-        detectionPart={part}
-        position={position}
-        angle={this.getAngle(pivotJointIndex)}
-        pivot={pivot}
-        pivotPartIndex={0}
-        fillColors={fillColors}
-        detectionEnabled={detectionEnabled}
-        name={name}
-        data={data}
-        onLeftClick={onLeftClick}
-        onRightClick={onRightClick}
-        selected={selected}
-        ref={(part) => this.detectablePart = part}
-      />
-    )
+    return this.createComponent(part, part)
   }
 }

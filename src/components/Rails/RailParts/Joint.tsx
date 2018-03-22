@@ -27,11 +27,11 @@ interface DefaultProps {
   pivot?: Pivot
   selected?: boolean
   opacity?: number
+  visible?: boolean
   fillColors?: string[]
   hasOpposingJoint?: boolean
   detectionEnabled?: boolean
 }
-
 
 
 export default class Joint extends React.Component<JointProps, {}> {
@@ -41,6 +41,7 @@ export default class Joint extends React.Component<JointProps, {}> {
     pivot: Pivot.CENTER,
     selected: false,
     opacity: 1,
+    visible: true,
     fillColors: JOINT_FILL_COLORS,
     hasOpposingJoint: false,
     detectionEnabled: true
@@ -74,7 +75,7 @@ export default class Joint extends React.Component<JointProps, {}> {
 
   render() {
     const {
-      position, angle, detectionEnabled, hasOpposingJoint, pivot, selected, fillColors, opacity,
+      position, angle, detectionEnabled, hasOpposingJoint, pivot, selected, fillColors, opacity, visible,
       name, data, onLeftClick, onRightClick, onMouseMove, onMouseEnter, onMouseLeave
     } = this.props
 
@@ -97,6 +98,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         angle={angle}
         pivot={pivot}
         fillColors={fillColors}
+        visible={visible}
         detectionEnabled={detectionEnabled && !hasOpposingJoint}
         name={name}
         data={data}

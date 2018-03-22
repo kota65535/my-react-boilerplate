@@ -30,7 +30,7 @@ export default class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutProps
 
   render() {
     const {
-      position, angle, length, id, selected, pivotJointIndex, opacity,
+      position, angle, length, id, selected, pivotJointIndex, opacity, visible,
     } = this.props
 
     return (
@@ -42,6 +42,7 @@ export default class DoubleCrossTurnout extends RailBase<DoubleCrossTurnoutProps
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
+          visible={visible}
           data={{
             type: 'RailPart',
             railId: id,

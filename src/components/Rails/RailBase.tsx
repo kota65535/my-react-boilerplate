@@ -40,6 +40,7 @@ export interface RailBaseDefaultProps {
   pivotJointIndex: number
   // 透明度
   opacity: number
+  visible: boolean
   // 対向ジョイント情報
   opposingJoints: JointInfo[]
   // ジョイント表示のON/OFF
@@ -71,6 +72,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     selected: false,
     pivotJointIndex: 0,
     opacity: 1,
+    visible: true,
     opposingJoints: [],
     enableJoints: true,
 
@@ -111,7 +113,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
    * @returns {any[]}
    */
   protected createJointComponents() {
-    const {id, opacity, opposingJoints, enableJoints} = this.props
+    const {id, opacity, opposingJoints, enableJoints, visible} = this.props
     const {jointPositions, jointAngles} = this.state
 
     return _.range(this.joints.length).map(i => {
@@ -120,6 +122,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
           position={jointPositions[i]}
           angle={jointAngles[i]}
           opacity={opacity}
+          visible={visible}
           data={{
             type: 'Joint',
             partId: i,

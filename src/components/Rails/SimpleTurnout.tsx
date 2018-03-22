@@ -33,7 +33,7 @@ export default class SimpleTurnout extends RailBase<SimpleTurnoutProps, RailBase
 
   render() {
     const {
-      position, angle, length, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity,
+      position, angle, length, radius, centerAngle, branchDirection, id, selected, pivotJointIndex, opacity, visible,
     } = this.props
 
     return (
@@ -48,6 +48,7 @@ export default class SimpleTurnout extends RailBase<SimpleTurnoutProps, RailBase
           pivotJointIndex={pivotJointIndex}
           selected={selected}
           opacity={opacity}
+          visible={visible}
           data={{
             type: 'RailPart',
             railId: id,

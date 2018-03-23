@@ -1,19 +1,19 @@
 import reducer, {LayerData} from './layout'
 import {addLayer, addRail, removeLayer, removeRail, updateLayer, updateRail} from "actions/layout";
-import {Point} from "paper";
+// import {Point} from "paper";
 import {RailData} from "components/Rails";
 
 
 const createRail = (id, layerId): RailData => {
   return {
     id: id,
-    position: new Point(0,0),
+    position: {x:0, y:0} as any,
     angle: 0,
     name: 'hoge',
     type: 'test',
     layerId: layerId,
     selected: false,
-    opposingJoints: [null, null],
+    opposingJoints: {},
     length: 10
   }
 }

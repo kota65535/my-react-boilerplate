@@ -1,6 +1,7 @@
 import * as React from "react";
 import RailContainers, {RailData} from "components/Rails/index";
 import getLogger from "logging";
+import {RailBase, RailBaseProps} from "components/Rails/RailBase";
 
 const LOGGER = getLogger(__filename)
 
@@ -26,8 +27,11 @@ export const createRailComponent = (item: RailData) => {
       // (activeTool === Tools.SELECT)
       // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
       // HOCでラップされた中身のRailComponentを取得する
-      refInstance={(i) => {
-        window.RAIL_COMPONENTS[id] = i
+      onMount={(ref) => {
+        window.RAIL_COMPONENTS[id] = ref
+      }}
+      onUnmount={(ref) => {
+        delete window.RAIL_COMPONENTS[id]
       }}
     />)
 }
@@ -64,3 +68,21 @@ export const anglesEqual = (a1, a2, tolerance = 0.0000001) => {
 // export const pointsReasonablyClose = (p1, p2, tolerance) => {
 //   return p1.isClose(p2, 0.001)
 // }
+
+
+export const getRailComponent = (id: number): RailBase<RailBaseProps, any> => {
+  return window.RAIL_COMPONENTS[id.toString()]
+}
+
+export const getTemporaryRailComponent = (): RailBase<RailBaseProps, any> => {
+  return window.RAIL_COMPONENTS["-1"]
+}
+
+export const getAllRailComponents = (): Array<RailBase<RailBaseProps, any>> => {
+  return Object.keys(window.RAIL_COMPONENTS).map(key => window.RAIL_COMPONENTS[key])
+}
+
+export const getRailComponentsOfLayer = (layerId: number): Array<RailBase<RailBaseProps, any>> => {
+  return getAllRailComponents().filter(r => r.props.layerId === layerId)
+}
+

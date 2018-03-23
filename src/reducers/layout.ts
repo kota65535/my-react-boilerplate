@@ -35,6 +35,11 @@ export interface RailDataPayload {
   overwrite?: boolean
 }
 
+export interface PartialRailDataPayload {
+  item: Partial<RailData>
+  overwrite?: boolean
+}
+
 export interface LayerDataPayload {
   item: LayerData
   overwrite?: boolean
@@ -81,14 +86,24 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<RailDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_UPDATE_RAIL]: (state: LayoutStoreState, action: Action<RailDataPayload>) => {
+  [LAYOUT_UPDATE_RAIL]: (state: LayoutStoreState, action: Action<PartialRailDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.rails.findIndex((item) => item.id === action.payload.item.id)
+    const targetRail = layout.rails[itemIndex]
+    const opposingJoints = {
+      ...targetRail.opposingJoints,
+      ...action.payload.item.opposingJoints,
+    }
+    const newRailData = {
+      ...targetRail,
+      ...action.payload.item,
+      opposingJoints: removeEmpty(opposingJoints)
+    }
     // レイアウトを更新
     const newLayout = update(layout, {
       rails: {
-        [itemIndex]: {$set: action.payload.item}
+        [itemIndex]: {$set: newRailData}
       }
     })
     // ヒストリを更新
@@ -236,3 +251,7 @@ const addHistory = (state: LayoutStoreState, layout: LayoutData, overwrite = fal
   }
 }
 
+const removeEmpty = (obj) => {
+  Object.keys(obj).forEach((key) => (obj[key] == null) && delete obj[key]);
+  return obj
+}

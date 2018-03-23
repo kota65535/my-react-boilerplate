@@ -118,12 +118,17 @@ export default handleActions<BuilderStoreState, any>({
    * @returns {BuilderStoreState}
    */
   [BUILDER_UPDATE_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<Partial<RailData>>) => {
+    const temporaryItem = {
+      ...state.temporaryItem,
+      ...action.payload,
+      opposingJoints: {
+        ...state.temporaryItem.opposingJoints,
+        ...action.payload.opposingJoints,
+      }
+    }
     return {
       ...state,
-      temporaryItem: {
-        ...state.temporaryItem,
-        ...action.payload
-      },
+      temporaryItem: temporaryItem
     } as BuilderStoreState
   },
 

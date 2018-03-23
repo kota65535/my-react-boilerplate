@@ -14,6 +14,10 @@ export interface JointInfo {
   jointId: number
 }
 
+export interface OpposingJoints {
+  [key: number]: JointInfo
+}
+
 export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
   position: Point
   angle: number
@@ -23,7 +27,8 @@ export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
   // 任意の名前
   name?: string
   // このレールのインスタンスを取得するコールバック
-  refInstance?: (ref: RailBase<any, any>) => void
+  onMount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
+  onUnmount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
 }
 
 export interface RailBaseDefaultProps {
@@ -42,7 +47,7 @@ export interface RailBaseDefaultProps {
   opacity: number
   visible: boolean
   // 対向ジョイント情報
-  opposingJoints: JointInfo[]
+  opposingJoints: OpposingJoints
   // ジョイント表示のON/OFF
   enableJoints: boolean
 
@@ -73,7 +78,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     pivotJointIndex: 0,
     opacity: 1,
     visible: true,
-    opposingJoints: [],
+    opposingJoints: {},
     enableJoints: true,
 
     // 何もしないハンドラをセットしておく
@@ -95,6 +100,12 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     this.joints = new Array(this.props.numJoints).fill(null)
   }
 
+  componentWillUnmount() {
+    if (this.props.onUnmount) {
+      this.props.onUnmount(this)
+    }
+  }
+
   componentDidUpdate() {
     this.setJointPositionsAndAngles()
   }
@@ -102,9 +113,9 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
   componentDidMount() {
     this.setJointPositionsAndAngles()
     // HOCを用いる場合、refではラップされたコンテナを取得することになってしまう
-    // そのためrefInstanceコールバックでコンポーネントインスタンスを取得する手段を与える
-    if (this.props.refInstance) {
-      this.props.refInstance(this)
+    // そのためonMountコールバックでコンポーネントインスタンスを取得する手段を与える
+    if (this.props.onMount) {
+      this.props.onMount(this)
     }
   }
 

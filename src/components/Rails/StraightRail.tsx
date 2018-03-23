@@ -15,7 +15,6 @@ export default class StraightRail extends RailBase<StraightRailProps, RailBaseSt
     type: 'StraightRail',
     numJoints: 2,
     pivotJointChangingStride: 1,
-    opposingJoints: new Array(2).fill(null),
   }
 
   constructor(props: StraightRailProps) {

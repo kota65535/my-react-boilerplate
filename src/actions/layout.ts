@@ -1,5 +1,5 @@
 import {createAction} from 'redux-actions';
-import {LayerDataPayload, RailDataPayload} from "reducers/layout";
+import {LayerDataPayload, PartialRailDataPayload, RailDataPayload} from "reducers/layout";
 import {
   LAYOUT_ADD_LAYER,
   LAYOUT_ADD_RAIL,
@@ -13,7 +13,7 @@ import {
 } from "constants/actions";
 
 export const addRail = createAction<RailDataPayload>(LAYOUT_ADD_RAIL)
-export const updateRail = createAction<RailDataPayload>(LAYOUT_UPDATE_RAIL)
+export const updateRail = createAction<PartialRailDataPayload>(LAYOUT_UPDATE_RAIL)
 export const removeRail = createAction<RailDataPayload>(LAYOUT_REMOVE_RAIL)
 
 export const addLayer = createAction<LayerDataPayload>(LAYOUT_ADD_LAYER)

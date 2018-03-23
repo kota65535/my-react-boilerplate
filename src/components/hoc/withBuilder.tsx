@@ -12,9 +12,10 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {RailComponentClasses, RailData} from "components/Rails";
-import {getRailDataById} from "components/hoc/common";
+import {RailData} from "components/Rails";
 import {addRail, removeRail, updateRail} from "actions/layout";
+import {JointInfo} from "components/Rails/RailBase";
+import {getRailComponent} from "components/Rails/utils";
 
 const LOGGER = getLogger(__filename)
 
@@ -24,7 +25,7 @@ export interface WithBuilderPublicProps {
   builderMouseMove: any
   builderKeyDown: any
   builderConnectJoints: (pairs: JointPair[]) => void
-  builderDisconnectJoint: (railData: RailData) => void
+  builderDisconnectJoint: (railId: number) => void
   builderSelectRail: (railData: RailData) => void
   builderDeselectRail: (railData: RailData) => void
   builderToggleRail:  (railData: RailData) => void
@@ -46,7 +47,7 @@ interface WithBuilderPrivateProps {
   nextRailId: number
   temporaryItem: RailData
   addRail: (item: RailData, overwrite?: boolean) => void
-  updateRail: (item: RailData, overwrite?: boolean) => void
+  updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
 }
 
@@ -54,8 +55,8 @@ export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
 
 
 export interface JointPair {
-  from: { rail: RailData, jointId: number }
-  to: { rail: RailData, jointId: number }
+  from: JointInfo
+  to: JointInfo
 }
 
 /**
@@ -84,7 +85,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       setPhase: (phase: BuilderPhase) => dispatch(setPhase(phase)),
       setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
-      updateRail: (item: RailData, overwrite = false) => dispatch(updateRail({item, overwrite})),
+      updateRail: (item: Partial<RailData>, overwrite = false) => dispatch(updateRail({item, overwrite})),
       removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
     }
   }
@@ -262,7 +263,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         position: (this.props.temporaryItem as any).position,
         angle: (this.props.temporaryItem as any).angle,
         layerId: this.props.activeLayerId,
-        opposingJoints: new Array(RailComponentClasses[itemProps.type].NUM_JOINTS).fill(null)
+        opposingJoints: {}
       } as RailData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.SUBSEQUENT)
@@ -312,7 +313,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`); // `
 
       selectedRails.forEach(item => {
-        this.disconnectJoint(item)
+        this.disconnectJoint(item.id)
         this.props.removeRail(item)
       })
     }
@@ -335,20 +336,21 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     /**
      * 指定のレールのジョイント接続を解除する。
-     * @param {RailData} railData
      */
-    disconnectJoint = (railData: RailData) => {
-      railData.opposingJoints.forEach(joint => {
-        if (joint) {
-          const railData = getRailDataById(this.props.layout, joint.railId)
-          if (railData) {
-            this.props.updateRail(update(railData, {
-              opposingJoints: {
-                [joint.jointId]: {$set: null}
-              }
-            }), true)
+    disconnectJoint = (railId: number) => {
+      // 指定のレールが接続されている対向レールのジョイントを解除する
+      const connectedJoints = getRailComponent(railId).props.opposingJoints
+      Object.values(connectedJoints).forEach((joint: JointInfo) => {
+        this.props.updateRail({
+          id: joint.railId,
+          opposingJoints: {
+            [joint.jointId]: null
           }
-        }
+        })
+      })
+      this.props.updateRail({
+        id: railId,
+        opposingJoints: {}
       })
     }
 
@@ -357,44 +359,20 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
      * 複数指定可能。特に同一レールの複数ジョイントを接続する場合は一度の呼び出しで実行すること
      */
     connectJoints = (pairs: JointPair[]) => {
-      let updatedRails = {}
-      pairs.forEach(({from, to}) => {
-        let target
-        if (from.rail.id in updatedRails) {
-          target = updatedRails[from.rail.id]
-        } else {
-          target = from.rail
-        }
-        updatedRails[from.rail.id] = update(target, {
+      console.log(pairs)
+      pairs.forEach(pair => {
+        this.props.updateRail({
+          id: pair.from.railId,
           opposingJoints: {
-            [from.jointId]: {
-              $set: {
-                railId: to.rail.id,
-                jointId: to.jointId
-              }
-            }
+            [pair.from.jointId]: pair.to
           }
         })
-
-        if (to.rail.id in updatedRails) {
-          target = updatedRails[to.rail.id]
-        } else {
-          target = to.rail
-        }
-        updatedRails[to.rail.id] = update(target, {
+        this.props.updateRail({
+          id: pair.to.railId,
           opposingJoints: {
-            [to.jointId]: {
-              $set: {
-                railId: from.rail.id,
-                jointId: from.jointId
-              }
-            }
+            [pair.to.jointId]: pair.from
           }
         })
-      })
-
-      Object.keys(updatedRails).forEach(key => {
-        this.props.updateRail(updatedRails[key], true)
       })
     }
 

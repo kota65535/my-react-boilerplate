@@ -16,7 +16,6 @@ export default class DoubleStraightRail extends RailBase<DoubleStraightRailProps
     type: 'DoubleStraightRail',
     numJoints: 4,
     pivotJointChangingStride: 2,
-    opposingJoints: new Array(4).fill(null),
   }
 
   constructor(props: DoubleStraightRailProps) {

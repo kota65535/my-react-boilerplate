@@ -19,7 +19,6 @@ export default class SimpleTurnout extends RailBase<SimpleTurnoutProps, RailBase
     type: 'SimpleTurnout',
     numJoints: 3,
     pivotJointChangingStride: 1,
-    opposingJoints: new Array(3).fill(null),
   }
 
   constructor(props: SimpleTurnoutProps) {

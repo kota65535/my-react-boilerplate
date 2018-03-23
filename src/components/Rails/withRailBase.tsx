@@ -1,7 +1,13 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {anglesEqual, pointsEqual} from "components/Rails/utils";
+import {
+  anglesEqual,
+  getRailComponent,
+  getRailComponentsOfLayer,
+  getTemporaryRailComponent,
+  pointsEqual
+} from "components/Rails/utils";
 import RailFactory from "components/Rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {setTemporaryItem, updateTemporaryItem} from "actions/builder";
@@ -11,7 +17,7 @@ import Combinatorics from "js-combinatorics"
 import {DetectionState} from "components/Rails/RailParts/Parts/DetectablePart";
 import {addRail} from "actions/layout";
 import {nextRailId, temporaryPivotJointIndex} from "selectors";
-import {RailBase, RailBaseProps} from "components/Rails/RailBase";
+import {RailBase, RailBaseProps, RailBaseState} from "components/Rails/RailBase";
 import {connect} from "react-redux";
 import {RailData} from "components/Rails/index";
 
@@ -27,7 +33,8 @@ export interface WithRailBaseProps {
   onJointMouseMove: (jointId: number, e: MouseEvent) => void
   onJointMouseEnter: (jointId: number, e: MouseEvent) => void
   onJointMouseLeave: (jointId: number, e: MouseEvent) => void
-  refInstance?: (ref: RailBase<any, any>) => void
+  onMount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
+  onUnmount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
 
   // states
   paletteItem: PaletteItem
@@ -134,7 +141,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // 仮レールのRailData
       const temporaryItemData = this.props.temporaryItem
       // クリックしたジョイントを対向ジョイントにセットする
-      let opposingJoints = new Array(this.props.opposingJoints.length).fill(null)
+      let opposingJoints = {}
       opposingJoints[this.props.temporaryPivotJointIndex] = {
         railId: this.props.id,
         jointId: jointId
@@ -142,7 +149,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // 近傍ジョイントを対向ジョイントにセットする
       this.closeJointPairs.forEach(pair => {
         opposingJoints[pair.from.jointId] = {
-          railId: pair.to.rail.id,
+          railId: pair.to.railId,
           jointId: pair.to.jointId
         }
       })
@@ -251,13 +258,22 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
     /**
-     * RailComponentクラスを取得するためのコールバック
-     * @param {RailBase<any, any>} instance
+     * マウント時に呼ばれるコールバック
+     * RailComponentクラスを取得するために用いる
      */
-    refInstance = (instance: RailBase<any, any>) => {
-      this.rail = instance
-      if (this.props.refInstance) {
-        this.props.refInstance(instance)
+    onMount = (ref: RailBase<RailBaseProps, RailBaseState>) => {
+      this.rail = ref
+      if (this.props.onMount) {
+        this.props.onMount(ref)
+      }
+    }
+
+    /**
+     * アンマウント時に呼ばれるコールバック
+     */
+    onUnmount = (ref: RailBase<RailBaseProps, RailBaseState>) => {
+      if (this.props.onUnmount) {
+        this.props.onUnmount(ref)
       }
     }
 
@@ -269,6 +285,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // 仮レール
       const temporaryRail = getTemporaryRailComponent()
       // 自分以外の全てのレールに対して実行する
+      // console.log(getRailComponentsOfLayer(this.props.activeLayerId))
       getRailComponentsOfLayer(this.props.activeLayerId)
       // .filter(r => r.props.id !== this.props.id)
         .forEach(target => {
@@ -282,11 +299,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
             if (isClose && isSameAngle) {
               closeJointPairs.push({
                 from: {
-                  rail: temporaryRail.props,
+                  railId: this.props.nextRailId,
                   jointId: cmb[0].props.data.partId
                 },
                 to: {
-                  rail: target.props,
+                  railId: target.props.id,
                   jointId: cmb[1].props.data.partId
                 }
               })
@@ -305,7 +322,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       if (this.closeJointPairs.length > 0) {
         // 仮レールの対向レールのジョイントの状態を変更する
         this.closeJointPairs.forEach(pair => {
-          const rail = getRailComponent(pair.to.rail.id)
+          const rail = getRailComponent(pair.to.railId)
           rail.joints[pair.to.jointId].part.setState({
             detectionState: state,
             detectionPartVisible: true
@@ -321,7 +338,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // 仮レールを構成するPathオブジェクト
       const targetRailPaths = getTemporaryRailComponent().railPart.path.children
       // 近傍ジョイントを持つレールは衝突検査の対象から外す
-      const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.rail.id))
+      const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.railId))
       LOGGER.debug(`exluded: ${excludedRailIds}`) //`
       // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
       const result = getRailComponentsOfLayer(this.props.activeLayerId)
@@ -351,7 +368,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           onJointMouseMove={this.onJointMouseMove}
           onJointMouseEnter={this.onJointMouseEnter}
           onJointMouseLeave={this.onJointMouseLeave}
-          refInstance={(instance) => this.refInstance(instance)}
+          onMount={(instance) => this.onMount(instance)}
+          onUnmount={(instance) => this.onUnmount(instance)}
         />
       )
     }
@@ -360,18 +378,3 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
   return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithRailBase)
 }
 
-const getRailComponent = (id: number): RailBase<RailBaseProps, any> => {
-  return window.RAIL_COMPONENTS[id.toString()]
-}
-
-const getTemporaryRailComponent = (): RailBase<RailBaseProps, any> => {
-  return window.RAIL_COMPONENTS["-1"]
-}
-
-const getAllRailComponents = (): Array<RailBase<RailBaseProps, any>> => {
-  return Object.keys(window.RAIL_COMPONENTS).map(key => window.RAIL_COMPONENTS[key])
-}
-
-const getRailComponentsOfLayer = (layerId: number): Array<RailBase<RailBaseProps, any>> => {
-  return getAllRailComponents().filter(r => r.props.layerId === layerId)
-}

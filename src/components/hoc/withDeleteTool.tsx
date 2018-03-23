@@ -6,11 +6,10 @@ import {currentLayoutData} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {selectPaletteItem} from "actions/builder";
 import getLogger from "logging";
-import update from "immutability-helper";
-import {getRailDataById} from "components/hoc/common";
 import {removeRail, updateRail} from "actions/layout";
 import {LastPaletteItems} from "reducers/builder";
 import {RailData} from "components/Rails";
+import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 const LOGGER = getLogger(__filename)
 
@@ -28,12 +27,12 @@ interface WithDeleteToolPrivateProps {
   removeRail: (item: RailData, overwrite?: boolean) => void
 }
 
-export type WithDeleteToolProps = WithDeleteToolPublicProps & WithDeleteToolPrivateProps
+export type WithDeleteToolProps = WithDeleteToolPublicProps & WithDeleteToolPrivateProps & WithBuilderPublicProps
 
 
 /**
  * レールの削除モードを提供するHOC。
- * 依存: WithHistory
+ * 依存: WithBuilder
  */
 export default function withDeleteTool(WrappedComponent: React.ComponentClass<WithDeleteToolPublicProps>) {
 
@@ -86,7 +85,7 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
 
       selectedRails.forEach(item => {
-        this.disconnectJoint(item)
+        this.props.builderDisconnectJoint(item.id)
         this.props.removeRail(item)
       })
     }
@@ -106,20 +105,6 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
           break
       }
     }
-
-    disconnectJoint(railData: RailData) {
-      railData.opposingJoints.forEach(joint => {
-        if (joint) {
-          const railData = getRailDataById(this.props.layout, joint.railId)
-          this.props.updateRail(update(railData, {
-            opposingJoints: {
-              [joint.jointId]: {$set: null}
-            }
-          }), true)
-        }
-      })
-    }
-
 
     render() {
       return (

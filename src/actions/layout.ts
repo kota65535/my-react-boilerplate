@@ -8,6 +8,7 @@ import {
   LAYOUT_REDO,
   LAYOUT_REMOVE_LAYER,
   LAYOUT_REMOVE_RAIL,
+  LAYOUT_SET_NAME,
   LAYOUT_UNDO,
   LAYOUT_UPDATE_LAYER,
   LAYOUT_UPDATE_RAIL
@@ -25,3 +26,5 @@ export const undo = createAction<{}>(LAYOUT_UNDO)
 export const redo = createAction<{}>(LAYOUT_REDO)
 export const addHistory = createAction<{}>(LAYOUT_ADD_HISTORY)
 export const clearHistory = createAction<{}>(LAYOUT_CLEAR_HISTORY)
+
+export const setLayoutName = createAction<string>(LAYOUT_SET_NAME)

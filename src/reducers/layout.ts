@@ -7,6 +7,7 @@ import {
   LAYOUT_REDO,
   LAYOUT_REMOVE_LAYER,
   LAYOUT_REMOVE_RAIL,
+  LAYOUT_SET_NAME,
   LAYOUT_UNDO,
   LAYOUT_UPDATE_LAYER,
   LAYOUT_UPDATE_RAIL
@@ -18,6 +19,7 @@ import {RailData} from "components/Rails";
 export interface LayoutStoreState {
   histories: LayoutData[]
   historyIndex: number
+  name: string
 }
 
 export interface LayoutData {
@@ -61,6 +63,7 @@ export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
     }
   ],
   historyIndex: 0,
+  name: 'Untitled'
 }
 
 
@@ -237,6 +240,13 @@ export default handleActions<LayoutStoreState, any>({
     return {
       ...state,
       historyIndex: 0
+    }
+  },
+
+  [LAYOUT_SET_NAME]: (state: LayoutStoreState, action: Action<string>) => {
+    return {
+      ...state,
+      name: action.payload
     }
   },
 

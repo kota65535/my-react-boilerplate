@@ -1,5 +1,6 @@
 import {Action, handleActions} from 'redux-actions';
 import {
+  LAYOUT_ADD_HISTORY,
   LAYOUT_ADD_LAYER,
   LAYOUT_ADD_RAIL,
   LAYOUT_CLEAR_HISTORY,
@@ -214,6 +215,16 @@ export default handleActions<LayoutStoreState, any>({
     } else {
       return state
     }
+  },
+
+  /**
+   * 現在のレイアウトデータを明示的にヒストリに追加する。
+   * @param {LayoutStoreState} state
+   * @param {Action<{}>} action
+   */
+  [LAYOUT_ADD_HISTORY]: (state: LayoutStoreState, action: Action<{}>) => {
+    const layout = state.histories[state.historyIndex]
+    return addHistory(state, layout, false)
   },
 
   /**

@@ -1,6 +1,10 @@
 import {RootState} from "store/type";
 import {LayoutData} from "reducers/layout";
 
+export const currentLayoutDataString = (state: RootState) => {
+  return JSON.stringify(state.layout.histories[state.layout.historyIndex])
+}
+
 export const currentLayoutData = (state: RootState): LayoutData => {
   return state.layout.histories[state.layout.historyIndex]
 }
@@ -27,6 +31,6 @@ export const temporaryPivotJointIndex = (state: RootState|any) => {
   if (temporaryItem) {
     return temporaryItem.pivotJointIndex
   } else {
-    return 0
+    return null
   }
 }

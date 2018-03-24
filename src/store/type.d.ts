@@ -4,6 +4,7 @@ import {BuilderStoreState} from "reducers/builder";
 
 declare interface ToolsStoreState {
   activeTool: string
+  authData: any
 }
 
 declare interface PaletteItem {

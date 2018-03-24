@@ -76,18 +76,7 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
 
 
     mouseLeftDown(e: ToolEvent|any) {
-      this.removeSelectedRails()
-    }
-
-    removeSelectedRails() {
-      const selectedRails = this.props.layout.rails.filter(r => r.selected)
-        .filter(item => item.selected)
-      LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`)
-
-      selectedRails.forEach(item => {
-        this.props.builderDisconnectJoint(item.id)
-        this.props.removeRail(item)
-      })
+      this.props.builderRemoveSelectedRails()
     }
 
 
@@ -99,7 +88,7 @@ export default function withDeleteTool(WrappedComponent: React.ComponentClass<Wi
       switch (e.key) {
         case 'backspace':
           LOGGER.info(`backspape pressed`)
-          this.removeSelectedRails()
+          this.props.builderRemoveSelectedRails()
           break
         case 'c':
           break

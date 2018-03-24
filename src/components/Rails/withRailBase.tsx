@@ -167,7 +167,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.props.addRail(newRailData)
 
       // 仮レールを消去する
-      this.props.updateTemporaryItem({visible: false})
+      this.props.setTemporaryItem(null)
       // クリックされたジョイント、近傍ジョイントを接続する
       this.props.builderConnectJoints(this.closeJointPairs)
       // ジョイントの検出状態を変更させる
@@ -226,11 +226,13 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       const itemProps = RailFactory[this.props.paletteItem.name]()
 
       // カーブレールに接続する場合、PivotJoint (=向き)を揃える
-      let pivotJointIndex
-      if (this.props.type === 'CurveRail' && itemProps.type === 'CurveRail') {
-        pivotJointIndex = this.props.pivotJointIndex
-      } else {
-        pivotJointIndex = this.props.temporaryPivotJointIndex
+      let pivotJointIndex = this.props.temporaryPivotJointIndex
+      if (pivotJointIndex == null) {
+        if (this.props.type === 'CurveRail' && itemProps.type === 'CurveRail') {
+          pivotJointIndex = this.props.pivotJointIndex
+        } else {
+          pivotJointIndex = 0
+        }
       }
 
       // 仮レールを設置する

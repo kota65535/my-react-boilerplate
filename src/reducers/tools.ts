@@ -4,7 +4,8 @@ import {Tools} from "../constants/tools";
 import {ToolsStoreState} from "../store/type";
 
 const initialState: ToolsStoreState = {
-  activeTool: Tools.STRAIGHT_RAILS
+  activeTool: Tools.STRAIGHT_RAILS,
+  authData: null
 }
 
 export default handleActions<ToolsStoreState, any>({
@@ -22,4 +23,17 @@ export default handleActions<ToolsStoreState, any>({
       activeTool: action.payload,
     } as ToolsStoreState
   },
+
+  /**
+   * 認証結果をセットする。
+   * @param {ToolsStoreState} state
+   * @param {Action<string>} action
+   * @returns {{activeTool: string; authData: any}}
+   */
+  [Actions.SET_AUTH_DATA]: (state: ToolsStoreState, action: Action<string>) => {
+    return {
+      ...state,
+      authData: action.payload
+    }
+  }
 }, initialState);

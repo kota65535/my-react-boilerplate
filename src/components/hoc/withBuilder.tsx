@@ -13,7 +13,7 @@ import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
 import {RailData} from "components/Rails";
-import {addRail, removeRail, updateRail} from "actions/layout";
+import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
 import {JointInfo} from "components/Rails/RailBase";
 import {getRailComponent} from "components/Rails/utils";
 
@@ -30,6 +30,7 @@ export interface WithBuilderPublicProps {
   builderDeselectRail: (railData: RailData) => void
   builderToggleRail:  (railData: RailData) => void
   builderDeselectAllRails: () => void
+  builderRemoveSelectedRails: () => void
 }
 
 
@@ -49,6 +50,7 @@ interface WithBuilderPrivateProps {
   addRail: (item: RailData, overwrite?: boolean) => void
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
+  addHistory: () => void
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
@@ -87,6 +89,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
       updateRail: (item: Partial<RailData>, overwrite = false) => dispatch(updateRail({item, overwrite})),
       removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
+      addHistory: () => dispatch(addHistory({}))
     }
   }
 
@@ -105,6 +108,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.selectRail = this.selectRail.bind(this)
       this.deselectRail = this.deselectRail.bind(this)
       this.toggleRail = this.toggleRail.bind(this)
+      this.removeSelectedRails = this.removeSelectedRails.bind(this)
     }
 
     // /**
@@ -313,8 +317,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`); // `
 
       selectedRails.forEach(item => {
+        this.props.addHistory()
         this.disconnectJoint(item.id)
-        this.props.removeRail(item)
+        this.props.removeRail(item, true)
       })
     }
 
@@ -346,12 +351,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           opposingJoints: {
             [joint.jointId]: null
           }
-        })
+        }, true)
       })
       this.props.updateRail({
         id: railId,
         opposingJoints: {}
-      })
+      }, true)
     }
 
     /**
@@ -366,13 +371,13 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           opposingJoints: {
             [pair.from.jointId]: pair.to
           }
-        })
+        }, true)
         this.props.updateRail({
           id: pair.to.railId,
           opposingJoints: {
             [pair.to.jointId]: pair.from
           }
-        })
+        }, true)
       })
     }
 
@@ -434,6 +439,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           builderDeselectRail={this.deselectRail}
           builderToggleRail={this.toggleRail}
           builderDeselectAllRails={this.deselectAllRails}
+          builderRemoveSelectedRails={this.removeSelectedRails}
         />
       )
     }

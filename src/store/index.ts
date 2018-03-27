@@ -1,8 +1,8 @@
-import { createStore, applyMiddleware, Store } from 'redux';
-import { composeWithDevTools, devToolsEnhancer } from "redux-devtools-extension";
+import {createStore, Store} from 'redux';
+import {devToolsEnhancer} from "redux-devtools-extension";
 import rootReducer from '../reducers';
 import {RootState} from "./type";
-import {BUILDER_SET_MARKER_POSITION, BUILDER_SET_MOUSE_POSITION, BUILDER_SET_TEMPORARY_ITEM} from "constants/actions";
+import {BUILDER_SET_MARKER_POSITION, BUILDER_SET_MOUSE_POSITION, BUILDER_SET_TEMPORARY_ITEM} from "actions/constants";
 
 export function configureStore(initialState?: RootState) {
   let store

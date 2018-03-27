@@ -1,5 +1,5 @@
 import {createAction} from 'redux-actions';
-import * as Actions from "constants/actions";
+import * as Actions from "actions/constants";
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {BuilderPhase} from "reducers/builder";

@@ -1,5 +1,5 @@
 import {Action, handleActions} from 'redux-actions';
-import * as Actions from '../constants/actions';
+import * as Actions from "actions/constants"
 import {Tools} from "../constants/tools";
 import {ToolsStoreState} from "../store/type";
 

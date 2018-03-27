@@ -1,18 +1,5 @@
 import {Action, handleActions} from 'redux-actions';
-import {
-  LAYOUT_ADD_HISTORY,
-  LAYOUT_ADD_LAYER,
-  LAYOUT_ADD_RAIL,
-  LAYOUT_CLEAR_HISTORY,
-  LAYOUT_LOAD_LAYOUT,
-  LAYOUT_REDO,
-  LAYOUT_REMOVE_LAYER,
-  LAYOUT_REMOVE_RAIL,
-  LAYOUT_SET_NAME,
-  LAYOUT_UNDO,
-  LAYOUT_UPDATE_LAYER,
-  LAYOUT_UPDATE_RAIL
-} from "constants/actions";
+import * as Actions from "actions/constants"
 import update from 'immutability-helper';
 import {RailData} from "components/rails";
 
@@ -75,7 +62,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<RailDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_ADD_RAIL]: (state: LayoutStoreState, action: Action<RailDataPayload>) => {
+  [Actions.LAYOUT_ADD_RAIL]: (state: LayoutStoreState, action: Action<RailDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // レイアウトを更新
     const newLayout = update(layout, {
@@ -91,7 +78,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<RailDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_UPDATE_RAIL]: (state: LayoutStoreState, action: Action<PartialRailDataPayload>) => {
+  [Actions.LAYOUT_UPDATE_RAIL]: (state: LayoutStoreState, action: Action<PartialRailDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.rails.findIndex((item) => item.id === action.payload.item.id)
@@ -121,7 +108,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<RailDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_REMOVE_RAIL]: (state: LayoutStoreState, action: Action<RailDataPayload>) => {
+  [Actions.LAYOUT_REMOVE_RAIL]: (state: LayoutStoreState, action: Action<RailDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.rails.findIndex((item) => item.id === action.payload.item.id)
@@ -139,7 +126,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<RailDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_ADD_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+  [Actions.LAYOUT_ADD_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // レイアウトを更新
     const newLayout = update(layout, {
@@ -155,7 +142,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<LayerDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_UPDATE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+  [Actions.LAYOUT_UPDATE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
@@ -175,7 +162,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<LayerDataPayload>} action
    * @returns {*}
    */
-  [LAYOUT_REMOVE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+  [Actions.LAYOUT_REMOVE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
@@ -193,7 +180,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<{}>} action
    * @returns {any}
    */
-  [LAYOUT_UNDO]: (state: LayoutStoreState, action: Action<{}>) => {
+  [Actions.LAYOUT_UNDO]: (state: LayoutStoreState, action: Action<{}>) => {
     if (state.historyIndex > 0) {
       return {
         ...state,
@@ -210,7 +197,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<{}>} action
    * @returns {any}
    */
-  [LAYOUT_REDO]: (state: LayoutStoreState, action: Action<{}>) => {
+  [Actions.LAYOUT_REDO]: (state: LayoutStoreState, action: Action<{}>) => {
     if (state.histories.length > 1 && state.historyIndex < state.histories.length - 1) {
       return {
         ...state,
@@ -226,7 +213,7 @@ export default handleActions<LayoutStoreState, any>({
    * @param {LayoutStoreState} state
    * @param {Action<{}>} action
    */
-  [LAYOUT_ADD_HISTORY]: (state: LayoutStoreState, action: Action<{}>) => {
+  [Actions.LAYOUT_ADD_HISTORY]: (state: LayoutStoreState, action: Action<{}>) => {
     const layout = state.histories[state.historyIndex]
     return addHistory(state, layout, false)
   },
@@ -237,21 +224,21 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<{}>} action
    * @returns {{histories: LayoutData[]; historyIndex: number}}
    */
-  [LAYOUT_CLEAR_HISTORY]: (state: LayoutStoreState, action: Action<{}>) => {
+  [Actions.LAYOUT_CLEAR_HISTORY]: (state: LayoutStoreState, action: Action<{}>) => {
     return {
       ...state,
       historyIndex: 0
     }
   },
 
-  [LAYOUT_SET_NAME]: (state: LayoutStoreState, action: Action<string>) => {
+  [Actions.LAYOUT_SET_NAME]: (state: LayoutStoreState, action: Action<string>) => {
     return {
       ...state,
       name: action.payload
     }
   },
 
-  [LAYOUT_LOAD_LAYOUT]: (state: LayoutStoreState, action: Action<LayoutData>) => {
+  [Actions.LAYOUT_LOAD_LAYOUT]: (state: LayoutStoreState, action: Action<LayoutData>) => {
     return {
       ...state,
       histories: [action.payload],

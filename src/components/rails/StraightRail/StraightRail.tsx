@@ -1,25 +1,23 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
-import CurveRailPart from "./parts/CurveRailPart";
-import {ArcDirection} from "./parts/primitives/ArcPart";
+import StraightRailPart from "../parts/StraightRailPart";
 import {RailBase, RailBaseDefaultProps, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 
 
-export interface CurveRailProps extends RailBaseProps {
-  radius: number
-  centerAngle: number
+export interface StraightRailProps extends RailBaseProps {
+  length: number
 }
 
 
-export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
+export default class StraightRail extends RailBase<StraightRailProps, RailBaseState> {
   public static defaultProps: RailBaseDefaultProps = {
     ...RailBase.defaultProps,
-    type: 'CurveRail',
+    type: 'StraightRail',
     numJoints: 2,
     pivotJointChangingStride: 1,
   }
 
-  constructor(props: CurveRailProps) {
+  constructor(props: StraightRailProps) {
     super(props)
     this.state = {
       jointPositions: new Array(this.props.numJoints).fill(props.position),
@@ -30,15 +28,13 @@ export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
 
   render() {
     const {
-      position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity, visible
+      position, angle, length, id, selected, pivotJointIndex, opacity, visible,
     } = this.props
 
     return (
       <React.Fragment>
-        <CurveRailPart
-          radius={radius}
-          centerAngle={centerAngle}
-          direction={ArcDirection.RIGHT}
+        <StraightRailPart
+          length={length}
           position={position}
           angle={angle}
           pivotJointIndex={pivotJointIndex}

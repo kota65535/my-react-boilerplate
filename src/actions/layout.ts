@@ -1,10 +1,11 @@
 import {createAction} from 'redux-actions';
-import {LayerDataPayload, PartialRailDataPayload, RailDataPayload} from "reducers/layout";
+import {LayerDataPayload, LayoutData, PartialRailDataPayload, RailDataPayload} from "reducers/layout";
 import {
   LAYOUT_ADD_HISTORY,
   LAYOUT_ADD_LAYER,
   LAYOUT_ADD_RAIL,
   LAYOUT_CLEAR_HISTORY,
+  LAYOUT_LOAD_LAYOUT,
   LAYOUT_REDO,
   LAYOUT_REMOVE_LAYER,
   LAYOUT_REMOVE_RAIL,
@@ -28,3 +29,4 @@ export const addHistory = createAction<{}>(LAYOUT_ADD_HISTORY)
 export const clearHistory = createAction<{}>(LAYOUT_CLEAR_HISTORY)
 
 export const setLayoutName = createAction<string>(LAYOUT_SET_NAME)
+export const loadLayout = createAction<LayoutData>(LAYOUT_LOAD_LAYOUT)

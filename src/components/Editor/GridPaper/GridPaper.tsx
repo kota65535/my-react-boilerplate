@@ -102,7 +102,10 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
               settings={{
                 applyMatrix: false
               }}
-              ref={(view) => this.view = view}
+              ref={(view) => {
+                this.view = view
+                if (view) window.CANVAS = view.canvas
+              }}
         >
           <Layer>
             {verticalLines}

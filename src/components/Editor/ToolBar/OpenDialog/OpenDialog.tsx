@@ -1,13 +1,17 @@
 import * as React from 'react'
-import {CardContent, DialogActions, DialogContent, DialogTitle} from "material-ui"
+import {CardContent, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
 import Button from "material-ui/Button";
 import Typography from "material-ui/Typography";
 import {LayoutCard} from "components/Editor/ToolBar/OpenDialog/OpenDialog.style";
-import LayoutAPI from "apis/layout"
 import {connect} from "react-redux";
 import {RootState} from "store/type";
+import {S3Image} from 'aws-amplify-react';
+import {fetchLayoutData, fetchLayoutList} from "apis/layout";
+import * as _ from "lodash";
 import getLogger from "logging";
+import {loadLayout, setLayoutName} from "actions/layout";
+import {LayoutData} from "reducers/layout";
 
 const LOGGER = getLogger(__filename)
 
@@ -15,12 +19,14 @@ export interface OpenDialogProps {
   open: boolean
   onClose: () => void
   authData: any
+  setLayoutName: (name: string) => void
+  loadLayout: (data: LayoutData) => void
 }
 
 export interface OpenDialogState {
-  isError: boolean
-  errorText: string
-  layouts: string[]
+  isLoaded: boolean
+  layoutIds: string[]
+  layoutImageFiles: string[]
 }
 
 const mapStateToProps = (state: RootState) => {
@@ -30,7 +36,10 @@ const mapStateToProps = (state: RootState) => {
 };
 
 const mapDispatchToProps = dispatch => {
-  return {}
+  return {
+    setLayoutName: (name: string) => dispatch(setLayoutName(name)),
+    loadLayout: (data: LayoutData) => dispatch(loadLayout(data))
+  }
 };
 
 export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState> {
@@ -38,37 +47,36 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
   constructor(props: OpenDialogProps) {
     super(props)
     this.state = {
-      isError: false,
-      errorText: ' ',
-      layouts: []
+      isLoaded: false,
+      layoutIds: [],
+      layoutImageFiles: []
     }
 
+    this.onClick = this.onClick.bind(this)
     this.onClose = this.onClose.bind(this)
-    this.onTextChange = this.onTextChange.bind(this)
     this.loadLayoutList = this.loadLayoutList.bind(this)
   }
 
   async loadLayoutList() {
-    const layouts = await LayoutAPI.fetchLayoutList(this.props.authData.email)
-    LOGGER.info(layouts)
+    const r1 = await fetchLayoutList(this.props.authData.username)
     this.setState({
-      layouts: layouts['layouts']
+      isLoaded: true,
+      layoutIds: r1['layouts'],
+      layoutImageFiles: r1['layouts'].map(id => `${this.props.authData.username}-${id}.png`)
     })
   }
 
+  onClick = (name: string) => async (e) => {
+    this.props.setLayoutName(name)
+    const data = await fetchLayoutData(this.props.authData.username, name)
+    LOGGER.info(data)
+    this.props.loadLayout(data)
+    this.onClose()
+  }
 
   onClose() {
     if (this.props.onClose) {
       this.props.onClose()
-    }
-  }
-
-  onTextChange(e: React.SyntheticEvent<any>) {
-    const text = e.currentTarget.value
-    if (text && text.match(/.{4,}/)) {
-      this.setState({ isError: false, errorText: ' ' })
-    } else {
-      this.setState({ isError: true, errorText: 'Must be over 4 characters' })
     }
   }
 
@@ -82,30 +90,29 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
       >
         <DialogTitle id="open-layout">{"Open Layout"}</DialogTitle>
         <DialogContent>
-          {this.state.layouts.map(layout => {
+          {_.range(this.state.layoutIds.length).map(idx => {
             return (
+              <Button onClick={this.onClick(this.state.layoutIds[idx])} color="primary">
               <LayoutCard>
                 <CardContent>
-                  <Typography gutterBottom variant="headline" component="h2">
-                    {layout}
-                  </Typography>
-                  <Typography component="p">
-                    Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                    across all continents except Antarctica
+                  <S3Image level={'private'} imgKey={this.state.layoutImageFiles[idx]}/>
+                  <Typography gutterBottom variant="headline" component="h3">
+                    {this.state.layoutIds[idx]}
                   </Typography>
                 </CardContent>
               </LayoutCard>
+              </Button>
             )
           })}
         </DialogContent>
-        <DialogActions>
-          <Button disabled={this.state.isError} variant="raised" onClick={this.onClose} color="primary">
-            Create
-          </Button>
-          <Button onClick={this.onClose} color="primary" autoFocus>
-            Cancel
-          </Button>
-        </DialogActions>
+        {/*<DialogActions>*/}
+          {/*<Button disabled={this.state.isError} variant="raised" onClick={this.onClose} color="primary">*/}
+            {/*Create*/}
+          {/*</Button>*/}
+          {/*<Button onClick={this.onClose} color="primary" autoFocus>*/}
+            {/*Cancel*/}
+          {/*</Button>*/}
+        {/*</DialogActions>*/}
       </Dialog>
     )
   }

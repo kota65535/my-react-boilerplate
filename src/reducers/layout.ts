@@ -4,6 +4,7 @@ import {
   LAYOUT_ADD_LAYER,
   LAYOUT_ADD_RAIL,
   LAYOUT_CLEAR_HISTORY,
+  LAYOUT_LOAD_LAYOUT,
   LAYOUT_REDO,
   LAYOUT_REMOVE_LAYER,
   LAYOUT_REMOVE_RAIL,
@@ -247,6 +248,14 @@ export default handleActions<LayoutStoreState, any>({
     return {
       ...state,
       name: action.payload
+    }
+  },
+
+  [LAYOUT_LOAD_LAYOUT]: (state: LayoutStoreState, action: Action<LayoutData>) => {
+    return {
+      ...state,
+      histories: [action.payload],
+      historyIndex: 0
     }
   },
 

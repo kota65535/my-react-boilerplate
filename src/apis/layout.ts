@@ -1,35 +1,28 @@
+import {API} from "aws-amplify";
 import {LayoutData} from "reducers/layout";
 
-const ENDPOINT = 'https://mfj162c8f7.execute-api.us-east-1.amazonaws.com/prod'
-
-const fetchLayoutList = async (userId: string) => {
-  const response = await fetch(`${ENDPOINT}/users/${userId}/layouts`)
-  return await response.json()
+export const fetchLayoutList = async (userId: string) => {
+  return await API.get('Layout', `/users/${userId}/layouts`, {headers: {}})
 }
 
-const fetchLayoutData = async (userId: string, layoutId: string) => {
-  const response = await fetch(`${ENDPOINT}/users/${userId}/layouts/${layoutId}`)
-  return await response.json()
+export const fetchLayoutData = async (userId: string, layoutId: string) => {
+  return await API.get('Layout', `/users/${userId}/layouts/${layoutId}`, {headers: {}})
 }
 
-const saveLayoutData = async (userId: string, layoutId: string, layoutData: LayoutData) => {
-  const response = await fetch(`${ENDPOINT}/users/${userId}/layouts/${layoutId}`, {
-    method: 'PUT',
-    body: JSON.stringify(layoutData)
+export const saveLayoutData = async (userId: string, layoutId: string, layoutData: LayoutData) => {
+  return await API.put('Layout', `/users/${userId}/layouts/${layoutId}`, {
+    headers: {},
+    body: layoutData
   })
-  return response
 }
 
-const deleteLayoutData = async (userId: string, layoutId: string) => {
-  const response = await fetch(`${ENDPOINT}/users/${userId}/layouts/${layoutId}`, {
-    method: 'DELETE',
-  })
-  return response
+export const deleteLayoutData = async (userId: string, layoutId: string) => {
+  return await API.del('Layout', `/users/${userId}/layouts/${layoutId}`, {headers: {}})
 }
 
-export default {
-  fetchLayoutList,
-  fetchLayoutData,
-  saveLayoutData,
-  deleteLayoutData
-}
+// export default {
+//   fetchLayoutList,
+//   fetchLayoutData,
+//   saveLayoutData,
+//   deleteLayoutData
+// }

@@ -30,8 +30,11 @@ import {LoginDialog} from "components/Editor/ToolBar/LoginDialog/LoginDialog";
 import {Auth} from 'aws-amplify';
 import AuthenticatorContainer from "components/Editor/ToolBar/LoginDialog/Authenticator/AuthenticatorContainer";
 import {LayoutData} from "reducers/layout";
-import LayoutAPI from "apis/layout"
+import {saveLayoutData} from "apis/layout"
+import getLogger from "logging";
+import {saveCurrentLayoutImage} from "apis/storage";
 
+const LOGGER = getLogger(__filename)
 
 export interface ToolBarProps {
   activeTool: string
@@ -106,10 +109,12 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
     this.props.selectPaletteItem(this.props.lastPaletteItems[tool])
   }
 
-  save() {
-    const userId = this.props.authData.email
+  async save() {
+    const userId = this.props.authData.username
     const layoutId = this.props.layoutName
-    LayoutAPI.saveLayoutData(userId, layoutId, this.props.currentLayoutData)
+
+    saveLayoutData(userId, layoutId, this.props.currentLayoutData)
+    saveCurrentLayoutImage(userId, layoutId)
   }
 
   openLoginDialog() {

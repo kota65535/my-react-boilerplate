@@ -3,10 +3,13 @@ import Editor from 'components/Editor/Editor'
 
 import './App.css'
 
-import { WithStyles, StyleRulesCallback } from 'material-ui/styles'
+import {StyleRulesCallback, WithStyles} from 'material-ui/styles'
 import withStyles from "material-ui/styles/withStyles";
 import withRoot from './withRoot';
+import Amplify from "aws-amplify";
+import aws_exports from './aws-exports';
 
+Amplify.configure(aws_exports)
 
 const muiStyles: StyleRulesCallback<'root'> = theme => ({
     root: {

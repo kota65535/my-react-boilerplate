@@ -3,4 +3,5 @@
 declare interface Window {
   PAPER_SCOPE: any
   RAIL_COMPONENTS: {[key: string]: any}
+  CANVAS: HTMLCanvasElement
 }

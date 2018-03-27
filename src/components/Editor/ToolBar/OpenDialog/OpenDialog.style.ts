@@ -3,6 +3,6 @@ import Card from "material-ui/Card";
 
 
 export const LayoutCard = styled(Card as any)`
-  max-width: 300px;
-  height: 200px
+  max-width: 200px;
+  height: 150px;
 `

@@ -30,9 +30,9 @@ import {LoginDialog} from "components/Editor/ToolBar/LoginDialog/LoginDialog";
 import {Auth} from 'aws-amplify';
 import AuthenticatorContainer from "components/Editor/ToolBar/LoginDialog/Authenticator/AuthenticatorContainer";
 import {LayoutData} from "reducers/layout";
-import {saveLayoutData} from "apis/layout"
+import LayoutAPI from "apis/layout"
+import StorageAPI from "apis/storage";
 import getLogger from "logging";
-import {saveCurrentLayoutImage} from "apis/storage";
 
 const LOGGER = getLogger(__filename)
 
@@ -113,8 +113,8 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
     const userId = this.props.authData.username
     const layoutId = this.props.layoutName
 
-    saveLayoutData(userId, layoutId, this.props.currentLayoutData)
-    saveCurrentLayoutImage(userId, layoutId)
+    LayoutAPI.saveLayoutData(userId, layoutId, this.props.currentLayoutData)
+    StorageAPI.saveCurrentLayoutImage(userId, layoutId)
   }
 
   openLoginDialog() {

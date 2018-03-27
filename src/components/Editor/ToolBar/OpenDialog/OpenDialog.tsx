@@ -7,11 +7,12 @@ import {LayoutCard} from "components/Editor/ToolBar/OpenDialog/OpenDialog.style"
 import {connect} from "react-redux";
 import {RootState} from "store/type";
 import {S3Image} from 'aws-amplify-react';
-import {fetchLayoutData, fetchLayoutList} from "apis/layout";
+import LayoutAPI from "apis/layout"
 import * as _ from "lodash";
 import getLogger from "logging";
 import {loadLayout, setLayoutName} from "actions/layout";
 import {LayoutData} from "reducers/layout";
+import {getLayoutImageFileName} from "apis/storage";
 
 const LOGGER = getLogger(__filename)
 
@@ -58,17 +59,18 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
   }
 
   async loadLayoutList() {
-    const r1 = await fetchLayoutList(this.props.authData.username)
+    const r1 = await LayoutAPI.fetchLayoutList(this.props.authData.username)
     this.setState({
       isLoaded: true,
       layoutIds: r1['layouts'],
-      layoutImageFiles: r1['layouts'].map(id => `${this.props.authData.username}-${id}.png`)
+      layoutImageFiles: r1['layouts'].map(id => getLayoutImageFileName(this.props.authData.username, id))
     })
   }
 
+
   onClick = (name: string) => async (e) => {
     this.props.setLayoutName(name)
-    const data = await fetchLayoutData(this.props.authData.username, name)
+    const data = await LayoutAPI.fetchLayoutData(this.props.authData.username, name)
     LOGGER.info(data)
     this.props.loadLayout(data)
     this.onClose()

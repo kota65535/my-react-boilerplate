@@ -8,7 +8,7 @@ import {selectPaletteItem} from "actions/builder";
 import getLogger from "logging";
 import {removeRail, updateRail} from "actions/layout";
 import {LastPaletteItems} from "reducers/builder";
-import {RailData} from "components/Rails";
+import {RailData} from "components/rails";
 import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 const LOGGER = getLogger(__filename)

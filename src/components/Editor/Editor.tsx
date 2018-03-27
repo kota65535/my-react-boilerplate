@@ -23,7 +23,7 @@ import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import FirstRailPutter from "./FirstRailPutter";
-import {createRailComponent} from "components/Rails/utils";
+import {createRailComponent} from "components/rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
 import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
 import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";

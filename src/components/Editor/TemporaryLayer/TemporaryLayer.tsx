@@ -1,9 +1,9 @@
 import {RootState} from "store/type";
 import * as React from "react";
 import {Layer} from "react-paper-bindings";
-import {createRailComponent} from "components/Rails/utils";
+import {createRailComponent} from "components/rails/utils";
 import {connect} from "react-redux";
-import {RailData} from "components/Rails";
+import {RailData} from "components/rails";
 
 export interface TemporaryLayerProps {
   temporaryItem: RailData

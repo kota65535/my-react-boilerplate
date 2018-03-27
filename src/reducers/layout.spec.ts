@@ -1,7 +1,7 @@
 import reducer, {LayerData} from './layout'
 import {addLayer, addRail, removeLayer, removeRail, updateLayer, updateRail} from "actions/layout";
 // import {Point} from "paper";
-import {RailData} from "components/Rails";
+import {RailData} from "components/rails";
 
 
 const createRail = (id, layerId): RailData => {

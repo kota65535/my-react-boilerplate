@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Point} from "paper";
 import {Rectangle} from "react-paper-bindings";
-import RectPart from "../Rails/RailParts/Parts/RectPart";
+import RectPart from "../rails/parts/primitives/RectPart";
 import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {setMarkerPosition, setPhase} from "actions/builder";

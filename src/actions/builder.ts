@@ -3,7 +3,7 @@ import * as Actions from "constants/actions";
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {BuilderPhase} from "reducers/builder";
-import {RailData} from "components/Rails";
+import {RailData} from "components/rails";
 
 export const selectPaletteItem = createAction<PaletteItem>(Actions.BUILDER_SELECT_PALETTE_ITEM);
 export const setPaletteMode = createAction<string>(Actions.SET_PALETTE_MODE);

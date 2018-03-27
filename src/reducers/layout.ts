@@ -14,7 +14,7 @@ import {
   LAYOUT_UPDATE_RAIL
 } from "constants/actions";
 import update from 'immutability-helper';
-import {RailData} from "components/Rails";
+import {RailData} from "components/rails";
 
 
 export interface LayoutStoreState {

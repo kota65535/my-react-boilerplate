@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import * as _ from "lodash";
-import RailFactory from "../Rails/RailFactory";
+import RailFactory from "../rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
@@ -12,10 +12,10 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {RailData} from "components/Rails";
+import {RailData} from "components/rails";
 import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
-import {JointInfo} from "components/Rails/RailBase";
-import {getRailComponent} from "components/Rails/utils";
+import {JointInfo} from "components/rails/RailBase";
+import {getRailComponent} from "components/rails/utils";
 
 const LOGGER = getLogger(__filename)
 

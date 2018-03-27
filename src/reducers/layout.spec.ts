@@ -55,6 +55,7 @@ describe('layout reducer', () => {
             },
           ],
           historyIndex: 2,
+          name: 'Untitled'
         }
       )
 
@@ -85,6 +86,7 @@ describe('layout reducer', () => {
             }
           ],
           historyIndex: 3,
+          name: 'Untitled'
         }
       )
 
@@ -117,6 +119,7 @@ describe('layout reducer', () => {
             }
           ],
           historyIndex: 4,
+          name: 'Untitled'
         }
       )
     }
@@ -144,6 +147,7 @@ describe('layout reducer', () => {
             },
           ],
           historyIndex: 0,
+          name: 'Untitled'
         }
       )
 
@@ -163,6 +167,7 @@ describe('layout reducer', () => {
             },
           ],
           historyIndex: 0,
+          name: 'Untitled'
         }
       )
 
@@ -181,6 +186,7 @@ describe('layout reducer', () => {
             }
           ],
           historyIndex: 0,
+          name: 'Untitled'
         }
       )
     }
@@ -212,6 +218,7 @@ describe('layout reducer', () => {
             },
           ],
           historyIndex: 1,
+          name: 'Untitled'
         }
       )
 
@@ -223,29 +230,30 @@ describe('layout reducer', () => {
 
       //========== Then ==========
       expect(state).toEqual({
-        histories: [
-          {
-            layers: [
-              {id: 1, name: 'Layer 1', visible: true}
-            ],
-            rails: []
-          },
-          {
-            layers: [
-              {id: 1, name: 'Layer 1', visible: true},
-              {id: 2, name: 'Layer 2', visible: true},
-            ],
-            rails: []
-          },
-          {
-            layers: [
-              {id: 1, name: 'Layer first', visible: true},
-              {id: 2, name: 'Layer 2', visible: true},
-            ],
-            rails: []
-          },
-        ],
+          histories: [
+            {
+              layers: [
+                {id: 1, name: 'Layer 1', visible: true}
+              ],
+              rails: []
+            },
+            {
+              layers: [
+                {id: 1, name: 'Layer 1', visible: true},
+                {id: 2, name: 'Layer 2', visible: true},
+              ],
+              rails: []
+            },
+            {
+              layers: [
+                {id: 1, name: 'Layer first', visible: true},
+                {id: 2, name: 'Layer 2', visible: true},
+              ],
+              rails: []
+            },
+          ],
           historyIndex: 2,
+          name: 'Untitled'
         }
       )
 
@@ -255,35 +263,36 @@ describe('layout reducer', () => {
       }))
       //========== Then ==========
       expect(state).toEqual({
-        histories: [
-          {
-            layers: [
-              {id: 1, name: 'Layer 1', visible: true}
-            ],
-            rails: []
-          },
-          {
-            layers: [
-              {id: 1, name: 'Layer 1', visible: true},
-              {id: 2, name: 'Layer 2', visible: true},
-            ],
-            rails: []
-          },
-          {
-            layers: [
-              {id: 1, name: 'Layer first', visible: true},
-              {id: 2, name: 'Layer 2', visible: true},
-            ],
-            rails: []
-          },
-          {
-            layers: [
-              {id: 2, name: 'Layer 2', visible: true},
-            ],
-            rails: []
-          },
-        ],
-        historyIndex: 3,
+          histories: [
+            {
+              layers: [
+                {id: 1, name: 'Layer 1', visible: true}
+              ],
+              rails: []
+            },
+            {
+              layers: [
+                {id: 1, name: 'Layer 1', visible: true},
+                {id: 2, name: 'Layer 2', visible: true},
+              ],
+              rails: []
+            },
+            {
+              layers: [
+                {id: 1, name: 'Layer first', visible: true},
+                {id: 2, name: 'Layer 2', visible: true},
+              ],
+              rails: []
+            },
+            {
+              layers: [
+                {id: 2, name: 'Layer 2', visible: true},
+              ],
+              rails: []
+            },
+          ],
+          historyIndex: 3,
+          name: 'Untitled'
         }
       )
     }

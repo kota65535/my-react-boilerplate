@@ -36,6 +36,10 @@ export interface LayerDataPayload {
   overwrite?: boolean
 }
 
+export interface PartialLayerDataPayload {
+  item: Partial<LayerData>
+  overwrite?: boolean
+}
 
 export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
   histories: [
@@ -146,10 +150,15 @@ export default handleActions<LayoutStoreState, any>({
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
+    const targetLayer = layout.layers[itemIndex]
+    const newLayerData = {
+      ...targetLayer,
+      ...action.payload.item
+    }
     // レイアウトを更新
     const newLayout = update(layout, {
       layers: {
-        [itemIndex]: {$set: action.payload.item}
+        [itemIndex]: {$set: newLayerData}
       }
     })
     // ヒストリを更新

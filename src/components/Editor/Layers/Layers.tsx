@@ -8,12 +8,13 @@ import {LayerData} from "reducers/layout";
 import {setActiveLayer} from "actions/builder";
 import {RootState} from "store/type";
 import {currentLayoutData} from "selectors";
+import {updateLayer} from "actions/layout";
 
 export interface LayersProps {
   layers: LayerData[]
   activeLayerId: number
   setActiveLayer: (layerId: number) => void
-  updateLayer: (layer: LayerData) => void
+  updateLayer: (layer: Partial<LayerData>) => void
   className?: string
 }
 
@@ -30,7 +31,7 @@ const mapStateToProps = (state: RootState): Partial<LayersProps> => {
 const mapDispatchToProps = (dispatch): Partial<LayersProps>  => {
   return {
     setActiveLayer: (layerId: number) => dispatch(setActiveLayer(layerId)),
-    updateLayer: (layer: LayerData) => dispatch(layer),
+    updateLayer: (item: Partial<LayerData>) => dispatch(updateLayer({item})),
   }
 }
 
@@ -44,9 +45,11 @@ class Layers extends React.Component<LayersProps, LayersState> {
   }
 
   handleSetVisible(e: React.SyntheticEvent<HTMLInputElement>) {
-    let newLayer = this.props.layers.find(layer => layer.id === Number(e.currentTarget.value))
-    newLayer.visible = e.currentTarget.checked
-    this.props.updateLayer(newLayer)
+    const index = this.props.layers.findIndex(layer => layer.id === Number(e.currentTarget.value))
+    this.props.updateLayer({
+      id: this.props.layers[index].id,
+      visible: !this.props.layers[index].visible
+    })
   }
 
   handleSetActive(layerId: number, e: React.MouseEvent<HTMLElement>) {
@@ -71,14 +74,14 @@ class Layers extends React.Component<LayersProps, LayersState> {
           <Grid container justify="center" spacing={0}>
             {layers.map((value, index) => {
               return [
-                <Grid item xs={2} key={`${index}-1`}>
+                <Grid item xs={3} key={`${index}-1`}>
                   <Checkbox
                     checked={layers[index].visible}
                     onChange={this.handleSetVisible}
                     value={layers[index].id.toString()}
                   />
                 </Grid>,
-                <Grid item xs={10} key={`${index}-2`}>
+                <Grid item xs={9} key={`${index}-2`}>
                   <StyledListItem
                     button
                     active={activeLayerId === value.id}

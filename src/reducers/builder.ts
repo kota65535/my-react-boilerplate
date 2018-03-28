@@ -5,9 +5,8 @@ import {Point} from "paper";
 import {RailData} from "components/rails";
 
 export enum BuilderPhase {
-  FIRST_POSITION = 'FirstPosition',
-  FIRST_ANGLE = 'FirstAngle',
-  SUBSEQUENT = 'Subsequent'
+  NORMAL = 'Normal',
+  SET_ANGLE = 'SetAngle',
 }
 
 export interface LastPaletteItems {
@@ -39,7 +38,7 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   mousePosition: new Point(0,0),
   paperViewLoaded: false,
   temporaryItem: null,
-  phase: BuilderPhase.FIRST_POSITION,
+  phase: BuilderPhase.NORMAL,
   markerPosition: null,
 }
 

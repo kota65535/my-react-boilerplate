@@ -1,11 +1,15 @@
 import * as React from 'react'
 import LayersIcon from 'material-ui-icons/Layers';
 import {Checkbox, Grid, ListItemText, Paper} from 'material-ui'
-import {StyledListItem, TitleDiv} from "./Layers.style";
+import {TitleDiv} from "./Layers.style";
 import Rnd from 'react-rnd'
 import {LayerData} from "reducers/layout";
 import AddLayerButton from "components/Editor/Layers/AddLayerButton/AddLayerButton";
+import {LayerListItem} from "components/Editor/Layers/LayerListItem/AddLayerButton";
+import getLogger from "logging";
+import {getClosest} from "constants/utils";
 
+const LOGGER = getLogger(__filename)
 
 export interface LayersProps {
   className?: string
@@ -17,6 +21,7 @@ export interface LayersProps {
   setActiveLayer: (layerId: number) => void
   updateLayer: (item: Partial<LayerData>) => void
   addLayer: (item: LayerData) => void
+  deleteLayer: (itemId: number) => void
 }
 
 
@@ -27,6 +32,8 @@ export default class Layers extends React.Component<LayersProps, {}> {
     this.onToggleVisible = this.onToggleVisible.bind(this)
     this.onChangeActive = this.onChangeActive.bind(this)
     this.onAddLayer = this.onAddLayer.bind(this)
+    this.onDeleteLayer = this.onDeleteLayer.bind(this)
+    this.onRenameLayer = this.onRenameLayer.bind(this)
   }
 
   onToggleVisible = (layerId: number) => (e: React.SyntheticEvent<HTMLInputElement>) => {
@@ -50,6 +57,23 @@ export default class Layers extends React.Component<LayersProps, {}> {
     this.props.addLayer(newLayer)
   }
 
+  onDeleteLayer = (layerId: number) => (e: React.MouseEvent<HTMLElement>) => {
+    console.log('delete' + layerId)
+    if (this.props.layers.length < 2) {
+      LOGGER.warn(`You cannot delete the last layer.`)
+      return
+    }
+    const restLayerIds = this.props.layers
+      .map(layer => layer.id)
+      .filter(id => id !== layerId)
+
+    this.props.deleteLayer(layerId)
+    this.props.setActiveLayer(getClosest(layerId, restLayerIds))
+  }
+
+  onRenameLayer = (layerId: number) => (e: React.MouseEvent<HTMLElement>) => {
+    console.log('rename' + layerId)
+  }
 
   render() {
     const {layers, activeLayerId} = this.props
@@ -64,7 +88,7 @@ export default class Layers extends React.Component<LayersProps, {}> {
           <TitleDiv className='Layers__title'>
             <LayersIcon />
             Layers
-            <AddLayerButton onClick={this.onAddLayer} />
+            <AddLayerButton onClick={this.onAddLayer}/>
           </TitleDiv>
           {layers.map((layer, index) => {
             return <Grid container justify="center" spacing={0}>
@@ -76,13 +100,15 @@ export default class Layers extends React.Component<LayersProps, {}> {
                 />
               </Grid>
               <Grid item xs={9} key={`${index}-2`}>
-                <StyledListItem
+                <LayerListItem
                   button
                   active={activeLayerId === layer.id}
                   onClick={this.onChangeActive(layer.id)}
+                  onDelete={this.onDeleteLayer(layer.id)}
+                  onRename={this.onRenameLayer(layer.id)}
                 >
                   <ListItemText primary={layer.name}/>
-                </StyledListItem>
+                </LayerListItem>
               </Grid>
             </Grid>
           })}

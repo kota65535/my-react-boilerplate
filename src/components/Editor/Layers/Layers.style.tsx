@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import ActiveListItem from "../../common/ActiveListItem";
-import {theme} from "withRoot";
 
 
 export const TitleDiv = styled.div`
@@ -15,12 +13,4 @@ export const TitleDiv = styled.div`
   cursor: move
 `
 
-export const StyledListItem = styled(ActiveListItem)`
-  && {
-    background-color: ${props => props.active ? theme.palette.primary[400] : theme.palette.background.default};
-    :hover {
-      background-color: ${props => props.active ? theme.palette.primary[500] : theme.palette.grey[200]};
-    }
-  }
-`
 

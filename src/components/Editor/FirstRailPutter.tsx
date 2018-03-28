@@ -49,7 +49,7 @@ export class FirstRailPutter extends React.Component<FirstRailPutterProps, First
   onClick = (e: MouseEvent) => {
     const position = this.getNearestGridPosition(this.props.position)
     this.props.setMarkerPosition(position)
-    this.props.setPhase(BuilderPhase.FIRST_ANGLE)
+    this.props.setPhase(BuilderPhase.SET_ANGLE)
     this.setState({
       fixedPosition: position
     })

@@ -41,6 +41,25 @@ export interface PartialLayerDataPayload {
   overwrite?: boolean
 }
 
+
+export interface AddItemDataPayload<T> {
+  item: T
+  overwrite?: boolean
+}
+
+export interface UpdateItemDataPayload<T> {
+  id: number
+  item: Partial<T>
+  overwrite?: boolean
+}
+
+export interface DeleteItemDataPayload {
+  id: number
+  overwrite?: boolean
+}
+
+
+
 export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
   histories: [
     {
@@ -171,13 +190,17 @@ export default handleActions<LayoutStoreState, any>({
    * @param {Action<LayerDataPayload>} action
    * @returns {*}
    */
-  [Actions.LAYOUT_REMOVE_LAYER]: (state: LayoutStoreState, action: Action<LayerDataPayload>) => {
+  [Actions.LAYOUT_DELETE_LAYER]: (state: LayoutStoreState, action: Action<DeleteItemDataPayload>) => {
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
-    const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
+    const layerIndex = layout.layers.findIndex(layer => layer.id === action.payload.id)
+    // レイヤーに所属しないレール
+    const rails = layout.rails.filter(rail => rail.layerId !== action.payload.id)
+
     // レイアウトを更新
     const newLayout = update(layout, {
-      layers: {$splice: [[itemIndex, 1]]}
+      layers: {$splice: [[layerIndex, 1]]},
+      rails: {$set: rails}
     })
     // ヒストリを更新
     return addHistory(state, newLayout, action.payload.overwrite)

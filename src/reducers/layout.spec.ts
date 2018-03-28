@@ -1,5 +1,5 @@
 import reducer, {LayerData} from './layout'
-import {addLayer, addRail, removeLayer, removeRail, updateLayer, updateRail} from "actions/layout";
+import {addLayer, addRail, deleteLayer, removeRail, updateLayer, updateRail} from "actions/layout";
 // import {Point} from "paper";
 import {RailData} from "components/rails";
 
@@ -258,8 +258,8 @@ describe('layout reducer', () => {
       )
 
       //========== When ========== 1個目のアイテムを削除
-      state = reducer(state, removeLayer({
-        item: item3,
+      state = reducer(state, deleteLayer({
+        id: item3.id,
       }))
       //========== Then ==========
       expect(state).toEqual({

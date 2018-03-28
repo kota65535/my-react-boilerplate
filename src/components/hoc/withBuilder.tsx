@@ -146,12 +146,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
-    mouseMove_FirstPosition = (e: ToolEvent | any) => {
+    mouseMove_Normal = (e: ToolEvent | any) => {
       // noop
     }
 
 
-    mouseMove_FirstAngle = (e: ToolEvent | any) => {
+    mouseMove_SetAngle = (e: ToolEvent | any) => {
       // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
       const itemProps = RailFactory[this.props.paletteItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
@@ -166,62 +166,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         enableJoints: false,
       })
     }
-
-    mouseMove_Subsequent = (e: ToolEvent | any) => {
-      // const combinations = Combinatorics.combination(_.flatMap(window.RAIL_COMPONENTS, rc => rc.joints), 2)
-      // let closePairs = []
-      // combinations.forEach(cmb => {
-      //   if (cmb[0].props.position.isClode(cmb[1].props.position, 0.1)) {
-      //     closePairs.push(cmb)
-      //   }
-      // })
-      //
-      // if (closePairs.length > 0) {
-      //
-      // }
-
-    }
-
-
-    // private _isReasonablyClose(point1, point2) {
-    //   return point1.isClose(point2, 0.1)
-    // }
-
-    mouseMove_Subsequent_OnJoint = (e: ToolEvent | any, railId: number, jointId: number) => {
-      // 対象のレールのジョイントをDetectingにする
-      // const railData = getRailDataById(this.props.layout, railId)
-      // const joint = window.RAIL_COMPONENTS[railId].joints[jointId]
-      // if (joint.props.detectionState === DetectionState.AFTER_DETECT) {
-      //   return
-      // }
-      // this.setJointState(railData, jointId, DetectionState.DETECTING)
-      //
-      //
-      // // 現在Detectingにしているジョイントを覚えておく
-      // this.detecting = railData
-      //
-      // // 仮レールを設置する
-      // const itemProps = RailFactory[this.props.paletteItem.name]()
-      // this.props.setTemporaryItem({
-      //   ...itemProps,
-      //   id: -1,
-      //   name: 'TemporaryRail',
-      //   position: joint.position,
-      //   angle: joint.props.angle,
-      //   opacity: TEMPORARY_RAIL_OPACITY,
-      // })
-    }
-
-    // resetAllJoints = () => {
-    //   let newLayout = _.cloneDeep(this.props.layout)
-    //   for (let layer of newLayout.layers) {
-    //     for (let item of layer.children) {
-    //       if (item.detectionState === DetectionState.DETECTING) {
-    //
-    //       }
-    //     }
-    //   }
-    // }
 
 
     //==================== MouseDown Handlers ====================
@@ -250,14 +194,14 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    mouseLeftDown_FirstPosition = (e: ToolEvent | any) => {
-      // this.props.setPhase(BuilderPhase.FIRST_ANGLE)
+    mouseLeftDown_Normal = (e: ToolEvent | any) => {
+      // this.props.setPhase(BuilderPhase.SET_ANGLE)
       // クリックして即座に仮レールを表示したいので、手動で呼び出す
       // this.mouseMove_FirstAngle(e)
     }
 
 
-    mouseLeftDown_FirstAngle = (e: ToolEvent | any) => {
+    mouseLeftDown_SetAngle = (e: ToolEvent | any) => {
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = RailFactory[this.props.paletteItem.name]()
       // 仮レールの位置にレールを設置
@@ -270,45 +214,10 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         opposingJoints: {}
       } as RailData)
       // 2本目のフェーズに移行する
-      this.props.setPhase(BuilderPhase.SUBSEQUENT)
+      this.props.setPhase(BuilderPhase.NORMAL)
       // マーカーはもう不要なので削除
       this.props.setTemporaryItem(null)
       this.props.setMarkerPosition(null)
-    }
-
-
-    mouseLeftDown_Subsequent = (e: ToolEvent | any) => {
-      const result = getRailPartAt(e.point)
-      if (result) {
-        switch (result.partType) {
-          case 'Joint':
-            this.mouseLeftDown_Subsequent_OnJoint(e, result.railId, result.partId)
-            break
-          default:
-        }
-      } else {
-        // noop
-      }
-    }
-
-
-    mouseLeftDown_Subsequent_OnJoint = (e: ToolEvent | any, railId: number, jointId: number) => {
-      // 対象のレールのジョイントをAfterDetectにする
-      // const oldItem = getRailDataById(this.props.layout, railId)
-      // this.setJointState(oldItem, jointId, DetectionState.AFTER_DETECT)
-      //
-      // // パレットで選択したレール生成のためのPropsを取得
-      // const itemProps = RailFactory[this.props.paletteItem.name]()
-      // // 仮レールの位置にレールを設置
-      // this.props.addRail(this.props.activeLayerId, {
-      //   ...itemProps,
-      //   position: (this.props.temporaryItem as any).position,
-      //   angle: (this.props.temporaryItem as any).angle,
-      //   detectionState: [DetectionState.AFTER_DETECT, DetectionState.BEFORE_DETECT],
-      //   layerId: this.props.activeLayerId,
-      // } as RailData)
-      // this.detecting = null
-
     }
 
 

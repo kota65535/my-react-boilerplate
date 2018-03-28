@@ -35,7 +35,6 @@ export interface EditorProps {
   layout: LayoutData
   width: number
   height: number
-  selectedItem: any
   mousePosition: Point
   isLayoutEmpty: boolean
   builderPhase: BuilderPhase

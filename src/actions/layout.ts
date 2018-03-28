@@ -1,5 +1,6 @@
 import {createAction} from 'redux-actions';
 import {
+  DeleteItemDataPayload,
   LayerDataPayload,
   LayoutData,
   PartialLayerDataPayload,
@@ -14,7 +15,7 @@ export const removeRail = createAction<RailDataPayload>(Actions.LAYOUT_REMOVE_RA
 
 export const addLayer = createAction<LayerDataPayload>(Actions.LAYOUT_ADD_LAYER)
 export const updateLayer = createAction<PartialLayerDataPayload>(Actions.LAYOUT_UPDATE_LAYER)
-export const removeLayer = createAction<LayerDataPayload>(Actions.LAYOUT_REMOVE_LAYER)
+export const deleteLayer = createAction<DeleteItemDataPayload>(Actions.LAYOUT_DELETE_LAYER)
 
 export const undo = createAction<{}>(Actions.LAYOUT_UNDO)
 export const redo = createAction<{}>(Actions.LAYOUT_REDO)

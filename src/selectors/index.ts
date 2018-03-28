@@ -18,6 +18,11 @@ export const nextRailId = (state: RootState) => {
   return ids.length > 0 ? Math.max(...ids) + 1 : 1
 }
 
+export const nextLayerId = (state: RootState) => {
+  let ids = currentLayoutData(state).layers.map(r => r.id)
+  return ids.length > 0 ? Math.max(...ids) + 1 : 1
+}
+
 export const canUndo = (state: RootState) => {
   return state.layout.historyIndex > 0
 }

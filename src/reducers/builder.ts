@@ -50,11 +50,11 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<number>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_SET_ACTIVE_LAYER]: (state: BuilderStoreState, action: Action<number>) => {
+  [Actions.BUILDER_SET_ACTIVE_LAYER]: (state: BuilderStoreState, action: Action<number>): BuilderStoreState => {
     return {
       ...state,
-      activeLayerid: action.payload
-    } as BuilderStoreState
+      activeLayerId: action.payload
+    }
   },
 
   /**
@@ -63,7 +63,7 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<PaletteItem>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_SELECT_PALETTE_ITEM]: (state: BuilderStoreState, action: Action<PaletteItem>) => {
+  [Actions.BUILDER_SELECT_PALETTE_ITEM]: (state: BuilderStoreState, action: Action<PaletteItem>): BuilderStoreState => {
     return {
       ...state,
       paletteItem: action.payload,
@@ -75,14 +75,14 @@ export default handleActions<BuilderStoreState, any>({
     } as BuilderStoreState
   },
 
-  [Actions.BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
+  [Actions.BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>): BuilderStoreState => {
     return {
       ...state,
       mousePosition: action.payload
     } as BuilderStoreState
   },
 
-  [Actions.BUILDER_SET_PAPER_VIEW_LOADED]: (state: BuilderStoreState, action: Action<boolean>) => {
+  [Actions.BUILDER_SET_PAPER_VIEW_LOADED]: (state: BuilderStoreState, action: Action<boolean>): BuilderStoreState => {
     return {
       ...state,
       paperViewLoaded: action.payload
@@ -95,7 +95,7 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<RailData>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>) => {
+  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>): BuilderStoreState => {
     return {
       ...state,
       temporaryItem: action.payload
@@ -108,7 +108,7 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<number>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_UPDATE_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<Partial<RailData>>) => {
+  [Actions.BUILDER_UPDATE_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<Partial<RailData>>): BuilderStoreState => {
     const temporaryItem = {
       ...state.temporaryItem,
       ...action.payload,
@@ -123,13 +123,13 @@ export default handleActions<BuilderStoreState, any>({
     } as BuilderStoreState
   },
 
-  [Actions.BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>) => {
+  [Actions.BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>): BuilderStoreState => {
     return {
       ...state,
       phase: action.payload
     } as BuilderStoreState
   },
-  [Actions.BUILDER_SET_MARKER_POSITION]: (state: BuilderStoreState, action: Action<Point>) => {
+  [Actions.BUILDER_SET_MARKER_POSITION]: (state: BuilderStoreState, action: Action<Point>): BuilderStoreState => {
     return {
       ...state,
       markerPosition: action.payload

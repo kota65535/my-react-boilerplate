@@ -24,4 +24,3 @@ export const StyledListItem = styled(ActiveListItem)`
   }
 `
 
-

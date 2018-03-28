@@ -2,7 +2,7 @@ import styled from "styled-components";
 import {View} from "react-paper-bindings";
 import Palette from "./Palette/Palette";
 import ToolBar from "./ToolBar/ToolBar";
-import Layers from "./Layers/Layers";
+import Layers from "./Layers";
 
 
 export const StyledWrapper = styled.div`

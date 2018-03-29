@@ -8,6 +8,7 @@ import Menu from "material-ui/Menu";
 export interface LayerListItemProps extends ActiveListItemProps {
   onRename: ReactEventHandler<HTMLElement>
   onDelete: ReactEventHandler<HTMLElement>
+  isDeletable: boolean
 }
 
 export interface LayerListItemState {
@@ -45,7 +46,7 @@ export class LayerListItem extends React.Component<LayerListItemProps, LayerList
   }
 
   render () {
-    const {children, onRename, onDelete, ...otherProps} = this.props
+    const {children, onRename, onDelete, isDeletable, ...otherProps} = this.props
 
     return (
       <React.Fragment>
@@ -62,7 +63,7 @@ export class LayerListItem extends React.Component<LayerListItemProps, LayerList
           onClose={this.onMenuClose}
         >
           <MenuItem onClick={this.onRename}>Rename</MenuItem>
-          <MenuItem onClick={this.onDelete}>Delete</MenuItem>
+          {isDeletable && <MenuItem onClick={this.onDelete}>Delete</MenuItem>}
         </Menu>
       </React.Fragment>
     )

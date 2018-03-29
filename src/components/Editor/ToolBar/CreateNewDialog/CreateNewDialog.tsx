@@ -3,9 +3,6 @@ import {DialogActions, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
 import TextField from "material-ui/TextField";
 import Button from "material-ui/Button";
-import {setLayoutName} from "actions/layout";
-import {RootState} from "store/type";
-import {connect} from "react-redux";
 
 
 export interface CreateNewDialogProps {
@@ -21,15 +18,6 @@ export interface CreateNewDialogState {
   errorText: string
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {}
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    setLayoutName: (name: string) => dispatch(setLayoutName(name))
-  }
-};
 
 export class CreateNewDialog extends React.Component<CreateNewDialogProps, CreateNewDialogState> {
 
@@ -107,5 +95,3 @@ export class CreateNewDialog extends React.Component<CreateNewDialogProps, Creat
   }
 }
 
-
-export const CreateNewDialogContainer = connect(mapStateToProps, mapDispatchToProps)(CreateNewDialog)

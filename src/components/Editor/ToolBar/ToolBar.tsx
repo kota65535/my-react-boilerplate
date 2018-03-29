@@ -24,7 +24,7 @@ import {PaletteItem, RootState} from "store/type";
 import {LastPaletteItems} from "reducers/builder";
 import {redo, undo} from "actions/layout";
 import {canRedo, canUndo, currentLayoutData} from "selectors";
-import {CreateNewDialogContainer} from "components/Editor/ToolBar/CreateNewDialog/CreateNewDialog";
+import CreateNewDialog from "components/Editor/ToolBar/CreateNewDialog"
 import {OpenDialogContainer} from "components/Editor/ToolBar/OpenDialog/OpenDialog";
 import {LoginDialog} from "components/Editor/ToolBar/LoginDialog/LoginDialog";
 import {Auth} from 'aws-amplify';
@@ -289,7 +289,7 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
 
           </MuiToolbar>
         </AppBar>
-        <CreateNewDialogContainer open={this.state.openCreateNew} onClose={this.closeCreateNewDialog}/>
+        <CreateNewDialog open={this.state.openCreateNew} onClose={this.closeCreateNewDialog}/>
         <OpenDialogContainer open={this.state.openOpen} onClose={this.closeOpenDialog}/>
         <LoginDialog open={this.state.openLogin} onClose={this.closeLoginDialog}/>
       </React.Fragment>

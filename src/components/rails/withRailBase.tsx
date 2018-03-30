@@ -3,6 +3,7 @@ import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
 import {
   anglesEqual,
+  getAllRailComponents,
   getRailComponent,
   getRailComponentsOfLayer,
   getTemporaryRailComponent,
@@ -288,7 +289,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       const temporaryRail = getTemporaryRailComponent()
       // 自分以外の全てのレールに対して実行する
       // console.log(getRailComponentsOfLayer(this.props.activeLayerId))
-      getRailComponentsOfLayer(this.props.activeLayerId)
+      getAllRailComponents()
       // .filter(r => r.props.id !== this.props.id)
         .forEach(target => {
           // 仮レールと対向レールのジョイントの組み合わせ

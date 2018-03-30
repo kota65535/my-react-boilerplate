@@ -81,7 +81,7 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
           case ArcDirection.RIGHT:
             return this.props.centerAngle
           case ArcDirection.LEFT:
-            return this.props.centerAngle
+            return -this.props.centerAngle
           default:
             throw Error(`Invalid direction ${this.props.direction} for ${this.constructor.name}`)
         }

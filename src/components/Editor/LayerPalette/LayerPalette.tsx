@@ -1,15 +1,16 @@
 import * as React from 'react'
 import LayersIcon from 'material-ui-icons/Layers';
 import {Checkbox, Grid, ListItemText, Paper} from 'material-ui'
-import {TitleDiv} from "./Layers.style";
+import {TitleDiv} from "./styles";
 import Rnd from 'react-rnd'
 import {LayerData} from "reducers/layout";
-import AddLayerButton from "components/Editor/Layers/AddLayerButton/AddLayerButton";
-import {LayerListItem} from "components/Editor/Layers/LayerListItem/LayerListItem";
+import AddLayerButton from "components/Editor/LayerPalette/AddLayerButton/AddLayerButton";
+import {LayerListItem} from "components/Editor/LayerPalette/LayerListItem/LayerListItem";
 import getLogger from "logging";
 import {getClosest} from "constants/utils";
-import {LayerNameDialog} from "components/Editor/Layers/LayerNameDialog/LayerNameDialog";
-import {ConfirmationDialog} from "components/Editor/Layers/ConfirmationDialog/ConfirmationDialog";
+import {LayerNameDialog} from "components/Editor/LayerPalette/LayerNameDialog/LayerNameDialog";
+import {ConfirmationDialog} from "components/Editor/LayerPalette/ConfirmationDialog/ConfirmationDialog";
+import Typography from "material-ui/Typography";
 
 const LOGGER = getLogger(__filename)
 
@@ -151,7 +152,9 @@ export default class Layers extends React.Component<LayersProps, LayersState> {
         <Paper>
           <TitleDiv className='Layers__title'>
             <LayersIcon />
-            Layers
+            <Typography variant="subheading" color="inherit" style={{flex: 1}}>
+              Layers
+            </Typography>
             <AddLayerButton onClick={this.openAddDialog}/>
           </TitleDiv>
 

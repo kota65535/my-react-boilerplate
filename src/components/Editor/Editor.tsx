@@ -9,10 +9,9 @@ import withTools, {WithToolsPrivateProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
 import {EditorBody, StyledLayers, StyledPalette, StyledToolBar, StyledWrapper} from "./Editor.style";
-import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE, Tools} from "constants/tools";
 
 import './Paper.css'
-import GridPaper from "./GridPaper/GridPaper";
+import GridPaper from "components/Editor/GridPaper";
 
 import {Point} from "paper";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
@@ -27,6 +26,8 @@ import {createRailComponent} from "components/rails/utils";
 import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
 import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
 import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";
+import {Tools} from "constants/tools";
+import {SettingsStoreState} from "reducers/settings";
 
 const LOGGER = getLogger(__filename)
 
@@ -39,6 +40,7 @@ export interface EditorProps {
   isLayoutEmpty: boolean
   builderPhase: BuilderPhase
   markerPosition: Point
+  settings: SettingsStoreState
 }
 
 export interface EditorState {
@@ -62,7 +64,8 @@ const mapStateToProps = (state: RootState) => {
     mousePosition: state.builder.mousePosition,
     isLayoutEmpty: isLayoutEmpty(state),
     builderPhase: state.builder.phase,
-    markerPosition: state.builder.markerPosition
+    markerPosition: state.builder.markerPosition,
+    settings: state.settings
   }
 }
 
@@ -143,6 +146,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       </Layer>
     )
 
+    const {paperWidth, paperHeight, gridSize} = this.props.settings
 
     // LOGGER.debug(this.props.mousePosition)
     // LOGGER.debug(`from=${this.props.selectionRectFrom}, to=${this.props.selectionRectTo}`)
@@ -155,9 +159,9 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
           <StyledPalette />
           <StyledLayers {...layerProps} />
           <GridPaper
-            width={GRID_PAPER_WIDTH}
-            height={GRID_PAPER_HEIGHT}
-            gridSize={GRID_SIZE}
+            width={paperWidth}
+            height={paperHeight}
+            gridSize={gridSize}
             onWheel={this.props.moveToolMouseWheel}
             matrix={matrix}
           >

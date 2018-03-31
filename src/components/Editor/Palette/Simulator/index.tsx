@@ -39,4 +39,4 @@ export class Simulator extends React.Component<SimulatorProps, {}> {
 //   }
 // };
 //
-// export default connect(mapStateToProps, mapDispatchToProps)(Layers)
+// export default connect(mapStateToProps, mapDispatchToProps)(LayerPalette)

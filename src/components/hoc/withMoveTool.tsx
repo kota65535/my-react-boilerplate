@@ -2,7 +2,14 @@ import * as React from 'react';
 import {RootState} from "store/type";
 import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
-import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, INITIAL_ZOOM, ZOOM_FACTOR, ZOOM_MAX, ZOOM_MIN} from "constants/tools";
+import {
+  DEFAULT_INITIAL_ZOOM,
+  DEFAULT_PAPER_HEIGHT,
+  DEFAULT_PAPER_WIDTH,
+  ZOOM_FACTOR,
+  ZOOM_MAX,
+  ZOOM_MIN
+} from "constants/tools";
 import {PaperScope, Point, ToolEvent, View} from 'paper'
 import getLogger from "logging";
 
@@ -69,7 +76,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
         ty: 0, // translate y
         x: 0,
         y: 0,
-        zoom: INITIAL_ZOOM,
+        zoom: DEFAULT_INITIAL_ZOOM,
       }
       this._pan = null
       this.mousePosition = new Point(0,0)
@@ -222,7 +229,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
     resetViewPosition = () => {
       if (window.PAPER_SCOPE) {
         const windowCenter = window.PAPER_SCOPE.view.viewToProject(new Point(window.innerWidth /2, window.innerHeight/2))
-        const boardCenter = new Point(GRID_PAPER_WIDTH/2, GRID_PAPER_HEIGHT/2)
+        const boardCenter = new Point(DEFAULT_PAPER_WIDTH/2, DEFAULT_PAPER_HEIGHT/2)
         const diff = windowCenter.subtract(boardCenter)
         window.PAPER_SCOPE.view.translate(diff.x, diff.y)
       }

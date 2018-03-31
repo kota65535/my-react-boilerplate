@@ -3,7 +3,7 @@ import CurveRailIcon from './Icon/CurveRail'
 import StraightRailIcon from './Icon/StraightRail'
 import TurnoutIcon from './Icon/Turnout'
 import {AppBar, Toolbar as MuiToolbar} from "material-ui"
-import {StyledIconButton, VerticalDivider} from "./ToolBar.style";
+import {StyledIconButton, VerticalDivider} from "./styles";
 import {Tools} from "constants/tools";
 import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'

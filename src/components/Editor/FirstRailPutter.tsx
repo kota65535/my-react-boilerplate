@@ -6,15 +6,16 @@ import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {setMarkerPosition, setPhase} from "actions/builder";
 import {BuilderPhase} from "reducers/builder";
-import {GRID_PAPER_HEIGHT, GRID_PAPER_WIDTH, GRID_SIZE} from "constants/tools";
 import {getClosest} from "constants/utils";
 import * as _ from "lodash";
+import {SettingsStoreState} from "reducers/settings";
 
 
 interface FirstRailPutterProps {
   position: Point
   setMarkerPosition: (position: Point) => void
   setPhase: (phase: BuilderPhase) => void
+  settings: SettingsStoreState
 }
 
 interface FirstRailPutterState {
@@ -23,7 +24,8 @@ interface FirstRailPutterState {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    position: state.builder.mousePosition
+    position: state.builder.mousePosition,
+    settings: state.settings
   }
 }
 
@@ -76,9 +78,10 @@ export class FirstRailPutter extends React.Component<FirstRailPutterProps, First
   }
 
   getNearestGridPosition = (pos) => {
-    const xNums = _.range(0, GRID_PAPER_WIDTH, GRID_SIZE);
+    const {paperWidth, paperHeight, gridSize} = this.props.settings
+    const xNums = _.range(0, paperWidth, gridSize);
     const xPos = getClosest(pos.x, xNums)
-    const yNums = _.range(0, GRID_PAPER_HEIGHT, GRID_SIZE);
+    const yNums = _.range(0, paperHeight, gridSize);
     const yPos = getClosest(pos.y, yNums)
     return new Point(xPos, yPos)
   }

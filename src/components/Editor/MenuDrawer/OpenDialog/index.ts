@@ -2,7 +2,7 @@ import {RootState} from "store/type";
 import {setLayoutData, setLayoutMeta} from "actions/layout";
 import {connect} from "react-redux";
 import {LayoutData, LayoutMeta} from "reducers/layout";
-import {OpenDialog} from "components/Editor/ToolBar/OpenDialog/OpenDialog";
+import {OpenDialog} from "components/Editor/MenuDrawer/OpenDialog/OpenDialog";
 
 const mapStateToProps = (state: RootState) => {
   return {

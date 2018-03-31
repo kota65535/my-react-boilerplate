@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {DialogActions, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
-import AuthenticatorContainer from "components/Editor/ToolBar/LoginDialog/Authenticator/AuthenticatorContainer";
+import AuthenticatorContainer from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthenticatorContainer";
 
 
 export interface LoginDialogProps {

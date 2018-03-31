@@ -1,12 +1,17 @@
 import {Action, handleActions} from 'redux-actions';
 import * as Actions from "actions/constants"
 import {Tools} from "../constants/tools";
-import {ToolsStoreState} from "../store/type";
+
+export interface ToolsStoreState {
+  activeTool: string
+  authData: any
+}
 
 const initialState: ToolsStoreState = {
   activeTool: Tools.STRAIGHT_RAILS,
-  authData: null
+  authData: null,
 }
+
 
 export default handleActions<ToolsStoreState, any>({
   [Actions.SET_TOOL]: (state: ToolsStoreState, action: Action<string>) => {

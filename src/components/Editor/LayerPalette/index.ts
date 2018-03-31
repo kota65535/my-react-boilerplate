@@ -1,5 +1,5 @@
 import {RootState} from "store/type";
-import Layers, {LayersProps} from "components/Editor/Layers/Layers";
+import LayerPalette, {LayersProps} from "components/Editor/LayerPalette/LayerPalette";
 import {currentLayoutData, nextLayerId} from "selectors";
 import {setActiveLayer} from "actions/builder";
 import {LayerData} from "reducers/layout";
@@ -23,4 +23,4 @@ const mapDispatchToProps = (dispatch): Partial<LayersProps>  => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layers)
+export default connect(mapStateToProps, mapDispatchToProps)(LayerPalette)

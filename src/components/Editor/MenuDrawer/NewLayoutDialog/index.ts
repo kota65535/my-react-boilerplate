@@ -1,9 +1,9 @@
 import {RootState} from "store/type";
 import {setLayoutMeta} from "actions/layout";
 import {connect} from "react-redux";
-import {NewLayoutDialog} from "components/Editor/ToolBar/NewLayoutDialog/NewLayoutDialog";
+import {NewLayoutDialog} from "components/Editor/MenuDrawer/NewLayoutDialog/NewLayoutDialog";
 import {LayoutMeta} from "reducers/layout";
-import {currentLayoutData} from "selectors";
+import {currentLayoutData} from "selectors/index";
 
 const mapStateToProps = (state: RootState) => {
   return {

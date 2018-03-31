@@ -12,10 +12,11 @@ export enum Tools {
   DELETE = 'Delete',
 }
 
-export const GRID_PAPER_WIDTH = 2100
-export const GRID_PAPER_HEIGHT = 1400
-export const GRID_SIZE = 70
-export const INITIAL_ZOOM = 1
+export const DEFAULT_PAPER_WIDTH = 2100
+export const DEFAULT_PAPER_HEIGHT = 1400
+export const DEFAULT_GRID_SIZE = 70
+export const DEFAULT_INITIAL_ZOOM = 1
+
 export const ZOOM_FACTOR = 0.002
 export const ZOOM_MIN = 0.1
 export const ZOOM_MAX = 10

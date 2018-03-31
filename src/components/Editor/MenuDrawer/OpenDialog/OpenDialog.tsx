@@ -3,7 +3,7 @@ import {CardContent, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
 import Button from "material-ui/Button";
 import Typography from "material-ui/Typography";
-import {LayoutCard} from "components/Editor/ToolBar/OpenDialog/OpenDialog.style";
+import {LayoutCard} from "components/Editor/MenuDrawer/OpenDialog/OpenDialog.style";
 import {S3Image} from 'aws-amplify-react';
 import LayoutAPI from "apis/layout"
 import * as _ from "lodash";

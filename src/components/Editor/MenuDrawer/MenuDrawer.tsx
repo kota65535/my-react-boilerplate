@@ -7,16 +7,18 @@ import OpenInNewIcon from "material-ui-icons/OpenInNew";
 import SaveIcon from "material-ui-icons/Save";
 import LoginIcon from "material-ui-icons/LockOpen";
 import LogoutIcon from "material-ui-icons/Lock";
-import LayoutNameDialog from "components/Editor/ToolBar/NewLayoutDialog";
-import OpenDialog from "components/Editor/ToolBar/OpenDialog";
-import {LoginDialog} from "components/Editor/ToolBar/LoginDialog/LoginDialog";
+import SettingsIcon from "material-ui-icons/Settings";
+import LayoutNameDialog from "components/Editor/MenuDrawer/NewLayoutDialog";
+import OpenDialog from "components/Editor/MenuDrawer/OpenDialog";
+import {LoginDialog} from "components/Editor/MenuDrawer/LoginDialog/LoginDialog";
 import Auth from "aws-amplify/lib/Auth";
 import LayoutAPI from "apis/layout"
 import StorageAPI from "apis/storage"
 import {LayoutData, LayoutMeta} from "reducers/layout";
-import AuthenticatorContainer from "components/Editor/ToolBar/LoginDialog/Authenticator/AuthenticatorContainer";
+import AuthenticatorContainer from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthenticatorContainer";
 import Divider from "material-ui/Divider";
 import getLogger from "logging";
+import SettingsDialog from "components/Editor/MenuDrawer/SettingsDialog";
 
 const LOGGER = getLogger(__filename)
 
@@ -32,10 +34,11 @@ export interface MenuDrawerProps {
 }
 
 export interface MenuDrawerState {
+  openLogin: boolean
+  openOpen: boolean
   openCreateNew: boolean
   openSaveNew: boolean
-  openOpen: boolean
-  openLogin: boolean
+  openSettings: boolean
 }
 
 
@@ -44,10 +47,11 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
   constructor(props: MenuDrawerProps) {
     super(props)
     this.state = {
+      openLogin: false,
+      openOpen: false,
       openCreateNew: false,
       openSaveNew: false,
-      openOpen: false,
-      openLogin: false
+      openSettings: false
     }
   }
 
@@ -68,68 +72,63 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
     }
   }
 
+  logout = async () => {
+    await Auth.signOut()
+    this.closeMenu()
+  }
+
   openLoginDialog = () => {
-    this.setState({
-      openLogin: true
-    })
-    // this.closeMenu()
+    this.setState({ openLogin: true })
   }
 
   closeLoginDialog = () => {
-    this.setState({
-      openLogin: false
-    })
-    this.closeMenu()
-  }
-
-  openCreateNewDialog = () => {
-    this.setState({
-      openCreateNew: true
-    })
-  }
-
-  closeCreateNewDialog = () => {
-    this.setState({
-      openCreateNew: false
-    })
-    this.closeMenu()
-  }
-
-  openSaveNewDialog = () => {
-    this.setState({
-      openSaveNew: true
-    })
-  }
-
-  closeSaveNewDialog = () => {
-    this.setState({
-      openSaveNew: false
-    })
+    this.setState({ openLogin: false })
     this.closeMenu()
   }
 
   openOpenDialog = () => {
-    this.setState({
-      openOpen: true
-    })
+    this.setState({ openOpen: true })
   }
 
   closeOpenDialog = () => {
-    this.setState({
-      openOpen: false
-    })
+    this.setState({ openOpen: false })
     this.closeMenu()
   }
 
-  logout = async () => {
-    await Auth.signOut()
+  openCreateNewDialog = () => {
+    this.setState({ openCreateNew: true })
+  }
+
+  closeCreateNewDialog = () => {
+    this.setState({ openCreateNew: false })
+    this.closeMenu()
+  }
+
+  openSaveNewDialog = () => {
+    this.setState({ openSaveNew: true })
+  }
+
+  closeSaveNewDialog = () => {
+    this.setState({ openSaveNew: false })
+    this.closeMenu()
+  }
+
+  openSettingsDialog = () => {
+    this.setState({
+      openSettings: true
+    })
+  }
+
+  closeSettingsDialog = () => {
+    this.setState({
+      openSettings: false
+    })
     this.closeMenu()
   }
 
   closeMenu = () => {
     this.props.onClose()
   }
-
 
 
   render() {
@@ -187,6 +186,12 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
                   </ListItemIcon>
                   <ListItemText primary="Save"/>
                 </ListItem>
+                <ListItem button onClick={this.openSettingsDialog}>
+                  <ListItemIcon>
+                    <SettingsIcon/>
+                  </ListItemIcon>
+                  <ListItemText primary="Settings"/>
+                </ListItem>
               </React.Fragment>
             }
           </List>
@@ -202,6 +207,7 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
             open={this.state.openSaveNew} onClose={this.closeSaveNewDialog}/>
           <OpenDialog open={this.state.openOpen} onClose={this.closeOpenDialog}/>
           <LoginDialog open={this.state.openLogin} onClose={this.closeLoginDialog}/>
+          <SettingsDialog open={this.state.openSettings} onClose={this.closeSettingsDialog}/>
         </div>
       </Drawer>
     )

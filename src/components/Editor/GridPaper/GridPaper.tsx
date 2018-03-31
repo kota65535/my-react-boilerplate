@@ -1,11 +1,8 @@
 import * as React from 'react'
-
 import {Layer, Line, Path, Raster, Tool, View} from 'react-paper-bindings'
 import {Point} from 'paper';
 import * as _ from "lodash";
-import {RootState} from "store/type";
-import {setPaperViewLoaded} from "actions/builder";
-import {connect} from "react-redux";
+
 
 export interface GridPaperProps {
   width: number
@@ -15,18 +12,6 @@ export interface GridPaperProps {
   matrix: any
   setPaperViewLoaded: (loaded: boolean) => void
 }
-
-const mapStateToProps = (state: RootState) => {
-  return {
-  }
-}
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    setPaperViewLoaded: (view: View) => dispatch(setPaperViewLoaded(view))
-  }
-}
-
 
 
 export class GridPaper extends React.Component<GridPaperProps, {}> {
@@ -117,4 +102,3 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GridPaper)

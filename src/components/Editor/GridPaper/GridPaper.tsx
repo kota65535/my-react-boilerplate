@@ -60,7 +60,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
   render() {
 
     // 縦のグリッドを生成
-    let verticalLines = _.range(this.props.width / this.props.gridSize).map(i => {
+    let verticalLines = _.range(this.props.width / this.props.gridSize + 1).map(i => {
       return (
         <Line
           from={new Point(this.props.gridSize * i, 0)}
@@ -69,7 +69,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
         />)
     })
     // 横のグリッドを生成
-    let horizontalLines = _.range(this.props.height / this.props.gridSize).map(i => {
+    let horizontalLines = _.range(this.props.height / this.props.gridSize + 1).map(i => {
       return (
         <Line
           from={new Point(0, this.props.gridSize * i)}

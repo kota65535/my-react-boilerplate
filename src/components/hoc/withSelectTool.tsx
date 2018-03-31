@@ -9,6 +9,7 @@ import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 import {currentLayoutData} from "selectors";
 import {LayoutData} from "reducers/layout";
 import {getRailDataById} from "components/hoc/common";
+import {DEFAULT_SELECTION_RECT_COLOR, DEFAULT_SELECTION_RECT_OPACITY} from "constants/tools";
 
 const LOGGER = getLogger(__filename)
 
@@ -87,8 +88,8 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
       this.selectionRect = new Path.Rectangle({
           from: this.selectionRectFrom,
           to: e.point,
-          fillColor: 'blue',
-          opacity: 0.5
+          fillColor: DEFAULT_SELECTION_RECT_COLOR,
+          opacity: DEFAULT_SELECTION_RECT_OPACITY,
         }
       )
     }
@@ -104,8 +105,8 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
         this.selectionRect = new Path.Rectangle({
             from: this.selectionRectFrom,
             to: e.point,
-            fillColor: 'blue',
-            opacity: 0.5
+            fillColor: DEFAULT_SELECTION_RECT_COLOR,
+            opacity: DEFAULT_SELECTION_RECT_OPACITY,
           }
         )
       }

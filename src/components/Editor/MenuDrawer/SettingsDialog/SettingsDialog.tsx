@@ -32,9 +32,16 @@ export class SettingsDialog extends React.Component<SettingsDialogProps, Setting
     });
   };
 
-
   onOK = (e) => {
-    this.props.setConfig(this.state)
+    // 設定値が全て文字列で入ってくるので、数値に変換を試みる
+    const newSettings = {}
+    Object.keys(this.state).forEach(key => {
+      const strVal = this.state[key]
+      const numVal = Number(this.state[key])
+      newSettings[key] = numVal ? numVal : strVal
+    })
+
+    this.props.setConfig(newSettings as SettingsStoreState)
     this.props.onClose()
   }
 

@@ -22,3 +22,6 @@ export const ZOOM_MIN = 0.1
 export const ZOOM_MAX = 10
 
 export const TEMPORARY_RAIL_OPACITY = 0.3
+
+export const DEFAULT_SELECTION_RECT_COLOR = 'cyan'
+export const DEFAULT_SELECTION_RECT_OPACITY = 0.3

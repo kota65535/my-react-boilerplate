@@ -295,8 +295,12 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           // 仮レールと対向レールのジョイントの組み合わせ
           const combinations = Combinatorics.cartesianProduct(temporaryRail.joints, target.joints).toArray()
           combinations.forEach(cmb => {
+            // 両方が未接続でなければ抜ける
+            if (cmb[0].props.hasOpposingJoint || cmb[1].props.hasOpposingJoint) {
+              return
+            }
             // ジョイント同士が十分近く、かつ角度が一致していればリストに加える
-            LOGGER.debug(cmb[0].props.data.railId, cmb[0].angle, cmb[1].props.data.railId, cmb[1].angle)
+            // LOGGER.debug(cmb[0].props.data.railId, cmb[0].angle, cmb[1].props.data.railId, cmb[1].angle)
             const isClose = pointsEqual(cmb[0].position, cmb[1].position, 0.1)
             const isSameAngle = anglesEqual(cmb[0].angle, cmb[1].angle + 180, 0.1)
             if (isClose && isSameAngle) {

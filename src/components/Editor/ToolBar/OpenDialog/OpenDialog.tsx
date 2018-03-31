@@ -4,14 +4,11 @@ import Dialog from "material-ui/Dialog";
 import Button from "material-ui/Button";
 import Typography from "material-ui/Typography";
 import {LayoutCard} from "components/Editor/ToolBar/OpenDialog/OpenDialog.style";
-import {connect} from "react-redux";
-import {RootState} from "store/type";
 import {S3Image} from 'aws-amplify-react';
 import LayoutAPI from "apis/layout"
 import * as _ from "lodash";
 import getLogger from "logging";
-import {loadLayout, setLayoutName} from "actions/layout";
-import {LayoutData} from "reducers/layout";
+import {LayoutData, LayoutMeta} from "reducers/layout";
 import {getLayoutImageFileName} from "apis/storage";
 
 const LOGGER = getLogger(__filename)
@@ -20,28 +17,16 @@ export interface OpenDialogProps {
   open: boolean
   onClose: () => void
   authData: any
-  setLayoutName: (name: string) => void
-  loadLayout: (data: LayoutData) => void
+  setLayoutMeta: (meta: LayoutMeta) => void
+  setLayoutData: (data: LayoutData) => void
 }
 
 export interface OpenDialogState {
   isLoaded: boolean
-  layoutIds: string[]
+  layoutMetas: LayoutMeta[]
   layoutImageFiles: string[]
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    authData: state.tools.authData
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    setLayoutName: (name: string) => dispatch(setLayoutName(name)),
-    loadLayout: (data: LayoutData) => dispatch(loadLayout(data))
-  }
-};
 
 export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState> {
 
@@ -49,7 +34,7 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
     super(props)
     this.state = {
       isLoaded: false,
-      layoutIds: [],
+      layoutMetas: [],
       layoutImageFiles: []
     }
 
@@ -59,20 +44,21 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
   }
 
   async loadLayoutList() {
-    const r1 = await LayoutAPI.fetchLayoutList(this.props.authData.username)
+    const list = await LayoutAPI.fetchLayoutList(this.props.authData.username)
+    LOGGER.info(list)
     this.setState({
       isLoaded: true,
-      layoutIds: r1['layouts'],
-      layoutImageFiles: r1['layouts'].map(id => getLayoutImageFileName(this.props.authData.username, id))
+      layoutMetas: list['layouts'],
+      layoutImageFiles: list['layouts'].map(meta => getLayoutImageFileName(this.props.authData.username, meta.id))
     })
   }
 
 
-  onClick = (name: string) => async (e) => {
-    this.props.setLayoutName(name)
-    const data = await LayoutAPI.fetchLayoutData(this.props.authData.username, name)
+  onClick = (meta: LayoutMeta) => async (e) => {
+    this.props.setLayoutMeta(meta)
+    const data = await LayoutAPI.fetchLayoutData(this.props.authData.username, meta.id)
     LOGGER.info(data)
-    this.props.loadLayout(data)
+    this.props.setLayoutData(data.layout)
     this.onClose()
   }
 
@@ -89,17 +75,30 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
         open={this.props.open}
         onClose={this.onClose}
         onEnter={this.loadLayoutList}
+        fullWidth
+        maxWidth='md'
       >
-        <DialogTitle id="open-layout">{"Open Layout"}</DialogTitle>
+        <DialogTitle id="my-layouts">{"My Layouts"}</DialogTitle>
         <DialogContent>
-          {_.range(this.state.layoutIds.length).map(idx => {
+          <Typography>
+            You have {this.state.layoutMetas.length} layouts.
+          </Typography>
+          {_.range(this.state.layoutMetas.length).map(idx => {
             return (
-              <Button onClick={this.onClick(this.state.layoutIds[idx])} color="primary">
+              <Button onClick={this.onClick(this.state.layoutMetas[idx])}
+                      color="primary"
+              >
               <LayoutCard>
                 <CardContent>
                   <S3Image level={'private'} imgKey={this.state.layoutImageFiles[idx]}/>
-                  <Typography gutterBottom variant="headline" component="h3">
-                    {this.state.layoutIds[idx]}
+                  <Typography align="left" variant="body2">
+                    Title: {this.state.layoutMetas[idx].name}
+                  </Typography>
+                  {/*<Typography>*/}
+                    {/*ID: {this.state.layoutMetas[idx].id}*/}
+                  {/*</Typography>*/}
+                  <Typography align="left" variant="body2">
+                    Last modified: {this.state.layoutMetas[idx].lastModified}
                   </Typography>
                 </CardContent>
               </LayoutCard>
@@ -107,18 +106,9 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
             )
           })}
         </DialogContent>
-        {/*<DialogActions>*/}
-          {/*<Button disabled={this.state.isError} variant="raised" onClick={this.onClose} color="primary">*/}
-            {/*Create*/}
-          {/*</Button>*/}
-          {/*<Button onClick={this.onClose} color="primary" autoFocus>*/}
-            {/*Cancel*/}
-          {/*</Button>*/}
-        {/*</DialogActions>*/}
       </Dialog>
     )
   }
 }
 
-export const OpenDialogContainer = connect(mapStateToProps, mapDispatchToProps)(OpenDialog)
 

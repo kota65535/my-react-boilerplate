@@ -4,10 +4,16 @@ import update from 'immutability-helper';
 import {RailData} from "components/rails";
 
 
+export interface LayoutMeta {
+  id: string
+  name: string
+  lastModified: string
+}
+
 export interface LayoutStoreState {
   histories: LayoutData[]
   historyIndex: number
-  name: string
+  meta: LayoutMeta
 }
 
 export interface LayoutData {
@@ -74,7 +80,7 @@ export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
     }
   ],
   historyIndex: 0,
-  name: 'Untitled'
+  meta: null
 }
 
 
@@ -263,14 +269,25 @@ export default handleActions<LayoutStoreState, any>({
     }
   },
 
-  [Actions.LAYOUT_SET_NAME]: (state: LayoutStoreState, action: Action<string>) => {
+  [Actions.LAYOUT_SET_LAYOUT_META]: (state: LayoutStoreState, action: Action<LayoutMeta>): LayoutStoreState => {
     return {
       ...state,
-      name: action.payload
+      meta: action.payload
     }
   },
 
-  [Actions.LAYOUT_LOAD_LAYOUT]: (state: LayoutStoreState, action: Action<LayoutData>) => {
+  [Actions.LAYOUT_UPDATE_LAYOUT_META]: (state: LayoutStoreState, action: Action<Partial<LayoutMeta>>): LayoutStoreState => {
+    return {
+      ...state,
+      meta: {
+        ...state.meta,
+        ...action.payload
+      }
+    }
+  },
+
+
+  [Actions.LAYOUT_SET_LAYOUT_DATA]: (state: LayoutStoreState, action: Action<LayoutData>) => {
     return {
       ...state,
       histories: [action.payload],

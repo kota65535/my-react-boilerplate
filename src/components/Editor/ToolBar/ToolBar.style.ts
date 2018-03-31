@@ -5,10 +5,14 @@ import IconButton from "material-ui/IconButton";
 
 export const StyledIconButton = styled(IconButton as any)`
   &:hover {
-      color: yellow
-    }
+    color: yellow
+  }
   &.active, &:active {
-      color: orange;
+    color: orange;
+  }
+  &.disabled {
+    color: ${theme.palette.primary['700'] 
+  }
 `
 
 export const VerticalDivider = styled.div`

@@ -3,6 +3,7 @@ import {
   DeleteItemDataPayload,
   LayerDataPayload,
   LayoutData,
+  LayoutMeta,
   PartialLayerDataPayload,
   PartialRailDataPayload,
   RailDataPayload
@@ -22,5 +23,6 @@ export const redo = createAction<{}>(Actions.LAYOUT_REDO)
 export const addHistory = createAction<{}>(Actions.LAYOUT_ADD_HISTORY)
 export const clearHistory = createAction<{}>(Actions.LAYOUT_CLEAR_HISTORY)
 
-export const setLayoutName = createAction<string>(Actions.LAYOUT_SET_NAME)
-export const loadLayout = createAction<LayoutData>(Actions.LAYOUT_LOAD_LAYOUT)
+export const setLayoutData = createAction<LayoutData>(Actions.LAYOUT_SET_LAYOUT_DATA)
+export const setLayoutMeta = createAction<LayoutMeta>(Actions.LAYOUT_SET_LAYOUT_META)
+export const updateLayoutMeta = createAction<Partial<LayoutMeta>>(Actions.LAYOUT_UPDATE_LAYOUT_META)

@@ -15,6 +15,12 @@ export const theme = createMuiTheme({
     primary: cyan,
     secondary: green,
   },
+  // ボタンの文字を勝手に大文字にするのをやめる
+  typography: {
+    button: {
+      textTransform: 'none',
+    },
+  },
 });
 
 

@@ -1,15 +1,27 @@
 import {API} from "aws-amplify";
-import {LayoutData} from "reducers/layout";
+import {LayoutData, LayoutMeta} from "reducers/layout";
 
-const fetchLayoutList = async (userId: string) => {
+
+export interface LayoutList {
+  layouts: LayoutMeta[]
+}
+
+export interface LayoutDataWithMeta {
+  layout: LayoutData
+  meta: LayoutMeta
+}
+
+
+const fetchLayoutList = async (userId: string): Promise<LayoutList> => {
   return await API.get('Layout', `/users/${userId}/layouts`, {headers: {}})
 }
 
-const fetchLayoutData = async (userId: string, layoutId: string) => {
+const fetchLayoutData = async (userId: string, layoutId: string): Promise<LayoutDataWithMeta> => {
   return await API.get('Layout', `/users/${userId}/layouts/${layoutId}`, {headers: {}})
 }
 
-const saveLayoutData = async (userId: string, layoutId: string, layoutData: LayoutData) => {
+const saveLayoutData = async (userId: string, layoutData: LayoutDataWithMeta) => {
+  const layoutId = layoutData.meta.id
   return await API.put('Layout', `/users/${userId}/layouts/${layoutId}`, {
     headers: {},
     body: layoutData

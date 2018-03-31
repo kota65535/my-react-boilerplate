@@ -4,23 +4,23 @@ import {DialogActions, DialogContent, DialogTitle} from "material-ui";
 import TextField from "material-ui/TextField";
 import Button from "material-ui/Button";
 
-export interface RenameLayerDialogProps {
+export interface LayerNameDialogProps {
   title: string
   open: boolean
   onOK: (layerName: string) => void
   onClose: () => void
 }
 
-export interface RenameLayerDialogState {
+export interface LayerNameDialogState {
   name: string
   isError: boolean
   errorText: string
 }
 
 
-export class LayerNameDialog extends React.Component<RenameLayerDialogProps, RenameLayerDialogState> {
+export class LayerNameDialog extends React.Component<LayerNameDialogProps, LayerNameDialogState> {
 
-  constructor(props: RenameLayerDialogProps) {
+  constructor(props: LayerNameDialogProps) {
     super(props)
     this.state = {
       name: '',
@@ -37,7 +37,6 @@ export class LayerNameDialog extends React.Component<RenameLayerDialogProps, Ren
       name: ''
     })
   }
-
 
   onOK = (e) => {
     this.props.onOK(this.state.name)
@@ -75,20 +74,22 @@ export class LayerNameDialog extends React.Component<RenameLayerDialogProps, Ren
         <DialogTitle id={title}>{title}</DialogTitle>
         <DialogContent>
           <TextField
+            error={this.state.isError}
             autoFocus
             margin="dense"
             id="layer-name"
             label="Layer Name"
             value={this.state.name}
+            helperText={this.state.errorText}
             onChange={this.onTextChange}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={this.onOK} color="primary">
+          <Button disabled={this.state.isError || ! this.state.name} variant="raised" onClick={this.onOK} color="primary">
             OK
+          </Button>
+          <Button onClick={this.props.onClose} color="primary" autoFocus>
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

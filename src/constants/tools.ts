@@ -6,6 +6,8 @@ export enum Tools {
   GAP = 'Gaps',
   SELECT = 'Select',
   PAN = 'Pan',
+  UNDO = 'Undo',
+  REDO = 'Redo',
   RESET_VIEW = 'Reset View',
   DELETE = 'Delete',
 }

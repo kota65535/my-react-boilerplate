@@ -11,6 +11,8 @@ import SimpleTurnoutContainer from "components/rails/SimpleTurnout";
 import {RailBaseProps} from "components/rails/RailBase";
 import EndRailContainer from "components/rails/EndRail";
 import EndRail from "components/rails/EndRail/EndRail";
+import CrossingRailContainer from "components/rails/CrossingRail";
+import CrossingRail from "components/rails/CrossingRail/CrossingRail";
 
 // クラス名の文字列とクラスオブジェクトを関連付ける連想配列
 // 新しいレールクラスを作成したらここに追加する必要がある
@@ -21,6 +23,7 @@ const RailContainerClasses = {
   'DoubleStraightRail': DoubleStraightRailContainer,
   'DoubleCrossTurnout': DoubleCrossTurnoutContainer,
   'EndRail': EndRailContainer,
+  'CrossingRail': CrossingRailContainer
 }
 
 export const RailComponentClasses = {
@@ -30,6 +33,7 @@ export const RailComponentClasses = {
   DoubleStraightRail,
   DoubleCrossTurnout,
   EndRail,
+  CrossingRail
 }
 
 export default RailContainerClasses

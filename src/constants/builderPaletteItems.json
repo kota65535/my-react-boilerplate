@@ -21,6 +21,14 @@
       "type": "StraightRail"
     },
     {
+      "name": "S33",
+      "type": "StraightRail"
+    },
+    {
+      "name": "S18.5",
+      "type": "StraightRail"
+    },
+    {
       "name": "DS280",
       "type": "StraightRail"
     }
@@ -40,6 +48,10 @@
     },
     {
       "name": "C317-15",
+      "type": "CurveRail"
+    },
+    {
+      "name": "C541-15",
       "type": "CurveRail"
     }
   ],
@@ -76,6 +88,18 @@
   "Special Rails": [
     {
       "name": "End Rail",
+      "type": "SpecialRail"
+    },
+    {
+      "name": "XR140-15",
+      "type": "SpecialRail"
+    },
+    {
+      "name": "XR72.5-30",
+      "type": "SpecialRail"
+    },
+    {
+      "name": "XR37-90",
       "type": "SpecialRail"
     }
   ]

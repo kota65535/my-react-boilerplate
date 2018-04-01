@@ -164,10 +164,36 @@ class RailFactory {
     }
   }
 
+  // ========== Special Rails ==========
+
   ['End Rail']() {
     return {
       type: 'EndRail',
       length: 70,
+    }
+  }
+
+  ['XR140-15']() {
+    return {
+      type: 'CrossingRail',
+      length: 140,
+      crossAngle: 15
+    }
+  }
+
+  ['XR72.5-30']() {
+    return {
+      type: 'CrossingRail',
+      length: 72.5,
+      crossAngle: 30
+    }
+  }
+
+  ['XR37-90']() {
+    return {
+      type: 'CrossingRail',
+      length: 37,
+      crossAngle: 90
     }
   }
   // CPR317_280_45() {

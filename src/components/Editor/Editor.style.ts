@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import {View} from "react-paper-bindings";
-import Palette from "./Palette/Palette";
+import Palette from "./Palette";
 import ToolBar from "./ToolBar";
 import Layers from "./LayerPalette";
 

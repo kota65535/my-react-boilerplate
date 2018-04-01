@@ -3,6 +3,8 @@ import * as Actions from "actions/constants"
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {RailData} from "components/rails";
+import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
+import update from "immutability-helper";
 
 export enum BuilderPhase {
   NORMAL = 'Normal',
@@ -25,6 +27,7 @@ export interface BuilderStoreState {
   temporaryItem: RailData
   phase: BuilderPhase
   markerPosition: Point
+  railGroups: RailGroupProps[]
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -34,6 +37,7 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
     'Curve Rails': {type: 'CurveRail', name: 'C280-45'},
     'Turnouts': {type: 'Turnout', name: 'PR541-15'},
     'Special Rails': {type: 'SpecialRails', name: 'End Rail'},
+    'Rail Groups': {type: '', name: ''},
   },
   activeLayerId: 1,
   mousePosition: new Point(0,0),
@@ -41,6 +45,7 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   temporaryItem: null,
   phase: BuilderPhase.NORMAL,
   markerPosition: null,
+  railGroups: []
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -134,6 +139,12 @@ export default handleActions<BuilderStoreState, any>({
       ...state,
       markerPosition: action.payload
     } as BuilderStoreState
+  },
+
+  [Actions.ADD_RAIL_GROUP]: (state: BuilderStoreState, action: Action<RailGroupProps>): BuilderStoreState => {
+    return update(state, {
+      railGroups: {$push: [action.payload]}
+    })
   },
 
 }, BUILDER_INITIAL_STATE);

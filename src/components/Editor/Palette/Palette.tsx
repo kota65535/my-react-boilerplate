@@ -1,5 +1,4 @@
 import * as React from 'react'
-import {connect} from "react-redux";
 import builderPaletteData from "constants/builderPaletteItems.json"
 import {Tools} from "constants/tools";
 import StraightRailIcon from '../ToolBar/Icon/StraightRail'
@@ -7,12 +6,14 @@ import CurveRailIcon from '../ToolBar/Icon/CurveRail'
 import TurnoutIcon from "../ToolBar/Icon/Turnout";
 import Builder from "./Builder/Builder"
 import Rnd from "react-rnd"
-import {RootState} from "store/type";
+import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
+
 
 export interface PaletteProps {
   className?: string
   tool: Tools
   setPaletteMode: (mode: string) => void
+  railGroups: RailGroupProps[]
 }
 
 
@@ -57,20 +58,16 @@ export class Palette extends React.Component<PaletteProps, {}> {
           title={Tools.SPECIAL_RAILS}
           items={builderPaletteData[Tools.SPECIAL_RAILS]}
         />
+        <Builder
+          active={this.isActive(Tools.RAIL_GROUPS)}
+          icon={(<TurnoutIcon/>)}
+          title={Tools.RAIL_GROUPS}
+          items={this.props.railGroups.map(rg => {
+            return {name: rg.name, type: 'RailGroup'}
+          })}
+        />
       </Rnd>
     )
   }
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    tool: state.tools.activeTool
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-  }
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Palette)

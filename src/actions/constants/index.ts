@@ -26,3 +26,5 @@ export const SET_PALETTE_MODE = 'SET_PALETTE_MODE'
 export const SET_AUTH_DATA = 'SET_AUTH_DATA'
 export const SET_CONFIG = 'SET_CONFIG'
 export const UPDATE_CONFIG = 'SET_CONFIG'
+
+export const ADD_RAIL_GROUP = 'ADD_RAIL_GROUP'

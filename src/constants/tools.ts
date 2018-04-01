@@ -3,7 +3,7 @@ export enum Tools {
   CURVE_RAILS = 'Curve Rails',
   TURNOUTS = 'Turnouts',
   SPECIAL_RAILS = 'Special Rails',
-  CLIPBOARD_RAILS = 'Clipboard Rails',
+  RAIL_GROUPS = 'Rail Groups',
   FEEDERS = 'Feeders',
   GAP = 'Gaps',
   SELECT = 'Select',

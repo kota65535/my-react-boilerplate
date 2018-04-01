@@ -7,7 +7,7 @@ import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {getClosest} from "constants/utils";
-import {setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
+import {addRailGroup, setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
@@ -15,7 +15,8 @@ import update from "immutability-helper";
 import {RailData} from "components/rails";
 import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
 import {JointInfo} from "components/rails/RailBase";
-import {getRailComponent} from "components/rails/utils";
+import {getAllRailComponents, getRailComponent} from "components/rails/utils";
+import RailGroup from "components/rails/RailGroup/RailGroup";
 
 const LOGGER = getLogger(__filename)
 
@@ -51,6 +52,7 @@ interface WithBuilderPrivateProps {
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
   addHistory: () => void
+  addRailGroup: (railGroup) => void
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
@@ -89,7 +91,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
       updateRail: (item: Partial<RailData>, overwrite = false) => dispatch(updateRail({item, overwrite})),
       removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
-      addHistory: () => dispatch(addHistory({}))
+      addHistory: () => dispatch(addHistory({})),
+      addRailGroup: (railGroup) => dispatch(addRailGroup(railGroup))
     }
   }
 
@@ -244,9 +247,24 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           this.removeSelectedRails()
           break
         case 'c':
+          // TODO: temporary
+          const railGroup = {
+            type: 'RailGroup',
+            rails: this.getSelectedRailData(),
+            name: 'aaaaa'
+          }
+          this.props.addRailGroup(railGroup)
           break
       }
     }
+
+
+    getSelectedRailData() {
+      return getAllRailComponents()
+        .filter(rail => rail.props.selected)
+        .map(rail => rail.props)
+    }
+
 
     /**
      * 指定のレールのジョイント接続を解除する。

@@ -35,10 +35,10 @@ export default handleActions<ToolsStoreState, any>({
    * @param {Action<string>} action
    * @returns {{activeTool: string; authData: any}}
    */
-  [Actions.SET_AUTH_DATA]: (state: ToolsStoreState, action: Action<string>) => {
+  [Actions.SET_AUTH_DATA]: (state: ToolsStoreState, action: Action<string>): ToolsStoreState => {
     return {
       ...state,
       authData: action.payload
     }
-  }
+  },
 }, initialState);

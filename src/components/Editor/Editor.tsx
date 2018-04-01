@@ -182,6 +182,20 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
               {/*id={1}*/}
               {/*layerId={1}*/}
             {/*/>*/}
+            {/*<RailGroup rails={[*/}
+              {/*{*/}
+                {/*type: 'StraightRail',*/}
+                {/*position: new Point(700,700),*/}
+                {/*length: 280,*/}
+
+              {/*},*/}
+              {/*{*/}
+                {/*type: 'StraightRail',*/}
+                {/*position: new Point(980,700),*/}
+                {/*length: 280*/}
+              {/*},*/}
+            {/*]}*/}
+            {/*/>*/}
 
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS)}

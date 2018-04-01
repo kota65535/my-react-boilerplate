@@ -4,6 +4,7 @@ import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {BuilderPhase} from "reducers/builder";
 import {RailData} from "components/rails";
+import RailGroup from "components/rails/RailGroup/RailGroup";
 
 export const selectPaletteItem = createAction<PaletteItem>(Actions.BUILDER_SELECT_PALETTE_ITEM);
 export const setPaletteMode = createAction<string>(Actions.SET_PALETTE_MODE);
@@ -14,3 +15,4 @@ export const setTemporaryItem = createAction<RailData>(Actions.BUILDER_SET_TEMPO
 export const updateTemporaryItem = createAction<Partial<RailData>>(Actions.BUILDER_UPDATE_TEMPORARY_ITEM);
 export const setPhase = createAction<BuilderPhase>(Actions.BUILDER_SET_PHASE);
 export const setMarkerPosition = createAction<Point>(Actions.BUILDER_SET_MARKER_POSITION);
+export const addRailGroup = createAction<RailGroup>(Actions.ADD_RAIL_GROUP)

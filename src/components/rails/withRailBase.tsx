@@ -21,6 +21,7 @@ import {nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
 import {RailData} from "components/rails/index";
+import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
 
 const LOGGER = getLogger(__filename)
 
@@ -43,6 +44,8 @@ export interface WithRailBaseProps {
   temporaryPivotJointIndex: number
   activeLayerId: number
   nextRailId: number
+  railGroups: RailGroupProps[]
+
   // actions
   setTemporaryItem: (item: RailData) => void
   updateTemporaryItem: (item: Partial<RailData>) => void
@@ -65,6 +68,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       temporaryPivotJointIndex: temporaryPivotJointIndex(state),
       activeLayerId: state.builder.activeLayerId,
       nextRailId: nextRailId(state),
+      railGroups: state.builder.railGroups,
     }
   }
 
@@ -217,6 +221,17 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.setCloseJointStates(DetectionState.DETECTING)
     }
 
+
+
+    getRailProps = (paletteItem: PaletteItem) => {
+      // パレットで選択したレール生成のためのPropsを取得
+      if (paletteItem.type === 'RailGroup') {
+        return this.props.railGroups.find(rg => rg.name === paletteItem.name)
+      } else {
+        return RailFactory[paletteItem.name]()
+      }
+    }
+
     /**
      * ジョイントにマウスが乗ったら、仮レールを表示する
      * @param {number} jointId
@@ -224,7 +239,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onJointMouseEnter = (jointId: number, e: MouseEvent) => {
       // パレットで選択したレール生成のためのPropsを取得
-      const itemProps = RailFactory[this.props.paletteItem.name]()
+      const itemProps = this.getRailProps(this.props.paletteItem)
+      LOGGER.info(itemProps)
 
       // カーブレールに接続する場合、PivotJoint (=向き)を揃える
       let pivotJointIndex = this.props.temporaryPivotJointIndex

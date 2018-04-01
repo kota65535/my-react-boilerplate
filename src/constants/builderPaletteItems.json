@@ -102,5 +102,11 @@
       "name": "XR37-90",
       "type": "SpecialRail"
     }
+  ],
+  "Rail Groups": [
+    {
+      "name": "Test Group",
+      "type": "RailGroup"
+    }
   ]
 }

@@ -130,6 +130,18 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
                 <TurnoutIcon/>
               </StyledIconButton>
             </Tooltip>
+
+            <Tooltip id="tooltip-rail-group" title={Tools.RAIL_GROUPS}>
+              <StyledIconButton
+                className={classNames({
+                  'active': this.isActive(Tools.RAIL_GROUPS)
+                })}
+                onClick={this.onClickBuilderItem(Tools.RAIL_GROUPS)}
+              >
+                <TurnoutIcon/>
+              </StyledIconButton>
+            </Tooltip>
+
             <Tooltip id="tooltip-feeders" title={Tools.FEEDERS}>
               <StyledIconButton
                 className={classNames({

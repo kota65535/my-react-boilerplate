@@ -7,6 +7,7 @@ import green from 'material-ui/colors/green';
 import Reboot from 'material-ui/Reboot';
 import {Provider} from "react-redux";
 import {configureStore} from "./store";
+import {SnackbarProvider} from 'material-ui-snackbar-provider'
 
 // A theme with custom primary and secondary color.
 // It's optional.
@@ -24,6 +25,19 @@ export const theme = createMuiTheme({
 });
 
 
+const snackbarProps = {
+  autoHideDuration: 4000,
+  anchorOrigin: {
+    vertical: 'bottom',
+    horizontal: 'left',
+  }
+  // style: {
+  //   width: theme.spacing.unit * 4,
+  //   height: theme.spacing.unit * 4,
+  // }
+}
+
+
 const store = configureStore();
 
 function withRoot(Component: React.ComponentType) {
@@ -35,7 +49,10 @@ function withRoot(Component: React.ComponentType) {
         <MuiThemeProvider theme={theme}>
           {/* Reboot kickstart an elegant, consistent, and simple baseline to build upon. */}
           <Reboot>
-            <Component {...props} />
+            <SnackbarProvider snackbarProps={snackbarProps}>
+              {/* the rest of your app belongs here, e.g. the router */}
+              <Component {...props} />
+            </SnackbarProvider>
           </Reboot>
         </MuiThemeProvider>
       </Provider>

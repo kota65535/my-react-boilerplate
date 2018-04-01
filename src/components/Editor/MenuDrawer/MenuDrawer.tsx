@@ -10,12 +10,12 @@ import LogoutIcon from "material-ui-icons/Lock";
 import SettingsIcon from "material-ui-icons/Settings";
 import LayoutNameDialog from "components/Editor/MenuDrawer/NewLayoutDialog";
 import OpenDialog from "components/Editor/MenuDrawer/OpenDialog";
-import {LoginDialog} from "components/Editor/MenuDrawer/LoginDialog/LoginDialog";
+import LoginDialog from "components/Editor/MenuDrawer/LoginDialog";
 import Auth from "aws-amplify/lib/Auth";
 import LayoutAPI from "apis/layout"
 import StorageAPI from "apis/storage"
 import {LayoutData, LayoutMeta} from "reducers/layout";
-import AuthenticatorContainer from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthenticatorContainer";
+import Authenticator from "components/Editor/MenuDrawer/LoginDialog/Authenticator";
 import Divider from "material-ui/Divider";
 import getLogger from "logging";
 import SettingsDialog from "components/Editor/MenuDrawer/SettingsDialog";
@@ -141,7 +141,7 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
         anchor="right"
       >
         {/*これが無いとログアウト時にフックしてくれないので必須*/}
-        <AuthenticatorContainer hidden={true}/>
+        <Authenticator hidden={true}/>
         <div
           tabIndex={0}
           role="button"

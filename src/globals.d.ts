@@ -5,3 +5,8 @@ declare interface Window {
   RAIL_COMPONENTS: {[key: string]: any}
   CANVAS: HTMLCanvasElement
 }
+
+
+declare interface WithSnackbarProps {
+  snackbar: any
+}

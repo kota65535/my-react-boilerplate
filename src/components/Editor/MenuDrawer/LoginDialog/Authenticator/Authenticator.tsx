@@ -1,29 +1,16 @@
 import * as React from "react";
-import {Authenticator} from "aws-amplify-react";
-import {connect} from "react-redux";
-import {RootState} from "store/type";
-import {setAuthData} from "actions/tools";
+import {Authenticator as AmplifyAuthenticator} from "aws-amplify-react";
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)
-
 
 const FEDERATED = {
   google_client_id: '658362738764-9kdasvdsndig5tsp38u7ra31fu0e7l5t.apps.googleusercontent.com',
   facebook_app_id: '154268202060246'
 };
 
-const mapStateToProps = (state: RootState) => {
-  return {}
-}
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    setAuthData: (authData) => dispatch(setAuthData(authData))
-  }
-}
-
-class AuthenticatorContainer extends React.Component<any, any> {
+export class Authenticator extends React.Component<any, any> {
 
   constructor(props) {
     super(props)
@@ -40,7 +27,7 @@ class AuthenticatorContainer extends React.Component<any, any> {
 
   render() {
     return (
-      <Authenticator
+      <AmplifyAuthenticator
         federated={FEDERATED}
         onStateChange={this.onStateChange}
         hideDefault={this.props.hidden}
@@ -49,4 +36,3 @@ class AuthenticatorContainer extends React.Component<any, any> {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AuthenticatorContainer) as any

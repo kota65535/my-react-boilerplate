@@ -3,6 +3,7 @@ import Editor from 'components/Editor/Editor'
 
 import './App.css'
 
+import {BrowserRouter as Router, Route} from "react-router-dom";
 import {StyleRulesCallback, WithStyles} from 'material-ui/styles'
 import withStyles from "material-ui/styles/withStyles";
 import withRoot from './withRoot';
@@ -61,10 +62,11 @@ class App extends React.Component<WithStyles<'root'>, {}> {
              return false;
            }}
       >
-        <Editor
-          width={6000}
-          height={4000}
-        />
+        <Router>
+          <div>
+            <Route exact path="/" render={() => <Editor width={6000} height={4000} /> }/>
+          </div>
+        </Router>
       </div>
     )
   }

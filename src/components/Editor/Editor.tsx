@@ -28,6 +28,7 @@ import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/wit
 import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";
 import {Tools} from "constants/tools";
 import {SettingsStoreState} from "reducers/settings";
+import {withSnackbar} from 'material-ui-snackbar-provider'
 
 const LOGGER = getLogger(__filename)
 
@@ -231,5 +232,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps,
   // withStraightRail,
   // withCurveRail
   withDeleteTool,
-  withSelectTool
+  withSelectTool,
+  withSnackbar()
 )(Editor))

@@ -1,12 +1,14 @@
 import * as React from 'react'
 import {DialogActions, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
-import AuthenticatorContainer from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthenticatorContainer";
+import Authenticator from "components/Editor/MenuDrawer/LoginDialog/Authenticator";
 
 
 export interface LoginDialogProps {
   open: boolean
   onClose: () => void
+
+  snackbar: any
 }
 
 
@@ -26,6 +28,7 @@ export class LoginDialog extends React.Component<LoginDialogProps, {}> {
   }
 
   onSignedIn() {
+    this.props.snackbar.showMessage('Logged-in successfully!')
     this.onClose()
   }
 
@@ -37,7 +40,7 @@ export class LoginDialog extends React.Component<LoginDialogProps, {}> {
       >
         <DialogTitle id="login">{"Login"}</DialogTitle>
         <DialogContent>
-          <AuthenticatorContainer onSignedIn={this.onSignedIn}/>
+          <Authenticator onSignedIn={this.onSignedIn}/>
         </DialogContent>
         <DialogActions>
         </DialogActions>

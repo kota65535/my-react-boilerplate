@@ -2,6 +2,8 @@ export enum Tools {
   STRAIGHT_RAILS = 'Straight Rails',
   CURVE_RAILS = 'Curve Rails',
   TURNOUTS = 'Turnouts',
+  SPECIAL_RAILS = 'Special Rails',
+  CLIPBOARD_RAILS = 'Clipboard Rails',
   FEEDERS = 'Feeders',
   GAP = 'Gaps',
   SELECT = 'Select',

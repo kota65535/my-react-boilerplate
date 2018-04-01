@@ -120,6 +120,16 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
                 <TurnoutIcon/>
               </StyledIconButton>
             </Tooltip>
+            <Tooltip id="tooltip-special-rail" title={Tools.SPECIAL_RAILS}>
+              <StyledIconButton
+                className={classNames({
+                  'active': this.isActive(Tools.SPECIAL_RAILS)
+                })}
+                onClick={this.onClickBuilderItem(Tools.SPECIAL_RAILS)}
+              >
+                <TurnoutIcon/>
+              </StyledIconButton>
+            </Tooltip>
             <Tooltip id="tooltip-feeders" title={Tools.FEEDERS}>
               <StyledIconButton
                 className={classNames({

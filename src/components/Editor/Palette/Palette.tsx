@@ -51,6 +51,12 @@ export class Palette extends React.Component<PaletteProps, {}> {
           title={Tools.TURNOUTS}
           items={builderPaletteData[Tools.TURNOUTS]}
         />
+        <Builder
+          active={this.isActive(Tools.SPECIAL_RAILS)}
+          icon={(<TurnoutIcon/>)}
+          title={Tools.SPECIAL_RAILS}
+          items={builderPaletteData[Tools.SPECIAL_RAILS]}
+        />
       </Rnd>
     )
   }

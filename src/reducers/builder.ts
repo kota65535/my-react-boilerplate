@@ -32,7 +32,8 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   lastPaletteItems: {
     'Straight Rails': {type: 'StraightRail', name: 'S280'},
     'Curve Rails': {type: 'CurveRail', name: 'C280-45'},
-    'Turnouts': {type: 'Turnout', name: 'PR541-15'}
+    'Turnouts': {type: 'Turnout', name: 'PR541-15'},
+    'Special Rails': {type: 'SpecialRails', name: 'End Rail'},
   },
   activeLayerId: 1,
   mousePosition: new Point(0,0),

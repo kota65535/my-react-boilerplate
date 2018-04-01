@@ -72,6 +72,11 @@
       "name": "N-PX280",
       "type": "Turnout"
     }
-
+  ],
+  "Special Rails": [
+    {
+      "name": "End Rail",
+      "type": "SpecialRail"
+    }
   ]
 }

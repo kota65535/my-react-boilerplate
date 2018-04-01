@@ -164,6 +164,12 @@ class RailFactory {
     }
   }
 
+  ['End Rail']() {
+    return {
+      type: 'EndRail',
+      length: 70,
+    }
+  }
   // CPR317_280_45() {
   //   return new CurvedTurnout(DEFAULT_POSITION, 0, 317, 280, 45, TurnoutDirection.RIGHT);
   // }

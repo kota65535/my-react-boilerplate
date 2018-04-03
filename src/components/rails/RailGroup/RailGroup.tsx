@@ -45,9 +45,19 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     })
   }
 
+  getEachRailAngle = () => {
+    const {rails, pivotRailIndex, angle} = this.props
+    const pivotRailAngle = rails[pivotRailIndex].angle
+    const diff = angle - pivotRailAngle
+
+    return rails.map(r => {
+      return r.angle + diff
+    })
+  }
 
   render() {
     const positions = this.getEachRailPosition()
+    const angles = this.getEachRailAngle()
     LOGGER.info(positions)
     const {visible} = this.props
     return (
@@ -57,6 +67,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
             ...railProps,
             id: this.props.nextRailId,
             position: positions[idx],
+            angle: angles[idx],
             visible: visible
           }
           return createRailComponent(props)

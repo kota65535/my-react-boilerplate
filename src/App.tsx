@@ -9,6 +9,8 @@ import withStyles from "material-ui/styles/withStyles";
 import withRoot from './withRoot';
 import Amplify from "aws-amplify";
 import aws_exports from './aws-exports';
+import TestCases from "components/cases/TestCases";
+import Case01 from "components/cases/Case01_PrimitiveParts";
 
 Amplify.configure(aws_exports)
 
@@ -65,6 +67,7 @@ class App extends React.Component<WithStyles<'root'>, {}> {
         <Router>
           <div>
             <Route exact path="/" render={() => <Editor width={6000} height={4000} /> }/>
+            <Route path="/tests" component={TestCases}/>
           </div>
         </Router>
       </div>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites errors="0"
+            failures="0"
+            tests="9">
+
+  <testsuite name="Parts"
+    errors="0" failures="0" hostname="" id="" package="Parts" skipped="0"
+    tests="9" time="38.54" timestamp="Tue, 03 Apr 2018 17:29:14 GMT">
+  
+    <testcase name="Case01" classname="Parts" time="3.019" assertions="0">
+    </testcase>
+  
+    <testcase name="Case02" classname="Parts" time="2.875" assertions="1">
+
+    
+    </testcase>
+  
+    <testcase name="Case03_1" classname="Parts" time="4.027" assertions="2">
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Case03_3" classname="Parts" time="4.878" assertions="3">
+
+    
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Case03_4" classname="Parts" time="4.835" assertions="3">
+
+    
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Case04_1" classname="Parts" time="3.786" assertions="2">
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Case04_2" classname="Parts" time="4.854" assertions="3">
+
+    
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Case04_3" classname="Parts" time="5.433" assertions="3">
+
+    
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="Case04_4" classname="Parts" time="4.833" assertions="3">
+
+    
+
+    
+
+    
+    </testcase>
+  
+
+  
+
+  
+  </testsuite>
+</testsuites>

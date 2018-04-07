@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Point} from "paper";
+import {Item, Point} from "paper";
 import {Path as PathComponent} from "react-paper-bindings";
 import {default as PartBase, PartBaseProps, Pivot} from "components/rails/parts/primitives/PartBase";
 
@@ -28,6 +28,10 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
 
   getGlobalAngle(pivot: Pivot) {
     return super.getGlobalAngle(pivot) + this.getInternalPivotAngle(pivot)
+  }
+
+  getAngleTo(item: Item, pivot: Pivot) {
+    return super.getAngleTo(item, pivot) + this.getInternalPivotAngle(pivot)
   }
 
   render() {

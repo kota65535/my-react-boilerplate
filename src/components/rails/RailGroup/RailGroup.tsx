@@ -52,7 +52,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     return (
       <GroupComponent
         position={position}
-        angle={angle}
+        rotation={angle}
         pivot={pivotPosition}
         ref={(group) => this._group = group}
 

@@ -95,6 +95,23 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
    * @param {number} jointIndex
    * @returns {number}
    */
+  getJointAngleToParent(jointIndex: number) {
+    const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
+    // レールパーツ内部のGroupにおけるPartのPivotにおける角度を取得
+    let parent = this.detectablePart.partGroup.path.parent
+    let globalRotation = this.detectablePart.mainPart.children[pivotPartIndex].getAngleTo(parent, pivot)
+    if (pivot === Pivot.LEFT) {
+      return (globalRotation + 180) % 360
+    } else {
+      return globalRotation
+    }
+  }
+
+  /**
+   * グローバル座標系における指定のジョイントの角度を返す。
+   * @param {number} jointIndex
+   * @returns {number}
+   */
   getGlobalJointAngle(jointIndex: number) {
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
     // レールパーツ内部のGroupにおけるPartのPivotにおける角度を取得

@@ -57,38 +57,36 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
 
   componentDidUpdate() {
     logger.trace('updated')
-    logger.trace(`[RailPart][${this.props.name}] j0: ${this.getJointPositionToParent(0)}, ${this.getJointAngleToParent(0)}`);
-    logger.trace(`[RailPart][${this.props.name}] j1: ${this.getJointPositionToParent(1)}, ${this.getJointAngleToParent(1)}`);
+    logger.trace(`[RailPart][${this.props.name}] j0: ${this.getGlobalJointPosition(0)}, ${this.getGlobalJointAngle(0)}`);
+    logger.trace(`[RailPart][${this.props.name}] j1: ${this.getGlobalJointPosition(1)}, ${this.getGlobalJointAngle(1)}`);
   }
 
   componentDidMount() {
     logger.trace('mounted')
-    logger.trace(`[RailPart][${this.props.name}] j0: ${this.getJointPositionToParent(0)}, ${this.getJointAngleToParent(0)}`);
-    logger.trace(`[RailPart][${this.props.name}] j1: ${this.getJointPositionToParent(1)}, ${this.getJointAngleToParent(1)}`);
+    logger.trace(`[RailPart][${this.props.name}] j0: ${this.getGlobalJointPosition(0)}, ${this.getGlobalJointAngle(0)}`);
+    logger.trace(`[RailPart][${this.props.name}] j1: ${this.getGlobalJointPosition(1)}, ${this.getGlobalJointAngle(1)}`);
   }
 
   /**
-   * このパーツの親の座標系における指定のジョイントの位置を返す。
+   * グローバル座標系における指定のジョイントの位置を返す。
    * @param {number} jointIndex
    * @returns {paper.Point}
    */
-  getJointPositionToParent(jointIndex: number) {
+  getGlobalJointPosition(jointIndex: number) {
     // 決まった階層構造を前提としている。どのように実装を矯正すべきか？
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
-    let parent = this.detectablePart.partGroup.path.parent
-    return this.detectablePart.mainPart.children[pivotPartIndex].getPositionTo(parent, pivot)
+    return this.detectablePart.mainPart.children[pivotPartIndex].getGlobalPosition(pivot)
   }
 
   /**
-   * このパーツの親の座標系における指定のジョイントの角度を返す。
+   * グローバル座標系における指定のジョイントの角度を返す。
    * @param {number} jointIndex
    * @returns {number}
    */
-  getJointAngleToParent(jointIndex: number) {
+  getGlobalJointAngle(jointIndex: number) {
     const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
     // レールパーツ内部のGroupにおけるPartのPivotにおける角度を取得
-    let parent = this.detectablePart.partGroup.path.parent
-    let globalRotation = this.detectablePart.mainPart.children[pivotPartIndex].getAngleTo(parent, pivot)
+    let globalRotation = this.detectablePart.mainPart.children[pivotPartIndex].getGlobalAngle(pivot)
     if (pivot === Pivot.LEFT) {
       return (globalRotation + 180) % 360
     } else {

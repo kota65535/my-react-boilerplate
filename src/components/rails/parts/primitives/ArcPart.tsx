@@ -26,8 +26,8 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
     return super.getAngle(pivot) + this.getInternalPivotAngle(pivot)
   }
 
-  getAngleToGlobal(pivot: Pivot) {
-    return super.getAngleToGlobal(pivot) + this.getInternalPivotAngle(pivot)
+  getGlobalAngle(pivot: Pivot) {
+    return super.getGlobalAngle(pivot) + this.getInternalPivotAngle(pivot)
   }
 
   render() {

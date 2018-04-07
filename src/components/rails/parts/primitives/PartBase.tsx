@@ -94,8 +94,8 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
    * グローバル座標系における指定のPivotの角度を返す。
    * @param {Pivot} pivot
    */
-  getAngleToGlobal(pivot: Pivot) {
-    return this.path.getGlobalMatrix().decompose().rotation
+  getGlobalAngle(pivot: Pivot) {
+    return (this.path as any).getGlobalMatrix().decompose().rotation
   }
 
   /**
@@ -122,8 +122,8 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
    * グローバル座標系における指定のPivotの位置を返す。
    * @param {Pivot} pivot
    */
-  getPositionToGlobal(pivot: Pivot) {
-    // This is a workaround
+  getGlobalPosition(pivot: Pivot) {
+    // This is a workaround of
     (this.path as any)._project._updateVersion += 1
     return this.path.localToGlobal(this.getInternalPivotPosition(pivot))
   }

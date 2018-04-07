@@ -17,6 +17,7 @@ import Case06_2 from 'components/cases/Case06_2_RailParts';
 import Case07_1 from 'components/cases/Case07_1_RailParts_update';
 import Case08_1 from 'components/cases/Case08_1_Rails';
 import Case08_2 from 'components/cases/Case08_2_Rails';
+import Case09 from "components/cases/Case09_1_RailGroup";
 
 export default class TestCases extends React.Component<any, any> {
 
@@ -40,6 +41,7 @@ export default class TestCases extends React.Component<any, any> {
         <Route path="/tests/7_1" component={Case07_1}/>
         <Route path="/tests/8_1" component={Case08_1}/>
         <Route path="/tests/8_2" component={Case08_2}/>
+        <Route path="/tests/9" component={Case09}/>
       </React.Fragment>
     )
   }

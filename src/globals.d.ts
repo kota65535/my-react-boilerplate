@@ -10,3 +10,12 @@ declare interface Window {
 declare interface WithSnackbarProps {
   snackbar: any
 }
+
+
+declare module paper {
+  export interface Item {
+    localToOther: (item: Item, point: Point) => Point
+    getGlobalMatrix: (_dontClone?: boolean) => Matrix
+    getMatrixTo: (item) => Matrix
+  }
+}

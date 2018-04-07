@@ -1,12 +1,10 @@
 import * as React from "react";
 import {Point} from "paper";
-import {View, Tool} from "react-paper-bindings";
+import {Tool, View} from "react-paper-bindings";
 import {createGridLines} from "./common";
 import StraightRailPart from "components/rails/parts/StraightRailPart";
 import CurveRailPart from "components/rails/parts/CurveRailPart";
 import {ArcDirection} from "components/rails/parts/primitives//ArcPart";
-import SimpleTurnoutRailPart from "components/rails/parts/SimpleTurnoutRailPart";
-import CurvedTurnoutRailPart from "components/rails/parts/CurvedTurnoutRailPart";
 import {pointsEqual} from "components/rails/utils";
 import * as assert from "assert";
 
@@ -24,40 +22,40 @@ export default class Case05 extends React.Component<any, any> {
   }
 
   componentDidMount() {
-    assert(pointsEqual(this.s.getGlobalJointPosition(0), new Point(200,200)))
-    assert(pointsEqual(this.s.getGlobalJointPosition(1), new Point(400,200)))
-    assert(this.s.getGlobalJointAngle(0) === 180)
-    assert(this.s.getGlobalJointAngle(1) === 0)
+    assert(pointsEqual(this.s.getJointPositionToParent(0), new Point(200,200)))
+    assert(pointsEqual(this.s.getJointPositionToParent(1), new Point(400,200)))
+    assert(this.s.getJointAngleToParent(0) === 180)
+    assert(this.s.getJointAngleToParent(1) === 0)
 
-    assert(pointsEqual(this.c.getGlobalJointPosition(0), new Point(200,200)))
-    // assert(pointsEqual(this.c.getGlobalJointPosition(1), new Point(400,200)))
-    assert(this.c.getGlobalJointAngle(0) === 180)
-    assert(this.c.getGlobalJointAngle(1) === 45)
+    assert(pointsEqual(this.c.getJointPositionToParent(0), new Point(200,200)))
+    // assert(pointsEqual(this.c.getJointPositionToParent(1), new Point(400,200)))
+    assert(this.c.getJointAngleToParent(0) === 180)
+    assert(this.c.getJointAngleToParent(1) === 45)
   }
 
   componentDidUpdate() {
     switch (this.state.count) {
       case 1:
-        assert(pointsEqual(this.s.getGlobalJointPosition(1), new Point(200, 200)))
-        assert(pointsEqual(this.s.getGlobalJointPosition(0), new Point(400, 200)))
-        assert(this.s.getGlobalJointAngle(1) === 180)
-        assert(this.s.getGlobalJointAngle(0) === 0)
+        assert(pointsEqual(this.s.getJointPositionToParent(1), new Point(200, 200)))
+        assert(pointsEqual(this.s.getJointPositionToParent(0), new Point(400, 200)))
+        assert(this.s.getJointAngleToParent(1) === 180)
+        assert(this.s.getJointAngleToParent(0) === 0)
 
-        assert(pointsEqual(this.c.getGlobalJointPosition(1), new Point(200, 200)))
-        // assert(pointsEqual(this.c.getGlobalJointPosition(1), new Point(400,200)))
-        assert(this.c.getGlobalJointAngle(1) === 180)
-        assert(this.c.getGlobalJointAngle(0) === 315)
+        assert(pointsEqual(this.c.getJointPositionToParent(1), new Point(200, 200)))
+        // assert(pointsEqual(this.c.getJointPositionToParent(1), new Point(400,200)))
+        assert(this.c.getJointAngleToParent(1) === 180)
+        assert(this.c.getJointAngleToParent(0) === 315)
         break
       case 2:
-        assert(pointsEqual(this.s.getGlobalJointPosition(0), new Point(300, 200)))
-        assert(pointsEqual(this.s.getGlobalJointPosition(1), new Point(500, 200)))
-        assert(this.s.getGlobalJointAngle(0) === 180)
-        assert(this.s.getGlobalJointAngle(1) === 0)
+        assert(pointsEqual(this.s.getJointPositionToParent(0), new Point(300, 200)))
+        assert(pointsEqual(this.s.getJointPositionToParent(1), new Point(500, 200)))
+        assert(this.s.getJointAngleToParent(0) === 180)
+        assert(this.s.getJointAngleToParent(1) === 0)
 
-        assert(pointsEqual(this.c.getGlobalJointPosition(0), new Point(300, 200)))
-        // assert(pointsEqual(this.c.getGlobalJointPosition(1), new Point(400,200)))
-        assert(this.c.getGlobalJointAngle(0) === 180)
-        assert(this.c.getGlobalJointAngle(1) === 45)
+        assert(pointsEqual(this.c.getJointPositionToParent(0), new Point(300, 200)))
+        // assert(pointsEqual(this.c.getJointPositionToParent(1), new Point(400,200)))
+        assert(this.c.getJointAngleToParent(0) === 180)
+        assert(this.c.getJointAngleToParent(1) === 45)
         break
     }
   }

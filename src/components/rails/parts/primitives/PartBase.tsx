@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Group, Path, Point} from "paper";
+import {Group, Item, Path, Point} from "paper";
 
 export enum Pivot {
   CENTER = 'Center',
@@ -65,7 +65,7 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   }
 
   get position() {
-    return this._path.position
+    return this.path.position
   }
 
   get angle() {
@@ -81,11 +81,21 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   }
 
   /**
+   * 指定のアイテムの座標系における指定のPivotの角度を返す。
+   * @param {Item} item
+   * @param {Pivot} pivot
+   * @returns {number}
+   */
+  getAngleTo(item: Item, pivot: Pivot) {
+    return this.path.getMatrixTo(item).decompose().rotation
+  }
+
+  /**
    * グローバル座標系における指定のPivotの角度を返す。
    * @param {Pivot} pivot
    */
-  getGlobalAngle(pivot: Pivot) {
-    return (this.path as any).getGlobalMatrix().decompose().rotation
+  getAngleToGlobal(pivot: Pivot) {
+    return this.path.getGlobalMatrix().decompose().rotation
   }
 
   /**
@@ -97,11 +107,23 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
   }
 
   /**
+   * 指定のアイテムの座標系における指定のPivotの位置を返す。
+   * @param {Item} item
+   * @param {Pivot} pivot
+   */
+  getPositionTo(item: Item, pivot: Pivot) {
+    // const p = this.path.localToOther(path, this.getInternalPivotPosition(pivot))
+    // console.log(path.position)
+    // console.log(p)
+    return this.path.localToOther(item, this.getInternalPivotPosition(pivot))
+  }
+
+  /**
    * グローバル座標系における指定のPivotの位置を返す。
    * @param {Pivot} pivot
    */
-  getGlobalPosition(pivot: Pivot) {
-    // This is a workaround of
+  getPositionToGlobal(pivot: Pivot) {
+    // This is a workaround
     (this.path as any)._project._updateVersion += 1
     return this.path.localToGlobal(this.getInternalPivotPosition(pivot))
   }

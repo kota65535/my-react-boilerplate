@@ -1,17 +1,16 @@
 import * as React from "react";
-import {Rectangle} from "react-paper-bindings";
+import {Group as GroupComponent, Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {RailData} from "components/rails/index";
-import {RailBaseProps} from "components/rails/RailBase";
-import {createRailComponent} from "components/rails/utils";
+import {RailBase, RailBaseProps} from "components/rails/RailBase";
+import {Group, Point} from "paper";
 
 const LOGGER = getLogger(__filename)
 
 
 export interface RailGroupProps extends RailBaseProps, Partial<RailGroupDefaultProps> {
-  rails: RailData[]
-  name: string
-  nextRailId: number
+  position: Point
+  pivotRailIndex: number
+  pivotJointIndex: number
 }
 
 export interface RailGroupDefaultProps {
@@ -26,54 +25,67 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     pivotRailIndex: 0
   }
 
+  _group: Group
+  _children: RailBase<any, any>[]
+
+  get children() { return this._children }
+  get group() { return this._group }
+
   constructor(props: RailGroupProps) {
     super(props)
+    this._children = this.props.children ? new Array((this.props.children as any[]).length) : []
   }
 
 
-  /**
-   * 各レールの位置を計算する
-   * @returns {paper.Point[]}
-   */
-  getEachRailPosition = () => {
-    const {rails, pivotRailIndex, position} = this.props
-    const pivotRailPosition = rails[pivotRailIndex].position
-    const diff = position.subtract(pivotRailPosition)
-
-    return rails.map(r => {
-      return r.position.add(diff)
-    })
+  componentDidMount() {
+    this.group.pivot = this.getPivotPosition()
+    this.group.position = this.props.position
+    LOGGER.info(`pivot=${this.getPivotPosition()}`)
   }
 
-  getEachRailAngle = () => {
-    const {rails, pivotRailIndex, angle} = this.props
-    const pivotRailAngle = rails[pivotRailIndex].angle
-    const diff = angle - pivotRailAngle
-
-    return rails.map(r => {
-      return r.angle + diff
-    })
-  }
 
   render() {
-    const positions = this.getEachRailPosition()
-    const angles = this.getEachRailAngle()
-    LOGGER.info(positions)
-    const {visible} = this.props
+    const {position, angle, pivotRailIndex, pivotJointIndex} = this.props
+    const pivotPosition = this.getPivotPosition()
+    const children = this.getChildComponents()
+
     return (
-      <React.Fragment>
-        {this.props.rails.map((railProps, idx) => {
-          const props = {
-            ...railProps,
-            id: this.props.nextRailId,
-            position: positions[idx],
-            angle: angles[idx],
-            visible: visible
-          }
-          return createRailComponent(props)
-        })}
-      </React.Fragment>
+      <GroupComponent
+        position={position}
+        angle={angle}
+        pivot={pivotPosition}
+        ref={(group) => this._group = group}
+
+      >
+        {children}
+      </GroupComponent>
     )
+  }
+
+  getPivotPosition() {
+    const {pivotRailIndex, pivotJointIndex} = this.props
+    if (this.children[pivotRailIndex]) {
+      return this.children[pivotRailIndex].railPart.getJointPositionToParent(pivotJointIndex)
+    } else {
+      return undefined
+    }
+  }
+
+  getChildComponents() {
+    // 子要素のメソッドを呼び出す必要があるので、refをそれらのpropsに追加する
+    // TODO: childrenが空の時のエラー処理
+    return React.Children.map(this.props.children, (child: any, i) => {
+      // 動的に子要素を削除された場合、nullが入ってくるので対処する
+      if (child) {
+        return React.cloneElement(child as any, {
+          ...child.props,
+          ref: (node) => {
+            this._children[i] = node
+          }
+        })
+      }
+      return null
+    })
   }
 }
 

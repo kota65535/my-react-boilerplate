@@ -157,7 +157,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
    */
   private setJointPositionsAndAngles() {
     // 注意: オブジェクトをStateにセットする場合はきちんとCloneすること
-    const jointPositions = _.range(this.joints.length).map(i => _.clone(this.railPart.getGlobalJointPosition(i)))
+    const jointPositions = _.range(this.joints.length).map(i => _.clone(this.railPart.getJointPositionToParent(i)))
     const jointAngles = _.range(this.joints.length).map(i => _.clone(this.railPart.getGlobalJointAngle(i)))
 
     // _.range(this.joints.length).forEach(i => {

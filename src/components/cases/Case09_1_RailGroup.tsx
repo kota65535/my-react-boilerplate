@@ -3,7 +3,7 @@ import {Point} from "paper";
 import {Tool, View} from "react-paper-bindings";
 import {createGridLines} from "./common";
 import StraightRail from "components/rails/StraightRail/StraightRail";
-import CurveRail from "components/rails/CurveRail/CurveRail";
+import RailGroup from "components/rails/RailGroup/RailGroup";
 // import {CurveRail} from "components/Rails/CurveRail";
 // import StraightRail from "components/rails/StraightRail";
 // import CurveRail from "components/rails/CurveRail";
@@ -50,6 +50,14 @@ export default class Case09 extends React.Component<any, any> {
         {createGridLines(800, 600, 100)}
 
 
+        <RailGroup
+          position={new Point(300,300)}
+          angle={0}
+          id={-1}
+          layerId={-1}
+          pivotRailIndex={0}
+          pivotJointIndex={0}
+        >
           <StraightRail
             position={this.state.position}
             pivotJointIndex={this.state.pivotJoint}
@@ -58,16 +66,25 @@ export default class Case09 extends React.Component<any, any> {
             id={0}
             layerId={1}
           />
+          <StraightRail
+            position={this.state.position.add(new Point(40,0))}
+            pivotJointIndex={this.state.pivotJoint}
+            length={200}
+            angle={30}
+            id={0}
+            layerId={1}
+          />
+        </RailGroup>
 
-        <CurveRail
-          position={this.state.position}
-          pivotJointIndex={this.state.pivotJoint}
-          angle={30}
-          radius={200}
-          centerAngle={45}
-          id={0}
-          layerId={1}
-        />
+        {/*<CurveRail*/}
+          {/*position={this.state.position}*/}
+          {/*pivotJointIndex={this.state.pivotJoint}*/}
+          {/*angle={30}*/}
+          {/*radius={200}*/}
+          {/*centerAngle={45}*/}
+          {/*id={0}*/}
+          {/*layerId={1}*/}
+        {/*/>*/}
 
         <Tool
           active={true}

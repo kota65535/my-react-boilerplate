@@ -68,6 +68,18 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
   }
 
   /**
+   * このパーツの親の座標系における指定のジョイントの位置を返す。
+   * @param {number} jointIndex
+   * @returns {paper.Point}
+   */
+  getJointPositionToParent(jointIndex: number) {
+    // 決まった階層構造を前提としている。どのように実装を矯正すべきか？
+    const {pivotPartIndex, pivot} = this.getPivot(jointIndex)
+    let parent = this.detectablePart.partGroup.path.parent
+    return this.detectablePart.mainPart.children[pivotPartIndex].getPositionTo(parent, pivot)
+  }
+
+  /**
    * グローバル座標系における指定のジョイントの位置を返す。
    * @param {number} jointIndex
    * @returns {paper.Point}

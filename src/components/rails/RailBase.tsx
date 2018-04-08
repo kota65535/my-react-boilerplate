@@ -119,6 +119,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     if (this.props.onMount) {
       this.props.onMount(this)
     }
+    LOGGER.info(`Rail ${this.props.id} mounted.`) //`
   }
 
   /**

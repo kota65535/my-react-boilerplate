@@ -147,13 +147,12 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
           .filter(r => ! r.groupId)
           .map(item => createRailComponent(item))
         }
-        { //  レールグループに所属しているレールを生成する
+        { // レールグループに所属しているレールを生成する
+          // レールグループ内のレールは同じレイヤーに所属していなくても良い
           this.props.layout.railGroups
-          .filter(r => r.layerId === layer.id)
-          .filter(r => r.groupId)
           .map(item => {
-            const children = this.props.layout.rails.filter(c => c.groupId === item.groupId)
-            createRailGroupComponent(item, children)
+            const children = this.props.layout.rails.filter(c => c.groupId === item.id)
+            return createRailGroupComponent(item, children)
           })
         }
       </Layer>

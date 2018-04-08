@@ -5,7 +5,8 @@ import {TemporaryLayer} from "components/Editor/TemporaryLayer/TemporaryLayer";
 
 const mapStateToProps = (state: RootState) => {
   return {
-    temporaryItem: state.builder.temporaryRail
+    temporaryRails: state.builder.temporaryRails,
+    temporaryRailGroup: state.builder.temporaryRailGroup,
   }
 }
 

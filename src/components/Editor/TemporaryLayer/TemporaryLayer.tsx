@@ -1,35 +1,36 @@
 import * as React from "react";
 import {Layer} from "react-paper-bindings";
 import {createRailComponent} from "components/rails/utils";
-import {RailData} from "components/rails";
-import {UserRailGroupData} from "reducers/builder";
+import {RailData, RailGroupData} from "components/rails";
 import RailGroup from "components/rails/RailGroup/RailGroup";
 import getLogger from "logging";
 
 const LOGGER = getLogger(__filename)
 
 export interface TemporaryLayerProps {
-  temporaryItem: RailData
+  temporaryRails: RailData[]
+  temporaryRailGroup: RailGroupData
 }
 
 
 export class TemporaryLayer extends React.Component<TemporaryLayerProps, {}> {
   render() {
+    const {temporaryRails, temporaryRailGroup} = this.props
     return (
       <Layer
         key={-1}
         data={{id: -1, name: 'Temporary'}}
       >
-        {this.props.temporaryItem &&
-        createTemporayRailComponent(this.props.temporaryItem)}
+        {this.props.temporaryRails.length > 0 &&
+        createTemporayRailComponent(temporaryRails, temporaryRailGroup)}
       </Layer>
     )
   }
 }
 
-const createTemporayRailComponent = (item: RailData|UserRailGroupData) => {
-  const {id: id, type: type, ...props} = item
-  if (item.type === 'RailGroup') {
+const createTemporayRailComponent = (temporaryRails: RailData[], temporaryRailGroup: RailGroupData) => {
+  if (temporaryRailGroup) {
+    const {id: id, type: type, ...props} = temporaryRailGroup
     return (
       <RailGroup
         key={id}
@@ -44,10 +45,14 @@ const createTemporayRailComponent = (item: RailData|UserRailGroupData) => {
           delete window.RAIL_COMPONENTS[id]
         }}
       >
-        {(item as UserRailGroupData).rails.map(rail => createRailComponent(rail))}
+        {temporaryRails.map(rail => createRailComponent(rail))}
       </RailGroup>
     )
   } else {
-    return createRailComponent(item)
+    return (
+      <React.Fragment>
+        {temporaryRails.map(r => createRailComponent(r))}
+      </React.Fragment>
+    )
   }
 }

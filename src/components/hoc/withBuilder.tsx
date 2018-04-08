@@ -7,7 +7,7 @@ import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {getClosest} from "constants/utils";
-import {addUserRailGroup, setMarkerPosition, setPhase, setTemporaryRail} from "actions/builder";
+import {addUserRailGroup, deleteTemporaryRail, setMarkerPosition, setPhase, setTemporaryRail} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase, UserRailGroupData} from "reducers/builder";
 import getLogger from "logging";
@@ -42,12 +42,13 @@ interface WithBuilderPrivateProps {
   isLayoutEmpty: boolean
   mousePosition: Point
   setTemporaryRail: (item: RailData) => void
+  deleteTemporaryRail: () => void
   setPhase: (phase: BuilderPhase) => void
   phase: BuilderPhase
   setMarkerPosition: (position: Point) => void
   markerPosition: Point
   nextRailId: number
-  temporaryRail: RailData
+  temporaryRails: RailData[]
   addRail: (item: RailData, overwrite?: boolean) => void
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
@@ -77,7 +78,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       isLayoutEmpty: isLayoutEmpty(state),
       mousePosition: state.builder.mousePosition,
       phase: state.builder.phase,
-      temporaryRail: state.builder.temporaryRail,
+      temporaryRails: state.builder.temporaryRails,
       markerPosition: state.builder.markerPosition,
       nextRailId: nextRailId(state)
     }
@@ -86,6 +87,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
   const mapDispatchToProps = (dispatch: any) => {
     return {
       setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
+      deleteTemporaryRail: () => dispatch(deleteTemporaryRail({})),
       setPhase: (phase: BuilderPhase) => dispatch(setPhase(phase)),
       setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
@@ -211,15 +213,15 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.props.addRail({
         ...itemProps,
         id: this.props.nextRailId,
-        position: (this.props.temporaryRail as any).position,
-        angle: (this.props.temporaryRail as any).angle,
+        position: this.props.temporaryRails[0].position,
+        angle: this.props.temporaryRails[0].angle,
         layerId: this.props.activeLayerId,
         opposingJoints: {}
       } as RailData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.NORMAL)
       // マーカーはもう不要なので削除
-      this.props.setTemporaryRail(null)
+      this.props.deleteTemporaryRail()
       this.props.setMarkerPosition(null)
     }
 

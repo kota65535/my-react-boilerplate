@@ -84,6 +84,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
   }
 
   getChildComponents() {
+    const {enableJoints, visible} = this.props
     // 子要素のメソッドを呼び出す必要があるので、refをそれらのpropsに追加する
     // TODO: childrenが空の時のエラー処理
     return React.Children.map(this.props.children, (child: any, i) => {
@@ -91,7 +92,8 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
       if (child) {
         return React.cloneElement(child as any, {
           ...child.props,
-          enableJoints: this.props.enableJoints,
+          // enableJoints,
+          // visible,
           onMount: (node) => {
             if (child.props.onMount) {
               child.props.onMount(node)

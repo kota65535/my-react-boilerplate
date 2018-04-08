@@ -47,5 +47,7 @@ export type RailData = RailBaseProps | StraightRailProps | CurveRailProps | Simp
 
 export interface RailGroupData extends RailBaseProps {
   // rails: RailData[]
+  pivotRailIndex: number
+  pivotJointIndex: number
   rails: number[]
 }

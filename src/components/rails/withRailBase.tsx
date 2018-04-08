@@ -11,18 +11,18 @@ import {
 } from "components/rails/utils";
 import RailFactory from "components/rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
-import {setTemporaryRail, updateTemporaryItem} from "actions/builder";
+import {deleteTemporaryRail, setTemporaryRail, setTemporaryRailGroup, updateTemporaryItem} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {JointPair, WithBuilderProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
 import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
-import {addRail} from "actions/layout";
-import {nextRailId, temporaryPivotJointIndex} from "selectors";
+import {addRail, addRailGroup} from "actions/layout";
+import {nextRailGroupId, nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
 import {RailData, RailGroupData} from "components/rails/index";
 import * as _ from "lodash";
-import {UserRailGroupData} from "reducers/builder";
+import {RailGroupDataPayload} from "reducers/layout";
 
 const LOGGER = getLogger(__filename)
 
@@ -41,16 +41,21 @@ export interface WithRailBaseProps {
 
   // states
   paletteItem: PaletteItem
-  temporaryRail: RailData
+  temporaryRails: RailData[]
   temporaryPivotJointIndex: number
+  temporaryRailGroup: RailGroupData
   activeLayerId: number
   nextRailId: number
+  nextRailGroupId: number
   railGroups: RailGroupData[]
 
-  // actions
+  // actionssetTemporaryRail
   setTemporaryRail: (item: RailData) => void
+  setTemporaryRailGroup: (item: RailGroupDataPayload) => void
   updateTemporaryRail: (item: Partial<RailData>) => void
+  deleteTemporaryRail: () => void
   addRail: (item: RailData, overwrite?: boolean) => void
+  addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => void
 }
 
 export type RailBaseContainerProps = RailBaseProps & WithRailBaseProps & WithBuilderProps
@@ -65,10 +70,12 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
   const mapStateToProps = (state: RootState) => {
     return {
       paletteItem: state.builder.paletteItem,
-      temporaryRail: state.builder.temporaryRail,
+      temporaryRails: state.builder.temporaryRails,
+      temporaryRailGroup: state.builder.temporaryRailGroup,
       temporaryPivotJointIndex: temporaryPivotJointIndex(state),
       activeLayerId: state.builder.activeLayerId,
       nextRailId: nextRailId(state),
+      nextRailGroupId: nextRailGroupId(state),
       railGroups: state.builder.railGroups,
     }
   }
@@ -76,8 +83,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
   const mapDispatchToProps = (dispatch: any) => {
     return {
       setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
+      setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
       updateTemporaryRail: (item: Partial<RailData>) => dispatch(updateTemporaryItem(item)),
+      deleteTemporaryRail: () => dispatch(deleteTemporaryRail({})),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
+      addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({item, children, overwrite}))
     }
   }
 
@@ -114,7 +124,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onRailPartLeftClick(e: MouseEvent) {
       // レールの選択状態をトグルする
-      // this.props.builderToggleRail(this.props)
+      this.props.builderToggleRail(this.props)
       LOGGER.info(`${this.props.id} clicked.`)
       return true
     }
@@ -128,8 +138,39 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
 
-    addRailGroup = (jointId: number, temporaryItemData: UserRailGroupData) => {
+    addRailGroup = (jointId: number, temporaryRails: RailData[], temporaryRailGroup: RailGroupData) => {
+      const children = temporaryRails.map((temporaryRail, idx) => {
+        // 仮レールのRailData
+        // クリックしたジョイントを対向ジョイントにセットする
+        let opposingJoints = {}
+        opposingJoints[this.props.temporaryPivotJointIndex] = {
+          railId: this.props.id,
+          jointId: jointId
+        }
+        // 近傍ジョイントを対向ジョイントにセットする
+        this.closeJointPairs.forEach(pair => {
+          opposingJoints[pair.from.jointId] = {
+            railId: pair.to.railId,
+            jointId: pair.to.jointId
+          }
+        })
 
+        return {
+          ...temporaryRail,
+          id: this.props.nextRailId + idx,    // IDを新規に割り振る(これだと削除して真ん中が空いた時にうまくいかない？）
+          name: '',
+          layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
+          opacity: 1,
+          opposingJoints: opposingJoints,
+          enableJoints: true,                 // ジョイントを有効化する
+        }
+      })
+
+      this.props.addRailGroup({
+        ...temporaryRailGroup,
+        id: this.props.nextRailGroupId,       // IDを新規に割り振る
+        name: '',
+      }, children)
     }
 
     addRail = (jointId: number, temporaryItemData: RailData) => {
@@ -148,22 +189,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         }
       })
 
-      let newItemData = _.clone(temporaryItemData) as any
-      if (temporaryItemData.type === 'RailGroup') {
-        for (let i=0 ; i < newItemData.rails.length ; ++i) {
-          newItemData.rails[i].id = this.props.nextRailId + i + 1
-        }
-      }
-
       // 仮レールの位置にレールを設置
       const newRailData = {
-        ...newItemData,
-        id: this.props.nextRailId,
+        ...temporaryItemData,
+        id: this.props.nextRailId,          // IDを新規に割り振る
         name: '',
-        layerId: this.props.activeLayerId,
+        layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
         opacity: 1,
         opposingJoints: opposingJoints,
-        enableJoints: true,
+        enableJoints: true,                 // ジョイントを有効化する
       }
       LOGGER.info('newRailData', newRailData)
 
@@ -190,15 +224,18 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.setCloseJointStates(DetectionState.BEFORE_DETECT)
 
       // 仮レールのRailData
-      const temporaryItemData = this.props.temporaryRail
-      if (temporaryItemData.type === 'RailGroup') {
-        // this.addRailGroup(jointId, temporaryItemData)
+      const temporaryRails = this.props.temporaryRails
+      const temporaryRailGroup = this.props.temporaryRailGroup
+      if (temporaryRailGroup) {
+        this.addRailGroup(jointId, temporaryRails, temporaryRailGroup)
       } else {
-        this.addRail(jointId, temporaryItemData)
+        this.addRail(jointId, temporaryRails[0])
       }
 
       // 仮レールを消去する
-      this.props.setTemporaryRail(null)
+      this.props.deleteTemporaryRail()
+
+      this.searchCloseJoints()
       // クリックされたジョイント、近傍ジョイントを接続する
       this.props.builderConnectJoints(this.closeJointPairs)
       // ジョイントの検出状態を変更させる
@@ -271,30 +308,57 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     onJointMouseEnter = (jointId: number, e: MouseEvent) => {
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = this.getRailProps(this.props.paletteItem)
-      LOGGER.info(itemProps)
-
-      // カーブレールに接続する場合、PivotJoint (=向き)を揃える
-      let pivotJointIndex = this.props.temporaryPivotJointIndex
-      if (pivotJointIndex == null) {
-        if (this.props.type === 'CurveRail' && itemProps.type === 'CurveRail') {
-          pivotJointIndex = this.props.pivotJointIndex
-        } else {
-          pivotJointIndex = 0
+      if (itemProps.type === 'RailGroup') {
+        const {rails, ...railGroupProps} = itemProps
+        // レールグループのデータ
+        const railGroup: RailGroupData = {
+          ...railGroupProps,
+          id: -1,
+          name: 'TemporaryRailGroup',
+          pivotRailIndex: 0,
+          pivotJointIndex: 0,
+          position: this.railPart.getGlobalJointPosition(jointId),
+          angle: this.railPart.getGlobalJointAngle(jointId),
         }
-      }
+        // レールグループに所属するレールデータ
+        const children = rails.map(r => {
+          return {
+            ...r,
+            enableJoints: false   // ジョイント無効
+          }
+        })
 
-      // 仮レールを設置する
-      this.props.setTemporaryRail({
-        ...itemProps,
-        id: -1,
-        name: 'TemporaryRail',
-        position: this.railPart.getGlobalJointPosition(jointId),
-        angle: this.railPart.getGlobalJointAngle(jointId),
-        layerId: -1,
-        opacity: TEMPORARY_RAIL_OPACITY,
-        pivotJointIndex: pivotJointIndex,
-        enableJoints: false
-      })
+        // 仮レールグループを設置する
+        this.props.setTemporaryRailGroup({
+          item: railGroup,
+          children: children
+        })
+        LOGGER.info('TemporaryRailGroup', railGroup, children)
+
+      } else {
+        // このレールと仮レールの両方がカーブレールの場合、PivotJoint (=向き)を揃える
+        let pivotJointIndex = this.props.temporaryPivotJointIndex
+        if (pivotJointIndex == null) {
+          if (this.props.type === 'CurveRail' && itemProps.type === 'CurveRail') {
+            pivotJointIndex = this.props.pivotJointIndex
+          } else {
+            pivotJointIndex = 0
+          }
+        }
+        // 仮レールを設置する
+        this.props.setTemporaryRail({
+          ...itemProps,
+          id: -1,
+          name: 'TemporaryRail',
+          position: this.railPart.getGlobalJointPosition(jointId),
+          angle: this.railPart.getGlobalJointAngle(jointId),
+          layerId: -1,
+          opacity: TEMPORARY_RAIL_OPACITY,
+          pivotJointIndex: pivotJointIndex,
+          enableJoints: false
+        })
+        LOGGER.info('TemporaryRail', itemProps)
+      }
     }
 
     /**

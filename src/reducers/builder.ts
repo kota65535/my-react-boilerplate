@@ -5,6 +5,7 @@ import {Point} from "paper";
 import {RailData, RailGroupData} from "components/rails";
 import update from "immutability-helper";
 import {RailBaseProps} from "components/rails/RailBase";
+import {RailGroupDataPayload} from "reducers/layout";
 
 export enum BuilderPhase {
   NORMAL = 'Normal',
@@ -28,9 +29,8 @@ export interface BuilderStoreState {
   activeLayerId: number
   mousePosition: Point
   paperViewLoaded: boolean
-  temporaryRail: RailData
+  temporaryRails: RailData[]
   temporaryRailGroup: RailGroupData
-  temporaryRailGroupChildren: RailData[]
   phase: BuilderPhase
   markerPosition: Point
   railGroups: RailGroupData[]
@@ -48,9 +48,8 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   activeLayerId: 1,
   mousePosition: new Point(0,0),
   paperViewLoaded: false,
-  temporaryRail: null,
+  temporaryRails: [],
   temporaryRailGroup: null,
-  temporaryRailGroupChildren: [],
   phase: BuilderPhase.NORMAL,
   markerPosition: null,
   railGroups: []
@@ -108,10 +107,38 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<RailData>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>): BuilderStoreState => {
+  [Actions.BUILDER_SET_TEMPORARY_RAIL]: (state: BuilderStoreState, action: Action<RailData>): BuilderStoreState => {
     return {
       ...state,
-      temporaryRail: action.payload
+      temporaryRails: [action.payload]
+    } as BuilderStoreState
+  },
+
+  /**
+   * 仮レールを削除する。
+   * @param {BuilderStoreState} state
+   * @param {Action<RailData>} action
+   * @returns {BuilderStoreState}
+   */
+  [Actions.BUILDER_DELETE_TEMPORARY_RAIL]: (state: BuilderStoreState, action: Action<{}>): BuilderStoreState => {
+    return {
+      ...state,
+      temporaryRails: [],
+      temporaryRailGroup: null
+    } as BuilderStoreState
+  },
+
+  /**
+   * 仮レールグループを設定する。
+   * @param {BuilderStoreState} state
+   * @param {Action<RailData>} action
+   * @returns {BuilderStoreState}
+   */
+  [Actions.BUILDER_SET_TEMPORARY_RAIL_GROUP]: (state: BuilderStoreState, action: Action<RailGroupDataPayload>): BuilderStoreState => {
+    return {
+      ...state,
+      temporaryRails: action.payload.children,
+      temporaryRailGroup: action.payload.item
     } as BuilderStoreState
   },
 
@@ -121,18 +148,25 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<number>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_UPDATE_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<Partial<RailData>>): BuilderStoreState => {
-    const temporaryItem = {
-      ...state.temporaryRail,
-      ...action.payload,
-      opposingJoints: {
-        ...state.temporaryRail.opposingJoints,
-        ...action.payload.opposingJoints,
+  [Actions.BUILDER_UPDATE_TEMPORARY_RAIL]: (state: BuilderStoreState, action: Action<Partial<RailData>>): BuilderStoreState => {
+    const newTemporaryRails = state.temporaryRails.map(r => {
+      if ((! action.payload.id) ||  r.id === action.payload.id) {
+        return {
+          ...r,
+          ...action.payload,
+          opposingJoints: {
+            ...r.opposingJoints,
+            ...action.payload.opposingJoints,
+          }
+        }
+      } else {
+        return r
       }
-    }
+    })
+
     return {
       ...state,
-      temporaryRail: temporaryItem
+      temporaryRails: newTemporaryRails
     } as BuilderStoreState
   },
 

@@ -18,6 +18,11 @@ export const nextRailId = (state: RootState) => {
   return ids.length > 0 ? Math.max(...ids) + 1 : 1
 }
 
+export const nextRailGroupId = (state: RootState) => {
+  let ids = currentLayoutData(state).railGroups.map(r => r.id)
+  return ids.length > 0 ? Math.max(...ids) + 1 : 1
+}
+
 export const nextLayerId = (state: RootState) => {
   let ids = currentLayoutData(state).layers.map(r => r.id)
   return ids.length > 0 ? Math.max(...ids) + 1 : 1
@@ -32,7 +37,7 @@ export const canRedo = (state: RootState) => {
 }
 
 export const temporaryPivotJointIndex = (state: RootState|any) => {
-  const temporaryItem = state.builder.temporaryItem
+  const temporaryItem = state.builder.temporaryRail
   if (temporaryItem) {
     return temporaryItem.pivotJointIndex
   } else {

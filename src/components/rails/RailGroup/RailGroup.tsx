@@ -15,6 +15,7 @@ export interface RailGroupDefaultProps {
   pivotRailIndex: number
   pivotJointIndex: number
   visible: boolean
+  enableJoints: boolean
   name: string
 }
 
@@ -25,6 +26,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     pivotRailIndex: 0,
     pivotJointIndex: 0,
     visible: true,
+    enableJoints: true,
     name: 'No name',
   }
 
@@ -89,6 +91,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
       if (child) {
         return React.cloneElement(child as any, {
           ...child.props,
+          enableJoints: this.props.enableJoints,
           onMount: (node) => {
             if (child.props.onMount) {
               child.props.onMount(node)

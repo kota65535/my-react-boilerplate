@@ -1,7 +1,7 @@
 import {Action, handleActions} from 'redux-actions';
 import * as Actions from "actions/constants"
 import update from 'immutability-helper';
-import {RailData} from "components/rails";
+import {RailData, RailGroupData} from "components/rails";
 
 
 export interface LayoutMeta {
@@ -19,6 +19,7 @@ export interface LayoutStoreState {
 export interface LayoutData {
   layers: LayerData[]
   rails: RailData[]
+  railGroups: RailGroupData[]
 }
 
 export interface LayerData {
@@ -34,6 +35,17 @@ export interface RailDataPayload {
 
 export interface PartialRailDataPayload {
   item: Partial<RailData>
+  overwrite?: boolean
+}
+
+export interface RailGroupDataPayload {
+  item: RailGroupData
+  children: RailData[]
+  overwrite?: boolean
+}
+
+export interface PartialRailGroupDataPayload {
+  item: Partial<RailGroupData>
   overwrite?: boolean
 }
 
@@ -76,7 +88,8 @@ export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
           visible: true,
         }
       ],
-      rails: []
+      rails: [],
+      railGroups: []
     }
   ],
   historyIndex: 0,
@@ -139,15 +152,75 @@ export default handleActions<LayoutStoreState, any>({
    */
   [Actions.LAYOUT_REMOVE_RAIL]: (state: LayoutStoreState, action: Action<RailDataPayload>) => {
     const layout = state.histories[state.historyIndex]
-    // 対象のアイテムを探す
-    const itemIndex = layout.rails.findIndex((item) => item.id === action.payload.item.id)
+    // レールをリストから削除する
+    const newRails = layout.rails.filter(item => ! (item.id === action.payload.item.id))
+    // レールグループに所属していたら削除する
+    const newRailGroups = layout.railGroups.map(group => {
+      return {
+        ...group,
+        rails: group.rails.filter( r => ! (r === action.payload.item.id))
+      }
+    })
+
+    // レイアウトを更新
+    const newLayout = {
+      ...layout,
+      rails: newRails,
+      railGroups: newRailGroups
+    }
+    // ヒストリを更新
+    return addHistory(state, newLayout, action.payload.overwrite)
+  },
+
+  /**
+   * レールグループをレイアウトに追加する。
+   * @param {LayoutStoreState} state
+   * @param {Action<RailDataPayload>} action
+   * @returns {*}
+   */
+  [Actions.LAYOUT_ADD_RAIL_GROUP]: (state: LayoutStoreState, action: Action<RailGroupDataPayload>) => {
+    const layout = state.histories[state.historyIndex]
+
+    const children = action.payload.children.map(c => {
+      return {
+        ...c,
+        groupId: action.payload.item.id
+      }
+    })
+
+
     // レイアウトを更新
     const newLayout = update(layout, {
-      rails: {$splice: [[itemIndex, 1]]}
+      rails: {$push: children},
+      railGroups: {$push: [action.payload.item]}
     })
     // ヒストリを更新
     return addHistory(state, newLayout, action.payload.overwrite)
   },
+
+  /**
+   * レールグループをレイアウトから削除する。所属するレールも一緒に削除される。
+   * @param {LayoutStoreState} state
+   * @param {Action<RailDataPayload>} action
+   * @returns {*}
+   */
+  [Actions.LAYOUT_DELETE_RAIL_GROUP]: (state: LayoutStoreState, action: Action<PartialRailGroupDataPayload>) => {
+    const layout = state.histories[state.historyIndex]
+    // 対象のレールグループを探す
+    const itemIndex = layout.railGroups.findIndex((item) => item.id === action.payload.item.id)
+    // 対象のレールグループに所属しないレールを探す
+    const children = layout.rails.filter(r => ! (r.groupId === layout.railGroups[itemIndex].id))
+
+    // レイアウトを更新
+    const newLayout = update(layout, {
+      rails: {$set: children},
+      railGroups: {$splice: [[itemIndex, 1]]}
+    })
+    // ヒストリを更新
+    return addHistory(state, newLayout, action.payload.overwrite)
+  },
+
+
 
   /**
    * レイヤーをレイアウトに追加する。
@@ -320,4 +393,12 @@ const addHistory = (state: LayoutStoreState, layout: LayoutData, overwrite = fal
 const removeEmpty = (obj) => {
   Object.keys(obj).forEach((key) => (obj[key] == null) && delete obj[key]);
   return obj
+}
+
+const getAllIndexes = (arr, val) => {
+  var indexes = [], i;
+  for(i = 0; i < arr.length; i++)
+    if (arr[i] === val)
+      indexes.push(i);
+  return indexes;
 }

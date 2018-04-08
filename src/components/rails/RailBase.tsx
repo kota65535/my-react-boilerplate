@@ -29,6 +29,8 @@ export interface RailBaseProps extends Partial<RailBaseDefaultProps> {
   // このレールのインスタンスを取得するコールバック
   onMount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
   onUnmount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
+  // このレールの所属するレールグループのID
+  groupId?: number
 }
 
 export interface RailBaseDefaultProps {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import RailContainers, {RailData} from "components/rails/index";
+import RailContainers, {RailData, RailGroupData} from "components/rails/index";
 import getLogger from "logging";
 import {RailBase, RailBaseProps} from "components/rails/RailBase";
 import RailGroup from "components/rails/RailGroup/RailGroup";
@@ -29,9 +29,10 @@ export const createRailComponent = (item: RailData) => {
         {...props}
         onMount={(ref) => {
           window.RAIL_COMPONENTS[id] = ref
-          LOGGER.info(`RailGroup added. id=${id}, ${ref.props}`)  //`
+          LOGGER.info(`RailGroup added. id=${id}, ${ref.props.type}`)  //`
         }}
         onUnmount={(ref) => {
+          LOGGER.info(`RailGroup deleted. id=${id}, ${ref.props.type}`)  //`
           delete window.RAIL_COMPONENTS[id]
         }}
       >
@@ -50,13 +51,41 @@ export const createRailComponent = (item: RailData) => {
       // HOCでラップされた中身のRailComponentを取得する
       onMount={(ref) => {
         window.RAIL_COMPONENTS[id] = ref
-        LOGGER.info(`Rail added. id=${id}, ${ref.props}`)  //`
+        LOGGER.info(`Rail added. id=${id}, ${ref.props.type}`)  //`
       }}
       onUnmount={(ref) => {
+        LOGGER.info(`Rail deleted. id=${id}, ${ref.props.type}`)  //`
         delete window.RAIL_COMPONENTS[id]
       }}
     />)
 }
+
+export const createRailGroupComponent = (item: RailGroupData, children: RailData[]) => {
+  const {id: id, type: type, ...props} = item
+  if (type !== 'RailGroup') {
+    throw Error(`'${type}' is not a valid rail type!`)
+  }
+
+  return (
+    <RailGroup
+      key={id}
+      id={id}
+      {...props}
+      onMount={(ref) => {
+        window.RAIL_COMPONENTS[id] = ref
+        LOGGER.info(`RailGroup added. id=${id}, ${ref.props.type}`)  //`
+      }}
+      onUnmount={(ref) => {
+        LOGGER.info(`RailGroup deleted. id=${id}, ${ref.props.type}`)  //`
+        delete window.RAIL_COMPONENTS[id]
+      }}
+    >
+      {children.map(rail => createRailComponent(rail))}
+    </RailGroup>
+  )
+}
+
+
 
 
 /**

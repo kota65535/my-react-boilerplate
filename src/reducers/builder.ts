@@ -3,8 +3,8 @@ import * as Actions from "actions/constants"
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {RailData, RailGroupData} from "components/rails";
-import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
 import update from "immutability-helper";
+import {RailBaseProps} from "components/rails/RailBase";
 
 export enum BuilderPhase {
   NORMAL = 'Normal',
@@ -15,6 +15,9 @@ export interface LastPaletteItems {
   [key: string]: PaletteItem
 }
 
+export interface UserRailGroupData extends RailBaseProps {
+  rails: RailData[]
+}
 
 
 export interface BuilderStoreState {
@@ -25,7 +28,9 @@ export interface BuilderStoreState {
   activeLayerId: number
   mousePosition: Point
   paperViewLoaded: boolean
-  temporaryItem: RailData
+  temporaryRail: RailData
+  temporaryRailGroup: RailGroupData
+  temporaryRailGroupChildren: RailData[]
   phase: BuilderPhase
   markerPosition: Point
   railGroups: RailGroupData[]
@@ -43,7 +48,9 @@ const BUILDER_INITIAL_STATE: BuilderStoreState = {
   activeLayerId: 1,
   mousePosition: new Point(0,0),
   paperViewLoaded: false,
-  temporaryItem: null,
+  temporaryRail: null,
+  temporaryRailGroup: null,
+  temporaryRailGroupChildren: [],
   phase: BuilderPhase.NORMAL,
   markerPosition: null,
   railGroups: []
@@ -104,7 +111,7 @@ export default handleActions<BuilderStoreState, any>({
   [Actions.BUILDER_SET_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<RailData>): BuilderStoreState => {
     return {
       ...state,
-      temporaryItem: action.payload
+      temporaryRail: action.payload
     } as BuilderStoreState
   },
 
@@ -116,16 +123,16 @@ export default handleActions<BuilderStoreState, any>({
    */
   [Actions.BUILDER_UPDATE_TEMPORARY_ITEM]: (state: BuilderStoreState, action: Action<Partial<RailData>>): BuilderStoreState => {
     const temporaryItem = {
-      ...state.temporaryItem,
+      ...state.temporaryRail,
       ...action.payload,
       opposingJoints: {
-        ...state.temporaryItem.opposingJoints,
+        ...state.temporaryRail.opposingJoints,
         ...action.payload.opposingJoints,
       }
     }
     return {
       ...state,
-      temporaryItem: temporaryItem
+      temporaryRail: temporaryItem
     } as BuilderStoreState
   },
 
@@ -142,7 +149,7 @@ export default handleActions<BuilderStoreState, any>({
     } as BuilderStoreState
   },
 
-  [Actions.ADD_RAIL_GROUP]: (state: BuilderStoreState, action: Action<RailGroupProps>): BuilderStoreState => {
+  [Actions.BUILDER_ADD_USER_RAIL_GROUP]: (state: BuilderStoreState, action: Action<UserRailGroupData>): BuilderStoreState => {
     return update(state, {
       railGroups: {$push: [action.payload]}
     })

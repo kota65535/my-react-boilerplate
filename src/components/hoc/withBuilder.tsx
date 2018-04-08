@@ -7,12 +7,12 @@ import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
 import {getClosest} from "constants/utils";
-import {addRailGroup, setMarkerPosition, setPhase, setTemporaryItem} from "actions/builder";
+import {addUserRailGroup, setMarkerPosition, setPhase, setTemporaryRail} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import {BuilderPhase} from "reducers/builder";
+import {BuilderPhase, UserRailGroupData} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {RailData, RailGroupData} from "components/rails";
+import {RailData} from "components/rails";
 import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
 import {JointInfo} from "components/rails/RailBase";
 import {getAllRailComponents, getRailComponent} from "components/rails/utils";
@@ -41,18 +41,18 @@ interface WithBuilderPrivateProps {
   activeLayerId: number
   isLayoutEmpty: boolean
   mousePosition: Point
-  setTemporaryItem: (item: RailData) => void
+  setTemporaryRail: (item: RailData) => void
   setPhase: (phase: BuilderPhase) => void
   phase: BuilderPhase
   setMarkerPosition: (position: Point) => void
   markerPosition: Point
   nextRailId: number
-  temporaryItem: RailData
+  temporaryRail: RailData
   addRail: (item: RailData, overwrite?: boolean) => void
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
   addHistory: () => void
-  addRailGroup: (railGroup: RailGroupData) => void
+  addUserRailGroup: (railGroup: UserRailGroupData) => void
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
@@ -77,7 +77,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       isLayoutEmpty: isLayoutEmpty(state),
       mousePosition: state.builder.mousePosition,
       phase: state.builder.phase,
-      temporaryItem: state.builder.temporaryItem,
+      temporaryRail: state.builder.temporaryRail,
       markerPosition: state.builder.markerPosition,
       nextRailId: nextRailId(state)
     }
@@ -85,14 +85,14 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
   const mapDispatchToProps = (dispatch: any) => {
     return {
-      setTemporaryItem: (item: RailData) => dispatch(setTemporaryItem(item)),
+      setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
       setPhase: (phase: BuilderPhase) => dispatch(setPhase(phase)),
       setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
       updateRail: (item: Partial<RailData>, overwrite = false) => dispatch(updateRail({item, overwrite})),
       removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
       addHistory: () => dispatch(addHistory({})),
-      addRailGroup: (railGroup) => dispatch(addRailGroup(railGroup))
+      addUserRailGroup: (railGroup: UserRailGroupData) => dispatch(addUserRailGroup(railGroup))
     }
   }
 
@@ -159,7 +159,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       const itemProps = RailFactory[this.props.paletteItem.name]()
       const angle = getFirstRailAngle(this.props.markerPosition, e.point)
       LOGGER.debug(`FirstAngle: ${angle}`) // `
-      this.props.setTemporaryItem({
+      this.props.setTemporaryRail({
         ...itemProps,
         id: -1,
         name: 'TemporaryRail',
@@ -211,15 +211,15 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.props.addRail({
         ...itemProps,
         id: this.props.nextRailId,
-        position: (this.props.temporaryItem as any).position,
-        angle: (this.props.temporaryItem as any).angle,
+        position: (this.props.temporaryRail as any).position,
+        angle: (this.props.temporaryRail as any).angle,
         layerId: this.props.activeLayerId,
         opposingJoints: {}
       } as RailData)
       // 2本目のフェーズに移行する
       this.props.setPhase(BuilderPhase.NORMAL)
       // マーカーはもう不要なので削除
-      this.props.setTemporaryItem(null)
+      this.props.setTemporaryRail(null)
       this.props.setMarkerPosition(null)
     }
 
@@ -247,22 +247,35 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           this.removeSelectedRails()
           break
         case 'c':
-          // 選択中のレールからレールグループを生成する
-          // TODO: 名前をどうする？
-          let rails = this.getSelectedRailData()
-          let newRails = rails.map((rail, idx) => update(rail, {id: {$set: -2-idx}}))
-          const railGroup = {
-            type: 'RailGroup',
-            rails: newRails,
-            name: 'aaaaa',
-            position: new Point(0, 0),
-            angle: 0,
-            id: -1,
-            layerId: -10
-          }
-          this.props.addRailGroup(railGroup)
+          this.registerRailGroup()
           break
       }
+    }
+
+    /**
+     * 選択中のレールを新しいレールグループとして登録する
+     */
+    registerRailGroup() {
+      // 選択中のレールコンポーネントのPropsを取得する
+      let rails = this.getSelectedRailData()
+      let newRails = rails.map((rail, idx) => update(rail, {
+        id: {$set: -2-idx},           // 仮のIDを割り当てる
+        enableJoints: {$set: false},  // ジョイントは無効にしておく
+        selected: {$set: false},      // 選択状態は解除しておく
+        railGroup: {$set: -1},        // 仮のレールグループIDを割り当てる
+      }))
+      // レールグループデータを生成する
+      // TODO: 名前をどうする？
+      const railGroup: UserRailGroupData = {
+        type: 'RailGroup',
+        rails: newRails,
+        id: -1,
+        layerId: -10,
+        name: 'aaaaa',
+        position: new Point(0, 0),
+        angle: 0,
+      }
+      this.props.addUserRailGroup(railGroup)
     }
 
 
@@ -298,8 +311,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
      * 複数指定可能。特に同一レールの複数ジョイントを接続する場合は一度の呼び出しで実行すること
      */
     connectJoints = (pairs: JointPair[]) => {
-      console.log(pairs)
       pairs.forEach(pair => {
+        LOGGER.info(`connect Joints`, pair) //`
         this.props.updateRail({
           id: pair.from.railId,
           opposingJoints: {

@@ -4,6 +4,7 @@ import {Tool, View} from "react-paper-bindings";
 import {createGridLines} from "./common";
 import StraightRail from "components/rails/StraightRail/StraightRail";
 import RailGroup from "components/rails/RailGroup/RailGroup";
+import CurveRail from "components/rails/CurveRail/CurveRail";
 // import {CurveRail} from "components/Rails/CurveRail";
 // import StraightRail from "components/rails/StraightRail";
 // import CurveRail from "components/rails/CurveRail";
@@ -12,6 +13,7 @@ import RailGroup from "components/rails/RailGroup/RailGroup";
 export default class Case09 extends React.Component<any, any> {
   r: any
   pivotJoint: number
+  group: RailGroup
 
   constructor(props) {
     super(props)
@@ -25,6 +27,8 @@ export default class Case09 extends React.Component<any, any> {
   componentDidMount() {
     // this.p = 1
     // this.forceUpdate()
+    this.group
+
   }
 
   render() {
@@ -51,40 +55,41 @@ export default class Case09 extends React.Component<any, any> {
 
 
         <RailGroup
-          position={new Point(300,300)}
-          angle={0}
           id={-1}
           layerId={-1}
+          position={new Point(300,300)}
+          angle={30}
           pivotRailIndex={0}
-          pivotJointIndex={0}
+          pivotJointIndex={1}
+          ref={(group) => this.group = group}
         >
           <StraightRail
-            position={this.state.position}
-            pivotJointIndex={this.state.pivotJoint}
+            position={new Point(200,150)}
+            pivotJointIndex={0}
             length={200}
-            angle={30}
+            angle={0}
             id={0}
             layerId={1}
           />
           <StraightRail
-            position={this.state.position.add(new Point(40,0))}
-            pivotJointIndex={this.state.pivotJoint}
+            position={new Point(200,200)}
+            pivotJointIndex={0}
             length={200}
-            angle={30}
+            angle={0}
+            id={0}
+            layerId={1}
+          />
+          <CurveRail
+            position={new Point(400,200)}
+            pivotJointIndex={0}
+            angle={0}
+            radius={200}
+            centerAngle={45}
             id={0}
             layerId={1}
           />
         </RailGroup>
 
-        {/*<CurveRail*/}
-          {/*position={this.state.position}*/}
-          {/*pivotJointIndex={this.state.pivotJoint}*/}
-          {/*angle={30}*/}
-          {/*radius={200}*/}
-          {/*centerAngle={45}*/}
-          {/*id={0}*/}
-          {/*layerId={1}*/}
-        {/*/>*/}
 
         <Tool
           active={true}

@@ -22,8 +22,8 @@ import {currentLayoutData, isLayoutEmpty} from "selectors";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import FirstRailPutter from "./FirstRailPutter";
-import {createRailComponent} from "components/rails/utils";
-import TemporaryLayer from "components/Editor/TemporaryLayer/TemporaryLayer";
+import {createRailComponent, createRailGroupComponent} from "components/rails/utils";
+import TemporaryLayer from "components/Editor/TemporaryLayer";
 import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
 import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";
 import {Tools} from "constants/tools";
@@ -141,9 +141,21 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         visible={layer.visible}
         key={layer.id}
       >
-        {this.props.layout.rails
+        { // レールグループに所属していないレールを生成する
+          this.props.layout.rails
           .filter(r => r.layerId === layer.id)
-          .map(item => createRailComponent(item))}
+          .filter(r => ! r.groupId)
+          .map(item => createRailComponent(item))
+        }
+        { //  レールグループに所属しているレールを生成する
+          this.props.layout.railGroups
+          .filter(r => r.layerId === layer.id)
+          .filter(r => r.groupId)
+          .map(item => {
+            const children = this.props.layout.rails.filter(c => c.groupId === item.groupId)
+            createRailGroupComponent(item, children)
+          })
+        }
       </Layer>
     )
 

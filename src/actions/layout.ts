@@ -6,13 +6,18 @@ import {
   LayoutMeta,
   PartialLayerDataPayload,
   PartialRailDataPayload,
-  RailDataPayload
+  PartialRailGroupDataPayload,
+  RailDataPayload,
+  RailGroupDataPayload
 } from "reducers/layout";
 import * as Actions from "actions/constants";
 
 export const addRail = createAction<RailDataPayload>(Actions.LAYOUT_ADD_RAIL)
 export const updateRail = createAction<PartialRailDataPayload>(Actions.LAYOUT_UPDATE_RAIL)
-export const removeRail = createAction<RailDataPayload>(Actions.LAYOUT_REMOVE_RAIL)
+export const removeRail = createAction<PartialRailDataPayload>(Actions.LAYOUT_REMOVE_RAIL)
+
+export const addRailGroup = createAction<RailGroupDataPayload>(Actions.LAYOUT_ADD_RAIL_GROUP)
+export const deleteRailGroup = createAction<PartialRailGroupDataPayload>(Actions.LAYOUT_DELETE_RAIL_GROUP)
 
 export const addLayer = createAction<LayerDataPayload>(Actions.LAYOUT_ADD_LAYER)
 export const updateLayer = createAction<PartialLayerDataPayload>(Actions.LAYOUT_UPDATE_LAYER)

@@ -66,6 +66,11 @@ export default class Joint extends React.Component<JointProps, {}> {
     return this.part.position
   }
 
+  get globalPosition() {
+    return this.part.globalPosition
+  }
+
+
   get angle() {
     return this.part.angle
   }

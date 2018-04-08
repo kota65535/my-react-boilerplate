@@ -131,6 +131,10 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     return this._partGroup.position
   }
 
+  get globalPosition() {
+    return this._partGroup.globalPosition
+  }
+
   get angle() {
     return this._partGroup.angle
   }

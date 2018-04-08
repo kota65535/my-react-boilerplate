@@ -6,14 +6,14 @@ import CurveRailIcon from '../ToolBar/Icon/CurveRail'
 import TurnoutIcon from "../ToolBar/Icon/Turnout";
 import Builder from "./Builder/Builder"
 import Rnd from "react-rnd"
-import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
+import {RailGroupData} from "components/rails";
 
 
 export interface PaletteProps {
   className?: string
   tool: Tools
   setPaletteMode: (mode: string) => void
-  railGroups: RailGroupProps[]
+  railGroups: RailGroupData[]
 }
 
 

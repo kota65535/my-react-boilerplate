@@ -2,7 +2,7 @@ import {Action, handleActions} from 'redux-actions';
 import * as Actions from "actions/constants"
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
-import {RailData} from "components/rails";
+import {RailData, RailGroupData} from "components/rails";
 import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
 import update from "immutability-helper";
 
@@ -16,6 +16,7 @@ export interface LastPaletteItems {
 }
 
 
+
 export interface BuilderStoreState {
   // パレットで選択中のレール
   paletteItem: PaletteItem
@@ -27,7 +28,7 @@ export interface BuilderStoreState {
   temporaryItem: RailData
   phase: BuilderPhase
   markerPosition: Point
-  railGroups: RailGroupProps[]
+  railGroups: RailGroupData[]
 }
 
 const BUILDER_INITIAL_STATE: BuilderStoreState = {

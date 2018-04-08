@@ -2,6 +2,8 @@ import * as React from "react";
 import RailContainers, {RailData} from "components/rails/index";
 import getLogger from "logging";
 import {RailBase, RailBaseProps} from "components/rails/RailBase";
+import RailGroup from "components/rails/RailGroup/RailGroup";
+import {Point} from "paper";
 
 const LOGGER = getLogger(__filename)
 
@@ -18,6 +20,25 @@ export const createRailComponent = (item: RailData) => {
   if (RailContainer == null) {
     throw Error(`'${type}' is not a valid rail type!`)
   }
+  if (type === 'RailGroup') {
+    const {rails, ...restProps} = props as any
+    return (
+      <RailGroup
+        key={id}
+        id={id}
+        {...props}
+        onMount={(ref) => {
+          window.RAIL_COMPONENTS[id] = ref
+          LOGGER.info(`RailGroup added. id=${id}, ${ref.props}`)  //`
+        }}
+        onUnmount={(ref) => {
+          delete window.RAIL_COMPONENTS[id]
+        }}
+      >
+        {rails.map(rail => createRailComponent(rail))}
+      </RailGroup>
+    )
+  }
   return (
     <RailContainer
       key={id}
@@ -29,12 +50,14 @@ export const createRailComponent = (item: RailData) => {
       // HOCでラップされた中身のRailComponentを取得する
       onMount={(ref) => {
         window.RAIL_COMPONENTS[id] = ref
+        LOGGER.info(`Rail added. id=${id}, ${ref.props}`)  //`
       }}
       onUnmount={(ref) => {
         delete window.RAIL_COMPONENTS[id]
       }}
     />)
 }
+
 
 /**
  * Point同士を比較し、一致したらtrueを返す

@@ -12,7 +12,7 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {RailData} from "components/rails";
+import {RailData, RailGroupData} from "components/rails";
 import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
 import {JointInfo} from "components/rails/RailBase";
 import {getAllRailComponents, getRailComponent} from "components/rails/utils";
@@ -52,7 +52,7 @@ interface WithBuilderPrivateProps {
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
   addHistory: () => void
-  addRailGroup: (railGroup) => void
+  addRailGroup: (railGroup: RailGroupData) => void
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
@@ -247,11 +247,18 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           this.removeSelectedRails()
           break
         case 'c':
-          // TODO: temporary
+          // 選択中のレールからレールグループを生成する
+          // TODO: 名前をどうする？
+          let rails = this.getSelectedRailData()
+          let newRails = rails.map((rail, idx) => update(rail, {id: {$set: -2-idx}}))
           const railGroup = {
             type: 'RailGroup',
-            rails: this.getSelectedRailData(),
-            name: 'aaaaa'
+            rails: newRails,
+            name: 'aaaaa',
+            position: new Point(0, 0),
+            angle: 0,
+            id: -1,
+            layerId: -10
           }
           this.props.addRailGroup(railGroup)
           break

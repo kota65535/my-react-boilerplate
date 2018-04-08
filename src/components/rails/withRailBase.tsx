@@ -20,8 +20,8 @@ import {addRail} from "actions/layout";
 import {nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
-import {RailData} from "components/rails/index";
-import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
+import {RailData, RailGroupData} from "components/rails/index";
+import * as _ from "lodash";
 
 const LOGGER = getLogger(__filename)
 
@@ -44,7 +44,7 @@ export interface WithRailBaseProps {
   temporaryPivotJointIndex: number
   activeLayerId: number
   nextRailId: number
-  railGroups: RailGroupProps[]
+  railGroups: RailGroupData[]
 
   // actions
   setTemporaryItem: (item: RailData) => void
@@ -113,7 +113,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onRailPartLeftClick(e: MouseEvent) {
       // レールの選択状態をトグルする
-      this.props.builderToggleRail(this.props)
+      // this.props.builderToggleRail(this.props)
+      LOGGER.info(`${this.props.id} clicked.`)
       return true
     }
 
@@ -137,7 +138,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       if (intersects) {
         LOGGER.info("Rail intersects.")
         // ジョイントの検出状態を変更させない
-        return false
+        // return false
       }
 
       // 近傍ジョイントを非検出状態に戻す
@@ -226,7 +227,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     getRailProps = (paletteItem: PaletteItem) => {
       // パレットで選択したレール生成のためのPropsを取得
       if (paletteItem.type === 'RailGroup') {
-        return this.props.railGroups.find(rg => rg.name === paletteItem.name)
+        let railGroup = _.clone(this.props.railGroups.find(rg => rg.name === paletteItem.name)) as any
+        return railGroup
       } else {
         return RailFactory[paletteItem.name]()
       }
@@ -316,13 +318,14 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
               return
             }
             // ジョイント同士が十分近く、かつ角度が一致していればリストに加える
-            // LOGGER.debug(cmb[0].props.data.railId, cmb[0].angle, cmb[1].props.data.railId, cmb[1].angle)
-            const isClose = pointsEqual(cmb[0].position, cmb[1].position, 0.1)
+            // LOGGER.debug(cmb[0].props.data.railId, cmb[0].globalPosition, cmb[0].angle, cmb[1].props.data.railId, cmb[1].globalPosition, cmb[1].angle)
+            const isClose = pointsEqual(cmb[0].globalPosition, cmb[1].globalPosition, 0.1)
             const isSameAngle = anglesEqual(cmb[0].angle, cmb[1].angle + 180, 0.1)
             if (isClose && isSameAngle) {
               closeJointPairs.push({
                 from: {
                   railId: this.props.nextRailId,
+                  // railId: cmb[0].props.id,
                   jointId: cmb[0].props.data.partId
                 },
                 to: {

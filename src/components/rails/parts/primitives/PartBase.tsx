@@ -68,6 +68,10 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
     return this.path.position
   }
 
+  get globalPosition() {
+    return this.getGlobalPosition(Pivot.CENTER)
+  }
+
   get angle() {
     return this.getAngle(Pivot.CENTER)
   }

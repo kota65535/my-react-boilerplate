@@ -43,3 +43,7 @@ export default RailContainerClasses
 
 // TODO: RailProps の方がわかりやすい名前では？
 export type RailData = RailBaseProps | StraightRailProps | CurveRailProps | SimpleTurnoutProps | DoubleStraightRailProps | DoubleCrossTurnoutProps
+
+export interface RailGroupData extends RailBaseProps {
+  rails: RailData[]
+}

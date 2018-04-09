@@ -7,38 +7,28 @@ import {Point} from "paper";
 
 const LOGGER = getLogger(__filename)
 
+
+export const createRailOrRailGroupComponent = (railGroup: RailGroupData, rails: RailData[]) => {
+  if (railGroup) {
+    return createRailGroupComponent(railGroup, rails)
+  } else {
+    return (
+      <React.Fragment>
+        {rails.map(r => createRailComponent(r))}
+      </React.Fragment>
+    )
+  }
+}
+
 /**
  * レールコンポーネントを生成する。
  * @param {RailData} item
- * @param addItem
- * @param updateItem
- * @returns {any}
  */
 export const createRailComponent = (item: RailData) => {
   const {id: id, type: type, ...props} = item
   let RailContainer = RailContainers[type]
   if (RailContainer == null) {
-    throw Error(`'${type}' is not a valid rail type!`)
-  }
-  if (type === 'RailGroup') {
-    const {rails, ...restProps} = props as any
-    return (
-      <RailGroup
-        key={id}
-        id={id}
-        {...props}
-        onMount={(ref) => {
-          window.RAIL_COMPONENTS[id] = ref
-          LOGGER.info(`RailGroup added. id=${id}, ${ref.props.type}`)  //`
-        }}
-        onUnmount={(ref) => {
-          LOGGER.info(`RailGroup deleted. id=${id}, ${ref.props.type}`)  //`
-          delete window.RAIL_COMPONENTS[id]
-        }}
-      >
-        {rails.map(rail => createRailComponent(rail))}
-      </RailGroup>
-    )
+    throw Error(`'${type}' is not a valid Rail type!`)
   }
   return (
     <RailContainer
@@ -63,7 +53,7 @@ export const createRailComponent = (item: RailData) => {
 export const createRailGroupComponent = (item: RailGroupData, children: RailData[]) => {
   const {id: id, type: type, ...props} = item
   if (type !== 'RailGroup') {
-    throw Error(`'${type}' is not a valid rail type!`)
+    throw Error(`'${type}' is not a RailGroup!`)
   }
 
   return (

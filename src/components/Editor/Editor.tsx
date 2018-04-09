@@ -19,16 +19,14 @@ import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty} from "selectors";
-import {BuilderPhase} from "reducers/builder";
 import getLogger from "logging";
 import FirstRailPutter from "./FirstRailPutter";
-import {createRailComponent, createRailGroupComponent} from "components/rails/utils";
-import TemporaryLayer from "components/Editor/TemporaryLayer";
 import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
 import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";
 import {Tools} from "constants/tools";
 import {SettingsStoreState} from "reducers/settings";
 import {withSnackbar} from 'material-ui-snackbar-provider'
+import Layout from "components/Editor/Layout";
 
 const LOGGER = getLogger(__filename)
 
@@ -39,8 +37,6 @@ export interface EditorProps {
   height: number
   mousePosition: Point
   isLayoutEmpty: boolean
-  builderPhase: BuilderPhase
-  markerPosition: Point
   settings: SettingsStoreState
 }
 
@@ -64,8 +60,6 @@ const mapStateToProps = (state: RootState) => {
     layout: currentLayoutData(state),
     mousePosition: state.builder.mousePosition,
     isLayoutEmpty: isLayoutEmpty(state),
-    builderPhase: state.builder.phase,
-    markerPosition: state.builder.markerPosition,
     settings: state.settings
   }
 }
@@ -134,30 +128,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
       ])
     })
 
-    // データから各レイヤーを生成する
-    let layers = this.props.layout.layers.map(layer =>
-      <Layer
-        data={layer}
-        visible={layer.visible}
-        key={layer.id}
-      >
-        { // レールグループに所属していないレールを生成する
-          this.props.layout.rails
-          .filter(r => r.layerId === layer.id)
-          .filter(r => ! r.groupId)
-          .map(item => createRailComponent(item))
-        }
-        { // レールグループに所属しているレールを生成する
-          // レールグループ内のレールは同じレイヤーに所属していなくても良い
-          this.props.layout.railGroups
-          .map(item => {
-            const children = this.props.layout.rails.filter(c => c.groupId === item.id)
-            return createRailGroupComponent(item, children)
-          })
-        }
-      </Layer>
-    )
-
     const {paperWidth, paperHeight, gridSize} = this.props.settings
 
     // LOGGER.debug(this.props.mousePosition)
@@ -178,12 +148,10 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             matrix={matrix}
           >
             {this.props.isLayoutEmpty &&
-            <FirstRailPutter
-            />
+            <FirstRailPutter />
             }
-            <TemporaryLayer />
 
-            {layers}
+            <Layout />
 
             {/*<StraightRailContainer*/}
               {/*position={new Point(700, 700)}*/}
@@ -254,8 +222,6 @@ export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps,
   withFullscreen,
   withTools,
   withMoveTool,
-  // withStraightRail,
-  // withCurveRail
   withDeleteTool,
   withSelectTool,
   withSnackbar()

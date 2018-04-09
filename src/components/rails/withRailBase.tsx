@@ -235,7 +235,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // 仮レールを消去する
       this.props.deleteTemporaryRail()
 
-      this.searchCloseJoints()
+      // this.searchCloseJoints()
       // クリックされたジョイント、近傍ジョイントを接続する
       this.props.builderConnectJoints(this.closeJointPairs)
       // ジョイントの検出状態を変更させる

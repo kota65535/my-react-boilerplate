@@ -1,8 +1,10 @@
 import * as React from 'react'
 import {connect} from "react-redux";
 import {RootState} from "store/type";
-import Layout from 'components/Editor/Layout/Layout';
+import Layout, {LayoutProps} from 'components/Editor/Layout/Layout';
 import {currentLayoutData} from "selectors";
+import withBuilder from "components/hoc/withBuilder";
+import {compose} from "recompose";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -16,4 +18,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout)
+export default compose<LayoutProps, LayoutProps|any>(
+  withBuilder,
+  connect(mapStateToProps, mapDispatchToProps)
+)(Layout)

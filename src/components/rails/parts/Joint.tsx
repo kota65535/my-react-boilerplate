@@ -70,9 +70,12 @@ export default class Joint extends React.Component<JointProps, {}> {
     return this.part.globalPosition
   }
 
-
   get angle() {
     return this.part.angle
+  }
+
+  get globalAngle() {
+    return this.part.globalAngle
   }
 
 
@@ -112,7 +115,7 @@ export default class Joint extends React.Component<JointProps, {}> {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onMouseMove={onMouseMove}
-        ref={(part) => this.part = part}
+        ref={(part) => {if (part) this.part = part}}
       />
     )
   }

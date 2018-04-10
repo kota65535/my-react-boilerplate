@@ -51,6 +51,7 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
 
   constructor(props: P) {
     super(props)
+    this.getInstance = this.getInstance.bind(this)
   }
 
   get path() { return this.detectablePart.mainPart.path }
@@ -164,10 +165,13 @@ export default abstract class RailPartBase<P extends RailPartBaseProps, S> exten
         onLeftClick={onLeftClick}
         onRightClick={onRightClick}
         selected={selected}
-        ref={(part) => this.detectablePart = part}
+        ref={this.getInstance}
       />
     )
   }
 
+  protected getInstance(detectablePart) {
+    if (detectablePart) this.detectablePart = detectablePart
+  }
 
 }

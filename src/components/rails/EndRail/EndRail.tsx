@@ -47,7 +47,7 @@ export default class EndRail extends RailBase<EndRailProps, RailBaseState> {
             partId: 0,
           }}
           onLeftClick={this.props.onRailPartLeftClick}
-          ref={(railPart) => this.railPart = railPart}
+          ref={this.getInstance}
         />
         {this.createJointComponents()}
       </React.Fragment>

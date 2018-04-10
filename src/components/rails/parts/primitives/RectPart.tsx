@@ -43,7 +43,7 @@ export default class RectPart extends PartBase<RectPartProps, {}> {
       onMouseMove={onMouseMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      ref={(Path) => this._path = Path}
+      ref={this.getInstance}
     />
   }
 

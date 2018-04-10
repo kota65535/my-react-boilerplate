@@ -63,7 +63,7 @@ export default class ArcPart extends PartBase<ArcPartProps, {}> {
       onMouseMove={onMouseMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      ref={(Path) => this._path = Path}
+      ref={this.getInstance}
     />
   }
 

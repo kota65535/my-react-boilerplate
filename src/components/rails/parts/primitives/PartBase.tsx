@@ -54,6 +54,8 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
 
   constructor(props: P) {
     super(props)
+
+    this.getInstance = this.getInstance.bind(this)
   }
 
   protected _path: Path | Group
@@ -74,6 +76,10 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
 
   get angle() {
     return this.getAngle(Pivot.CENTER)
+  }
+
+  get globalAngle() {
+    return this.getGlobalAngle(Pivot.CENTER)
   }
 
   /**
@@ -145,6 +151,9 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
    */
   protected abstract getInternalPivotPosition(pivot: Pivot)
 
+  protected getInstance(path) {
+    if (path) this._path = path
+  }
 
   // shouldComponentUpdate(nextProps) {
   //   if (this.props.position.x === nextProps.position.x && this.props.position.y === nextProps.position.y) {

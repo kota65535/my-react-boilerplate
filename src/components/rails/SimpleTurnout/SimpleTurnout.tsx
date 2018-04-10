@@ -54,7 +54,7 @@ export default class SimpleTurnout extends RailBase<SimpleTurnoutProps, RailBase
             partId: 0
           }}
           onLeftClick={this.props.onRailPartLeftClick}
-          ref={(railPart) => this.railPart = railPart}
+          ref={this.getInstance}
         />
         {this.createJointComponents()}
       </React.Fragment>

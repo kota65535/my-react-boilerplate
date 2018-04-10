@@ -48,7 +48,7 @@ export default class DoubleStraightRail extends RailBase<DoubleStraightRailProps
             partId: 0,
           }}
           onLeftClick={this.props.onRailPartLeftClick}
-          ref={(railPart) => this.railPart = railPart}
+          ref={this.getInstance}
         />
         {this.createJointComponents()}
       </React.Fragment>

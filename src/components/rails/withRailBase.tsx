@@ -133,28 +133,13 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
     addRailGroup = (jointId: number, temporaryRails: RailData[], temporaryRailGroup: RailGroupData) => {
       const children = temporaryRails.map((temporaryRail, idx) => {
-        // 仮レールのRailData
-        // クリックしたジョイントを対向ジョイントにセットする
-        let opposingJoints = {}
-        opposingJoints[this.props.temporaryPivotJointIndex] = {
-          railId: this.props.id,
-          jointId: jointId
-        }
-        // 近傍ジョイントを対向ジョイントにセットする
-        this.closeJointPairs.forEach(pair => {
-          opposingJoints[pair.from.jointId] = {
-            railId: pair.to.railId,
-            jointId: pair.to.jointId
-          }
-        })
-
         return {
           ...temporaryRail,
-          id: this.props.nextRailId + idx,    // IDを新規に割り振る(これだと削除して真ん中が空いた時にうまくいかない？）
+          id: this.props.nextRailId + idx,    // IDを新規に割り振る
           name: '',
           layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
           opacity: 1,
-          opposingJoints: opposingJoints,
+          opposingJoints: [],
           enableJoints: true,                 // ジョイントを有効化する
         }
       })
@@ -166,30 +151,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       }, children)
     }
 
-    addRail = (jointId: number, temporaryItemData: RailData) => {
-      // 仮レールのRailData
-      // クリックしたジョイントを対向ジョイントにセットする
-      let opposingJoints = {}
-      opposingJoints[this.props.temporaryPivotJointIndex] = {
-        railId: this.props.id,
-        jointId: jointId
-      }
-      // 近傍ジョイントを対向ジョイントにセットする
-      this.closeJointPairs.forEach(pair => {
-        opposingJoints[pair.from.jointId] = {
-          railId: pair.to.railId,
-          jointId: pair.to.jointId
-        }
-      })
-
+    addRail = (jointId: number, temporaryRail: RailData) => {
       // 仮レールの位置にレールを設置
       const newRailData = {
-        ...temporaryItemData,
+        ...temporaryRail,
         id: this.props.nextRailId,          // IDを新規に割り振る
         name: '',
         layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
         opacity: 1,
-        opposingJoints: opposingJoints,
+        // opposingJoints: [],
         enableJoints: true,                 // ジョイントを有効化する
       }
       LOGGER.info('newRailData', newRailData)
@@ -205,12 +175,12 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onJointLeftClick = (jointId: number, e: MouseEvent) => {
       // 仮レールがこのレイヤーの他のレールと重なっていたら、何もせずに返る
-      const intersects = this.temporaryRailIntersects()
-      if (intersects) {
-        LOGGER.info("Rail intersects.")
-        // ジョイントの検出状態を変更させない
-        // return false
-      }
+      // const intersects = this.temporaryRailIntersects()
+      // if (intersects) {
+      //   LOGGER.info("Rail intersects.")
+      //   // ジョイントの検出状態を変更させない
+      //   return false
+      // }
 
       // 仮レールのRailData
       const temporaryRails = this.props.temporaryRails
@@ -258,12 +228,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     getRailProps = (paletteItem: PaletteItem) => {
       // パレットで選択したレール生成のためのPropsを取得
       if (paletteItem.type === 'RailGroup') {
-        let railGroup = _.clone(this.props.railGroups.find(rg => rg.name === paletteItem.name)) as any
-        railGroup.id = -1
-        railGroup.rails.forEach((rail, idx) => {
-          rail.id = -2-idx
-        })
-        return railGroup
+        return _.clone(this.props.railGroups.find(rg => rg.name === paletteItem.name))
       } else {
         return RailFactory[paletteItem.name]()
       }

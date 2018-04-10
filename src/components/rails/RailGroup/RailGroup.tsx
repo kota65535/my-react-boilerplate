@@ -2,7 +2,7 @@ import * as React from "react";
 import {Group as GroupComponent, Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
 import {RailBase, RailBaseProps} from "components/rails/RailBase";
-import {Group} from "paper";
+import {Group, Point} from "paper";
 
 const LOGGER = getLogger(__filename)
 
@@ -32,6 +32,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
 
   _group: Group
   _children: RailBase<any, any>[]
+  pivotPosition: Point
 
   get children() { return this._children }
   get group() { return this._group }
@@ -41,8 +42,8 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     this._children = this.props.children ? new Array((this.props.children as any[]).length) : []
   }
 
-  get railPart() { return this.children[this.props.pivotRailIndex].railPart }
-  get joints() { return this.children[this.props.pivotRailIndex].joints }
+  // get railPart() { return this.children[this.props.pivotRailIndex].railPart }
+  // get joints() { return this.children[this.props.pivotRailIndex].joints }
 
   componentDidMount() {
     // this.getChildComponents()
@@ -58,15 +59,16 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
 
   render() {
     const {position, angle, visible, pivotRailIndex, pivotJointIndex} = this.props
-    const pivotPosition = this.getPivotPosition()
     const children = this.getChildComponents()
+    // PivotRailが削除された時に備えて、常に現在のPivotPositionを保存しておく
+    this.pivotPosition = this.getPivotPosition()
 
     return (
       <GroupComponent
         position={position}
         rotation={angle}
         visible={visible}
-        pivot={pivotPosition}
+        pivot={this.pivotPosition}
         ref={(group) => this._group = group}
       >
         {children}
@@ -79,7 +81,8 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     if (this.children[pivotRailIndex]) {
       return this.children[pivotRailIndex].railPart.getJointPositionToParent(pivotJointIndex)
     } else {
-      return undefined
+      // 指定のPivotRailIndexのレールが削除されていた場合、保存しておいたPivotPositionを使う
+      return this.pivotPosition
     }
   }
 
@@ -99,6 +102,12 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
               child.props.onMount(node)
             }
             this._children[i] = node
+          },
+          onUnmount: (node) => {
+            if (child.props.onUnmount) {
+              child.props.onUnmount(node)
+            }
+            this._children[i] = null
           }
         })
       }

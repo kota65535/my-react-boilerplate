@@ -110,7 +110,8 @@ export default handleActions<BuilderStoreState, any>({
   [Actions.BUILDER_SET_TEMPORARY_RAIL]: (state: BuilderStoreState, action: Action<RailData>): BuilderStoreState => {
     return {
       ...state,
-      temporaryRails: [action.payload]
+      temporaryRails: [action.payload],
+      temporaryRailGroup: null
     } as BuilderStoreState
   },
 

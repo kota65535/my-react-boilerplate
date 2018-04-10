@@ -62,12 +62,12 @@ export const createRailGroupComponent = (item: RailGroupData, children: RailData
       id={id}
       {...props}
       onMount={(ref) => {
-        window.RAIL_COMPONENTS[id] = ref
+        window.RAIL_GROUP_COMPONENTS[id] = ref
         LOGGER.info(`RailGroup added. id=${id}, ${ref.props.type}`)  //`
       }}
       onUnmount={(ref) => {
         LOGGER.info(`RailGroup deleted. id=${id}, ${ref.props.type}`)  //`
-        delete window.RAIL_COMPONENTS[id]
+        delete window.RAIL_GROUP_COMPONENTS[id]
       }}
     >
       {children.map(rail => createRailComponent(rail))}

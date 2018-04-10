@@ -42,7 +42,7 @@ export default class CirclePart extends PartBase<CirclePartProps, {}> {
       onMouseMove={onMouseMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      ref={(Path) => this._path = Path}
+      ref={this.getInstance}
     />
   }
 

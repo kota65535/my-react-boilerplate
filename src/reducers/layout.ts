@@ -2,6 +2,7 @@ import {Action, handleActions} from 'redux-actions';
 import * as Actions from "actions/constants"
 import update from 'immutability-helper';
 import {RailData, RailGroupData} from "components/rails";
+import * as _ from "lodash";
 
 
 export interface LayoutMeta {
@@ -115,7 +116,7 @@ export default handleActions<LayoutStoreState, any>({
   },
 
   /**
-   * レールを更新する。
+   * レールを更新する。opposingJointの更新がちょっとクセがある
    * @param {LayoutStoreState} state
    * @param {Action<RailDataPayload>} action
    * @returns {*}
@@ -124,11 +125,22 @@ export default handleActions<LayoutStoreState, any>({
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.rails.findIndex((item) => item.id === action.payload.item.id)
+    // 見つからなかったら何もしない
+    if (itemIndex === -1) {
+      return state
+    }
     const targetRail = layout.rails[itemIndex]
-    const opposingJoints = {
+
+    // 対向ジョイントの更新 or 追加
+    let opposingJoints = {
       ...targetRail.opposingJoints,
       ...action.payload.item.opposingJoints,
     }
+    // opposingJoints がnullか空のオブジェクトなら全削除 (一部削除はできない)
+    if (_.isEmpty(action.payload.item.opposingJoints)) {
+      opposingJoints = {}
+    }
+
     const newRailData = {
       ...targetRail,
       ...action.payload.item,
@@ -188,11 +200,15 @@ export default handleActions<LayoutStoreState, any>({
       }
     })
 
+    const newRailGroup = {
+      ...action.payload.item,
+      rails: children.map(c => c.id)
+    }
 
     // レイアウトを更新
     const newLayout = update(layout, {
       rails: {$push: children},
-      railGroups: {$push: [action.payload.item]}
+      railGroups: {$push: [newRailGroup]}
     })
     // ヒストリを更新
     return addHistory(state, newLayout, action.payload.overwrite)
@@ -208,6 +224,10 @@ export default handleActions<LayoutStoreState, any>({
     const layout = state.histories[state.historyIndex]
     // 対象のレールグループを探す
     const itemIndex = layout.railGroups.findIndex((item) => item.id === action.payload.item.id)
+    // 見つからなかったら何もしない
+    if (itemIndex === -1) {
+      return state
+    }
     // 対象のレールグループに所属しないレールを探す
     const children = layout.rails.filter(r => ! (r.groupId === layout.railGroups[itemIndex].id))
 
@@ -248,6 +268,10 @@ export default handleActions<LayoutStoreState, any>({
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const itemIndex = layout.layers.findIndex((item) => item.id === action.payload.item.id)
+    // 見つからなかったら何もしない
+    if (itemIndex === -1) {
+      return state
+    }
     const targetLayer = layout.layers[itemIndex]
     const newLayerData = {
       ...targetLayer,
@@ -273,6 +297,10 @@ export default handleActions<LayoutStoreState, any>({
     const layout = state.histories[state.historyIndex]
     // 対象のアイテムを探す
     const layerIndex = layout.layers.findIndex(layer => layer.id === action.payload.id)
+    // 見つからなかったら何もしない
+    if (layerIndex === -1) {
+      return state
+    }
     // レイヤーに所属しないレール
     const rails = layout.rails.filter(rail => rail.layerId !== action.payload.id)
 

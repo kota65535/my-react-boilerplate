@@ -109,6 +109,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     this.onMouseLeave = this.onMouseLeave.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
     this.onClick = this.onClick.bind(this)
+    this.getInstance = this.getInstance.bind(this)
   }
 
   _partGroup: PartGroup
@@ -137,6 +138,10 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
 
   get angle() {
     return this._partGroup.angle
+  }
+
+  get globalAngle() {
+    return this._partGroup.globalAngle
   }
 
   resetDetectionState() {
@@ -204,11 +209,15 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
         onMouseLeave={this.onMouseLeave}
         onMouseMove={this.onMouseMove}
         onClick={this.onClick}
-        ref={(r) => this._partGroup = r}
+        ref={this.getInstance}
       >
         {clonedMainPart}
         {detectionEnabled && clonedDetectionPart}
       </PartGroup>
     )
+  }
+
+  protected getInstance(_partGroup) {
+    if (_partGroup) this._partGroup = _partGroup
   }
 }

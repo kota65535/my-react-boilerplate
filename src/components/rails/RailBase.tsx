@@ -100,6 +100,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
   constructor(props: P) {
     super(props)
     this.joints = new Array(this.props.numJoints).fill(null)
+    this.getInstance = this.getInstance.bind(this)
   }
 
   componentWillUnmount() {
@@ -149,7 +150,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
           onMouseMove={this.props.onJointMouseMove.bind(this, i)}
           onMouseEnter={this.props.onJointMouseEnter.bind(this, i)}
           onMouseLeave={this.props.onJointMouseLeave.bind(this, i)}
-          ref={(joint) => this.joints[i] = joint}
+          ref={(joint) => {if (joint) this.joints[i] = joint}}
         />
       )
     })
@@ -186,6 +187,10 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
         jointAngles
       })
     }
+  }
+
+  protected getInstance(railPart) {
+    if (railPart) this.railPart = railPart
   }
 }
 

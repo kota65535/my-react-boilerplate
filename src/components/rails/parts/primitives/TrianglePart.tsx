@@ -43,7 +43,7 @@ export default class TrianglePart extends PartBase<TrianglePartProps, {}> {
       onMouseMove={onMouseMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      ref={(Path) => this._path = Path}
+      ref={this.getInstance}
     />
   }
 

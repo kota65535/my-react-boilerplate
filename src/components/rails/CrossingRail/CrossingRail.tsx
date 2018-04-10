@@ -50,7 +50,7 @@ export default class CrossingRail extends RailBase<CrossingRailProps, RailBaseSt
             partId: 0,
           }}
           onLeftClick={this.props.onRailPartLeftClick}
-          ref={(railPart) => this.railPart = railPart}
+          ref={this.getInstance}
         />
         {this.createJointComponents()}
       </React.Fragment>

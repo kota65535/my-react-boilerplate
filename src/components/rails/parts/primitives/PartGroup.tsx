@@ -78,7 +78,7 @@ export default class PartGroup extends PartBase<PartGroupProps, PartGroupState> 
         return React.cloneElement(child as any, {
           ...child.props,
           ref: (node) => {
-            this._children[i] = node
+            if (node) this._children[i] = node
           }
         })
       }
@@ -118,7 +118,7 @@ export default class PartGroup extends PartBase<PartGroupProps, PartGroupState> 
         onMouseLeave={onMouseLeave}
         // refには一瞬だけ引数にnullが入ってくることがある。(https://github.com/facebook/react/issues/4533)
         // 直後に再度呼ばれて本物が入ってくるが、あまり凝ったことはせずにシンプルに保つべき
-        ref={(group) => this._path = group}
+        ref={this.getInstance}
       >
         {children}
       </GroupComponent>

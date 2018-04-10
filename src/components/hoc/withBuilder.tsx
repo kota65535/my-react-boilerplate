@@ -234,7 +234,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
       selectedRails.forEach(item => {
         this.props.addHistory()
-        this.disconnectJoint(item.id)
+        // this.disconnectJoint(item.id)
         this.props.removeRail(item, true)
       })
     }
@@ -252,6 +252,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           break
         case 'c':
           this.registerRailGroup()
+          this.deselectAllRails()
           break
       }
     }

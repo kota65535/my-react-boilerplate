@@ -17,6 +17,7 @@ import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
 import {JointInfo} from "components/rails/RailBase";
 import {getAllRailComponents, getRailComponent} from "components/rails/utils";
 import RailGroup from "components/rails/RailGroup/RailGroup";
+import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
 
 const LOGGER = getLogger(__filename)
 
@@ -27,6 +28,7 @@ export interface WithBuilderPublicProps {
   builderKeyDown: any
   builderConnectJoints: (pairs: JointPair[]) => void
   builderDisconnectJoint: (railId: number) => void
+  builderChangeJointState: (pairs: JointPair[], state: DetectionState) => void
   builderSelectRail: (railData: RailData) => void
   builderDeselectRail: (railData: RailData) => void
   builderToggleRail:  (railData: RailData) => void
@@ -330,6 +332,22 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
     }
 
+
+    changeJointState = (pairs: JointPair[], state: DetectionState) => {
+      pairs.forEach(pair => {
+        LOGGER.info(`change joint state`, pair) //`
+        const rail = getRailComponent(pair.to.railId)
+        const part = rail.joints[pair.to.jointId].part
+        if (part.state.detectionState !== state) {
+          part.setState({
+            detectionState: state,
+            detectionPartVisible: true
+          })
+        }
+      })
+    }
+
+
     /**
      * レールを選択する。
      * @param {RailData} railData
@@ -384,6 +402,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           builderKeyDown={this.keyDown}
           builderConnectJoints={this.connectJoints}
           builderDisconnectJoint={this.disconnectJoint}
+          builderChangeJointState={this.changeJointState}
           builderSelectRail={this.selectRail}
           builderDeselectRail={this.deselectRail}
           builderToggleRail={this.toggleRail}

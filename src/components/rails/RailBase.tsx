@@ -168,6 +168,13 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     //   LOGGER.debug(`[Rail][${this.props.id}] Joint${i} angle: ${this.state.jointAngles[i]} -> ${jointAngles[i]}`)
     // })
 
+    jointPositions.forEach((position, idx) => {
+      this.joints[idx].part._partGroup.path.position = position
+    })
+    jointAngles.forEach((angle, idx) => {
+      this.joints[idx].part._partGroup.path.rotation = angle
+    })
+
     // レールパーツから取得したジョイントの位置・角度が現在のものと異なれば再描画
     if (_.range(this.joints.length).every(i =>
         pointsEqual(this.state.jointPositions[i], jointPositions[i])

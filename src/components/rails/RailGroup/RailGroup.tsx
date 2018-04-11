@@ -33,6 +33,7 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
   _group: Group
   _children: RailBase<any, any>[]
   pivotPosition: Point
+  pivotAngle: number
 
   get children() { return this._children }
   get group() { return this._group }
@@ -40,17 +41,23 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
   constructor(props: RailGroupProps) {
     super(props)
     this._children = this.props.children ? new Array((this.props.children as any[]).length) : []
+    this.pivotPosition = new Point(0,0)
+    this.pivotAngle = 0
   }
 
-  // get railPart() { return this.children[this.props.pivotRailIndex].railPart }
-  // get joints() { return this.children[this.props.pivotRailIndex].joints }
 
-  componentDidMount() {
-    // this.getChildComponents()
+  private setInternal() {
     this.group.pivot = this.getPivotPosition()
     this.group.position = this.props.position
-    LOGGER.info(`pivot=${this.getPivotPosition()}`)
+    this.group.rotation = this.getAngle()
+  }
 
+  componentDidUpdate() {
+    this.setInternal()
+  }
+
+  componentDidMount() {
+    this.setInternal()
     if (this.props.onMount) {
       this.props.onMount(this as any)
     }
@@ -60,15 +67,17 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
   render() {
     const {position, angle, visible, pivotRailIndex, pivotJointIndex} = this.props
     const children = this.getChildComponents()
-    // PivotRailが削除された時に備えて、常に現在のPivotPositionを保存しておく
-    this.pivotPosition = this.getPivotPosition()
+    const pivotPosition = this.getPivotPosition()
+    const groupAngle = this.getAngle()
+
+    // LOGGER.debug(`RailGroup ${this.props.id}`, position, angle, 'pivot:', this.pivotPosition, this.pivotAngle)
 
     return (
       <GroupComponent
+        pivot={pivotPosition}
         position={position}
-        rotation={angle}
+        rotation={groupAngle}
         visible={visible}
-        pivot={this.pivotPosition}
         ref={(group) => this._group = group}
       >
         {children}
@@ -76,17 +85,33 @@ export default class RailGroup extends React.Component<RailGroupProps, {}> {
     )
   }
 
-  getPivotPosition() {
-    const {pivotRailIndex, pivotJointIndex} = this.props
-    if (this.children[pivotRailIndex]) {
-      return this.children[pivotRailIndex].railPart.getJointPositionToParent(pivotJointIndex)
-    } else {
-      // 指定のPivotRailIndexのレールが削除されていた場合、保存しておいたPivotPositionを使う
-      return this.pivotPosition
-    }
+  private getAngle() {
+    return this.props.angle - this.getInternalPivotAngle() + 180
   }
 
-  getChildComponents() {
+  private getPivotPosition = () => {
+    const {pivotRailIndex, pivotJointIndex} = this.props
+    if (this.children[pivotRailIndex]) {
+      // 指定のPivotRailのPivotJointの位置を取得し、保存
+      this.pivotPosition = this.children[pivotRailIndex].railPart.getJointPositionToParent(pivotJointIndex)
+    }
+    // 指定のPivotRailIndexのレールが削除されていた場合、保存しておいたPivotPositionをそのまま使う
+    return this.pivotPosition
+  }
+
+
+  private getInternalPivotAngle = () => {
+    const {pivotRailIndex, pivotJointIndex} = this.props
+    if (this.children[pivotRailIndex]) {
+      // 指定のPivotRailのPivotJointの角度を取得し、保存
+      this.pivotAngle = this.children[pivotRailIndex].railPart.getJointAngleToParent(pivotJointIndex)
+    }
+    // 指定のPivotRailIndexのレールが削除されていた場合、保存しておいたPivotAngleをそのまま使う
+    return this.pivotAngle
+  }
+
+
+  private getChildComponents = () => {
     const {enableJoints, visible} = this.props
     // 子要素のメソッドを呼び出す必要があるので、refをそれらのpropsに追加する
     // TODO: childrenが空の時のエラー処理

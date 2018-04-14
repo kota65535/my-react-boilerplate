@@ -40,8 +40,10 @@ export const StretchedView = styled(View as any)`
 
 export const StyledLayerPalette = styled(LayerPalette as any)`
   // Rndのインラインスタイルである top:0, left:0 を打ち消す
-  top: auto!important;
+  top: 10px!important;
   left: auto!important;
   right: 10px;
-  bottom: 10px;
+  //top: 10px!important;
+  //left: 10px!important;
+  //width: 200px!important;
 `

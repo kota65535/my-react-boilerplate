@@ -14,7 +14,7 @@ import Typography from "material-ui/Typography";
 
 const LOGGER = getLogger(__filename)
 
-export interface LayersProps {
+export interface LayerPaletteProps {
   className?: string
 
   layers: LayerData[]
@@ -27,7 +27,7 @@ export interface LayersProps {
   deleteLayer: (itemId: number) => void
 }
 
-export interface LayersState {
+export interface LayerPaletteState {
   targetLayerId: number
   addDialogOpen: boolean
   renameDialogOpen: boolean
@@ -35,9 +35,9 @@ export interface LayersState {
 }
 
 
-export default class Layers extends React.Component<LayersProps, LayersState> {
+export default class LayerPalette extends React.Component<LayerPaletteProps, LayerPaletteState> {
 
-  constructor(props: LayersProps) {
+  constructor(props: LayerPaletteProps) {
     super(props)
     this.state = {
       targetLayerId: null,

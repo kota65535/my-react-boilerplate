@@ -1,12 +1,12 @@
 import {RootState} from "store/type";
-import LayerPalette, {LayersProps} from "components/Editor/LayerPalette/LayerPalette";
+import LayerPalette, {LayerPaletteProps} from "components/Editor/LayerPalette/LayerPalette";
 import {currentLayoutData, nextLayerId} from "selectors";
 import {setActiveLayer} from "actions/builder";
 import {LayerData} from "reducers/layout";
 import {addLayer, deleteLayer, updateLayer} from "actions/layout";
 import {connect} from "react-redux";
 
-const mapStateToProps = (state: RootState): Partial<LayersProps> => {
+const mapStateToProps = (state: RootState): Partial<LayerPaletteProps> => {
   return {
     layers: currentLayoutData(state).layers,
     activeLayerId: state.builder.activeLayerId,
@@ -14,7 +14,7 @@ const mapStateToProps = (state: RootState): Partial<LayersProps> => {
   }
 }
 
-const mapDispatchToProps = (dispatch): Partial<LayersProps>  => {
+const mapDispatchToProps = (dispatch): Partial<LayerPaletteProps>  => {
   return {
     setActiveLayer: (layerId: number) => dispatch(setActiveLayer(layerId)),
     updateLayer: (item: Partial<LayerData>) => dispatch(updateLayer({item})),

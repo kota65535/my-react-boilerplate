@@ -222,7 +222,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         type: 'RailGroup',
         rails: newRails,
         id: this.props.nextRailGroupId,
-        layerId: -1,
         name: name,
         position: new Point(0, 0),
         angle: 0,

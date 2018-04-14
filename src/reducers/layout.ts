@@ -193,6 +193,7 @@ export default handleActions<LayoutStoreState, any>({
   [Actions.LAYOUT_ADD_RAIL_GROUP]: (state: LayoutStoreState, action: Action<RailGroupDataPayload>) => {
     const layout = state.histories[state.historyIndex]
 
+    // 各レールにグループIDを付与する
     const children = action.payload.children.map(c => {
       return {
         ...c,

@@ -19,8 +19,6 @@ const createRailGroup = (id, layerId, childIds): RailGroupData => {
     angle: 0,
     name: 'hoge',
     type: 'test',
-    layerId: layerId,
-    selected: false,
     rails: childIds,
     pivotJointInfo: null
   }

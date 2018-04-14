@@ -1,13 +1,18 @@
 import * as React from "react";
 import {Group as GroupComponent, Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {JointInfo, RailBase, RailBaseProps} from "components/rails/RailBase";
+import {JointInfo, RailBase} from "components/rails/RailBase";
 import {Group, Point} from "paper";
 
 const LOGGER = getLogger(__filename)
 
 
-export interface RailGroupProps extends RailBaseProps, Partial<RailGroupDefaultProps> {
+export interface RailGroupProps extends Partial<RailGroupDefaultProps> {
+  position: Point
+  angle: number
+  id: number
+  onMount?: (instance: RailGroup) => void
+  onUnmount?: (instance: RailGroup) => void
 }
 
 export interface RailGroupDefaultProps {

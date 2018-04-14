@@ -8,12 +8,13 @@ import DoubleCrossTurnout, {DoubleCrossTurnoutProps} from "components/rails/Doub
 import DoubleCrossTurnoutContainer from "components/rails/DoubleCrossTurnout";
 import SimpleTurnout, {SimpleTurnoutProps} from "components/rails/SimpleTurnout/SimpleTurnout";
 import SimpleTurnoutContainer from "components/rails/SimpleTurnout";
-import {JointInfo, RailBaseProps} from "components/rails/RailBase";
+import {RailBaseProps} from "components/rails/RailBase";
 import EndRailContainer from "components/rails/EndRail";
 import EndRail from "components/rails/EndRail/EndRail";
 import CrossingRailContainer from "components/rails/CrossingRail";
 import CrossingRail from "components/rails/CrossingRail/CrossingRail";
 import RailGroup from "components/rails/RailGroup";
+import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
 
 // クラス名の文字列とクラスオブジェクトを関連付ける連想配列
 // 新しいレールクラスを作成したらここに追加する必要がある
@@ -45,7 +46,6 @@ export default RailContainerClasses
 export type RailData = RailBaseProps | StraightRailProps | CurveRailProps | SimpleTurnoutProps | DoubleStraightRailProps | DoubleCrossTurnoutProps
 
 
-export interface RailGroupData extends RailBaseProps {
-  pivotJointInfo: JointInfo
+export interface RailGroupData extends RailGroupProps {
   rails: number[]
 }

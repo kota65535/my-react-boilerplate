@@ -42,21 +42,25 @@ export const canRedo = (state: RootState) => {
 }
 
 export const paletteRailData = (state: RootState) => {
+  const {type, name} = state.builder.paletteItem
+  if (! RailFactory[name]) {
+    return null
+  }
   return RailFactory[state.builder.paletteItem.name]()
 }
 
-export const paletteUserRailGroupData = (state: RootState) => {
-  const userRailGroupName = state.builder.paletteItem.name
-  if (! userRailGroupName) {
+export const paletteRailGroupData = (state: RootState) => {
+  const {type, name} = state.builder.paletteItem
+  if (type !== 'RailGroup' && name) {
     return null
   }
-  return _.clone(state.builder.userRailGroups.find(rg => rg.name === userRailGroupName))
+  return _.clone(state.builder.userRailGroups.find(rg => rg.name === name))
 }
 
 
 export const nextPivotJointInfo = (state: RootState|any) => {
   const temporaryRailGroup = state.builder.temporaryRailGroup
-  const userRailGroupData = paletteUserRailGroupData(state)
+  const userRailGroupData = paletteRailGroupData(state)
   if (! (temporaryRailGroup && userRailGroupData)) {
     return { railId: 0, jointId: 0 }
   }

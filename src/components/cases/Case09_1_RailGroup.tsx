@@ -56,7 +56,6 @@ export default class Case09 extends React.Component<any, any> {
 
         <RailGroup
           id={-1}
-          layerId={-1}
           position={new Point(300,300)}
           angle={30}
           pivotJointInfo={{

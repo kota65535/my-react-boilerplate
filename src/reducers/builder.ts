@@ -4,15 +4,16 @@ import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {RailData, RailGroupData} from "components/rails";
 import update from "immutability-helper";
-import {JointInfo, RailBaseProps} from "components/rails/RailBase";
+import {JointInfo} from "components/rails/RailBase";
 import {RailGroupDataPayload} from "reducers/layout";
+import {RailGroupProps} from "components/rails/RailGroup/RailGroup";
 
 
 export interface LastPaletteItems {
   [key: string]: PaletteItem
 }
 
-export interface UserRailGroupData extends RailBaseProps {
+export interface UserRailGroupData extends RailGroupProps {
   // レールグループを構成するレール
   rails: RailData[]
   // レールグループで未接続のジョイント

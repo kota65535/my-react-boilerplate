@@ -185,7 +185,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
       selectedRails.forEach(item => {
         this.props.addHistory()
-        // this.disconnectJoint(item.id)
+        this.disconnectJoint(item.id)
         this.props.removeRail(item, true)
       })
     }
@@ -240,9 +240,13 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
      * 指定のレールのジョイント接続を解除する。
      */
     disconnectJoint = (railId: number) => {
-      // 指定のレールが接続されている対向レールのジョイントを解除する
-      const connectedJoints = getRailComponent(railId).props.opposingJoints
-      Object.values(connectedJoints).forEach((joint: JointInfo) => {
+      const targetRail = this.props.layout.rails.find(r => r.id === railId)
+      if (targetRail == null) {
+        return
+      }
+      // 指定のレールに接続されている全てのレールのジョイントを解除する
+      const connectedJoints = targetRail.opposingJoints
+      _.values(connectedJoints).forEach((joint: JointInfo) => {
         this.props.updateRail({
           id: joint.railId,
           opposingJoints: {
@@ -250,9 +254,10 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           }
         }, true)
       })
+      // 指定のレールのジョイントを解除する
       this.props.updateRail({
         id: railId,
-        opposingJoints: {}
+        opposingJoints: null
       }, true)
     }
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {getRailComponentsOfLayer, getTemporaryRailComponent} from "components/rails/utils";
+import {getAllRailComponents, getRailComponent} from "components/rails/utils";
 import {PaletteItem, RootState} from "store/type";
 import {
   deleteTemporaryRail,
@@ -11,7 +11,7 @@ import {
   updateTemporaryRailGroup
 } from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import {JointPair, WithBuilderProps} from "components/hoc/withBuilder";
+import {WithBuilderProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
 import {addRail, addRailGroup} from "actions/layout";
 import {
@@ -99,14 +99,17 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
       updateTemporaryRailGroup: (item: Partial<RailGroupData>) => dispatch(updateTemporaryRailGroup(item)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
-      addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({item, children, overwrite}))
+      addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({
+        item,
+        children,
+        overwrite
+      }))
     }
   }
 
   class WithRailBase extends React.Component<RailBaseContainerProps, {}> {
 
     rail: RailBase<any, any>
-    closeJointPairs: JointPair[]
 
     constructor(props: RailBaseContainerProps) {
       super(props)
@@ -118,12 +121,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.onJointMouseMove = this.onJointMouseMove.bind(this)
       this.onJointMouseEnter = this.onJointMouseEnter.bind(this)
       this.onJointMouseLeave = this.onJointMouseLeave.bind(this)
-
-      this.closeJointPairs = []
     }
 
-    get railPart() { return this.rail.railPart }
-    get joints() { return this.rail.joints }
+    get railPart() {
+      return this.rail.railPart
+    }
+
+    get joints() {
+      return this.rail.joints
+    }
 
     /**
      * ジョイントにマウスが乗ったら、仮レールを表示する
@@ -258,7 +264,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
 
-
     render() {
       return (
         <WrappedComponent
@@ -280,14 +285,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * 仮レールが現在のレイヤーの他のレールに衝突しているかどうか調べる
      */
     private temporaryRailIntersects(): boolean {
-      // 仮レールを構成するPathオブジェクト
-      const targetRailPaths = getTemporaryRailComponent().railPart.path.children
+      // 全ての仮レールを構成するPathオブジェクト群を取得
+      const temporaryRailComponents = this.props.temporaryRails.map(r => getRailComponent(r.id))
+      const targetRailPaths = _.flatMap(temporaryRailComponents, rc => rc.railPart.path.children)
       // 近傍ジョイントを持つレールは衝突検査の対象から外す
-      const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.railId))
-      LOGGER.debug(`exluded: ${excludedRailIds}`) //`
+      // const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.railId))
+      // LOGGER.debug(`exluded: ${excludedRailIds}`) //`
       // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
-      const result = getRailComponentsOfLayer(this.props.activeLayerId)
-        .filter(r => ! excludedRailIds.includes(r.props.id))
+      const result = getAllRailComponents()
+      // .filter(r => ! excludedRailIds.includes(r.props.id))
         .map(r => r.railPart.path)
         .map(group => {
           // 両レールを構成するパス同士の組み合わせを作成し、重なりを調べる

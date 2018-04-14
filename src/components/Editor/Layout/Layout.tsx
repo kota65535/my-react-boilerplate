@@ -6,6 +6,7 @@ import {
   createRailGroupComponent,
   createRailOrRailGroupComponent,
   getRailComponent,
+  hasOpenJoint,
   pointsEqual
 } from "components/rails/utils";
 import {RailData, RailGroupData} from "components/rails";
@@ -18,6 +19,7 @@ import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
 import shallowEqualObjects from "shallow-equal/objects"
 
 const LOGGER = getLogger(__filename)
+
 
 export interface LayoutProps {
   layout: LayoutData
@@ -41,10 +43,7 @@ export default class Layout extends React.Component<LayoutProps, {}> {
   componentDidUpdate(prevProps: LayoutProps) {
     // レイアウトのレールが追加・削除されたら、近傍ジョイントを探して自動的に接続する
     if (this.props.layout.rails.length !== prevProps.layout.rails.length) {
-      // まずジョイントを全解除する。ちょっと乱暴ではある
-      // this.props.layout.rails.forEach(r => this.props.builderDisconnectJoint(r.id))
-      // その後近接するジョイント同士を接続する
-      const jointPairs = getAllCloseJoints(this.props.layout.rails)
+      const jointPairs = getAllOpenCloseJoints(this.props.layout.rails)
       LOGGER.info("Unconnected close joints", jointPairs)
       this.props.builderConnectJoints(jointPairs)
     }
@@ -128,20 +127,24 @@ const getCloseJointsBetween = (r1: number, r2: number) => {
     // LOGGER.debug(cmb[0].props.data.railId, cmb[0].globalPosition, cmb[0].globalAngle, cmb[1].props.data.railId, cmb[1].globalPosition, cmb[1].globalAngle)
     // ジョイント同士が十分近く、かつ角度が一致していればリストに加える
     const isClose = pointsEqual(cmb[0].globalPosition, cmb[1].globalPosition, 5)
-    const isSameAngle = anglesEqual(cmb[0].globalAngle, cmb[1].globalAngle + 180, 5)
-    LOGGER.debug(isClose, isSameAngle)
-    if (isClose && isSameAngle) {
-      closeJointPairs.push({
-        from: {
-          railId: cmb[0].props.data.railId,
-          jointId: cmb[0].props.data.partId
-        },
-        to: {
-          railId: cmb[1].props.data.railId,
-          jointId: cmb[1].props.data.partId
-        }
-      })
+    if (! isClose) {
+      return
     }
+    const isSameAngle = anglesEqual(cmb[0].globalAngle, cmb[1].globalAngle + 180, 5)
+    if (! isSameAngle) {
+      return
+    }
+
+    closeJointPairs.push({
+      from: {
+        railId: cmb[0].props.data.railId,
+        jointId: cmb[0].props.data.partId
+      },
+      to: {
+        railId: cmb[1].props.data.railId,
+        jointId: cmb[1].props.data.partId
+      }
+    })
   })
   return closeJointPairs
 }
@@ -157,6 +160,17 @@ const getAllCloseJoints = (rails: RailData[]) => {
     return []
   } else {
     const combinations = Combinatorics.combination(rails.map(r => r.id), 2).toArray()
+    return _.flatMap(combinations, cmb => getCloseJointsBetween(cmb[0], cmb[1]))
+  }
+}
+
+const getAllOpenCloseJoints = (rails: RailData[]) => {
+  const railsWithOpenJoints = rails.filter(r => hasOpenJoint(r))
+  if (railsWithOpenJoints.length < 2) {
+    return []
+  } else {
+    const combinations = Combinatorics.combination(railsWithOpenJoints.map(r => r.id), 2).toArray()
+    LOGGER.info(combinations)
     return _.flatMap(combinations, cmb => getCloseJointsBetween(cmb[0], cmb[1]))
   }
 }

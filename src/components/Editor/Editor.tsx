@@ -108,34 +108,13 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
             onWheel={this.props.moveToolMouseWheel}
             matrix={matrix}
           >
-            {this.props.isLayoutEmpty &&
-            <FirstRailPutter mousePosition={this.state.mousePosition}/>
-            }
-
             <Layout />
 
-            {/*<StraightRailContainer*/}
-              {/*position={new Point(700, 700)}*/}
-              {/*pivotJointIndex={1}*/}
-              {/*angle={30}*/}
-              {/*length={140}*/}
-              {/*id={1}*/}
-              {/*layerId={1}*/}
-            {/*/>*/}
-            {/*<RailGroup rails={[*/}
-              {/*{*/}
-                {/*type: 'StraightRail',*/}
-                {/*position: new Point(700,700),*/}
-                {/*length: 280,*/}
+            {/* 後から書いたコンポーネントの方が前面に配置される */}
+            {this.props.isLayoutEmpty &&
+              <FirstRailPutter mousePosition={this.state.mousePosition}/>
+            }
 
-              {/*},*/}
-              {/*{*/}
-                {/*type: 'StraightRail',*/}
-                {/*position: new Point(980,700),*/}
-                {/*length: 280*/}
-              {/*},*/}
-            {/*]}*/}
-            {/*/>*/}
 
             <Tool
               active={this.isActive(Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS, Tools.SPECIAL_RAILS, Tools.RAIL_GROUPS)}
@@ -175,7 +154,6 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
   }
 
 }
-
 
 
 

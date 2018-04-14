@@ -1,5 +1,5 @@
 import * as React from "react";
-import RailContainers, {RailData, RailGroupData} from "components/rails/index";
+import RailContainers, {RailComponentClasses, RailData, RailGroupData} from "components/rails/index";
 import getLogger from "logging";
 import {RailBase, RailBaseProps} from "components/rails/RailBase";
 import RailGroup from "components/rails/RailGroup/RailGroup";
@@ -132,3 +132,6 @@ export const getRailComponentsOfLayer = (layerId: number): Array<RailBase<RailBa
   return getAllRailComponents().filter(r => r.props.layerId === layerId)
 }
 
+export const hasOpenJoint = (rail: RailData) => {
+  return _.filter(rail.opposingJoints, v => v).length !== RailComponentClasses[rail.type].defaultProps.numJoints
+}

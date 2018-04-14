@@ -1,14 +1,12 @@
 import * as React from 'react'
 import {ReactNode} from 'react'
-import {HideableDiv,} from "./Builder.style";
+import {HideableDiv,} from "./BuilderPalette.style";
 import Selector from "./Selector/Selector"
 import {TitleDiv} from "../../LayerPalette/styles";
-import {connect} from "react-redux";
 import Paper from "material-ui/Paper";
-import {selectPaletteItem} from "actions/builder";
-import {PaletteItem, RootState} from "store/type";
+import {PaletteItem} from "store/type";
 
-export interface BuilderProps {
+export interface BuilderPaletteProps {
   className?: string
   active: boolean
   title: string
@@ -18,22 +16,10 @@ export interface BuilderProps {
   selectItem: (item: PaletteItem) => void
 }
 
-const mapStateToProps = (state: RootState) => {
-  return {
-    paletteItem: state.builder.paletteItem
-  }
-};
 
-const mapDispatchToProps = dispatch => {
-  return {
-    selectItem: (item: PaletteItem) => dispatch(selectPaletteItem(item))
-  }
-};
+export default class BuilderPalette extends React.Component<BuilderPaletteProps, {}> {
 
-
-class Builder extends React.Component<BuilderProps, {}> {
-
-  constructor(props: BuilderProps) {
+  constructor(props: BuilderPaletteProps) {
     super(props)
   }
 
@@ -59,5 +45,3 @@ class Builder extends React.Component<BuilderProps, {}> {
   }
 }
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(Builder)

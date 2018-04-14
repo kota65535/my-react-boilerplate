@@ -1,7 +1,6 @@
 import {Action, handleActions} from 'redux-actions';
 import * as Actions from "actions/constants"
 import {PaletteItem} from "store/type";
-import {Point} from "paper";
 import {RailData, RailGroupData} from "components/rails";
 import update from "immutability-helper";
 import {JointInfo} from "components/rails/RailBase";
@@ -28,8 +27,6 @@ export interface BuilderStoreState {
   lastPaletteItems: LastPaletteItems
   // 現在アクティブ（編集中）のレイヤーID
   activeLayerId: number
-  // マウスカーソルの位置
-  mousePosition: Point
   // PaperJSのロードが完了したか否か
   paperViewLoaded: boolean
   // 仮レール（レールグループの場合は複数）
@@ -50,7 +47,6 @@ export const BUILDER_INITIAL_STATE: BuilderStoreState = {
     'Rail Groups': {type: '', name: ''},
   },
   activeLayerId: 1,
-  mousePosition: new Point(0,0),
   paperViewLoaded: false,
   temporaryRails: [],
   temporaryRailGroup: null,
@@ -85,19 +81,6 @@ export default handleActions<BuilderStoreState, any>({
         ...state.lastPaletteItems,
         [action.payload.type]: action.payload
       },
-    }
-  },
-
-  /**
-   * 現在のマウス位置を変更する。
-   * @param {BuilderStoreState} state
-   * @param {Action<paper.Point>} action
-   * @returns {BuilderStoreState}
-   */
-  [Actions.BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>): BuilderStoreState => {
-    return {
-      ...state,
-      mousePosition: action.payload
     }
   },
 

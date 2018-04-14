@@ -105,6 +105,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
   class WithRailBase extends React.Component<RailBaseContainerProps, {}> {
 
+    rail: RailBase<any, any>
+    closeJointPairs: JointPair[]
+
     constructor(props: RailBaseContainerProps) {
       super(props)
 
@@ -119,74 +122,44 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       this.closeJointPairs = []
     }
 
-    rail: RailBase<any, any>
-    closeJointPairs: JointPair[]
-
     get railPart() { return this.rail.railPart }
     get joints() { return this.rail.joints }
 
-    // TODO: これでOK?
-    // shouldComponentUpdate() {
-    //   return false
-    // }
-
     /**
-     * レールパーツを左クリックしたら、レールの選択状態をトグルする。
+     * ジョイントにマウスが乗ったら、仮レールを表示する
+     * @param {number} jointId
      * @param {MouseEvent} e
      */
-    onRailPartLeftClick(e: MouseEvent) {
-      // レールの選択状態をトグルする
-      this.props.builderToggleRail(this.props)
-      LOGGER.info(`${this.props.id} clicked.`)
-      return true
-    }
-
-    /**
-     * レールパーツを右クリックした場合
-     * 現状何もしない
-     * @param {MouseEvent} e
-     */
-    onRailPartRightClick(e: MouseEvent) {
-      return true
-    }
-
-
-    addRailGroup = (jointId: number, temporaryRails: RailData[], temporaryRailGroup: RailGroupData) => {
-      const children = temporaryRails.map((temporaryRail, idx) => {
-        return {
-          ...temporaryRail,
-          id: this.props.nextRailId + idx,    // IDを新規に割り振る
-          name: '',
-          layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
-          opacity: 1,
-          opposingJoints: {},
-          enableJoints: true,                 // ジョイントを有効化する
-        }
-      })
-
-      this.props.addRailGroup({
-        ...temporaryRailGroup,
-        id: this.props.nextRailGroupId,       // IDを新規に割り振る
-        name: '',
-      }, children)
-    }
-
-    addRail = (jointId: number, temporaryRail: RailData) => {
-      // 仮レールの位置にレールを設置
-      const newRailData = {
-        ...temporaryRail,
-        id: this.props.nextRailId,          // IDを新規に割り振る
-        name: '',
-        layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
-        opacity: 1,
-        // opposingJoints: [],
-        enableJoints: true,                 // ジョイントを有効化する
+    onJointMouseEnter = (jointId: number, e: MouseEvent) => {
+      if (this.props.paletteRailGroupData) {
+        this.showTemporaryRailGroup(jointId)
+      } else if (this.props.paletteRailData) {
+        this.showTemporaryRail(jointId)
       }
-      LOGGER.info('newRailData', newRailData)
-
-      this.props.addRail(newRailData)
-
     }
+
+
+    /**
+     * ジョイント上でマウスが動いた場合
+     * 現状特に何もしない
+     * @param {number} jointId
+     * @param {MouseEvent} e
+     */
+    onJointMouseMove = (jointId: number, e: MouseEvent) => {
+      // noop
+    }
+
+
+    /**
+     * ジョイントからマウスが離れたら、仮レールを隠す
+     * @param {number} jointId
+     * @param {MouseEvent} e
+     */
+    onJointMouseLeave = (jointId: number, e: MouseEvent) => {
+      // PivotJointIndexを保存しておきたいので、削除するのではなく不可視にする
+      this.props.updateTemporaryRail({visible: false})
+    }
+
 
     /**
      * ジョイントを左クリックしたら、仮レールの位置にレールを設置する
@@ -207,14 +180,17 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       const temporaryRailGroup = this.props.temporaryRailGroup
       if (temporaryRailGroup) {
         this.addRailGroup(jointId, temporaryRails, temporaryRailGroup)
-      } else {
+      } else if (temporaryRails.length > 0) {
         this.addRail(jointId, temporaryRails[0])
+      } else {
+        return false
       }
       // 仮レールを消去する
       this.props.deleteTemporaryRail()
       // ジョイントの検出状態を変更させる
       return true
     }
+
 
     /**
      * ジョイントを右クリックしたら、仮レールが接続するジョイントを変更する
@@ -227,29 +203,156 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         this.props.updateTemporaryRailGroup({
           pivotJointInfo: this.props.nextPivotJointInfo
         })
-      } else {
+      } else if (this.props.temporaryRails) {
         // 単体レールの場合
         this.props.updateTemporaryRail({
           pivotJointIndex: this.props.nextPivotJointIndex
         })
       }
-
+      // ジョイントの検出状態は変更しない
       return false
     }
 
+
     /**
-     * ジョイント上でマウスが動いた場合
-     * 現状特に何もしない
-     * @param {number} jointId
+     * レールパーツを左クリックしたら、レールの選択状態をトグルする。
      * @param {MouseEvent} e
      */
-    onJointMouseMove = (jointId: number, e: MouseEvent) => {
-      // noop
+    onRailPartLeftClick(e: MouseEvent) {
+      // レールの選択状態をトグルする
+      this.props.builderToggleRail(this.props)
+      LOGGER.info(`${this.props.id} clicked.`)
+      return true
     }
 
 
     /**
-     * 仮レールグループを表示する。
+     * レールパーツを右クリックした場合
+     * 現状何もしない
+     * @param {MouseEvent} e
+     */
+    onRailPartRightClick(e: MouseEvent) {
+      return true
+    }
+
+
+    /**
+     * マウント時に呼ばれるコールバック
+     * RailComponentクラスを取得するために用いる
+     */
+    onMount = (ref: RailBase<RailBaseProps, RailBaseState>) => {
+      this.rail = ref
+      if (this.props.onMount) {
+        this.props.onMount(ref)
+      }
+    }
+
+
+    /**
+     * アンマウント時に呼ばれるコールバック
+     */
+    onUnmount = (ref: RailBase<RailBaseProps, RailBaseState>) => {
+      if (this.props.onUnmount) {
+        this.props.onUnmount(ref)
+      }
+    }
+
+
+
+    render() {
+      return (
+        <WrappedComponent
+          {...this.props}
+          onJointMouseEnter={this.onJointMouseEnter}
+          onJointMouseMove={this.onJointMouseMove}
+          onJointMouseLeave={this.onJointMouseLeave}
+          onJointLeftClick={this.onJointLeftClick}
+          onJointRightClick={this.onJointRightClick}
+          onRailPartLeftClick={this.onRailPartLeftClick}
+          onRailPartRightClick={this.onRailPartRightClick}
+          onMount={(instance) => this.onMount(instance)}
+          onUnmount={(instance) => this.onUnmount(instance)}
+        />
+      )
+    }
+
+    /**
+     * 仮レールが現在のレイヤーの他のレールに衝突しているかどうか調べる
+     */
+    private temporaryRailIntersects(): boolean {
+      // 仮レールを構成するPathオブジェクト
+      const targetRailPaths = getTemporaryRailComponent().railPart.path.children
+      // 近傍ジョイントを持つレールは衝突検査の対象から外す
+      const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.railId))
+      LOGGER.debug(`exluded: ${excludedRailIds}`) //`
+      // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
+      const result = getRailComponentsOfLayer(this.props.activeLayerId)
+        .filter(r => ! excludedRailIds.includes(r.props.id))
+        .map(r => r.railPart.path)
+        .map(group => {
+          // 両レールを構成するパス同士の組み合わせを作成し、重なりを調べる
+          const combinations = Combinatorics.cartesianProduct(group.children, targetRailPaths).toArray()
+          const result = combinations.map(cmb => cmb[0].intersects(cmb[1])).every(e => e)
+          LOGGER.debug(`Rail ${group.data.railId}: ${result}`)
+          return result
+        })
+        .some(e => e)   // 重なっているものが一つ以上あればtrue
+
+      return result
+    }
+
+
+    /**
+     * 仮レールをもとにレールグループをレイアウトに追加する
+     * @param {number} jointId
+     * @param {RailData[]} temporaryRails
+     * @param {RailGroupData} temporaryRailGroup
+     */
+    private addRailGroup = (jointId: number, temporaryRails: RailData[], temporaryRailGroup: RailGroupData) => {
+      const children = temporaryRails.map((temporaryRail, idx) => {
+        return {
+          ...temporaryRail,
+          id: this.props.nextRailId + idx,    // IDを新規に割り振る
+          name: '',
+          layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
+          opacity: 1,
+          opposingJoints: {},
+          enableJoints: true,                 // ジョイントを有効化する
+        }
+      })
+
+      this.props.addRailGroup({
+        ...temporaryRailGroup,
+        id: this.props.nextRailGroupId,       // IDを新規に割り振る
+        name: '',
+      }, children)
+    }
+
+
+    /**
+     * 仮レールをもとにレールをレイアウトに追加する
+     * @param {number} jointId
+     * @param {RailData} temporaryRail
+     */
+    private addRail = (jointId: number, temporaryRail: RailData) => {
+      // 仮レールの位置にレールを設置
+      const newRailData = {
+        ...temporaryRail,
+        id: this.props.nextRailId,          // IDを新規に割り振る
+        name: '',
+        layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
+        opacity: 1,
+        // opposingJoints: [],
+        enableJoints: true,                 // ジョイントを有効化する
+      }
+      LOGGER.info('newRailData', newRailData)
+
+      this.props.addRail(newRailData)
+    }
+
+
+    /**
+     * 仮レールグループを表示する
      * @param {number} jointId
      */
     private showTemporaryRailGroup = (jointId: number) => {
@@ -263,7 +366,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         pivotJointInfo = this.props.temporaryRailGroup.pivotJointInfo
       }
 
-      // レールグループのデータ
+      // レールグループデータの作成
       const railGroup: RailGroupData = {
         type: 'RailGroup',
         id: -1,
@@ -272,9 +375,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         position: this.railPart.getGlobalJointPosition(jointId),
         angle: this.railPart.getGlobalJointAngle(jointId),
         rails: []
-      } as RailGroupData
+      }
 
-      // レールグループに所属するレールデータ
+      // レールグループに所属するレールデータの作成
       const children = rails.map((r, idx) => {
         return {
           ...r,
@@ -294,6 +397,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       })
       LOGGER.info('TemporaryRailGroup', railGroup, children)
     }
+
 
     /**
      * 仮レールを表示する。
@@ -325,19 +429,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       LOGGER.info('TemporaryRail', railData)
     }
 
-    /**
-     * ジョイントにマウスが乗ったら、仮レールを表示する
-     * @param {number} jointId
-     * @param {MouseEvent} e
-     */
-    onJointMouseEnter = (jointId: number, e: MouseEvent) => {
-      // パレットで選択したレール生成のためのPropsを取得
-      if (this.props.paletteRailGroupData) {
-        this.showTemporaryRailGroup(jointId)
-      } else {
-        this.showTemporaryRail(jointId)
-      }
-    }
 
     private initializePivotJointIndex = (paletteRailData: RailData) => {
       // このレールと仮レールの両方がカーブレールの場合、PivotJoint (=向き)を揃える
@@ -348,78 +439,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       }
     }
 
-    /**
-     * ジョイントからマウスが離れたら、仮レールを消し、近傍ジョイントの検出状態を戻す
-     * @param {number} jointId
-     * @param {MouseEvent} e
-     */
-    onJointMouseLeave = (jointId: number, e: MouseEvent) => {
-      // PivotJointIndexを保存しておきたいので、削除するのではなく不可視にする
-      this.props.updateTemporaryRail({visible: false})
-    }
-
-    /**
-     * マウント時に呼ばれるコールバック
-     * RailComponentクラスを取得するために用いる
-     */
-    onMount = (ref: RailBase<RailBaseProps, RailBaseState>) => {
-      this.rail = ref
-      if (this.props.onMount) {
-        this.props.onMount(ref)
-      }
-    }
-
-    /**
-     * アンマウント時に呼ばれるコールバック
-     */
-    onUnmount = (ref: RailBase<RailBaseProps, RailBaseState>) => {
-      if (this.props.onUnmount) {
-        this.props.onUnmount(ref)
-      }
-    }
-
-    /**
-     * 仮レールが現在のレイヤーの他のレールに衝突しているかどうか調べる
-     */
-    private temporaryRailIntersects(): boolean {
-      // 仮レールを構成するPathオブジェクト
-      const targetRailPaths = getTemporaryRailComponent().railPart.path.children
-      // 近傍ジョイントを持つレールは衝突検査の対象から外す
-      const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.railId))
-      LOGGER.debug(`exluded: ${excludedRailIds}`) //`
-      // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
-      const result = getRailComponentsOfLayer(this.props.activeLayerId)
-        .filter(r => ! excludedRailIds.includes(r.props.id))
-        .map(r => r.railPart.path)
-        .map(group => {
-          // 両レールを構成するパス同士の組み合わせを作成し、重なりを調べる
-          const combinations = Combinatorics.cartesianProduct(group.children, targetRailPaths).toArray()
-          const result = combinations.map(cmb => cmb[0].intersects(cmb[1])).every(e => e)
-          LOGGER.debug(`Rail ${group.data.railId}: ${result}`)
-          return result
-        })
-        .some(e => e)   // 重なっているものが一つ以上あればtrue
-
-      return result
-    }
-
-
-    render() {
-      return (
-        <WrappedComponent
-          {...this.props}
-          onRailPartLeftClick={this.onRailPartLeftClick}
-          onRailPartRightClick={this.onRailPartRightClick}
-          onJointLeftClick={this.onJointLeftClick}
-          onJointRightClick={this.onJointRightClick}
-          onJointMouseMove={this.onJointMouseMove}
-          onJointMouseEnter={this.onJointMouseEnter}
-          onJointMouseLeave={this.onJointMouseLeave}
-          onMount={(instance) => this.onMount(instance)}
-          onUnmount={(instance) => this.onUnmount(instance)}
-        />
-      )
-    }
   }
 
   return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithRailBase)

@@ -8,7 +8,7 @@ import withFullscreen, {WithFullscreenProps} from '../hoc/withFullscreen'
 import withTools, {WithToolsPrivateProps} from '../hoc/withTools'
 import withMoveTool, {WithMoveToolProps} from '../hoc/withMoveTool'
 
-import {EditorBody, StyledLayers, StyledPalette, StyledToolBar, StyledWrapper} from "./Editor.style";
+import {EditorBody, StyledLayerPalette, StyledPalette, StyledToolBar, StyledWrapper} from "./Editor.style";
 
 import './Paper.css'
 import GridPaper from "components/Editor/GridPaper";
@@ -25,6 +25,7 @@ import {Tools} from "constants/tools";
 import {SettingsStoreState} from "reducers/settings";
 import {withSnackbar} from 'material-ui-snackbar-provider'
 import Layout from "components/Editor/Layout";
+import {Point} from "paper";
 
 const LOGGER = getLogger(__filename)
 
@@ -37,13 +38,8 @@ export interface EditorProps {
   settings: SettingsStoreState
 }
 
-export interface EditorState {
-  imageLoaded: boolean
-  loaded: boolean
-  showLayers: boolean
-}
 
-type ComposedEditorProps = EditorProps
+type EnhancedEditorProps = EditorProps
   & WithFullscreenProps
   & WithToolsPrivateProps
   & WithMoveToolProps
@@ -64,33 +60,19 @@ const mapDispatchToProps = (dispatch: any) => {
   return {}
 }
 
+export interface EditorState {
+  // マウス位置
+  mousePosition: Point
+}
 
-class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
-  private _view: View | null;
-  private _loaded: boolean;
+class Editor extends React.Component<EnhancedEditorProps, EditorState> {
 
-  constructor(props: ComposedEditorProps) {
+  constructor(props: EnhancedEditorProps) {
     super(props)
     this.state = {
-      imageLoaded: false,
-      loaded: false,
-      showLayers: true,
+      mousePosition: new Point(0,0)
     }
-    this._view = null
-  }
-
-  save = () => {
-    const json = this._view._scope.project.exportJSON()
-    const svg = this._view._scope.project.exportSVG({ embedImages: false })
-    console.log(json)
-    console.log(svg)
-  }
-
-  toggleLayers = () => {
-    this.setState({
-      showLayers: !this.state.showLayers,
-    })
   }
 
   isActive = (... tools: string[]) => {
@@ -102,27 +84,11 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
     const toolbarProps = Object.assign(pick(this.props,
       ['activeTool', 'setTool', 'undo', 'redo', 'canUndo', 'canRedo', 'paletteItem', 'resetViewPosition']), {
-      save: this.save,
-      toggleLayers: this.toggleLayers,
     })
-
-    const layerProps = {
-      layers: this.props.layout.layers,
-    }
 
     const matrix = pick(this.props, [
       'sx', 'sy', 'tx', 'ty', 'x', 'y', 'zoom',
     ])
-
-    const viewProps = Object.assign(pick(this.props, [
-      'width', 'height',
-    ]), {
-      ref: ref => this._view = ref,
-      onWheel: this.props.moveToolMouseWheel,
-      matrix: pick(this.props, [
-        'sx', 'sy', 'tx', 'ty', 'x', 'y', 'zoom',
-      ])
-    })
 
     const {paperWidth, paperHeight, gridSize} = this.props.settings
 
@@ -134,7 +100,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
         <StyledToolBar {...toolbarProps} />
         <EditorBody>
           <StyledPalette />
-          <StyledLayers {...layerProps} />
+          <StyledLayerPalette layers={this.props.layout.layers} />
           <GridPaper
             width={paperWidth}
             height={paperHeight}
@@ -143,7 +109,7 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             matrix={matrix}
           >
             {this.props.isLayoutEmpty &&
-            <FirstRailPutter />
+            <FirstRailPutter mousePosition={this.state.mousePosition}/>
             }
 
             <Layout />
@@ -172,12 +138,13 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
             {/*/>*/}
 
             <Tool
-              active={this.isActive(Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS)}
+              active={this.isActive(Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS, Tools.SPECIAL_RAILS, Tools.RAIL_GROUPS)}
               name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.builderMouseDown}
               onMouseMove={(e) => {
                 this.props.builderMouseMove(e)
-                this.props.moveToolMouseMove(e)
+                const mousePosition = this.props.moveToolMouseMove(e)
+                this.setState({mousePosition})
               }}
               onKeyDown={this.props.builderKeyDown}
             />

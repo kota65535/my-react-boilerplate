@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {connect} from "react-redux";
 import {RootState} from "store/type";
-import {Palette} from "components/Editor/Palette/Palette";
+import Palette from "components/Editor/Palette/Palette";
 
 const mapStateToProps = (state: RootState) => {
   return {
     tool: state.tools.activeTool,
-    railGroups: state.builder.userRailGroups,
+    userRailGroups: state.builder.userRailGroups,
   }
 };
 

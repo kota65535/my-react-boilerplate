@@ -5,13 +5,12 @@ import FirstRailPutter, {FirstRailPutterProps} from "components/Editor/FirstRail
 import {RailData} from "components/rails";
 import {addRail} from "actions/layout";
 import {compose} from "recompose";
-import withBuilder from "components/hoc/withBuilder";
 import {nextRailId} from "selectors";
 
 
 const mapStateToProps = (state: RootState) => {
   return {
-    mousePosition: state.builder.mousePosition,
+    // mousePosition: state.builder.mousePosition,
     paletteItem: state.builder.paletteItem,
     temporaryRails: state.builder.temporaryRails,
     nextRailId: nextRailId(state),
@@ -31,6 +30,6 @@ const mapDispatchToProps = (dispatch: any) => {
 
 
 export default compose<FirstRailPutterProps, FirstRailPutterProps|any>(
-  withBuilder,
+  // withBuilder,
   connect(mapStateToProps, mapDispatchToProps),
 )(FirstRailPutter)

@@ -18,7 +18,7 @@ const LOGGER = getLogger(__filename)
 
 export interface WithMoveToolPublicProps {
   moveToolMouseWheel: (e: React.WheelEvent<HTMLElement>, { view }: { view: View }) => void
-  moveToolMouseMove: (e: ToolEvent) => void
+  moveToolMouseMove: (e: ToolEvent) => Point
   moveToolMouseDown: (e: ToolEvent) => void
   moveToolMouseUp: (e: ToolEvent) => void
   moveToolMouseDrag: (e: ToolEvent) => void
@@ -179,8 +179,9 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
       // キャンバス上のマウスカーソルの位置を更新
       this.mousePosition = e.point
       this.view = (e as any).tool.view
-      LOGGER.trace(e.point)
-      this.props.setMousePosition(e.point)
+      // LOGGER.trace(e.point)
+      // this.props.setMousePosition(e.point)
+      return e.point
     }
 
     /**

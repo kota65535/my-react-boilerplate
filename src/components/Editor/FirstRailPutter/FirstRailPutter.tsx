@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Point} from "paper";
-import {Rectangle} from "react-paper-bindings";
+import {Rectangle, Tool} from "react-paper-bindings";
 import RectPart from "../../rails/parts/primitives/RectPart";
 import {getClosest} from "constants/utils";
 import {SettingsStoreState} from "reducers/settings";
@@ -9,7 +9,6 @@ import {PaletteItem} from "store/type";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import getLogger from "logging";
 import {RailData} from "components/rails";
-import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 const LOGGER = getLogger(__filename)
 
@@ -37,12 +36,12 @@ export interface FirstRailPutterState {
   phase: Phase
 }
 
-type FirstRailPutterComposedProps = FirstRailPutterProps & WithBuilderPublicProps
+type FirstRailPutterEnhancedProps = FirstRailPutterProps
 
 
-export default class FirstRailPutter extends React.Component<FirstRailPutterComposedProps, FirstRailPutterState> {
+export default class FirstRailPutter extends React.Component<FirstRailPutterEnhancedProps, FirstRailPutterState> {
 
-  constructor(props: FirstRailPutterComposedProps) {
+  constructor(props: FirstRailPutterEnhancedProps) {
     super(props)
     this.state = {
       fixedPosition: null,
@@ -112,16 +111,24 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterComp
     }
 
     return (
-      <RectPart
-        width={700}
-        height={700}
-        position={position}
-        fillColor={'orange'}
-        opacity={0.1}
-        onClick={this.onClick}
-        onMouseMove={this.onMouseMove}
-
-      />
+      <React.Fragment>
+        <RectPart
+          width={70}
+          height={70}
+          position={position}
+          fillColor={'orange'}
+          opacity={0.5}
+        />
+        {/* 不可視の四角形、イベントハンドリング用 */}
+        <RectPart
+          width={this.props.settings.paperWidth}
+          height={this.props.settings.paperHeight}
+          position={position}
+          opacity={0}
+          onClick={this.onClick}
+          onMouseMove={this.onMouseMove}
+        />
+      </React.Fragment>
     )
   }
 
@@ -139,17 +146,19 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterComp
     // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
     const itemProps = RailFactory[this.props.paletteItem.name]()
     const angle = getFirstRailAngle(this.state.fixedPosition, this.props.mousePosition)
-    LOGGER.debug(`FirstAngle: ${angle}`) // `
-    this.props.setTemporaryRail({
-      ...itemProps,
-      id: -1,
-      name: 'TemporaryRail',
-      position: this.state.fixedPosition,
-      angle: angle,
-      opacity: TEMPORARY_RAIL_OPACITY,
-      enableJoints: false,
-      pivotJointIndex: 0,
-    })
+    // 角度が変わっていたら仮レールを設置する
+    if (_.isEmpty(this.props.temporaryRails) || this.props.temporaryRails[0].angle !== angle) {
+      this.props.setTemporaryRail({
+        ...itemProps,
+        id: -1,
+        name: 'TemporaryRail',
+        position: this.state.fixedPosition,
+        angle: angle,
+        opacity: TEMPORARY_RAIL_OPACITY,
+        enableJoints: false,
+        pivotJointIndex: 0,
+      })
+    }
   }
 
   private addRail = () => {

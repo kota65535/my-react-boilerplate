@@ -40,7 +40,6 @@ interface WithBuilderPrivateProps {
   paletteItem: PaletteItem
   activeLayerId: number
   isLayoutEmpty: boolean
-  mousePosition: Point
   setTemporaryRail: (item: RailData) => void
   deleteTemporaryRail: () => void
   nextRailId: number
@@ -79,7 +78,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       paletteItem: state.builder.paletteItem,
       activeLayerId: state.builder.activeLayerId,
       isLayoutEmpty: isLayoutEmpty(state),
-      mousePosition: state.builder.mousePosition,
       temporaryRails: state.builder.temporaryRails,
       nextRailId: nextRailId(state),
       nextRailGroupId: nextRailGroupId(state),

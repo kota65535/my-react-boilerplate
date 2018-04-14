@@ -2,7 +2,7 @@ import styled from "styled-components";
 import {View} from "react-paper-bindings";
 import Palette from "./Palette";
 import ToolBar from "./ToolBar";
-import Layers from "./LayerPalette";
+import LayerPalette from "./LayerPalette";
 
 
 export const StyledWrapper = styled.div`
@@ -38,7 +38,7 @@ export const StretchedView = styled(View as any)`
   height: 100%!important;
 `
 
-export const StyledLayers = styled(Layers as any)`
+export const StyledLayerPalette = styled(LayerPalette as any)`
   // Rndのインラインスタイルである top:0, left:0 を打ち消す
   top: auto!important;
   left: auto!important;

@@ -35,6 +35,8 @@ export interface BuilderStoreState {
   temporaryRailGroup: RailGroupData
   // ユーザーが登録したレールグループ
   userRailGroups: UserRailGroupData[]
+  // 仮レールと他のレールが重なっているか否か
+  intersects: boolean
 }
 
 export const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -50,7 +52,8 @@ export const BUILDER_INITIAL_STATE: BuilderStoreState = {
   paperViewLoaded: false,
   temporaryRails: [],
   temporaryRailGroup: null,
-  userRailGroups: []
+  userRailGroups: [],
+  intersects: false,
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -204,6 +207,19 @@ export default handleActions<BuilderStoreState, any>({
     return update(state, {
       userRailGroups: {$push: [action.payload]}
     })
+  },
+
+  /**
+   *
+   * @param {BuilderStoreState} state
+   * @param {Action<boolean>} action
+   * @returns {BuilderStoreState}
+   */
+  [Actions.BUILDER_SET_INTERSECTS]: (state: BuilderStoreState, action: Action<boolean>): BuilderStoreState => {
+    return {
+      ...state,
+      intersects: action.payload
+    }
   },
 
 }, BUILDER_INITIAL_STATE);

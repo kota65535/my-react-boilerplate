@@ -1,7 +1,6 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {getAllRailComponents, getRailComponent} from "components/rails/utils";
 import {PaletteItem, RootState} from "store/type";
 import {
   deleteTemporaryRail,
@@ -12,7 +11,6 @@ import {
 } from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {WithBuilderProps} from "components/hoc/withBuilder";
-import Combinatorics from "js-combinatorics"
 import {addRail, addRailGroup} from "actions/layout";
 import {
   nextPivotJointIndex,
@@ -55,6 +53,7 @@ export interface WithRailBaseProps {
   nextPivotJointInfo: JointInfo
   paletteRailData: RailData,
   paletteRailGroupData: UserRailGroupData
+  intersects: boolean
 
   // actionssetTemporaryRail
   setTemporaryRail: (item: RailData) => void
@@ -88,6 +87,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       nextPivotJointInfo: nextPivotJointInfo(state),
       paletteRailData: paletteRailData(state),
       paletteRailGroupData: paletteRailGroupData(state),
+      intersects: state.builder.intersects,
     }
   }
 
@@ -147,12 +147,20 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
     /**
      * ジョイント上でマウスが動いた場合
-     * 現状特に何もしない
+     * レールの重なりを検出した場合、ジョイントの表示をエラーにする
      * @param {number} jointId
      * @param {MouseEvent} e
      */
     onJointMouseMove = (jointId: number, e: MouseEvent) => {
-      // noop
+      if (this.props.intersects) {
+        this.joints[jointId].part.setState({
+          isError: true
+        })
+      } else {
+        this.joints[jointId].part.setState({
+          isError: false
+        })
+      }
     }
 
 
@@ -174,12 +182,10 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      */
     onJointLeftClick = (jointId: number, e: MouseEvent) => {
       // 仮レールがこのレイヤーの他のレールと重なっていたら、何もせずに返る
-      // const intersects = this.temporaryRailIntersects()
-      // if (intersects) {
-      //   LOGGER.info("Rail intersects.")
-      //   // ジョイントの検出状態を変更させない
-      //   return false
-      // }
+      if (this.props.intersects) {
+        // ジョイントの検出状態を変更させない
+        return false
+      }
 
       // 仮レールのRailData
       const temporaryRails = this.props.temporaryRails
@@ -279,32 +285,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           onUnmount={(instance) => this.onUnmount(instance)}
         />
       )
-    }
-
-    /**
-     * 仮レールが現在のレイヤーの他のレールに衝突しているかどうか調べる
-     */
-    private temporaryRailIntersects(): boolean {
-      // 全ての仮レールを構成するPathオブジェクト群を取得
-      const temporaryRailComponents = this.props.temporaryRails.map(r => getRailComponent(r.id))
-      const targetRailPaths = _.flatMap(temporaryRailComponents, rc => rc.railPart.path.children)
-      // 近傍ジョイントを持つレールは衝突検査の対象から外す
-      // const excludedRailIds = [this.props.id].concat(this.closeJointPairs.map(pair => pair.to.railId))
-      // LOGGER.debug(`exluded: ${excludedRailIds}`) //`
-      // 現在のレイヤーにおける各レールと仮レールが衝突していないか調べる
-      const result = getAllRailComponents()
-      // .filter(r => ! excludedRailIds.includes(r.props.id))
-        .map(r => r.railPart.path)
-        .map(group => {
-          // 両レールを構成するパス同士の組み合わせを作成し、重なりを調べる
-          const combinations = Combinatorics.cartesianProduct(group.children, targetRailPaths).toArray()
-          const result = combinations.map(cmb => cmb[0].intersects(cmb[1])).every(e => e)
-          LOGGER.debug(`Rail ${group.data.railId}: ${result}`)
-          return result
-        })
-        .some(e => e)   // 重なっているものが一つ以上あればtrue
-
-      return result
     }
 
 

@@ -25,7 +25,7 @@ export interface WithBuilderPublicProps {
   builderKeyDown: any
   builderConnectJoints: (pairs: JointPair[]) => void
   builderDisconnectJoint: (railId: number) => void
-  builderChangeJointState: (pairs: JointPair[], state: DetectionState) => void
+  builderChangeJointState: (pairs: JointPair[], state: DetectionState, isError?: boolean) => void
   builderSelectRail: (railData: RailData) => void
   builderDeselectRail: (railData: RailData) => void
   builderToggleRail:  (railData: RailData) => void
@@ -284,7 +284,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
 
-    changeJointState = (pairs: JointPair[], state: DetectionState) => {
+    changeJointState = (pairs: JointPair[], state: DetectionState, isError = false) => {
       pairs.forEach(pair => {
         LOGGER.info(`change joint state`, pair) //`
         const rail = getRailComponent(pair.to.railId)
@@ -292,7 +292,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         if (part.state.detectionState !== state) {
           part.setState({
             detectionState: state,
-            detectionPartVisible: true
+            detectionPartVisible: true,
+            isError: isError,
           })
         }
       })

@@ -18,6 +18,7 @@ export interface DetectablePartProps extends PartBaseProps {
 export interface DetectablePartState {
   detectionState: DetectionState
   detectionPartVisible: boolean
+  isError: boolean
 }
 
 /**
@@ -97,12 +98,14 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     if (this.props.detectionEnabled) {
       this.state = {
         detectionState: DetectionState.BEFORE_DETECT,
-        detectionPartVisible: true
+        detectionPartVisible: true,
+        isError: false,
       }
     } else {
       this.state = {
         detectionState: DetectionState.DISABLED,
-        detectionPartVisible: false
+        detectionPartVisible: false,
+        isError: false,
       }
     }
     this.onMouseEnter = this.onMouseEnter.bind(this)
@@ -173,6 +176,7 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
       position, angle, pivot, pivotPartIndex, fillColors, selected, name, data, detectionEnabled,
       mainPart, detectionPart, visible
     } = this.props
+    const {detectionState, isError} = this.state
 
     // 主パーツの色を変更
     let clonedMainPart = React.cloneElement(mainPart as any, {
@@ -186,11 +190,12 @@ export default class DetectablePart extends React.Component<DetectablePartProps,
     // 検出無効状態なら描画しない
     let clonedDetectionPart
     if (detectionEnabled) {
+      const color = detectionState === DetectionState.DETECTING && isError ? 'red' : fillColors[detectionState]
       clonedDetectionPart = React.cloneElement(detectionPart as any, {
         ...detectionPart.props,
         visible: detectionEnabled ? this.state.detectionState : false,
-        fillColor: fillColors[this.state.detectionState],
-        name: 'detect'
+        fillColor: color,
+        name: 'detect',
       })
     }
 

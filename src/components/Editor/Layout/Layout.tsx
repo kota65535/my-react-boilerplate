@@ -1,18 +1,16 @@
 import * as React from "react";
 import {Layer} from "react-paper-bindings";
 import {
-  anglesEqual,
   createRailComponent,
   createRailGroupComponent,
   createRailOrRailGroupComponent,
-  getRailComponent,
-  hasOpenJoint,
-  pointsEqual
+  getAllOpenCloseJoints,
+  getCloseJointsOf,
+  intersectsOf
 } from "components/rails/utils";
 import {RailData, RailGroupData} from "components/rails";
 import getLogger from "logging";
 import {LayoutData} from "reducers/layout";
-import Combinatorics from "js-combinatorics"
 import * as _ from "lodash";
 import {JointPair} from "components/hoc/withBuilder";
 import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
@@ -25,9 +23,12 @@ export interface LayoutProps {
   layout: LayoutData
   temporaryRails: RailData[]
   temporaryRailGroup: RailGroupData
+  activeLayerId: number
+
   builderDisconnectJoint: (railId: number) => void
   builderConnectJoints: (pairs: JointPair[]) => void
-  builderChangeJointState: (pairs: JointPair[], state: DetectionState) => void
+  builderChangeJointState: (pairs: JointPair[], state: DetectionState, isError?: boolean) => void
+  setIntersects: (is: boolean) => void
 }
 
 
@@ -41,28 +42,58 @@ export default class Layout extends React.Component<LayoutProps, {}> {
   }
 
   componentDidUpdate(prevProps: LayoutProps) {
+
     // レイアウトのレールが追加・削除されたら、近傍ジョイントを探して自動的に接続する
     if (this.props.layout.rails.length !== prevProps.layout.rails.length) {
-      const jointPairs = getAllOpenCloseJoints(this.props.layout.rails)
-      LOGGER.info("Unconnected close joints", jointPairs)
-      this.props.builderConnectJoints(jointPairs)
+      this.connectCloseJoints()
     }
 
     // 仮レールが追加または可視状態に変わった場合、近傍ジョイントを探して検出状態にする
     // TODO: 右クリックに対応できない。仮レールが変更された場合、で決め打ちしたほうがよいかも
     if (temporaryRailHasChangedVisible(this.props, prevProps)) {
-      this.temporaryCloseJoints = _.flatMap(this.props.temporaryRails, r => getCloseJointsOf(r.id, this.props.layout.rails))
-      LOGGER.info("Temporary rail's close joints", this.temporaryCloseJoints)
-      this.props.builderChangeJointState(this.temporaryCloseJoints, DetectionState.DETECTING)
+      this.validateAddedTemporaryRails()
     }
 
     // 仮レールが削除または不可視状態に変わった場合、近傍ジョイントを探して非検出状態にする
     if (temporaryRailHasChangedInvisible(this.props, prevProps)) {
-      this.props.builderChangeJointState(this.temporaryCloseJoints, DetectionState.BEFORE_DETECT)
-      this.temporaryCloseJoints = []
+      this.validateDeletedTemporaryRails()
     }
   }
 
+  connectCloseJoints = () => {
+    const jointPairs = getAllOpenCloseJoints(this.props.layout.rails)
+    LOGGER.info("Unconnected close joints", jointPairs)
+    this.props.builderConnectJoints(jointPairs)
+  }
+
+
+  validateAddedTemporaryRails = () => {
+    const {temporaryRails, layout, activeLayerId} = this.props
+    // レールの重なりを検出する。検査対象はアクティブレイヤーかつ、仮レールの近傍ジョイントを持たないレール
+    // 仮レールの近傍ジョイント
+    this.temporaryCloseJoints = _.flatMap(temporaryRails, r => getCloseJointsOf(r.id, layout.rails))
+    // アクティブレイヤーのレール
+    const railsInActiveLayer = layout.rails.filter(r => r.layerId === activeLayerId).map(r => r.id)
+    // 検査対象
+    const intersectionTestTargets = _.without(railsInActiveLayer, ...this.temporaryCloseJoints.map(j => j.to.railId))
+    // 重なりを検査
+    const intersects = temporaryRails.map(r => intersectsOf(r.id, intersectionTestTargets)).some(e => e)
+    LOGGER.info("Temporary rail's close joints", this.temporaryCloseJoints)
+
+    if (intersects) {
+      this.props.setIntersects(true)
+      LOGGER.info('Intersection detected')
+    } else {
+      this.props.setIntersects(false)
+      this.props.builderChangeJointState(this.temporaryCloseJoints, DetectionState.DETECTING)
+    }
+  }
+
+
+  validateDeletedTemporaryRails = () => {
+    this.props.builderChangeJointState(this.temporaryCloseJoints, DetectionState.BEFORE_DETECT)
+    this.temporaryCloseJoints = []
+  }
 
 
   render() {
@@ -106,73 +137,6 @@ export default class Layout extends React.Component<LayoutProps, {}> {
     )
   }
 
-}
-
-
-const getCloseJointsBetween = (r1: number, r2: number) => {
-  const r1Joints = getRailComponent(r1).joints
-  const r2Joints = getRailComponent(r2).joints
-
-  const combinations = Combinatorics.cartesianProduct(r1Joints, r2Joints).toArray()
-  const closeJointPairs = []
-  combinations.forEach(cmb => {
-    // 両方が未接続でなければ抜ける
-    if (cmb[0].props.hasOpposingJoint && cmb[1].props.hasOpposingJoint
-      || (! cmb[0].props.visible || ! cmb[1].props.visible) ) {
-      return
-    }
-    // if ( ! cmb[0].props.visible || ! cmb[1].props.visible ) {
-    //   return
-    // }
-    // LOGGER.debug(cmb[0].props.data.railId, cmb[0].globalPosition, cmb[0].globalAngle, cmb[1].props.data.railId, cmb[1].globalPosition, cmb[1].globalAngle)
-    // ジョイント同士が十分近く、かつ角度が一致していればリストに加える
-    const isClose = pointsEqual(cmb[0].globalPosition, cmb[1].globalPosition, 5)
-    if (! isClose) {
-      return
-    }
-    const isSameAngle = anglesEqual(cmb[0].globalAngle, cmb[1].globalAngle + 180, 5)
-    if (! isSameAngle) {
-      return
-    }
-
-    closeJointPairs.push({
-      from: {
-        railId: cmb[0].props.data.railId,
-        jointId: cmb[0].props.data.partId
-      },
-      to: {
-        railId: cmb[1].props.data.railId,
-        jointId: cmb[1].props.data.partId
-      }
-    })
-  })
-  return closeJointPairs
-}
-
-
-const getCloseJointsOf = (r1: number, rails: RailData[]) => {
-  return _.flatMap(rails, r2 => getCloseJointsBetween(r1, r2.id))
-}
-
-
-const getAllCloseJoints = (rails: RailData[]) => {
-  if (rails.length < 2) {
-    return []
-  } else {
-    const combinations = Combinatorics.combination(rails.map(r => r.id), 2).toArray()
-    return _.flatMap(combinations, cmb => getCloseJointsBetween(cmb[0], cmb[1]))
-  }
-}
-
-const getAllOpenCloseJoints = (rails: RailData[]) => {
-  const railsWithOpenJoints = rails.filter(r => hasOpenJoint(r))
-  if (railsWithOpenJoints.length < 2) {
-    return []
-  } else {
-    const combinations = Combinatorics.combination(railsWithOpenJoints.map(r => r.id), 2).toArray()
-    LOGGER.info(combinations)
-    return _.flatMap(combinations, cmb => getCloseJointsBetween(cmb[0], cmb[1]))
-  }
 }
 
 

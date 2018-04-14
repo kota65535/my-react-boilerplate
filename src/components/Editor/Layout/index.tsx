@@ -5,17 +5,21 @@ import Layout, {LayoutProps} from 'components/Editor/Layout/Layout';
 import {currentLayoutData} from "selectors";
 import withBuilder from "components/hoc/withBuilder";
 import {compose} from "recompose";
+import {setIntersects} from "actions/builder";
 
 const mapStateToProps = (state: RootState) => {
   return {
     layout: currentLayoutData(state),
     temporaryRails: state.builder.temporaryRails,
     temporaryRailGroup: state.builder.temporaryRailGroup,
+    activeLayerId: state.builder.activeLayerId,
   }
 }
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {}
+  return {
+    setIntersects: (is: boolean) => dispatch(setIntersects(is))
+  }
 }
 
 export default compose<LayoutProps, LayoutProps|any>(

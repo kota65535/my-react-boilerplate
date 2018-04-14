@@ -17,5 +17,6 @@ export const updateTemporaryItem = createAction<Partial<RailData>>(Actions.BUILD
 export const deleteTemporaryRail = createAction<{}>(Actions.BUILDER_DELETE_TEMPORARY_RAIL);
 export const setTemporaryRailGroup = createAction<RailGroupDataPayload>(Actions.BUILDER_SET_TEMPORARY_RAIL_GROUP);
 export const updateTemporaryRailGroup = createAction<Partial<RailGroupData>>(Actions.BUILDER_UPDATE_TEMPORARY_RAIL_GROUP);
+export const setIntersects = createAction<boolean>(Actions.BUILDER_SET_INTERSECTS)
 
 export const addUserRailGroup = createAction<UserRailGroupData>(Actions.BUILDER_ADD_USER_RAIL_GROUP)

@@ -2,8 +2,8 @@ import * as React from 'react'
 import {connect} from 'react-redux';
 import {PaletteItem, RootState} from "store/type";
 import {LayoutData} from "reducers/layout";
-import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
-import {HitResult, Point, ToolEvent} from "paper";
+import {currentLayoutData, isLayoutEmpty, nextRailGroupId, nextRailId} from "selectors";
+import {Point, ToolEvent} from "paper";
 import {addUserRailGroup, deleteTemporaryRail, setTemporaryRail} from "actions/builder";
 import {UserRailGroupData} from "reducers/builder";
 import getLogger from "logging";
@@ -14,6 +14,7 @@ import {JointInfo} from "components/rails/RailBase";
 import {getAllRailComponents, getRailComponent} from "components/rails/utils";
 import RailGroup from "components/rails/RailGroup/RailGroup";
 import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
+import NewRailGroupDialog from "components/hoc/NewRailGroupDialog/NewRailGroupDialog";
 
 const LOGGER = getLogger(__filename)
 
@@ -43,6 +44,7 @@ interface WithBuilderPrivateProps {
   setTemporaryRail: (item: RailData) => void
   deleteTemporaryRail: () => void
   nextRailId: number
+  nextRailGroupId: number
   temporaryRails: RailData[]
   addRail: (item: RailData, overwrite?: boolean) => void
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
@@ -59,6 +61,12 @@ export interface JointPair {
   to: JointInfo
 }
 
+
+export interface WithBuilderState {
+  newRailGroupDialogOpen: boolean
+}
+
+
 /**
  * レールの設置に関連する機能を提供するHOC。
  * 依存: WithHistory
@@ -73,7 +81,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       isLayoutEmpty: isLayoutEmpty(state),
       mousePosition: state.builder.mousePosition,
       temporaryRails: state.builder.temporaryRails,
-      nextRailId: nextRailId(state)
+      nextRailId: nextRailId(state),
+      nextRailGroupId: nextRailGroupId(state),
     }
   }
 
@@ -89,10 +98,14 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
   }
 
-  class WithBuilder extends React.Component<WithBuilderProps, {}> {
+  class WithBuilder extends React.Component<WithBuilderProps, WithBuilderState> {
 
     constructor(props: WithBuilderProps) {
       super(props)
+
+      this.state = {
+        newRailGroupDialogOpen: false
+      }
 
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseLeftDown = this.mouseLeftDown.bind(this)
@@ -146,11 +159,24 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           this.removeSelectedRails()
           break
         case 'c':
-          this.registerRailGroup()
-          this.deselectAllRails()
+          this.setState({
+            newRailGroupDialogOpen: true
+          })
           break
       }
     }
+
+    onNewRailGroupDialogClose = () => {
+      this.setState({
+        newRailGroupDialogOpen: false
+      })
+    }
+
+    onNewRailGroupDialogOK = (name: string) => {
+      this.registerRailGroup(name)
+      this.deselectAllRails()
+    }
+
 
     /**
      * 選択中のレールを削除する。
@@ -170,15 +196,13 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     /**
      * 選択中のレールを新しいレールグループとして登録する
      */
-    registerRailGroup() {
+    registerRailGroup(name: string) {
       // 選択中のレールコンポーネントのPropsを取得する
-      const rails = this.getSelectedRailData()
-      const railIds = rails.map(r => r.id)
-
+      const selectedRails = this.getSelectedRailData()
       // 空いているジョイントを探す
       // レールグループ内のレール以外に繋がっているジョイントも空きジョイントとする
       const openJoints = []
-      let newRails = rails.map((rail, idx) => {
+      let newRails = selectedRails.map((rail, idx) => {
         const opposingJointIds = _.keys(rail.opposingJoints).map(k => parseInt(k))
         const openJointIds = _.without(_.range(rail.numJoints), ...opposingJointIds)
         openJointIds.forEach(id => openJoints.push({
@@ -194,13 +218,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
 
       // レールグループデータを生成する
-      // TODO: 名前をどうする？
       const railGroup: UserRailGroupData = {
         type: 'RailGroup',
         rails: newRails,
-        id: -1,
-        layerId: -10,
-        name: 'aaaaa',
+        id: this.props.nextRailGroupId,
+        layerId: -1,
+        name: name,
         position: new Point(0, 0),
         angle: 0,
         openJoints: openJoints
@@ -321,21 +344,30 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     render() {
       return (
-        <WrappedComponent
-          {...this.props}
-          builderMouseDown={this.mouseDown}
-          builderMouseMove={this.mouseMove}
-          builderKeyDown={this.keyDown}
-          // builderAddRail={this.addRail}
-          builderConnectJoints={this.connectJoints}
-          builderDisconnectJoint={this.disconnectJoint}
-          builderChangeJointState={this.changeJointState}
-          builderSelectRail={this.selectRail}
-          builderDeselectRail={this.deselectRail}
-          builderToggleRail={this.toggleRail}
-          builderDeselectAllRails={this.deselectAllRails}
-          builderRemoveSelectedRails={this.removeSelectedRails}
-        />
+        <React.Fragment>
+          <WrappedComponent
+            {...this.props}
+            builderMouseDown={this.mouseDown}
+            builderMouseMove={this.mouseMove}
+            builderKeyDown={this.keyDown}
+            // builderAddRail={this.addRail}
+            builderConnectJoints={this.connectJoints}
+            builderDisconnectJoint={this.disconnectJoint}
+            builderChangeJointState={this.changeJointState}
+            builderSelectRail={this.selectRail}
+            builderDeselectRail={this.deselectRail}
+            builderToggleRail={this.toggleRail}
+            builderDeselectAllRails={this.deselectAllRails}
+            builderRemoveSelectedRails={this.removeSelectedRails}
+          />
+          <NewRailGroupDialog
+            title={'New Rail Group'}
+            okButtonTitle={'OK'}
+            open={this.state.newRailGroupDialogOpen}
+            onClose={this.onNewRailGroupDialogClose}
+            onOK={this.onNewRailGroupDialogOK}
+          />
+        </React.Fragment>
       )
     }
   }
@@ -343,36 +375,4 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
   return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithBuilder)
 }
 
-
-export const hitTestAll = (point: Point): HitResult[] => {
-  let hitOptions: any = {
-    // class: Path,
-    segments: true,
-    stroke: true,
-    fill: true,
-    tolerance: 0,
-    // match: (result: HitResult) => {
-    //   return result.item instanceof Path
-    // },
-
-
-  };
-  let hitResults = (window.PAPER_SCOPE.project as any).hitTestAll(point, hitOptions);
-  // Groupがひっかかるとうざいので取り除く
-  // let hitResultsPathOnly = hitResults.filter(r => r.item.data.type === "Path");
-  // return hitResultsPathOnly;
-  return hitResults;
-}
-
-
-
-const getRailPartAt = (point: Point) => {
-  const results = hitTestAll(point)
-  const item = results.map(r => r.item).find(i => i.name === "Rail")
-  if (item) {
-    return item.data
-  } else {
-    return null
-  }
-}
 

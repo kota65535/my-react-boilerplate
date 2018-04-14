@@ -59,8 +59,10 @@ export default class Case09 extends React.Component<any, any> {
           layerId={-1}
           position={new Point(300,300)}
           angle={30}
-          pivotRailIndex={0}
-          pivotJointIndex={1}
+          pivotJointInfo={{
+            railId: 0,
+            jointId: 1
+          }}
           ref={(group) => this.group = group}
         >
           <StraightRail

@@ -19,11 +19,12 @@ import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {JointPair, WithBuilderProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
 import {addRail, addRailGroup} from "actions/layout";
-import {nextRailGroupId, nextRailId, temporaryPivotJointIndex} from "selectors";
-import {RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
+import {nextPivotJointIndex, nextPivotJointInfo, nextRailGroupId, nextRailId} from "selectors";
+import {JointInfo, RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
 import {RailData, RailGroupData} from "components/rails/index";
 import {RailGroupDataPayload} from "reducers/layout";
+import {UserRailGroupData} from "reducers/builder";
 
 const LOGGER = getLogger(__filename)
 
@@ -43,12 +44,13 @@ export interface WithRailBaseProps {
   // states
   paletteItem: PaletteItem
   temporaryRails: RailData[]
-  temporaryPivotJointIndex: number
   temporaryRailGroup: RailGroupData
   activeLayerId: number
   nextRailId: number
   nextRailGroupId: number
-  userRailGroups: RailGroupData[]
+  userRailGroups: UserRailGroupData[]
+  nextPivotJointIndex: number
+  nextPivotJointInfo: JointInfo
 
   // actionssetTemporaryRail
   setTemporaryRail: (item: RailData) => void
@@ -69,20 +71,21 @@ export type RailBaseContainerProps = RailBaseProps & WithRailBaseProps & WithBui
  */
 export default function withRailBase(WrappedComponent: React.ComponentClass<RailBaseProps>) {
 
-  const mapStateToProps = (state: RootState) => {
+  const mapStateToProps = (state: RootState): Partial<WithRailBaseProps> => {
     return {
       paletteItem: state.builder.paletteItem,
       temporaryRails: state.builder.temporaryRails,
       temporaryRailGroup: state.builder.temporaryRailGroup,
-      temporaryPivotJointIndex: temporaryPivotJointIndex(state),
       activeLayerId: state.builder.activeLayerId,
       nextRailId: nextRailId(state),
       nextRailGroupId: nextRailGroupId(state),
       userRailGroups: state.builder.userRailGroups,
+      nextPivotJointIndex: nextPivotJointIndex(state),
+      nextPivotJointInfo: nextPivotJointInfo(state),
     }
   }
 
-  const mapDispatchToProps = (dispatch: any) => {
+  const mapDispatchToProps = (dispatch: any): Partial<WithRailBaseProps> => {
     return {
       setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
       updateTemporaryRail: (item: Partial<RailData>) => dispatch(updateTemporaryItem(item)),
@@ -215,17 +218,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     onJointRightClick = (jointId: number, e: MouseEvent) => {
       const temporaryRailGroup = getTemporaryRailGroupComponent()
       if (temporaryRailGroup) {
-        const groupProps = this.getRailProps(this.props.paletteItem)
-        const nextPivotJointInfo = groupProps.openJoints[this.props.temporaryPivotJointIndex]
+        const temporaryPivotJointInfo = this.props.nextPivotJointInfo
+        // const groupProps = this.getRailProps(this.props.paletteItem)
+        // const nextPivotJointInfo = groupProps.openJoints[this.props.temporaryPivotJointIndex]
         this.props.updateTemporaryRailGroup({
-          pivotRailIndex: nextPivotJointInfo.railId,
-          pivotJointIndex: nextPivotJointInfo.jointId
+          pivotJointInfo: temporaryPivotJointInfo
         })
       } else {
-        const temporaryRail = getTemporaryRailComponent()
-        const {numJoints, pivotJointChangingStride} = temporaryRail.props
         // 仮レールのPivotJointIndexを加算する
-        let temporaryPivotJointIndex = (this.props.temporaryPivotJointIndex + pivotJointChangingStride) % numJoints
+        let temporaryPivotJointIndex = this.props.nextPivotJointIndex
         this.props.updateTemporaryRail({
           pivotJointIndex: temporaryPivotJointIndex
         })
@@ -264,23 +265,27 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       // パレットで選択したレール生成のためのPropsを取得
       const itemProps = this.getRailProps(this.props.paletteItem)
       if (itemProps.type === 'RailGroup') {
-        const {rails, ...railGroupProps} = itemProps
+        const {rails, openJoints} = itemProps as UserRailGroupData
 
-        let pivotJointIndex = this.props.temporaryPivotJointIndex
-        if (pivotJointIndex == null) {
-          pivotJointIndex = 0
+        // PivotJointの設定
+        let pivotJointInfo
+        if (this.props.temporaryRailGroup == null) {
+          pivotJointInfo = openJoints[0]
+        } else {
+          pivotJointInfo = this.props.temporaryRailGroup.pivotJointInfo
         }
 
         // レールグループのデータ
         const railGroup: RailGroupData = {
-          ...railGroupProps,
+          type: 'RailGroup',
           id: -1,
           name: 'TemporaryRailGroup',
-          pivotRailIndex: railGroupProps.openJoints[pivotJointIndex].pivotRailIndex,
-          pivotJointIndex: railGroupProps.openJoints[pivotJointIndex].pivotJointIndex,
+          pivotJointInfo: pivotJointInfo,
           position: this.railPart.getGlobalJointPosition(jointId),
           angle: this.railPart.getGlobalJointAngle(jointId),
-        }
+          rails: []
+        } as RailGroupData
+
         // レールグループに所属するレールデータ
         const children = rails.map(r => {
           return {
@@ -298,15 +303,14 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         LOGGER.info('TemporaryRailGroup', railGroup, children)
 
       } else {
-        // このレールと仮レールの両方がカーブレールの場合、PivotJoint (=向き)を揃える
-        let pivotJointIndex = this.props.temporaryPivotJointIndex
-        if (pivotJointIndex == null) {
-          if (this.props.type === 'CurveRail' && itemProps.type === 'CurveRail') {
-            pivotJointIndex = this.props.pivotJointIndex
-          } else {
-            pivotJointIndex = 0
-          }
+        // PivotJointを設定する
+        let pivotJointIndex
+        if (_.isEmpty(this.props.temporaryRails)) {
+          pivotJointIndex = this.initializePivotJointIndex(itemProps)
+        } else {
+          pivotJointIndex = this.props.temporaryRails[0].pivotJointIndex
         }
+
         // 仮レールを設置する
         this.props.setTemporaryRail({
           ...itemProps,
@@ -321,6 +325,15 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           visible: true,
         })
         LOGGER.info('TemporaryRail', itemProps)
+      }
+    }
+
+    initializePivotJointIndex = (paletteRailData: RailData) => {
+      // このレールと仮レールの両方がカーブレールの場合、PivotJoint (=向き)を揃える
+      if (this.props.type === 'CurveRail' && paletteRailData.type === 'CurveRail') {
+        return this.props.pivotJointIndex
+      } else {
+        return 0
       }
     }
 

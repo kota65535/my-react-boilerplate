@@ -22,8 +22,7 @@ const createRailGroup = (id, layerId, childIds): RailGroupData => {
     layerId: layerId,
     selected: false,
     rails: childIds,
-    pivotRailIndex: 0,
-    pivotJointIndex: 0,
+    pivotJointInfo: null
   }
 }
 

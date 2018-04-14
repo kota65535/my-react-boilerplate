@@ -148,6 +148,7 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterComp
       angle: angle,
       opacity: TEMPORARY_RAIL_OPACITY,
       enableJoints: false,
+      pivotJointIndex: 0,
     })
   }
 
@@ -161,8 +162,9 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterComp
       position: this.props.temporaryRails[0].position,
       angle: this.props.temporaryRails[0].angle,
       layerId: this.props.activeLayerId,
-      opposingJoints: {}
-    } as RailData)
+      opposingJoints: {},
+      pivotJointIndex: 0,
+    })
     this.props.deleteTemporaryRail()
   }
 }

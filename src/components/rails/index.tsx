@@ -8,7 +8,7 @@ import DoubleCrossTurnout, {DoubleCrossTurnoutProps} from "components/rails/Doub
 import DoubleCrossTurnoutContainer from "components/rails/DoubleCrossTurnout";
 import SimpleTurnout, {SimpleTurnoutProps} from "components/rails/SimpleTurnout/SimpleTurnout";
 import SimpleTurnoutContainer from "components/rails/SimpleTurnout";
-import {RailBaseProps} from "components/rails/RailBase";
+import {JointInfo, RailBaseProps} from "components/rails/RailBase";
 import EndRailContainer from "components/rails/EndRail";
 import EndRail from "components/rails/EndRail/EndRail";
 import CrossingRailContainer from "components/rails/CrossingRail";
@@ -46,8 +46,6 @@ export type RailData = RailBaseProps | StraightRailProps | CurveRailProps | Simp
 
 
 export interface RailGroupData extends RailBaseProps {
-  // rails: RailData[]
-  pivotRailIndex: number
-  pivotJointIndex: number
+  pivotJointInfo: JointInfo
   rails: number[]
 }

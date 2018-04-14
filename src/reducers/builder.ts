@@ -7,17 +7,15 @@ import update from "immutability-helper";
 import {JointInfo, RailBaseProps} from "components/rails/RailBase";
 import {RailGroupDataPayload} from "reducers/layout";
 
-export enum BuilderPhase {
-  NORMAL = 'Normal',
-  SET_ANGLE = 'SetAngle',
-}
 
 export interface LastPaletteItems {
   [key: string]: PaletteItem
 }
 
 export interface UserRailGroupData extends RailBaseProps {
+  // レールグループを構成するレール
   rails: RailData[]
+  // レールグループで未接続のジョイント
   openJoints: JointInfo[]
 }
 
@@ -37,10 +35,8 @@ export interface BuilderStoreState {
   temporaryRails: RailData[]
   // 仮レールグループ
   temporaryRailGroup: RailGroupData
-  // //TODO: FirstRailPutterで完結させる
-  phase: BuilderPhase
-  markerPosition: Point
-  userRailGroups: RailGroupData[]
+  // ユーザーが登録したレールグループ
+  userRailGroups: UserRailGroupData[]
 }
 
 export const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -57,8 +53,6 @@ export const BUILDER_INITIAL_STATE: BuilderStoreState = {
   paperViewLoaded: false,
   temporaryRails: [],
   temporaryRailGroup: null,
-  phase: BuilderPhase.NORMAL,
-  markerPosition: null,
   userRailGroups: []
 }
 
@@ -90,22 +84,33 @@ export default handleActions<BuilderStoreState, any>({
         ...state.lastPaletteItems,
         [action.payload.type]: action.payload
       },
-      temporaryPivotJointIndex: 0   // PivotJointをリセットする
-    } as BuilderStoreState
+    }
   },
 
+  /**
+   * 現在のマウス位置を変更する。
+   * @param {BuilderStoreState} state
+   * @param {Action<paper.Point>} action
+   * @returns {BuilderStoreState}
+   */
   [Actions.BUILDER_SET_MOUSE_POSITION]: (state: BuilderStoreState, action: Action<Point>): BuilderStoreState => {
     return {
       ...state,
       mousePosition: action.payload
-    } as BuilderStoreState
+    }
   },
 
+  /**
+   * PaperJSのロード状態を変更する。
+   * @param {BuilderStoreState} state
+   * @param {Action<boolean>} action
+   * @returns {BuilderStoreState}
+   */
   [Actions.BUILDER_SET_PAPER_VIEW_LOADED]: (state: BuilderStoreState, action: Action<boolean>): BuilderStoreState => {
     return {
       ...state,
       paperViewLoaded: action.payload
-    } as BuilderStoreState
+    }
   },
 
   /**
@@ -119,7 +124,7 @@ export default handleActions<BuilderStoreState, any>({
       ...state,
       temporaryRails: [action.payload],
       temporaryRailGroup: null
-    } as BuilderStoreState
+    }
   },
 
   /**
@@ -133,27 +138,38 @@ export default handleActions<BuilderStoreState, any>({
       ...state,
       temporaryRails: [],
       temporaryRailGroup: null
-    } as BuilderStoreState
+    }
   },
 
   /**
    * 仮レールを更新する。
+   * payloadにidを含まない場合、全ての仮レールを更新する。
    * @param {BuilderStoreState} state
    * @param {Action<number>} action
    * @returns {BuilderStoreState}
    */
   [Actions.BUILDER_UPDATE_TEMPORARY_RAIL]: (state: BuilderStoreState, action: Action<Partial<RailData>>): BuilderStoreState => {
     const newTemporaryRails = state.temporaryRails.map(r => {
+      // payloadのidと一致、もしくはpayloadが idを含まない場合
       if ((! action.payload.id) ||  r.id === action.payload.id) {
-        return {
-          ...r,
-          ...action.payload,
-          opposingJoints: {
+        // opposingJoints がnullか空のオブジェクトなら全削除
+        let opposingJoints
+        if (_.isEmpty(action.payload.opposingJoints)) {
+          opposingJoints = {}
+        } else {
+          opposingJoints = {
             ...r.opposingJoints,
             ...action.payload.opposingJoints,
           }
         }
+        // 更新
+        return {
+          ...r,
+          ...action.payload,
+          opposingJoints: opposingJoints
+        }
       } else {
+        // そのまま
         return r
       }
     })
@@ -161,7 +177,7 @@ export default handleActions<BuilderStoreState, any>({
     return {
       ...state,
       temporaryRails: newTemporaryRails
-    } as BuilderStoreState
+    }
   },
 
   /**
@@ -175,11 +191,11 @@ export default handleActions<BuilderStoreState, any>({
       ...state,
       temporaryRails: action.payload.children,
       temporaryRailGroup: action.payload.item
-    } as BuilderStoreState
+    }
   },
 
   /**
-   * 仮レールを更新する。
+   * 仮レールグループを更新する。
    * @param {BuilderStoreState} state
    * @param {Action<number>} action
    * @returns {BuilderStoreState}
@@ -194,19 +210,12 @@ export default handleActions<BuilderStoreState, any>({
     }
   },
 
-  [Actions.BUILDER_SET_PHASE]: (state: BuilderStoreState, action: Action<BuilderPhase>): BuilderStoreState => {
-    return {
-      ...state,
-      phase: action.payload
-    } as BuilderStoreState
-  },
-  [Actions.BUILDER_SET_MARKER_POSITION]: (state: BuilderStoreState, action: Action<Point>): BuilderStoreState => {
-    return {
-      ...state,
-      markerPosition: action.payload
-    } as BuilderStoreState
-  },
-
+  /**
+   * レールグループを新たに登録する。
+   * @param {BuilderStoreState} state
+   * @param {Action<UserRailGroupData>} action
+   * @returns {BuilderStoreState}
+   */
   [Actions.BUILDER_ADD_USER_RAIL_GROUP]: (state: BuilderStoreState, action: Action<UserRailGroupData>): BuilderStoreState => {
     return update(state, {
       userRailGroups: {$push: [action.payload]}

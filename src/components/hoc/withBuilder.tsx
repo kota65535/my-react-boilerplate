@@ -1,12 +1,11 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import * as _ from "lodash";
 import {PaletteItem, RootState} from "store/type";
 import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
-import {addUserRailGroup, deleteTemporaryRail, setMarkerPosition, setPhase, setTemporaryRail} from "actions/builder";
-import {BuilderPhase, UserRailGroupData} from "reducers/builder";
+import {addUserRailGroup, deleteTemporaryRail, setTemporaryRail} from "actions/builder";
+import {UserRailGroupData} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
 import {RailData} from "components/rails";
@@ -43,10 +42,6 @@ interface WithBuilderPrivateProps {
   mousePosition: Point
   setTemporaryRail: (item: RailData) => void
   deleteTemporaryRail: () => void
-  setPhase: (phase: BuilderPhase) => void
-  phase: BuilderPhase
-  setMarkerPosition: (position: Point) => void
-  markerPosition: Point
   nextRailId: number
   temporaryRails: RailData[]
   addRail: (item: RailData, overwrite?: boolean) => void
@@ -77,9 +72,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       activeLayerId: state.builder.activeLayerId,
       isLayoutEmpty: isLayoutEmpty(state),
       mousePosition: state.builder.mousePosition,
-      phase: state.builder.phase,
       temporaryRails: state.builder.temporaryRails,
-      markerPosition: state.builder.markerPosition,
       nextRailId: nextRailId(state)
     }
   }
@@ -88,8 +81,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     return {
       setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
       deleteTemporaryRail: () => dispatch(deleteTemporaryRail({})),
-      setPhase: (phase: BuilderPhase) => dispatch(setPhase(phase)),
-      setMarkerPosition: (position: Point) => dispatch(setMarkerPosition(position)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
       updateRail: (item: Partial<RailData>, overwrite = false) => dispatch(updateRail({item, overwrite})),
       removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),

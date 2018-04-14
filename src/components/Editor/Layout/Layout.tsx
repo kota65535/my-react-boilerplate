@@ -42,7 +42,7 @@ export default class Layout extends React.Component<LayoutProps, {}> {
     // レイアウトのレールが追加・削除されたら、近傍ジョイントを探して自動的に接続する
     if (this.props.layout.rails.length !== prevProps.layout.rails.length) {
       // まずジョイントを全解除する。ちょっと乱暴ではある
-      this.props.layout.rails.forEach(r => this.props.builderDisconnectJoint(r.id))
+      // this.props.layout.rails.forEach(r => this.props.builderDisconnectJoint(r.id))
       // その後近接するジョイント同士を接続する
       const jointPairs = getAllCloseJoints(this.props.layout.rails)
       LOGGER.info("Unconnected close joints", jointPairs)
@@ -118,13 +118,13 @@ const getCloseJointsBetween = (r1: number, r2: number) => {
   const closeJointPairs = []
   combinations.forEach(cmb => {
     // 両方が未接続でなければ抜ける
-    // if (cmb[0].props.hasOpposingJoint && cmb[1].props.hasOpposingJoint
-    //   || (! cmb[0].props.visible || ! cmb[1].props.visible) ) {
-    //   return
-    // }
-    if ( ! cmb[0].props.visible || ! cmb[1].props.visible ) {
+    if (cmb[0].props.hasOpposingJoint && cmb[1].props.hasOpposingJoint
+      || (! cmb[0].props.visible || ! cmb[1].props.visible) ) {
       return
     }
+    // if ( ! cmb[0].props.visible || ! cmb[1].props.visible ) {
+    //   return
+    // }
     // LOGGER.debug(cmb[0].props.data.railId, cmb[0].globalPosition, cmb[0].globalAngle, cmb[1].props.data.railId, cmb[1].globalPosition, cmb[1].globalAngle)
     // ジョイント同士が十分近く、かつ角度が一致していればリストに加える
     const isClose = pointsEqual(cmb[0].globalPosition, cmb[1].globalPosition, 5)

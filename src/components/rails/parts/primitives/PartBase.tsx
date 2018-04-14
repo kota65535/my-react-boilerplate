@@ -97,6 +97,7 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
    * @returns {number}
    */
   getAngleTo(item: Item, pivot: Pivot) {
+    // (this.path as any)._project._updateVersion += 1
     return this.path.getMatrixTo(item).decompose().rotation
   }
 
@@ -105,6 +106,7 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
    * @param {Pivot} pivot
    */
   getGlobalAngle(pivot: Pivot) {
+    // (this.path as any)._project._updateVersion += 1
     return (this.path as any).getGlobalMatrix().decompose().rotation
   }
 
@@ -125,6 +127,7 @@ export default abstract class PartBase<P extends PartBaseProps, S> extends React
     // const p = this.path.localToOther(path, this.getInternalPivotPosition(pivot))
     // console.log(path.position)
     // console.log(p)
+    // (this.path as any)._project._updateVersion += 1
     return this.path.localToOther(item, this.getInternalPivotPosition(pivot))
   }
 

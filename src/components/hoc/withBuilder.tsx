@@ -262,13 +262,28 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
      */
     registerRailGroup() {
       // 選択中のレールコンポーネントのPropsを取得する
-      let rails = this.getSelectedRailData()
-      let newRails = rails.map((rail, idx) => update(rail, {
-        id: {$set: -2-idx},           // 仮のIDを割り当てる
-        enableJoints: {$set: false},  // ジョイントは無効にしておく
-        selected: {$set: false},      // 選択状態は解除しておく
-        railGroup: {$set: -1},        // 仮のレールグループIDを割り当てる
-      }))
+      const rails = this.getSelectedRailData()
+      const railIds = rails.map(r => r.id)
+
+      const openJoints = []
+      let newRails = rails.map((rail, idx) => {
+        const opposingJointIds = _.keys(rail.opposingJoints).map(k => parseInt(k))
+        const openJointIds = _.without(_.range(rail.numJoints), ...opposingJointIds)
+        openJointIds.forEach(id => openJoints.push({
+          railId: idx,
+          jointId: id
+        }))
+        return update(rail, {
+          id: {$set: -2-idx},           // 仮のIDを割り当てる
+          enableJoints: {$set: false},  // ジョイントは無効にしておく
+          selected: {$set: false},      // 選択状態は解除しておく
+          railGroup: {$set: -1},        // 仮のレールグループIDを割り当てる
+        })
+      })
+
+      _.flatMap(newRails, rail => _.without(_.range(0, rail.numJoints), ..._.keys(rail.opposingJoints).map(j => parseInt(j))))
+
+
       // レールグループデータを生成する
       // TODO: 名前をどうする？
       const railGroup: UserRailGroupData = {
@@ -279,6 +294,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         name: 'aaaaa',
         position: new Point(0, 0),
         angle: 0,
+        openJoints: openJoints
       }
       this.props.addUserRailGroup(railGroup)
     }

@@ -139,7 +139,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           name: '',
           layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
           opacity: 1,
-          opposingJoints: [],
+          opposingJoints: {},
           enableJoints: true,                 // ジョイントを有効化する
         }
       })
@@ -249,8 +249,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
           ...railGroupProps,
           id: -1,
           name: 'TemporaryRailGroup',
-          pivotRailIndex: 0,
-          pivotJointIndex: 0,
+          pivotRailIndex: 1,
+          pivotJointIndex: 1,
           position: this.railPart.getGlobalJointPosition(jointId),
           angle: this.railPart.getGlobalJointAngle(jointId),
         }

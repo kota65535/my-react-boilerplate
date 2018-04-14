@@ -20,3 +20,5 @@ declare module paper {
     getMatrixTo: (item) => Matrix
   }
 }
+
+declare var _: any

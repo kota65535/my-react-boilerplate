@@ -4,7 +4,7 @@ import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {RailData, RailGroupData} from "components/rails";
 import update from "immutability-helper";
-import {RailBaseProps} from "components/rails/RailBase";
+import {JointInfo, RailBaseProps} from "components/rails/RailBase";
 import {RailGroupDataPayload} from "reducers/layout";
 
 export enum BuilderPhase {
@@ -18,6 +18,7 @@ export interface LastPaletteItems {
 
 export interface UserRailGroupData extends RailBaseProps {
   rails: RailData[]
+  openJoints: JointInfo[]
 }
 
 
@@ -36,7 +37,7 @@ export interface BuilderStoreState {
   railGroups: RailGroupData[]
 }
 
-const BUILDER_INITIAL_STATE: BuilderStoreState = {
+export const BUILDER_INITIAL_STATE: BuilderStoreState = {
   paletteItem: {type: 'StraightRail', name: 'S280'},
   lastPaletteItems: {
     'Straight Rails': {type: 'StraightRail', name: 'S280'},

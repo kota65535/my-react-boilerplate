@@ -8,7 +8,7 @@ import * as _ from "lodash";
 export interface LayoutMeta {
   id: string
   name: string
-  lastModified: string
+  lastModified: number
 }
 
 export interface LayoutStoreState {

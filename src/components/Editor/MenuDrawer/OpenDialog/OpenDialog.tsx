@@ -6,11 +6,11 @@ import Typography from "material-ui/Typography";
 import {LayoutCard} from "components/Editor/MenuDrawer/OpenDialog/OpenDialog.style";
 import {S3Image} from 'aws-amplify-react';
 import LayoutAPI from "apis/layout"
-import * as _ from "lodash";
 import getLogger from "logging";
 import {LayoutData, LayoutMeta} from "reducers/layout";
 import {getLayoutImageFileName} from "apis/storage";
 import {UserRailGroupData} from "reducers/builder";
+import * as moment from "moment";
 
 const LOGGER = getLogger(__filename)
 
@@ -47,11 +47,12 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
 
   async loadLayoutList() {
     const list = await LayoutAPI.fetchLayoutList(this.props.authData.username)
+    const sortedLayouts = list.layouts.sort((a, b) => b.lastModified - a.lastModified)
     LOGGER.info(list)
     this.setState({
       isLoaded: true,
-      layoutMetas: list['layouts'],
-      layoutImageFiles: list['layouts'].map(meta => getLayoutImageFileName(this.props.authData.username, meta.id))
+      layoutMetas: sortedLayouts,
+      layoutImageFiles: sortedLayouts.map(meta => getLayoutImageFileName(this.props.authData.username, meta.id))
     })
   }
 
@@ -101,7 +102,7 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
                     {/*ID: {this.state.layoutMetas[idx].id}*/}
                   {/*</Typography>*/}
                   <Typography align="left" variant="body2">
-                    Last modified: {this.state.layoutMetas[idx].lastModified}
+                    Last modified: {moment(this.state.layoutMetas[idx].lastModified).format('MMMM Do YYYY, hh:mm:ss')}
                   </Typography>
                 </CardContent>
               </LayoutCard>

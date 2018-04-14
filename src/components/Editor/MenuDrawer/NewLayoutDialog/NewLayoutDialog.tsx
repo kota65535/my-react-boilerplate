@@ -92,11 +92,11 @@ export class NewLayoutDialog extends React.Component<NewLayoutDialogProps, NewLa
     } else {
       layoutId = this.createLayoutId()
     }
-    const date = moment().format('MMMM Do YYYY, hh:mm:ss');
+    const timestamp = moment().valueOf()
     const meta: LayoutMeta = {
       id: layoutId,
       name: this.state.name,
-      lastModified: date
+      lastModified: timestamp
     }
     this.props.setLayoutMeta(meta)
     return meta

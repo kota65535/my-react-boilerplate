@@ -2,7 +2,7 @@ import * as React from "react";
 import RailContainers, {RailComponentClasses, RailData, RailGroupData} from "components/rails/index";
 import getLogger from "logging";
 import {RailBase, RailBaseProps} from "components/rails/RailBase";
-import RailGroup from "components/rails/RailGroup/RailGroup";
+import RailGroupContainer from "components/rails/RailGroup";
 import Combinatorics from "js-combinatorics"
 import {Point} from "paper";
 import {JointPair} from "components/hoc/withBuilder";
@@ -59,7 +59,7 @@ export const createRailGroupComponent = (item: RailGroupData, children: RailData
   }
 
   return (
-    <RailGroup
+    <RailGroupContainer
       key={id}
       id={id}
       {...props}
@@ -73,7 +73,7 @@ export const createRailGroupComponent = (item: RailGroupData, children: RailData
       }}
     >
       {children.map(rail => createRailComponent(rail))}
-    </RailGroup>
+    </RailGroupContainer>
   )
 }
 

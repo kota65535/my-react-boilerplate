@@ -46,7 +46,7 @@ export const BUILDER_INITIAL_STATE: BuilderStoreState = {
     'Curve Rails': {type: 'CurveRail', name: 'C280-45'},
     'Turnouts': {type: 'Turnout', name: 'PR541-15'},
     'Special Rails': {type: 'SpecialRails', name: 'End Rail'},
-    'Rail Groups': {type: '', name: ''},
+    'Rail Groups': {type: 'RailGroup', name: ''},
   },
   activeLayerId: 1,
   paperViewLoaded: false,
@@ -205,7 +205,10 @@ export default handleActions<BuilderStoreState, any>({
    */
   [Actions.BUILDER_ADD_USER_RAIL_GROUP]: (state: BuilderStoreState, action: Action<UserRailGroupData>): BuilderStoreState => {
     return update(state, {
-      userRailGroups: {$push: [action.payload]}
+      userRailGroups: {$push: [action.payload]},
+      lastPaletteItems: {
+        'Rail Groups': {$set: {type: 'RailGroup', name: action.payload.name}}
+      }
     })
   },
 

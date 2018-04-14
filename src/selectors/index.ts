@@ -39,7 +39,8 @@ export const canRedo = (state: RootState) => {
 export const temporaryPivotJointIndex = (state: RootState|any) => {
   const {temporaryRails, temporaryRailGroup} = state.builder
   if (temporaryRailGroup) {
-    return temporaryRails[temporaryRailGroup.pivotRailIndex].pivotJointIndex
+    return temporaryRailGroup.pivotJointIndex
+    // return temporaryRails[temporaryRailGroup.pivotRailIndex].pivotJointIndex
   } else if (temporaryRails.length > 0) {
     return temporaryRails[0].pivotJointIndex
   } else {

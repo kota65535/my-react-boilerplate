@@ -1,14 +1,11 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import * as _ from "lodash";
-import RailFactory from "../rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
 import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailId} from "selectors";
 import {HitResult, Point, ToolEvent} from "paper";
-import {getClosest} from "constants/utils";
 import {addUserRailGroup, deleteTemporaryRail, setMarkerPosition, setPhase, setTemporaryRail} from "actions/builder";
-import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {BuilderPhase, UserRailGroupData} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
@@ -34,6 +31,7 @@ export interface WithBuilderPublicProps {
   builderToggleRail:  (railData: RailData) => void
   builderDeselectAllRails: () => void
   builderRemoveSelectedRails: () => void
+  builderAddRail: () => void
 }
 
 
@@ -118,21 +116,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.removeSelectedRails = this.removeSelectedRails.bind(this)
     }
 
-    // /**
-    //  * 追加されるキー操作。
-    //  * @param {KeyboardEvent} e
-    //  */
-    // keyDown = (e: KeyboardEvent) => {
-    //   switch (e.key) {
-    //     case 'ArrowLeft':
-    //       this.undo()
-    //       break;
-    //     case 'ArrowRight':
-    //       this.redo()
-    //       break;
-    //   }
-    // }
-    //
     // componentDidMount() {
     //   document.addEventListener('keydown', this.keyDown)
     // }
@@ -141,41 +124,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     //   document.removeEventListener('keydown', this.keyDown)
     // }
 
-    //==================== MouseMove Handlers ====================
-
     mouseMove = (e: ToolEvent | any) => {
-      const methodName = `mouseMove_${this.props.phase}` //`
-      if (typeof this[methodName] === 'function') {
-        // LOGGER.debug(`EventHandler: ${methodName}`)
-        this[methodName](e)
-      } else {
-        LOGGER.error(`EventHandler: ${methodName} does not exist!`) //`
-      }
-    }
-
-    mouseMove_Normal = (e: ToolEvent | any) => {
       // noop
     }
-
-
-    mouseMove_SetAngle = (e: ToolEvent | any) => {
-      // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
-      const itemProps = RailFactory[this.props.paletteItem.name]()
-      const angle = getFirstRailAngle(this.props.markerPosition, e.point)
-      LOGGER.debug(`FirstAngle: ${angle}`) // `
-      this.props.setTemporaryRail({
-        ...itemProps,
-        id: -1,
-        name: 'TemporaryRail',
-        position: this.props.markerPosition,
-        angle: angle,
-        opacity: TEMPORARY_RAIL_OPACITY,
-        enableJoints: false,
-      })
-    }
-
-
-    //==================== MouseDown Handlers ====================
 
     mouseDown(e: ToolEvent | any) {
       switch (e.event.button) {
@@ -188,61 +139,14 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
-
     mouseLeftDown(e: ToolEvent | any) {
-      const methodName = `mouseLeftDown_${this.props.phase}`; // `
-
-      if (typeof this[methodName] === 'function') {
-        LOGGER.info(`EventHandler: ${methodName}`); // `
-        this[methodName](e)
-      } else {
-        LOGGER.error(`EventHandler: ${methodName} does not exist!`); // `
-      }
+      // noop
     }
-
-
-    mouseLeftDown_Normal = (e: ToolEvent | any) => {
-      // this.props.setPhase(BuilderPhase.SET_ANGLE)
-      // クリックして即座に仮レールを表示したいので、手動で呼び出す
-      // this.mouseMove_FirstAngle(e)
-    }
-
-
-    mouseLeftDown_SetAngle = (e: ToolEvent | any) => {
-      // パレットで選択したレール生成のためのPropsを取得
-      const itemProps = RailFactory[this.props.paletteItem.name]()
-      // 仮レールの位置にレールを設置
-      this.props.addRail({
-        ...itemProps,
-        id: this.props.nextRailId,
-        position: this.props.temporaryRails[0].position,
-        angle: this.props.temporaryRails[0].angle,
-        layerId: this.props.activeLayerId,
-        opposingJoints: {}
-      } as RailData)
-      // 2本目のフェーズに移行する
-      this.props.setPhase(BuilderPhase.NORMAL)
-      // マーカーはもう不要なので削除
-      this.props.deleteTemporaryRail()
-      this.props.setMarkerPosition(null)
-    }
-
-
-    removeSelectedRails() {
-      const selectedRails = this.props.layout.rails.filter(r => r.selected)
-      LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`); // `
-
-      selectedRails.forEach(item => {
-        this.props.addHistory()
-        // this.disconnectJoint(item.id)
-        this.props.removeRail(item, true)
-      })
-    }
-
 
     mouseRightDown(e: ToolEvent | any) {
       // noop
     }
+
 
     keyDown(e: ToolEvent | any) {
       switch (e.key) {
@@ -258,6 +162,21 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     /**
+     * 選択中のレールを削除する。
+     */
+    removeSelectedRails() {
+      const selectedRails = this.props.layout.rails.filter(r => r.selected)
+      LOGGER.info(`[Builder] Selected rail IDs: ${selectedRails.map(r => r.id)}`); // `
+
+      selectedRails.forEach(item => {
+        this.props.addHistory()
+        // this.disconnectJoint(item.id)
+        this.props.removeRail(item, true)
+      })
+    }
+
+
+    /**
      * 選択中のレールを新しいレールグループとして登録する
      */
     registerRailGroup() {
@@ -265,6 +184,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       const rails = this.getSelectedRailData()
       const railIds = rails.map(r => r.id)
 
+      // 空いているジョイントを探す
+      // レールグループ内のレール以外に繋がっているジョイントも空きジョイントとする
       const openJoints = []
       let newRails = rails.map((rail, idx) => {
         const opposingJointIds = _.keys(rail.opposingJoints).map(k => parseInt(k))
@@ -280,9 +201,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           railGroup: {$set: -1},        // 仮のレールグループIDを割り当てる
         })
       })
-
-      _.flatMap(newRails, rail => _.without(_.range(0, rail.numJoints), ..._.keys(rail.opposingJoints).map(j => parseInt(j))))
-
 
       // レールグループデータを生成する
       // TODO: 名前をどうする？
@@ -417,6 +335,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
           builderMouseDown={this.mouseDown}
           builderMouseMove={this.mouseMove}
           builderKeyDown={this.keyDown}
+          // builderAddRail={this.addRail}
           builderConnectJoints={this.connectJoints}
           builderDisconnectJoint={this.disconnectJoint}
           builderChangeJointState={this.changeJointState}
@@ -454,25 +373,6 @@ export const hitTestAll = (point: Point): HitResult[] => {
   return hitResults;
 }
 
-
-/**
- * 指定の点からマウスカーソルの位置を結ぶ直線の角度をstep刻みで返す。
- * @param {paper.Point} anchor
- * @param {paper.Point} cursor
- * @param {number} step
- * @returns {number}
- */
-const getFirstRailAngle = (anchor: Point, cursor: Point, step: number = 45) => {
-  const diffX = cursor.x - anchor.x
-  const diffY = cursor.y - anchor.y
-  const angle = Math.atan2(diffY, diffX) * 180 / Math.PI
-  // このやり方では 0~180度の範囲でしか分からない
-  // const diff = cursor.subtract(anchor)
-  // const unit = new Point(1,0)
-  // const angle = Math.acos(unit.dot(diff) / (unit.length * diff.length))
-  const candidates = _.range(-180, 180, step)
-  return getClosest(angle, candidates)
-}
 
 
 const getRailPartAt = (point: Point) => {

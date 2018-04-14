@@ -12,8 +12,6 @@ import {EditorBody, StyledLayers, StyledPalette, StyledToolBar, StyledWrapper} f
 
 import './Paper.css'
 import GridPaper from "components/Editor/GridPaper";
-
-import {Point} from "paper";
 import withBuilder, {WithBuilderPublicProps} from "../hoc/withBuilder";
 import {RootState} from "store/type";
 import {connect} from "react-redux";
@@ -35,7 +33,6 @@ export interface EditorProps {
   layout: LayoutData
   width: number
   height: number
-  mousePosition: Point
   isLayoutEmpty: boolean
   settings: SettingsStoreState
 }
@@ -58,7 +55,6 @@ type ComposedEditorProps = EditorProps
 const mapStateToProps = (state: RootState) => {
   return {
     layout: currentLayoutData(state),
-    mousePosition: state.builder.mousePosition,
     isLayoutEmpty: isLayoutEmpty(state),
     settings: state.settings
   }
@@ -130,7 +126,6 @@ class Editor extends React.Component<ComposedEditorProps, EditorState> {
 
     const {paperWidth, paperHeight, gridSize} = this.props.settings
 
-    // LOGGER.debug(this.props.mousePosition)
     // LOGGER.debug(`from=${this.props.selectionRectFrom}, to=${this.props.selectionRectTo}`)
 
     return (

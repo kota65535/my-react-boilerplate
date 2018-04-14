@@ -6,7 +6,7 @@ import {Palette} from "components/Editor/Palette/Palette";
 const mapStateToProps = (state: RootState) => {
   return {
     tool: state.tools.activeTool,
-    railGroups: state.builder.railGroups,
+    railGroups: state.builder.userRailGroups,
   }
 };
 

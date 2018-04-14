@@ -120,6 +120,10 @@ export const getTemporaryRailComponent = (): RailBase<RailBaseProps, any> => {
   return window.RAIL_COMPONENTS["-1"]
 }
 
+export const getTemporaryRailGroupComponent = (): RailBase<RailBaseProps, any> => {
+  return window.RAIL_GROUP_COMPONENTS["-1"]
+}
+
 export const getAllRailComponents = (): Array<RailBase<RailBaseProps, any>> => {
   return Object.keys(window.RAIL_COMPONENTS).map(key => window.RAIL_COMPONENTS[key])
 }

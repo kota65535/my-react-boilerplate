@@ -1,10 +1,20 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {getRailComponentsOfLayer, getTemporaryRailComponent} from "components/rails/utils";
+import {
+  getRailComponentsOfLayer,
+  getTemporaryRailComponent,
+  getTemporaryRailGroupComponent
+} from "components/rails/utils";
 import RailFactory from "components/rails/RailFactory";
 import {PaletteItem, RootState} from "store/type";
-import {deleteTemporaryRail, setTemporaryRail, setTemporaryRailGroup, updateTemporaryItem} from "actions/builder";
+import {
+  deleteTemporaryRail,
+  setTemporaryRail,
+  setTemporaryRailGroup,
+  updateTemporaryItem,
+  updateTemporaryRailGroup
+} from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {JointPair, WithBuilderProps} from "components/hoc/withBuilder";
 import Combinatorics from "js-combinatorics"
@@ -13,7 +23,6 @@ import {nextRailGroupId, nextRailId, temporaryPivotJointIndex} from "selectors";
 import {RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
 import {RailData, RailGroupData} from "components/rails/index";
-import * as _ from "lodash";
 import {RailGroupDataPayload} from "reducers/layout";
 
 const LOGGER = getLogger(__filename)
@@ -39,13 +48,14 @@ export interface WithRailBaseProps {
   activeLayerId: number
   nextRailId: number
   nextRailGroupId: number
-  railGroups: RailGroupData[]
+  userRailGroups: RailGroupData[]
 
   // actionssetTemporaryRail
   setTemporaryRail: (item: RailData) => void
-  setTemporaryRailGroup: (item: RailGroupDataPayload) => void
   updateTemporaryRail: (item: Partial<RailData>) => void
   deleteTemporaryRail: () => void
+  setTemporaryRailGroup: (item: RailGroupDataPayload) => void
+  updateTemporaryRailGroup: (item: Partial<RailGroupData>) => void
   addRail: (item: RailData, overwrite?: boolean) => void
   addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => void
 }
@@ -68,16 +78,17 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       activeLayerId: state.builder.activeLayerId,
       nextRailId: nextRailId(state),
       nextRailGroupId: nextRailGroupId(state),
-      railGroups: state.builder.railGroups,
+      userRailGroups: state.builder.userRailGroups,
     }
   }
 
   const mapDispatchToProps = (dispatch: any) => {
     return {
       setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
-      setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
       updateTemporaryRail: (item: Partial<RailData>) => dispatch(updateTemporaryItem(item)),
       deleteTemporaryRail: () => dispatch(deleteTemporaryRail({})),
+      setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
+      updateTemporaryRailGroup: (item: Partial<RailGroupData>) => dispatch(updateTemporaryRailGroup(item)),
       addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
       addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({item, children, overwrite}))
     }
@@ -202,14 +213,23 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {MouseEvent} e
      */
     onJointRightClick = (jointId: number, e: MouseEvent) => {
-      const temporaryRail = getTemporaryRailComponent()
-      const {numJoints, pivotJointChangingStride} = temporaryRail.props
-
-      // 仮レールのPivotJointIndexを加算する
-      let temporaryPivotJointIndex = (this.props.temporaryPivotJointIndex + pivotJointChangingStride) % numJoints
-      this.props.updateTemporaryRail({
-        pivotJointIndex: temporaryPivotJointIndex
-      })
+      const temporaryRailGroup = getTemporaryRailGroupComponent()
+      if (temporaryRailGroup) {
+        const groupProps = this.getRailProps(this.props.paletteItem)
+        const nextPivotJointInfo = groupProps.openJoints[this.props.temporaryPivotJointIndex]
+        this.props.updateTemporaryRailGroup({
+          pivotRailIndex: nextPivotJointInfo.railId,
+          pivotJointIndex: nextPivotJointInfo.jointId
+        })
+      } else {
+        const temporaryRail = getTemporaryRailComponent()
+        const {numJoints, pivotJointChangingStride} = temporaryRail.props
+        // 仮レールのPivotJointIndexを加算する
+        let temporaryPivotJointIndex = (this.props.temporaryPivotJointIndex + pivotJointChangingStride) % numJoints
+        this.props.updateTemporaryRail({
+          pivotJointIndex: temporaryPivotJointIndex
+        })
+      }
 
       return false
     }
@@ -228,7 +248,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     getRailProps = (paletteItem: PaletteItem) => {
       // パレットで選択したレール生成のためのPropsを取得
       if (paletteItem.type === 'RailGroup') {
-        return _.clone(this.props.railGroups.find(rg => rg.name === paletteItem.name))
+        // 同名のレールグループを取得する
+        return _.clone(this.props.userRailGroups.find(rg => rg.name === paletteItem.name))
       } else {
         return RailFactory[paletteItem.name]()
       }
@@ -244,13 +265,19 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       const itemProps = this.getRailProps(this.props.paletteItem)
       if (itemProps.type === 'RailGroup') {
         const {rails, ...railGroupProps} = itemProps
+
+        let pivotJointIndex = this.props.temporaryPivotJointIndex
+        if (pivotJointIndex == null) {
+          pivotJointIndex = 0
+        }
+
         // レールグループのデータ
         const railGroup: RailGroupData = {
           ...railGroupProps,
           id: -1,
           name: 'TemporaryRailGroup',
-          pivotRailIndex: 1,
-          pivotJointIndex: 1,
+          pivotRailIndex: railGroupProps.openJoints[pivotJointIndex].pivotRailIndex,
+          pivotJointIndex: railGroupProps.openJoints[pivotJointIndex].pivotJointIndex,
           position: this.railPart.getGlobalJointPosition(jointId),
           angle: this.railPart.getGlobalJointAngle(jointId),
         }

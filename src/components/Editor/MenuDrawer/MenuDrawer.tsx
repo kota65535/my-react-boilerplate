@@ -19,6 +19,7 @@ import Authenticator from "components/Editor/MenuDrawer/LoginDialog/Authenticato
 import Divider from "material-ui/Divider";
 import getLogger from "logging";
 import SettingsDialog from "components/Editor/MenuDrawer/SettingsDialog";
+import {UserRailGroupData} from "reducers/builder";
 
 const LOGGER = getLogger(__filename)
 
@@ -26,11 +27,11 @@ const LOGGER = getLogger(__filename)
 export interface MenuDrawerProps {
   open: boolean
   onClose: () => void
-  authData: any
 
+  authData: any
   currentLayoutData: LayoutData
   layoutMeta: LayoutMeta
-
+  userRailGroups: UserRailGroupData[]
 }
 
 export interface MenuDrawerState {
@@ -61,7 +62,8 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
     if (this.props.layoutMeta) {
       const savedData = {
         layout: this.props.currentLayoutData,
-        meta: this.props.layoutMeta
+        meta: this.props.layoutMeta,
+        userRailGroups: this.props.userRailGroups
       }
       LOGGER.info(savedData)
       LayoutAPI.saveLayoutData(userId, savedData)

@@ -10,6 +10,7 @@ import * as _ from "lodash";
 import getLogger from "logging";
 import {LayoutData, LayoutMeta} from "reducers/layout";
 import {getLayoutImageFileName} from "apis/storage";
+import {UserRailGroupData} from "reducers/builder";
 
 const LOGGER = getLogger(__filename)
 
@@ -19,6 +20,7 @@ export interface OpenDialogProps {
   authData: any
   setLayoutMeta: (meta: LayoutMeta) => void
   setLayoutData: (data: LayoutData) => void
+  addUserRailGroup: (railGroup: UserRailGroupData) => void
 }
 
 export interface OpenDialogState {
@@ -59,6 +61,7 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
     const data = await LayoutAPI.fetchLayoutData(this.props.authData.username, meta.id)
     LOGGER.info(data)
     this.props.setLayoutData(data.layout)
+    data.userRailGroups.forEach(rg => this.props.addUserRailGroup(rg))
     this.onClose()
   }
 

@@ -9,6 +9,7 @@ import LayoutAPI from "apis/layout"
 import StorageAPI from "apis/storage"
 import getLogger from "logging";
 import * as moment from "moment";
+import {UserRailGroupData} from "reducers/builder";
 
 const LOGGER = getLogger(__filename)
 
@@ -23,6 +24,7 @@ export interface NewLayoutDialogProps {
   layoutMeta: LayoutMeta
   setLayoutMeta: (meta: LayoutMeta) => void
   currentLayoutData: LayoutData
+  userRailGroups: UserRailGroupData[]
 }
 
 export interface NewLayoutDialogState {
@@ -118,7 +120,8 @@ export class NewLayoutDialog extends React.Component<NewLayoutDialogProps, NewLa
     const userId = this.props.authData.username
     const savedData = {
       layout: this.props.currentLayoutData,
-      meta: meta
+      meta: meta,
+      userRailGroups: this.props.userRailGroups,
     }
     LOGGER.info(savedData)
     LayoutAPI.saveLayoutData(userId, savedData)

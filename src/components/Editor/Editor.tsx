@@ -117,7 +117,8 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
 
 
             <Tool
-              active={this.isActive(Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS, Tools.SPECIAL_RAILS, Tools.RAIL_GROUPS)}
+              active={this.isActive(
+                Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS, Tools.SPECIAL_RAILS, Tools.RAIL_GROUPS)}
               name={Tools.STRAIGHT_RAILS}
               onMouseDown={this.props.builderMouseDown}
               onMouseMove={(e) => {

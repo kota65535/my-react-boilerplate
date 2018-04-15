@@ -1,7 +1,7 @@
 import {Action, handleActions} from 'redux-actions';
 import * as Actions from "actions/constants"
 import {PaletteItem} from "store/type";
-import {RailData, RailGroupData} from "components/rails";
+import {RailData, RailGroupData, RailItemData} from "components/rails";
 import update from "immutability-helper";
 import {JointInfo} from "components/rails/RailBase";
 import {RailGroupDataPayload} from "reducers/layout";
@@ -234,7 +234,7 @@ export default handleActions<BuilderStoreState, any>({
    * @param {Action<boolean>} action
    * @returns {BuilderStoreState}
    */
-  [Actions.BUILDER_ADD_USER_CUSTOM_RAIL]: (state: BuilderStoreState, action: Action<any>): BuilderStoreState => {
+  [Actions.BUILDER_ADD_USER_CUSTOM_RAIL]: (state: BuilderStoreState, action: Action<RailItemData>): BuilderStoreState => {
     return update(state, {
       userCustomRails: {$push: [action.payload]},
     })

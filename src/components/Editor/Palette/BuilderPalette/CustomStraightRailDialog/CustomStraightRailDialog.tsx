@@ -6,11 +6,12 @@ import Checkbox from "material-ui/Checkbox";
 import {Tools} from "constants/tools";
 import AutoFocusTextField from "components/common/AutoFocusTextField";
 import TextField from "material-ui/TextField";
+import {RailItemData} from "components/rails";
 
 export interface CustomStraightRailDialogProps {
   open: boolean
   onClose: () => void
-  addUserCustomRail: (item: any) => void
+  addUserCustomRail: (item: RailItemData) => void
 }
 
 export interface CustomStraightRailDialogState {

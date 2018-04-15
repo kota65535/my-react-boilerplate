@@ -7,11 +7,12 @@ import {Tools} from "constants/tools";
 import TextField from "material-ui/TextField";
 import AutoFocusTextField from "components/common/AutoFocusTextField";
 import RailPartBase from "components/rails/parts/RailPartBase";
+import {RailItemData} from "components/rails";
 
 export interface CustomCurveRailDialogProps {
   open: boolean
   onClose: () => void
-  addUserCustomRail: (item: any) => void
+  addUserCustomRail: (item: RailItemData) => void
 }
 
 export interface CustomCurveRailDialogState {

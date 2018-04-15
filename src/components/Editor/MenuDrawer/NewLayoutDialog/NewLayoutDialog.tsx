@@ -10,6 +10,7 @@ import getLogger from "logging";
 import * as moment from "moment";
 import {UserRailGroupData} from "reducers/builder";
 import AutoFocusTextField from "components/common/AutoFocusTextField";
+import {RailItemData} from "components/rails";
 
 const LOGGER = getLogger(__filename)
 
@@ -25,6 +26,7 @@ export interface NewLayoutDialogProps {
   setLayoutMeta: (meta: LayoutMeta) => void
   currentLayoutData: LayoutData
   userRailGroups: UserRailGroupData[]
+  userCustomRails: RailItemData[]
 }
 
 export interface NewLayoutDialogState {
@@ -117,11 +119,13 @@ export class NewLayoutDialog extends React.Component<NewLayoutDialogProps, NewLa
    * @returns {Promise<void>}
    */
   save = async (meta: LayoutMeta) => {
-    const userId = this.props.authData.username
+    const {authData, currentLayoutData, userRailGroups, userCustomRails} = this.props
+    const userId = authData.username
     const savedData = {
-      layout: this.props.currentLayoutData,
+      layout: currentLayoutData,
       meta: meta,
-      userRailGroups: this.props.userRailGroups,
+      userRailGroups: userRailGroups,
+      userCustomRails: userCustomRails,
     }
     LOGGER.info(savedData)
     LayoutAPI.saveLayoutData(userId, savedData)

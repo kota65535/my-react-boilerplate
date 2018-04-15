@@ -9,6 +9,7 @@ const mapStateToProps = (state: RootState) => {
     layoutMeta: state.layout.meta,
     currentLayoutData: currentLayoutData(state),
     userRailGroups: state.builder.userRailGroups,
+    userCustomRails: state.builder.userCustomRails,
   }
 };
 

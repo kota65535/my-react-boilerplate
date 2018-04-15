@@ -4,6 +4,7 @@ import {RootState} from "store/type";
 import {addUserCustomRail} from "actions/builder";
 import CustomCurveRailDialog
   from "components/Editor/Palette/BuilderPalette/CustomCurveRailDialog/CustomCurveRailDialog";
+import {RailItemData} from "components/rails";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -12,7 +13,7 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    addUserCustomRail: (item: any) => dispatch(addUserCustomRail(item))
+    addUserCustomRail: (item: RailItemData) => dispatch(addUserCustomRail(item))
   }
 };
 

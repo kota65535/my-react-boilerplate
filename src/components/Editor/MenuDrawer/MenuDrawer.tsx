@@ -20,6 +20,7 @@ import Divider from "material-ui/Divider";
 import getLogger from "logging";
 import SettingsDialog from "components/Editor/MenuDrawer/SettingsDialog";
 import {UserRailGroupData} from "reducers/builder";
+import {RailItemData} from "components/rails";
 
 const LOGGER = getLogger(__filename)
 
@@ -32,6 +33,7 @@ export interface MenuDrawerProps {
   currentLayoutData: LayoutData
   layoutMeta: LayoutMeta
   userRailGroups: UserRailGroupData[]
+  userCustomRails: RailItemData[]
 }
 
 export interface MenuDrawerState {
@@ -58,16 +60,18 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
 
 
   save = async () => {
-    const userId = this.props.authData.username
-    if (this.props.layoutMeta) {
+    const {authData, layoutMeta, currentLayoutData, userRailGroups, userCustomRails} = this.props
+    const userId = authData.username
+    if (layoutMeta) {
       const savedData = {
-        layout: this.props.currentLayoutData,
-        meta: this.props.layoutMeta,
-        userRailGroups: this.props.userRailGroups
+        layout: currentLayoutData,
+        meta: layoutMeta,
+        userRailGroups: userRailGroups,
+        userCustomRails: userCustomRails,
       }
       LOGGER.info(savedData)
       LayoutAPI.saveLayoutData(userId, savedData)
-      StorageAPI.saveCurrentLayoutImage(userId, this.props.layoutMeta.id)
+      StorageAPI.saveCurrentLayoutImage(userId, layoutMeta.id)
       this.closeMenu()
     } else {
       this.openSaveNewDialog()

@@ -1,6 +1,7 @@
 import {API} from "aws-amplify";
 import {LayoutData, LayoutMeta} from "reducers/layout";
 import {UserRailGroupData} from "reducers/builder";
+import {RailItemData} from "components/rails";
 
 
 export interface LayoutList {
@@ -11,6 +12,7 @@ export interface LayoutDataWithMeta {
   layout: LayoutData
   meta: LayoutMeta
   userRailGroups: UserRailGroupData[]
+  userCustomRails: RailItemData[]
 }
 
 

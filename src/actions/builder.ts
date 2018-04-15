@@ -3,7 +3,7 @@ import * as Actions from "actions/constants";
 import {PaletteItem} from "store/type";
 import {Point} from "paper";
 import {UserRailGroupData} from "reducers/builder";
-import {RailData, RailGroupData} from "components/rails";
+import {RailData, RailGroupData, RailItemData} from "components/rails";
 import {RailGroupDataPayload} from "reducers/layout";
 
 export const selectPaletteItem = createAction<PaletteItem>(Actions.BUILDER_SELECT_PALETTE_ITEM);
@@ -20,4 +20,4 @@ export const updateTemporaryRailGroup = createAction<Partial<RailGroupData>>(Act
 export const setIntersects = createAction<boolean>(Actions.BUILDER_SET_INTERSECTS)
 
 export const addUserRailGroup = createAction<UserRailGroupData>(Actions.BUILDER_ADD_USER_RAIL_GROUP)
-export const addUserCustomRail = createAction<any>(Actions.BUILDER_ADD_USER_CUSTOM_RAIL)
+export const addUserCustomRail = createAction<RailItemData>(Actions.BUILDER_ADD_USER_CUSTOM_RAIL)

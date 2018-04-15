@@ -53,3 +53,9 @@ export type RailData = RailBaseProps | StraightRailProps | CurveRailProps | Simp
 export interface RailGroupData extends RailGroupProps {
   rails: number[]
 }
+
+export interface RailItemData {
+  type: string
+  name: string
+  [x: string]: any
+}

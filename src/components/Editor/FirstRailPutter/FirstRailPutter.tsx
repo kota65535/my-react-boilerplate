@@ -5,7 +5,6 @@ import RectPart from "../../rails/parts/primitives/RectPart";
 import {getClosest} from "constants/utils";
 import {SettingsStoreState} from "reducers/settings";
 import {PaletteItem} from "store/type";
-import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import getLogger from "logging";
 import {RailData} from "components/rails";
 import {WithBuilderPublicProps} from "components/hoc/withBuilder";
@@ -22,13 +21,9 @@ export interface FirstRailPutterProps {
   mousePosition: Point
   paletteItem: PaletteItem
   temporaryRails: RailData[]
-  nextRailId: number
-  activeLayerId: number
   settings: SettingsStoreState
 
-  setTemporaryRail: (item: RailData) => void
   deleteTemporaryRail: () => void
-  addRail: (item: RailData, overwrite?: boolean) => void
 }
 
 export interface FirstRailPutterState {
@@ -151,36 +146,18 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterEnha
     const angle = getFirstRailAngle(this.state.fixedPosition, this.props.mousePosition)
     // 角度が変わっていたら仮レールを設置する
     if (_.isEmpty(this.props.temporaryRails) || this.props.temporaryRails[0].angle !== angle) {
-      this.props.setTemporaryRail({
+      this.props.builderSetTemporaryRail({
         ...itemProps,
-        id: -1,
-        name: 'TemporaryRail',
         position: this.state.fixedPosition,
         angle: angle,
-        opacity: TEMPORARY_RAIL_OPACITY,
-        enableJoints: false,
         pivotJointIndex: 0,
       })
     }
   }
 
   private addRail = () => {
-    // // パレットで選択したレール生成のためのPropsを取得
-    const itemProps = this.props.builderGetRailItemData()
-    if (! itemProps) {
-      return
-    }
     // 仮レールの位置にレールを設置
-    this.props.addRail({
-      ...itemProps,
-      id: this.props.nextRailId,
-      position: this.props.temporaryRails[0].position,
-      angle: this.props.temporaryRails[0].angle,
-      layerId: this.props.activeLayerId,
-      opposingJoints: {},
-      pivotJointIndex: 0,
-    })
-    this.props.deleteTemporaryRail()
+    this.props.builderAddRail()
   }
 }
 

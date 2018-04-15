@@ -16,6 +16,7 @@ import RailGroup from "components/rails/RailGroup/RailGroup";
 import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
 import NewRailGroupDialog from "components/hoc/NewRailGroupDialog/NewRailGroupDialog";
 import railItems from "constants/railItems.json"
+import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 
 const LOGGER = getLogger(__filename)
 
@@ -29,13 +30,15 @@ export interface WithBuilderPublicProps {
   builderChangeJointState: (pairs: JointPair[], state: DetectionState, isError?: boolean) => void
   builderSelectRail: (railData: RailData) => void
   builderDeselectRail: (railData: RailData) => void
-  builderToggleRail:  (railData: RailData) => void
+  builderToggleRail: (railData: RailData) => void
   builderDeselectAllRails: () => void
   builderRemoveSelectedRails: () => void
-  builderAddRail: () => void
   builderGetRailItemData: (name?: string) => any
   builderGetUserRailGroupData: (name?: string) => UserRailGroupData
+  builderSetTemporaryRail: (railData: Partial<RailData>) => void
+  builderAddRail: (railData?: Partial<RailData>) => void
 }
+
 
 
 interface WithBuilderPrivateProps {
@@ -193,6 +196,11 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
+    /**
+     * 指定の名前のユーザー登録済みレールグループデータを返す。
+     * @param {string} name
+     * @returns {any}
+     */
     getUserRailGroupData = (name?: string) => {
       if (! name) {
         name = this.props.paletteItem.name
@@ -202,6 +210,47 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
       return this.props.userRailGroups.find(rg => rg.name === name)
     }
+
+    /**
+     * 仮レールを設置する。
+     * @param {RailData} railData position, angle, pivotJointIndex などの位置に関する情報を含むこと。
+     */
+    setTemporaryRail = (railData: RailData) => {
+      // 仮レールを設置する
+      this.props.setTemporaryRail({
+        ...railData,
+        id: -1,
+        name: 'TemporaryRail',
+        layerId: -1,
+        enableJoints: false,
+        opacity: TEMPORARY_RAIL_OPACITY,
+        visible: true,
+      })
+    }
+
+    /**
+     * 仮レールの位置にレールを設置する。
+     * @param {RailData} railData
+     */
+    addRail = (railData?: RailData) => {
+      const temporaryRail = this.props.temporaryRails[0]
+      this.props.addRail({
+        ...temporaryRail,
+        ...railData,
+        id: this.props.nextRailId,
+        layerId: this.props.activeLayerId,
+        enableJoints: true,
+        opposingJoints: {},
+        opacity: 1,
+        visible: true,
+      })
+      // 仮レールを削除
+      this.props.deleteTemporaryRail()
+    }
+
+
+
+
 
     /**
      * 選択中のレールを削除する。
@@ -363,9 +412,10 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
             builderMouseDown={this.mouseDown}
             builderMouseMove={this.mouseMove}
             builderKeyDown={this.keyDown}
-            // builderAddRail={this.addRail}
             builderGetRailItemData={this.getRailItemData}
             builderGetUserRailGroupData={this.getUserRailGroupData}
+            builderSetTemporaryRail={this.setTemporaryRail}
+            builderAddRail={this.addRail}
             builderConnectJoints={this.connectJoints}
             builderDisconnectJoint={this.disconnectJoint}
             builderChangeJointState={this.changeJointState}

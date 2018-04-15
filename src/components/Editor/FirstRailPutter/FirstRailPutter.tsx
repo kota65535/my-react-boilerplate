@@ -138,20 +138,31 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterEnha
   }
 
   private setTemporaryRail = () => {
-    // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
-    const itemProps = this.props.builderGetRailItemData()
-    if (! itemProps) {
-      return
-    }
-    const angle = getFirstRailAngle(this.state.fixedPosition, this.props.mousePosition)
-    // 角度が変わっていたら仮レールを設置する
-    if (_.isEmpty(this.props.temporaryRails) || this.props.temporaryRails[0].angle !== angle) {
-      this.props.builderSetTemporaryRail({
-        ...itemProps,
+    if (this.props.builderGetUserRailGroupData()) {
+      // 仮レールグループの設置
+      const {rails, openJoints} = this.props.builderGetUserRailGroupData()
+      const pivotJointInfo = openJoints[0]
+      const angle = getFirstRailAngle(this.state.fixedPosition, this.props.mousePosition)
+      const railGroup = {
+        pivotJointInfo: pivotJointInfo,
         position: this.state.fixedPosition,
         angle: angle,
-        pivotJointIndex: 0,
-      })
+      }
+      this.props.builderSetTemporaryRailGroup(railGroup, rails)
+
+    } else if (this.props.builderGetRailItemData()) {
+      // 仮レールの設置
+      const itemData = this.props.builderGetRailItemData()
+      const angle = getFirstRailAngle(this.state.fixedPosition, this.props.mousePosition)
+      // 角度が変わっていたら仮レールを設置する
+      if (_.isEmpty(this.props.temporaryRails) || this.props.temporaryRails[0].angle !== angle) {
+        this.props.builderSetTemporaryRail({
+          ...itemData,
+          position: this.state.fixedPosition,
+          angle: angle,
+          pivotJointIndex: 0,
+        })
+      }
     }
   }
 

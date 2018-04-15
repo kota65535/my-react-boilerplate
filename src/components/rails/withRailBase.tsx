@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
-import {PaletteItem, RootState} from "store/type";
+import {RootState} from "store/type";
 import {
   deleteTemporaryRail,
   setTemporaryRail,
@@ -10,21 +10,15 @@ import {
   updateTemporaryRailGroup
 } from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import {WithBuilderProps} from "components/hoc/withBuilder";
+import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
 import {addRail, addRailGroup} from "actions/layout";
-import {
-  nextPivotJointIndex,
-  nextPivotJointInfo,
-  nextRailGroupId,
-  nextRailId,
-  paletteRailData,
-  paletteRailGroupData,
-} from "selectors";
+import {nextPivotJointIndex, nextPivotJointInfo, nextRailGroupId, nextRailId,} from "selectors";
 import {JointInfo, RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
 import {RailData, RailGroupData} from "components/rails/index";
 import {RailGroupDataPayload} from "reducers/layout";
 import {UserRailGroupData} from "reducers/builder";
+import {compose} from "recompose";
 
 const LOGGER = getLogger(__filename)
 
@@ -42,7 +36,6 @@ export interface WithRailBaseProps {
   onUnmount?: (ref: RailBase<RailBaseProps, RailBaseState>) => void
 
   // states
-  paletteItem: PaletteItem
   temporaryRails: RailData[]
   temporaryRailGroup: RailGroupData
   activeLayerId: number
@@ -51,8 +44,6 @@ export interface WithRailBaseProps {
   userRailGroups: UserRailGroupData[]
   nextPivotJointIndex: number
   nextPivotJointInfo: JointInfo
-  paletteRailData: RailData,
-  paletteRailGroupData: UserRailGroupData
   intersects: boolean
 
   // actionssetTemporaryRail
@@ -65,7 +56,7 @@ export interface WithRailBaseProps {
   addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => void
 }
 
-export type RailBaseContainerProps = RailBaseProps & WithRailBaseProps & WithBuilderProps
+export type RailBaseEnhancedProps = RailBaseProps & WithRailBaseProps & WithBuilderPublicProps
 
 
 /**
@@ -76,7 +67,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
   const mapStateToProps = (state: RootState): Partial<WithRailBaseProps> => {
     return {
-      paletteItem: state.builder.paletteItem,
       temporaryRails: state.builder.temporaryRails,
       temporaryRailGroup: state.builder.temporaryRailGroup,
       activeLayerId: state.builder.activeLayerId,
@@ -85,8 +75,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       userRailGroups: state.builder.userRailGroups,
       nextPivotJointIndex: nextPivotJointIndex(state),
       nextPivotJointInfo: nextPivotJointInfo(state),
-      paletteRailData: paletteRailData(state),
-      paletteRailGroupData: paletteRailGroupData(state),
       intersects: state.builder.intersects,
     }
   }
@@ -107,11 +95,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
   }
 
-  class WithRailBase extends React.Component<RailBaseContainerProps, {}> {
+  class WithRailBase extends React.Component<RailBaseEnhancedProps, {}> {
 
     rail: RailBase<any, any>
 
-    constructor(props: RailBaseContainerProps) {
+    constructor(props: RailBaseEnhancedProps) {
       super(props)
 
       this.onRailPartLeftClick = this.onRailPartLeftClick.bind(this)
@@ -137,9 +125,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {MouseEvent} e
      */
     onJointMouseEnter = (jointId: number, e: MouseEvent) => {
-      if (this.props.paletteRailGroupData) {
+      if (this.props.builderGetUserRailGroupData()) {
         this.showTemporaryRailGroup(jointId)
-      } else if (this.props.paletteRailData) {
+      } else if (this.props.builderGetRailItemData()) {
         this.showTemporaryRail(jointId)
       }
     }
@@ -342,7 +330,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {number} jointId
      */
     private showTemporaryRailGroup = (jointId: number) => {
-      const {rails, openJoints} = this.props.paletteRailGroupData
+      const {rails, openJoints} = this.props.builderGetUserRailGroupData()
 
       // PivotJointの設定
       let pivotJointInfo
@@ -390,7 +378,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
      * @param {number} jointId
      */
     private showTemporaryRail = (jointId: number) => {
-      const railData = this.props.paletteRailData
+      const railData = this.props.builderGetRailItemData()
       // PivotJointを設定する
       let pivotJointIndex
       if (_.isEmpty(this.props.temporaryRails)) {
@@ -427,6 +415,9 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
   }
 
-  return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithRailBase)
+  return compose<WithRailBaseProps, WithRailBaseProps|any>(
+    withBuilder,
+    connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})
+  )(WithRailBase)
 }
 

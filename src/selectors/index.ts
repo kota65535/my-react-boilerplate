@@ -1,6 +1,5 @@
 import {RootState} from "store/type";
 import {LayoutData} from "reducers/layout";
-import RailFactory from "components/rails/RailFactory";
 import getLogger from "logging";
 import {RailComponentClasses} from "components/rails";
 
@@ -41,13 +40,6 @@ export const canRedo = (state: RootState) => {
   return state.layout.histories.length > 1 && state.layout.historyIndex + 1 < state.layout.histories.length
 }
 
-export const paletteRailData = (state: RootState) => {
-  const {type, name} = state.builder.paletteItem
-  if (! RailFactory[name]) {
-    return null
-  }
-  return RailFactory[state.builder.paletteItem.name]()
-}
 
 export const paletteRailGroupData = (state: RootState) => {
   const {type, name} = state.builder.paletteItem

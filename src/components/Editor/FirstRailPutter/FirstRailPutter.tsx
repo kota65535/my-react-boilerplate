@@ -144,7 +144,7 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterEnha
 
   private setTemporaryRail = () => {
     // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
-    const itemProps = this.props.builderGetRailItemProps()
+    const itemProps = this.props.builderGetRailItemData()
     if (! itemProps) {
       return
     }
@@ -166,7 +166,7 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterEnha
 
   private addRail = () => {
     // // パレットで選択したレール生成のためのPropsを取得
-    const itemProps = this.props.builderGetRailItemProps()
+    const itemProps = this.props.builderGetRailItemData()
     if (! itemProps) {
       return
     }

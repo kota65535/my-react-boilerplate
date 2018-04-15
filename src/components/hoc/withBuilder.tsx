@@ -33,7 +33,8 @@ export interface WithBuilderPublicProps {
   builderDeselectAllRails: () => void
   builderRemoveSelectedRails: () => void
   builderAddRail: () => void
-  builderGetRailItemProps: (name?: string) => any
+  builderGetRailItemData: (name?: string) => any
+  builderGetUserRailGroupData: (name?: string) => UserRailGroupData
 }
 
 
@@ -52,6 +53,7 @@ interface WithBuilderPrivateProps {
   removeRail: (item: RailData, overwrite?: boolean) => void
   addHistory: () => void
   addUserRailGroup: (railGroup: UserRailGroupData) => void
+  userRailGroups: UserRailGroupData[]
   userCustomRails: any[]
 }
 
@@ -84,6 +86,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       temporaryRails: state.builder.temporaryRails,
       nextRailId: nextRailId(state),
       nextRailGroupId: nextRailGroupId(state),
+      userRailGroups: state.builder.userRailGroups,
       userCustomRails: state.builder.userCustomRails,
     }
   }
@@ -120,7 +123,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.deselectRail = this.deselectRail.bind(this)
       this.toggleRail = this.toggleRail.bind(this)
       this.removeSelectedRails = this.removeSelectedRails.bind(this)
-      this.getRailItemProps = this.getRailItemProps.bind(this)
+      this.getRailItemData = this.getRailItemData.bind(this)
     }
 
     // componentDidMount() {
@@ -176,7 +179,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
      * @param {string} name
      * @returns {any}
      */
-    getRailItemProps = (name?: string) => {
+    getRailItemData = (name?: string) => {
       if (! name) {
         name = this.props.paletteItem.name
       }
@@ -188,6 +191,16 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       } else {
         return null
       }
+    }
+
+    getUserRailGroupData = (name?: string) => {
+      if (! name) {
+        name = this.props.paletteItem.name
+        if (this.props.paletteItem.type !== 'RailGroup') {
+          return null
+        }
+      }
+      return this.props.userRailGroups.find(rg => rg.name === name)
     }
 
     /**
@@ -351,7 +364,8 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
             builderMouseMove={this.mouseMove}
             builderKeyDown={this.keyDown}
             // builderAddRail={this.addRail}
-            builderGetRailItemProps={this.getRailItemProps}
+            builderGetRailItemData={this.getRailItemData}
+            builderGetUserRailGroupData={this.getUserRailGroupData}
             builderConnectJoints={this.connectJoints}
             builderDisconnectJoint={this.disconnectJoint}
             builderChangeJointState={this.changeJointState}

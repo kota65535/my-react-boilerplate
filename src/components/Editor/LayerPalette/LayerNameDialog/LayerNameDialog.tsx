@@ -1,8 +1,8 @@
 import * as React from "react";
 import Dialog from "material-ui/Dialog";
 import {DialogActions, DialogContent, DialogTitle} from "material-ui";
-import TextField from "material-ui/TextField";
 import Button from "material-ui/Button";
+import AutoFocusTextField from "components/common/AutoFocusTextField";
 
 export interface LayerNameDialogProps {
   title: string
@@ -73,7 +73,7 @@ export class LayerNameDialog extends React.Component<LayerNameDialogProps, Layer
       >
         <DialogTitle id={title}>{title}</DialogTitle>
         <DialogContent>
-          <TextField
+          <AutoFocusTextField
             error={this.state.isError}
             autoFocus
             margin="dense"

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {DialogActions, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
-import TextField from "material-ui/TextField";
 import Button from "material-ui/Button";
 import {LayoutData, LayoutMeta} from "reducers/layout";
 import * as md5 from "js-md5";
@@ -10,6 +9,7 @@ import StorageAPI from "apis/storage"
 import getLogger from "logging";
 import * as moment from "moment";
 import {UserRailGroupData} from "reducers/builder";
+import AutoFocusTextField from "components/common/AutoFocusTextField";
 
 const LOGGER = getLogger(__filename)
 
@@ -139,7 +139,7 @@ export class NewLayoutDialog extends React.Component<NewLayoutDialogProps, NewLa
       >
         <DialogTitle id={title}>{title}</DialogTitle>
         <DialogContent>
-          <TextField
+          <AutoFocusTextField
             error={this.state.isError}
             autoFocus
             margin="normal"

@@ -1,9 +1,9 @@
 import * as React from 'react'
 import {DialogActions, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
-import TextField from "material-ui/TextField";
 import Button from "material-ui/Button";
 import getLogger from "logging";
+import AutoFocusTextField from "components/common/AutoFocusTextField";
 
 const LOGGER = getLogger(__filename)
 
@@ -76,7 +76,7 @@ export default class NewRailGroupDialog extends React.Component<NewRailGroupDial
       >
         <DialogTitle id={title}>{title}</DialogTitle>
         <DialogContent>
-          <TextField
+          <AutoFocusTextField
             error={this.state.isError}
             autoFocus
             margin="normal"

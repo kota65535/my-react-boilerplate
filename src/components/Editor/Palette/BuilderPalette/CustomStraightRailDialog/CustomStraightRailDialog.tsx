@@ -1,18 +1,11 @@
 import * as React from "react";
 import Dialog from "material-ui/Dialog";
-import {
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  InputLabel
-} from "material-ui";
+import {DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup} from "material-ui";
 import Button from "material-ui/Button";
-import Input from "material-ui/Input";
 import Checkbox from "material-ui/Checkbox";
 import {Tools} from "constants/tools";
+import AutoFocusTextField from "components/common/AutoFocusTextField";
+import TextField from "material-ui/TextField";
 
 export interface CustomStraightRailDialogProps {
   open: boolean
@@ -32,29 +25,30 @@ export interface CustomStraightRailDialogState {
 
 export default class CustomStraightRailDialog extends React.Component<CustomStraightRailDialogProps, CustomStraightRailDialogState> {
 
-  constructor(props: CustomStraightRailDialogProps) {
-    super(props)
-    this.state = {
+  static INITIAL_STATE = {
+    name: '',
+    length: '',
+    errors: {
+      name: false,
+      length: false,
+    },
+    errorTexts: {
       name: '',
       length: '',
-      errors: {
-        name: false,
-        length: false,
-      },
-      errorTexts: {
-        name: '',
-        length: '',
-      },
-      isDouble: false,
-    }
+    },
+    isDouble: false,
+  }
+
+
+  constructor(props: CustomStraightRailDialogProps) {
+    super(props)
+    this.state = CustomStraightRailDialog.INITIAL_STATE
 
     this.onDoubleChange = this.onDoubleChange.bind(this)
   }
 
   onEnter = (e) => {
-    this.setState({
-      length: '',
-    })
+    this.setState(CustomStraightRailDialog.INITIAL_STATE)
   }
 
   onOK = (e) => {
@@ -106,7 +100,7 @@ export default class CustomStraightRailDialog extends React.Component<CustomStra
   render() {
     const { open, onClose } = this.props
     const { length, name} = this.state
-    const disable = !(length && name)
+    const disabled = ! (length && name)
 
     return (
       <Dialog
@@ -118,9 +112,8 @@ export default class CustomStraightRailDialog extends React.Component<CustomStra
         <DialogContent>
           <FormGroup>
             <FormControl>
-              <InputLabel htmlFor="custom-straight-rail-length">Length</InputLabel>
-              <Input
-                id="custom-straight-rail-length"
+              <AutoFocusTextField
+                label="Length"
                 type="number"
                 value={this.state.length}
                 onChange={this.onTextChange('length')}
@@ -136,9 +129,8 @@ export default class CustomStraightRailDialog extends React.Component<CustomStra
               label={"Double"}
             />
             <FormControl>
-              <InputLabel htmlFor="custom-straight-rail-name">Name</InputLabel>
-              <Input
-                id="custom-straight-rail-name"
+              <TextField
+                label="Name"
                 value={this.state.name}
                 onChange={this.onTextChange('name')}
               />
@@ -146,7 +138,7 @@ export default class CustomStraightRailDialog extends React.Component<CustomStra
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <Button disabled={disable} variant="raised" onClick={this.onOK} color="primary">
+          <Button disabled={disabled} variant="raised" onClick={this.onOK} color="primary">
             OK
           </Button>
           <Button onClick={onClose} color="primary" autoFocus>

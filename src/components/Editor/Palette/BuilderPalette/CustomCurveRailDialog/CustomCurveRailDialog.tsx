@@ -1,18 +1,12 @@
 import * as React from "react";
 import Dialog from "material-ui/Dialog";
-import {
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  InputLabel
-} from "material-ui";
+import {DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup} from "material-ui";
 import Button from "material-ui/Button";
-import Input from "material-ui/Input";
 import Checkbox from "material-ui/Checkbox";
 import {Tools} from "constants/tools";
+import TextField from "material-ui/TextField";
+import AutoFocusTextField from "components/common/AutoFocusTextField";
+import RailPartBase from "components/rails/parts/RailPartBase";
 
 export interface CustomCurveRailDialogProps {
   open: boolean
@@ -24,6 +18,8 @@ export interface CustomCurveRailDialogState {
   name: string
   radius: string
   centerAngle: string
+  innerRadius: string
+  outerRadius: string
   errors: any
   errorTexts: any
   isDouble: boolean
@@ -32,45 +28,56 @@ export interface CustomCurveRailDialogState {
 
 export default class CustomCurveRailDialog extends React.Component<CustomCurveRailDialogProps, CustomCurveRailDialogState> {
 
-  constructor(props: CustomCurveRailDialogProps) {
-    super(props)
-    this.state = {
+  static INITIAL_STATE = {
+    name: '',
+    radius: '',
+    centerAngle: '',
+    innerRadius: '',
+    outerRadius: '',
+    errors: {
+      name: false,
+      radius: false,
+      centerAngle: false,
+    },
+    errorTexts: {
       name: '',
       radius: '',
       centerAngle: '',
-      errors: {
-        name: false,
-        radius: false,
-        centerAngle: false,
-      },
-      errorTexts: {
-        name: '',
-        radius: '',
-        centerAngle: '',
-      },
-      isDouble: false,
-    }
+    },
+    isDouble: false,
+  }
+
+  constructor(props: CustomCurveRailDialogProps) {
+    super(props)
+    this.state = CustomCurveRailDialog.INITIAL_STATE
 
     this.onDoubleChange = this.onDoubleChange.bind(this)
   }
 
   onEnter = (e) => {
-    this.setState({
-      radius: '',
-      centerAngle: '',
-    })
+    this.setState(CustomCurveRailDialog.INITIAL_STATE)
   }
 
   onOK = (e) => {
-    const {isDouble, radius, centerAngle, name} = this.state
-    let type = isDouble ? 'DoubleCurveRail' : 'CurveRail'
-    this.props.addUserCustomRail({
-      type: type,
-      radius: parseInt(radius),             // string -> number への変換を忘れないように
-      centerAngle: parseInt(centerAngle),
-      name: name,
-      paletteName: Tools.CURVE_RAILS,
-    })
+    const {isDouble, radius, innerRadius, outerRadius, centerAngle, name} = this.state
+    if (isDouble) {
+      this.props.addUserCustomRail({
+        type: 'DoubleCurveRail',
+        innerRadius: parseInt(innerRadius),   // string -> number への変換を忘れないように
+        outerRadius: parseInt(outerRadius),
+        centerAngle: parseInt(centerAngle),
+        name: name,
+        paletteName: Tools.CURVE_RAILS,
+      })
+    } else {
+      this.props.addUserCustomRail({
+        type: 'CurveRail',
+        radius: parseInt(radius),
+        centerAngle: parseInt(centerAngle),
+        name: name,
+        paletteName: Tools.CURVE_RAILS,
+      })
+    }
 
     this.props.onClose()
   }
@@ -107,11 +114,34 @@ export default class CustomCurveRailDialog extends React.Component<CustomCurveRa
     }
   }
 
+  /**
+   * OuterRadiusをInnerRadiusの値でオートコンプリートする
+   */
+  onInnterRadiusBlur = () => {
+    const {innerRadius, outerRadius} = this.state
+    if (innerRadius && ! outerRadius) {
+      this.setState({
+        outerRadius: (parseInt(innerRadius) + RailPartBase.RAIL_SPACE).toString()
+      })
+    }
+  }
+
+  /**
+   * InnerRadiusをOuterRadiusの値でオートコンプリートする
+   */
+  onOuterRadiusBlur = () => {
+    const {innerRadius, outerRadius} = this.state
+    if (outerRadius && ! innerRadius) {
+      this.setState({
+        innerRadius: (parseInt(this.state.outerRadius) - RailPartBase.RAIL_SPACE).toString()
+      })
+    }
+  }
 
   render() {
     const { open, onClose } = this.props
-    const { radius, centerAngle, name} = this.state
-    const disable = !(radius && centerAngle && name)
+    const { radius, innerRadius, outerRadius, centerAngle, isDouble, name} = this.state
+    const disabled = ! ((isDouble && innerRadius && outerRadius) || (! isDouble && radius))
 
     return (
       <Dialog
@@ -122,19 +152,41 @@ export default class CustomCurveRailDialog extends React.Component<CustomCurveRa
         <DialogTitle id={"custom-curve-rail"}>Custom Curve Rail</DialogTitle>
         <DialogContent>
           <FormGroup>
+            {this.state.isDouble &&
+              <React.Fragment>
+                <FormControl>
+                  <AutoFocusTextField
+                    label="Inner Radius"
+                    type="number"
+                    value={this.state.innerRadius}
+                    onChange={this.onTextChange('innerRadius')}
+                    onBlur={this.onInnterRadiusBlur}
+                  />
+                </FormControl>
+                <FormControl>
+                  <TextField
+                    label="Outer Radius"
+                    type="number"
+                    value={this.state.outerRadius}
+                    onChange={this.onTextChange('outerRadius')}
+                    onBlur={this.onOuterRadiusBlur}
+                  />
+                </FormControl>
+              </React.Fragment>
+            }
+            {! this.state.isDouble &&
+              <FormControl>
+                <AutoFocusTextField
+                  label="Radius"
+                  type="number"
+                  value={this.state.radius}
+                  onChange={this.onTextChange('radius')}
+                />
+              </FormControl>
+            }
             <FormControl>
-              <InputLabel htmlFor="custom-curve-rail-radius">Radius</InputLabel>
-              <Input
-                id="custom-curve-rail-radius"
-                type="number"
-                value={this.state.radius}
-                onChange={this.onTextChange('radius')}
-              />
-            </FormControl>
-            <FormControl>
-              <InputLabel htmlFor="custom-curve-rail-center-angle">Center Angle</InputLabel>
-              <Input
-                id="custom-curve-rail-center-angle"
+              <TextField
+                label="Center Angle"
                 type="number"
                 value={this.state.centerAngle}
                 onChange={this.onTextChange('centerAngle')}
@@ -150,9 +202,8 @@ export default class CustomCurveRailDialog extends React.Component<CustomCurveRa
               label={"Double"}
             />
             <FormControl>
-              <InputLabel htmlFor="custom-curve-rail-name">Name</InputLabel>
-              <Input
-                id="custom-curve-rail-name"
+              <TextField
+                label="Name"
                 value={this.state.name}
                 onChange={this.onTextChange('name')}
               />
@@ -160,7 +211,7 @@ export default class CustomCurveRailDialog extends React.Component<CustomCurveRa
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <Button disabled={disable} variant="raised" onClick={this.onOK} color="primary">
+          <Button disabled={disabled} variant="raised" onClick={this.onOK} color="primary">
             OK
           </Button>
           <Button onClick={onClose} color="primary" autoFocus>

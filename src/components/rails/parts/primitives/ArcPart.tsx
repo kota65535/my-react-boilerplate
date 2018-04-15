@@ -4,8 +4,8 @@ import {Path as PathComponent} from "react-paper-bindings";
 import {default as PartBase, PartBaseProps, Pivot} from "components/rails/parts/primitives/PartBase";
 
 export enum ArcDirection {
-  RIGHT,
-  LEFT
+  RIGHT = 'Right',
+  LEFT = 'Left',
 }
 
 export interface ArcPartProps extends PartBaseProps {

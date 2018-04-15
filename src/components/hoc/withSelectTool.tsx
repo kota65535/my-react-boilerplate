@@ -79,11 +79,15 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
 
 
     /**
-     * 任意の地点を左クリックしたら、矩形選択を開始する。
+     * レールパーツ以外の場所を左クリックしたら、選択状態をリセットする。
+     * ただし、Shiftを押しながらクリックした場合はリセットしない。
+     * そのままドラッグすると矩形選択を開始する。
      * @param {paper.ToolEvent | any} e
      */
     mouseDown = (e: ToolEvent|any) => {
-      if (! e.modifiers.shift) {
+      // Shiftが押されておらず、RailPart上で無ければ選択状態をリセットする
+      const isNotOnRailPart = (! e.item) || (e.item.data.type !== 'RailPart')
+      if ((! e.modifiers.shift) && isNotOnRailPart) {
         this.props.builderDeselectAllRails()
       }
       // 矩形の始点を保存する

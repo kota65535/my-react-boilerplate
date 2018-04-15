@@ -65,6 +65,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
         <Line
           from={new Point(this.props.gridSize * i, 0)}
           to={new Point(this.props.gridSize * i, this.props.height)}
+          data={{type: 'GridLine'}}
           strokeColor={i % 10 === 0 ? 'white' : 'red'}
         />)
     })
@@ -74,6 +75,7 @@ export class GridPaper extends React.Component<GridPaperProps, {}> {
         <Line
           from={new Point(0, this.props.gridSize * i)}
           to={new Point(this.props.width,this.props.gridSize * i)}
+          data={{type: 'GridLine'}}
           strokeColor={i % 10 === 0 ? 'white' : 'red'}
         />)
     })

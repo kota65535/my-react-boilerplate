@@ -18,6 +18,7 @@ import NewRailGroupDialog from "components/hoc/NewRailGroupDialog/NewRailGroupDi
 import railItems from "constants/railItems.json"
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 
+
 const LOGGER = getLogger(__filename)
 
 
@@ -200,11 +201,12 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       const presetItem = railItems.items.find(item => item.name === name)
       if (presetItem) {
         return presetItem
-      } else if (this.props.userCustomRails[name]) {
-        return this.props.userCustomRails[name]
-      } else {
-        return null
       }
+      const customRail = this.props.userCustomRails.find(item => item.name === name)
+      if (customRail) {
+        return customRail
+      }
+      return null
     }
 
     /**

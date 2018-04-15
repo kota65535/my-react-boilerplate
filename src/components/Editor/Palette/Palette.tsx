@@ -51,8 +51,8 @@ export default class Palette extends React.Component<PaletteProps, PaletteState>
 
 
   render() {
-    const customStraightRails = this.props.userCustomRails.filter(c => c.type === 'StraightRail')
-    const customCurveRails = this.props.userCustomRails.filter(c => c.type === 'CurveRail')
+    const customStraightRails = this.props.userCustomRails.filter(c => c.paletteName === Tools.STRAIGHT_RAILS)
+    const customCurveRails = this.props.userCustomRails.filter(c => c.paletteName === Tools.CURVE_RAILS)
 
     return (
       <Rnd

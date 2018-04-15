@@ -12,6 +12,7 @@ import {
 import Button from "material-ui/Button";
 import Input from "material-ui/Input";
 import Checkbox from "material-ui/Checkbox";
+import {Tools} from "constants/tools";
 
 export interface CustomStraightRailDialogProps {
   open: boolean
@@ -61,8 +62,9 @@ export default class CustomStraightRailDialog extends React.Component<CustomStra
     let type = isDouble ? 'DoubleStraightRail' : 'StraightRail'
     this.props.addUserCustomRail({
       type: type,
-      length: length,
+      length: parseInt(length),
       name: name,
+      paletteName: Tools.STRAIGHT_RAILS,
     })
 
     this.props.onClose()

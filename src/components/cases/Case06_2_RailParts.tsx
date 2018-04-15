@@ -2,15 +2,8 @@ import * as React from "react";
 import {Point} from "paper";
 import {View} from "react-paper-bindings";
 import {createGridLines} from "./common";
-import StraightRailPart from "components/rails/parts/StraightRailPart";
-import DetectablePart from "components/rails/parts/primitives//DetectablePart";
-import RectPart from "components/rails/parts/primitives//RectPart";
-import {Pivot} from "components/rails/parts/primitives//PartBase";
-import CurveRailPart from "components/rails/parts/CurveRailPart";
 import {ArcDirection} from "components/rails/parts/primitives//ArcPart";
-import SimpleTurnoutRailPart from "components/rails/parts/SimpleTurnoutRailPart";
-import DoubleStraightRailPart from "components/rails/parts/DoubleStraightRailPart";
-import DoubleCrossTurnoutRailPart from "components/rails/parts/DoubleCrossTurnoutRailPart";
+import DoubleCurveRailPart from "components/rails/parts/DoubleCurveRailPart";
 
 export default class Case05 extends React.Component<any, any> {
 
@@ -38,32 +31,41 @@ export default class Case05 extends React.Component<any, any> {
       >
         {createGridLines(800, 600, 100)}
 
-        <DoubleStraightRailPart
-          pivotJointIndex={0}
-          angle={30}
-          position={new Point(100,200)}
-          length={200}
-        />
+        {/*<DoubleStraightRailPart*/}
+          {/*pivotJointIndex={0}*/}
+          {/*angle={30}*/}
+          {/*position={new Point(100,200)}*/}
+          {/*length={200}*/}
+        {/*/>*/}
 
-        <DoubleStraightRailPart
+        {/*<DoubleStraightRailPart*/}
+          {/*pivotJointIndex={1}*/}
+          {/*angle={30}*/}
+          {/*position={new Point(200,200)}*/}
+          {/*length={200}*/}
+        {/*/>*/}
+
+        {/*<DoubleStraightRailPart*/}
+          {/*pivotJointIndex={2}*/}
+          {/*angle={30}*/}
+          {/*position={new Point(300,200)}*/}
+          {/*length={200}*/}
+        {/*/>*/}
+
+        {/*<DoubleStraightRailPart*/}
+          {/*pivotJointIndex={3}*/}
+          {/*angle={30}*/}
+          {/*position={new Point(400,200)}*/}
+          {/*length={200}*/}
+        {/*/>*/}
+
+        <DoubleCurveRailPart
           pivotJointIndex={1}
-          angle={30}
-          position={new Point(200,200)}
-          length={200}
-        />
-
-        <DoubleStraightRailPart
-          pivotJointIndex={2}
-          angle={30}
-          position={new Point(300,200)}
-          length={200}
-        />
-
-        <DoubleStraightRailPart
-          pivotJointIndex={3}
-          angle={30}
+          innerRadius={200}
+          outerRadius={240}
+          centerAngle={45}
+          direction={ArcDirection.LEFT}
           position={new Point(400,200)}
-          length={200}
         />
 
         {/*<DoubleCrossTurnoutRailPart*/}

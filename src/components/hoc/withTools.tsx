@@ -2,7 +2,6 @@ import * as React from 'react'
 import {connect} from 'react-redux';
 import {setTool} from "../../actions/tools";
 import {PaletteItem, RootState} from "store/type";
-import {Tools} from "constants/tools";
 import {selectPaletteItem} from "actions/builder";
 import {LastPaletteItems} from "reducers/builder";
 
@@ -51,28 +50,28 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
     }
 
     keyDown = (e: KeyboardEvent) => {
-      switch (e.key) {
-        case 'Shift':
-          // シフトを押している間はPANツールが有効になる。離すと元に戻る
-          this._prevTool = this.props.activeTool
-          this.props.setTool(Tools.PAN)
-          break
-        case 's':
-          this.props.setTool(Tools.STRAIGHT_RAILS)
-          this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.STRAIGHT_RAILS])
-          break
-        case 'c':
-          this.props.setTool(Tools.CURVE_RAILS)
-          this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.CURVE_RAILS])
-          break
-        case 't':
-          this.props.setTool(Tools.TURNOUTS)
-          this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.TURNOUTS])
-          break
-        case 'd':
-          this.props.setTool(Tools.DELETE)
-          break
-      }
+      // switch (e.key) {
+      //   case 'Shift':
+      //     // シフトを押している間はPANツールが有効になる。離すと元に戻る
+      //     this._prevTool = this.props.activeTool
+      //     this.props.setTool(Tools.PAN)
+      //     break
+      //   case 's':
+      //     this.props.setTool(Tools.STRAIGHT_RAILS)
+      //     this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.STRAIGHT_RAILS])
+      //     break
+      //   case 'c':
+      //     this.props.setTool(Tools.CURVE_RAILS)
+      //     this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.CURVE_RAILS])
+      //     break
+      //   case 't':
+      //     this.props.setTool(Tools.TURNOUTS)
+      //     this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.TURNOUTS])
+      //     break
+      //   case 'd':
+      //     this.props.setTool(Tools.DELETE)
+      //     break
+      // }
     }
 
     keyUp = (e: KeyboardEvent) => {

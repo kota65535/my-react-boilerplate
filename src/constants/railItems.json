@@ -123,12 +123,18 @@
       "centerAngle": 15
     },
     {
-      "type": "SimpleTurnout",
-      "name": "PL541-15",
-      "length": 140,
-      "radius": 541,
-      "centerAngle": 15,
-      "branchDirection": "Left"
+      "type": "DoubleCurveRail",
+      "name": "DC317-280-45",
+      "innerRadius": 280,
+      "outerRadius": 317,
+      "centerAngle": 45
+    },
+    {
+      "type": "DoubleCurveRail",
+      "name": "DC391-354-45",
+      "innerRadius": 391,
+      "outerRadius": 354,
+      "centerAngle": 45
     },
     {
       "type": "SimpleTurnout",
@@ -140,10 +146,10 @@
     },
     {
       "type": "SimpleTurnout",
-      "name": "PL280-30",
+      "name": "PL541-15",
       "length": 140,
-      "radius": 280,
-      "centerAngle": 30,
+      "radius": 541,
+      "centerAngle": 15,
       "branchDirection": "Left"
     },
     {
@@ -153,6 +159,14 @@
       "radius": 280,
       "centerAngle": 30,
       "branchDirection": "Right"
+    },
+    {
+      "type": "SimpleTurnout",
+      "name": "PL280-30",
+      "length": 140,
+      "radius": 280,
+      "centerAngle": 30,
+      "branchDirection": "Left"
     },
     {
       "type": "ThreeWayTurnout",

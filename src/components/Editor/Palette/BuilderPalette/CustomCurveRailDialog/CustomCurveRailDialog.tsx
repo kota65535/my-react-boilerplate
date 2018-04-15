@@ -12,6 +12,7 @@ import {
 import Button from "material-ui/Button";
 import Input from "material-ui/Input";
 import Checkbox from "material-ui/Checkbox";
+import {Tools} from "constants/tools";
 
 export interface CustomCurveRailDialogProps {
   open: boolean
@@ -65,9 +66,10 @@ export default class CustomCurveRailDialog extends React.Component<CustomCurveRa
     let type = isDouble ? 'DoubleCurveRail' : 'CurveRail'
     this.props.addUserCustomRail({
       type: type,
-      radius: radius,
-      centerAngle: centerAngle,
+      radius: parseInt(radius),             // string -> number への変換を忘れないように
+      centerAngle: parseInt(centerAngle),
       name: name,
+      paletteName: Tools.CURVE_RAILS,
     })
 
     this.props.onClose()

@@ -1,15 +1,15 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
 import {PaletteItem, RootState} from "store/type";
-import {LayoutData} from "reducers/layout";
+import {LayoutData, RailGroupDataPayload} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty, nextRailGroupId, nextRailId} from "selectors";
 import {Point, ToolEvent} from "paper";
-import {addUserRailGroup, deleteTemporaryRail, setTemporaryRail} from "actions/builder";
+import {addUserRailGroup, deleteTemporaryRail, setTemporaryRail, setTemporaryRailGroup} from "actions/builder";
 import {UserRailGroupData} from "reducers/builder";
 import getLogger from "logging";
 import update from "immutability-helper";
-import {RailData} from "components/rails";
-import {addHistory, addRail, removeRail, updateRail} from "actions/layout";
+import {RailData, RailGroupData} from "components/rails";
+import {addHistory, addRail, addRailGroup, removeRail, updateRail} from "actions/layout";
 import {JointInfo} from "components/rails/RailBase";
 import {getAllRailComponents, getRailComponent} from "components/rails/utils";
 import RailGroup from "components/rails/RailGroup/RailGroup";
@@ -36,7 +36,8 @@ export interface WithBuilderPublicProps {
   builderGetRailItemData: (name?: string) => any
   builderGetUserRailGroupData: (name?: string) => UserRailGroupData
   builderSetTemporaryRail: (railData: Partial<RailData>) => void
-  builderAddRail: (railData?: Partial<RailData>) => void
+  builderAddRail: () => void
+  builderSetTemporaryRailGroup: (railGroupData: Partial<RailGroupData>, childRails: RailData[]) => void
 }
 
 
@@ -51,6 +52,7 @@ interface WithBuilderPrivateProps {
   nextRailId: number
   nextRailGroupId: number
   temporaryRails: RailData[]
+  temporaryRailGroup: RailGroupData
   addRail: (item: RailData, overwrite?: boolean) => void
   updateRail: (item: Partial<RailData>, overwrite?: boolean) => void
   removeRail: (item: RailData, overwrite?: boolean) => void
@@ -58,6 +60,8 @@ interface WithBuilderPrivateProps {
   addUserRailGroup: (railGroup: UserRailGroupData) => void
   userRailGroups: UserRailGroupData[]
   userCustomRails: any[]
+  setTemporaryRailGroup: (item: RailGroupDataPayload) => void
+  addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => void
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
@@ -87,6 +91,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       activeLayerId: state.builder.activeLayerId,
       isLayoutEmpty: isLayoutEmpty(state),
       temporaryRails: state.builder.temporaryRails,
+      temporaryRailGroup: state.builder.temporaryRailGroup,
       nextRailId: nextRailId(state),
       nextRailGroupId: nextRailGroupId(state),
       userRailGroups: state.builder.userRailGroups,
@@ -102,7 +107,13 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       updateRail: (item: Partial<RailData>, overwrite = false) => dispatch(updateRail({item, overwrite})),
       removeRail: (item: RailData, overwrite = false) => dispatch(removeRail({item, overwrite})),
       addHistory: () => dispatch(addHistory({})),
-      addUserRailGroup: (railGroup: UserRailGroupData) => dispatch(addUserRailGroup(railGroup))
+      addUserRailGroup: (railGroup: UserRailGroupData) => dispatch(addUserRailGroup(railGroup)),
+      setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
+      addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({
+        item,
+        children,
+        overwrite
+      }))
     }
   }
 
@@ -229,43 +240,81 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     /**
-     * 仮レールの位置にレールを設置する。
+     * 仮レールの位置にレールまたはレールグループを設置する。
      * @param {RailData} railData
      */
-    addRail = (railData?: RailData) => {
-      const temporaryRail = this.props.temporaryRails[0]
-      this.props.addRail({
-        ...temporaryRail,
-        ...railData,
-        id: this.props.nextRailId,
-        layerId: this.props.activeLayerId,
-        enableJoints: true,
-        opposingJoints: {},
-        opacity: 1,
-        visible: true,
-      })
+    addRail = () => {
+      if (this.props.temporaryRailGroup) {
+        // レールグループを追加
+        const children = this.props.temporaryRails.map((temporaryRail, idx) => {
+          return {
+            ...temporaryRail,
+            id: this.props.nextRailId + idx,    // IDを新規に割り振る
+            name: '',
+            layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
+            opacity: 1,
+            opposingJoints: {},
+            enableJoints: true,                 // ジョイントを有効化する
+          }
+        })
+        this.props.addRailGroup({
+          ...this.props.temporaryRailGroup,
+          id: this.props.nextRailGroupId,       // IDを新規に割り振る
+          name: '',
+        }, children)
+      } else {
+        // 単体のレールを追加
+        const temporaryRail = this.props.temporaryRails[0]
+        this.props.addRail({
+          ...temporaryRail,
+          id: this.props.nextRailId,
+          layerId: this.props.activeLayerId,
+          enableJoints: true,
+          opposingJoints: {},
+          opacity: 1,
+          visible: true,
+        })
+      }
+
       // 仮レールを削除
       this.props.deleteTemporaryRail()
     }
 
     /**
-     * 仮レールを設置する。
-     * @param {RailData} railData position, angle, pivotJointIndex などの位置に関する情報を含むこと。
+     * 仮レールグループを設置する。
+     * @param {RailGroupData} railGroupData position, angle, pivotJointIndex などの位置に関する情報を含むこと。
+     * @param {RailData[]} childRails
      */
-    setTemporaryRailGroup = (railData: RailData) => {
-      // 仮レールを設置する
-      this.props.setTemporaryRail({
-        ...railData,
+    setTemporaryRailGroup = (railGroupData: RailGroupData, childRails: RailData[]) => {
+      // レールグループデータの作成
+      const railGroup: RailGroupData = {
+        ...railGroupData,
+        type: 'RailGroup',
         id: -1,
-        name: 'TemporaryRail',
-        layerId: -1,
-        enableJoints: false,
-        opacity: TEMPORARY_RAIL_OPACITY,
-        visible: true,
+        name: 'TemporaryRailGroup',
+        rails: []
+      }
+
+      // レールグループに所属するレールデータの作成
+      const children = childRails.map((r, idx) => {
+        return {
+          ...r,
+          id: -2 - idx,
+          name: 'TemporaryRail',
+          layerId: this.props.activeLayerId,
+          enableJoints: false,                  // ジョイント無効
+          opacity: TEMPORARY_RAIL_OPACITY,
+          visible: true,
+        }
       })
+
+      // 仮レールグループを設置する
+      this.props.setTemporaryRailGroup({
+        item: railGroup,
+        children: children
+      })
+      LOGGER.info('TemporaryRailGroup', railGroup, children)
     }
-
-
 
 
     /**
@@ -281,7 +330,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         this.props.removeRail(item, true)
       })
     }
-
 
 
     getSelectedRailData() {
@@ -431,6 +479,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
             builderGetRailItemData={this.getRailItemData}
             builderGetUserRailGroupData={this.getUserRailGroupData}
             builderSetTemporaryRail={this.setTemporaryRail}
+            builderSetTemporaryRailGroup={this.setTemporaryRailGroup}
             builderAddRail={this.addRail}
             builderConnectJoints={this.connectJoints}
             builderDisconnectJoint={this.disconnectJoint}

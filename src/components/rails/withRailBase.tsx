@@ -2,22 +2,12 @@ import * as React from "react";
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
 import {RootState} from "store/type";
-import {
-  deleteTemporaryRail,
-  setTemporaryRail,
-  setTemporaryRailGroup,
-  updateTemporaryItem,
-  updateTemporaryRailGroup
-} from "actions/builder";
-import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
-import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
-import {addRailGroup} from "actions/layout";
-import {nextPivotJointIndex, nextPivotJointInfo, nextRailGroupId, nextRailId,} from "selectors";
+import {updateTemporaryItem, updateTemporaryRailGroup} from "actions/builder";
+import withBuilder, {WithBuilderPublicProps} from "components/hoc/withBuilder";
+import {nextPivotJointIndex, nextPivotJointInfo} from "selectors";
 import {JointInfo, RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
 import {RailData, RailGroupData} from "components/rails/index";
-import {RailGroupDataPayload} from "reducers/layout";
-import {UserRailGroupData} from "reducers/builder";
 import {compose} from "recompose";
 
 const LOGGER = getLogger(__filename)
@@ -39,20 +29,13 @@ export interface WithRailBaseProps {
   temporaryRails: RailData[]
   temporaryRailGroup: RailGroupData
   activeLayerId: number
-  nextRailId: number
-  nextRailGroupId: number
-  userRailGroups: UserRailGroupData[]
   nextPivotJointIndex: number
   nextPivotJointInfo: JointInfo
   intersects: boolean
 
   // actionssetTemporaryRail
-  setTemporaryRail: (item: RailData) => void
   updateTemporaryRail: (item: Partial<RailData>) => void
-  deleteTemporaryRail: () => void
-  setTemporaryRailGroup: (item: RailGroupDataPayload) => void
   updateTemporaryRailGroup: (item: Partial<RailGroupData>) => void
-  addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => void
 }
 
 export type RailBaseEnhancedProps = RailBaseProps & WithRailBaseProps & WithBuilderPublicProps
@@ -69,9 +52,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       temporaryRails: state.builder.temporaryRails,
       temporaryRailGroup: state.builder.temporaryRailGroup,
       activeLayerId: state.builder.activeLayerId,
-      nextRailId: nextRailId(state),
-      nextRailGroupId: nextRailGroupId(state),
-      userRailGroups: state.builder.userRailGroups,
       nextPivotJointIndex: nextPivotJointIndex(state),
       nextPivotJointInfo: nextPivotJointInfo(state),
       intersects: state.builder.intersects,
@@ -80,16 +60,8 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
   const mapDispatchToProps = (dispatch: any): Partial<WithRailBaseProps> => {
     return {
-      setTemporaryRail: (item: RailData) => dispatch(setTemporaryRail(item)),
       updateTemporaryRail: (item: Partial<RailData>) => dispatch(updateTemporaryItem(item)),
-      deleteTemporaryRail: () => dispatch(deleteTemporaryRail({})),
-      setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
       updateTemporaryRailGroup: (item: Partial<RailGroupData>) => dispatch(updateTemporaryRailGroup(item)),
-      addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({
-        item,
-        children,
-        overwrite
-      }))
     }
   }
 
@@ -173,19 +145,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
         return false
       }
 
-      // 仮レールのRailData
-      const temporaryRails = this.props.temporaryRails
-      const temporaryRailGroup = this.props.temporaryRailGroup
-      if (temporaryRailGroup) {
-        this.addRailGroup(jointId, temporaryRails, temporaryRailGroup)
-      } else if (temporaryRails.length > 0) {
-        this.props.builderAddRail()
-      } else {
+      if (_.isEmpty(this.props.temporaryRails)) {
         return false
       }
-      // 仮レールを消去する
-      this.props.deleteTemporaryRail()
-      // ジョイントの検出状態を変更させる
+
+      this.props.builderAddRail()
       return true
     }
 
@@ -275,34 +239,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
 
 
     /**
-     * 仮レールをもとにレールグループをレイアウトに追加する
-     * @param {number} jointId
-     * @param {RailData[]} temporaryRails
-     * @param {RailGroupData} temporaryRailGroup
-     */
-    private addRailGroup = (jointId: number, temporaryRails: RailData[], temporaryRailGroup: RailGroupData) => {
-      const children = temporaryRails.map((temporaryRail, idx) => {
-        return {
-          ...temporaryRail,
-          id: this.props.nextRailId + idx,    // IDを新規に割り振る
-          name: '',
-          layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
-          opacity: 1,
-          opposingJoints: {},
-          enableJoints: true,                 // ジョイントを有効化する
-        }
-      })
-
-      this.props.addRailGroup({
-        ...temporaryRailGroup,
-        id: this.props.nextRailGroupId,       // IDを新規に割り振る
-        name: '',
-      }, children)
-    }
-
-
-
-    /**
      * 仮レールグループを表示する
      * @param {number} jointId
      */
@@ -318,35 +254,13 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       }
 
       // レールグループデータの作成
-      const railGroup: RailGroupData = {
-        type: 'RailGroup',
-        id: -1,
-        name: 'TemporaryRailGroup',
+      const railGroup = {
         pivotJointInfo: pivotJointInfo,
         position: this.railPart.getGlobalJointPosition(jointId),
         angle: this.railPart.getGlobalJointAngle(jointId),
-        rails: []
       }
 
-      // レールグループに所属するレールデータの作成
-      const children = rails.map((r, idx) => {
-        return {
-          ...r,
-          id: -2 - idx,
-          name: 'TemporaryRail',
-          layerId: this.props.activeLayerId,
-          enableJoints: false,                  // ジョイント無効
-          opacity: TEMPORARY_RAIL_OPACITY,
-          visible: true,
-        }
-      })
-
-      // 仮レールグループを設置する
-      this.props.setTemporaryRailGroup({
-        item: railGroup,
-        children: children
-      })
-      LOGGER.info('TemporaryRailGroup', railGroup, children)
+      this.props.builderSetTemporaryRailGroup(railGroup, rails)
     }
 
 

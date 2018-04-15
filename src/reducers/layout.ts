@@ -27,6 +27,7 @@ export interface LayerData {
   id: number
   name: string
   visible: boolean
+  color: string
 }
 
 export interface RailDataPayload {
@@ -87,6 +88,7 @@ export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
           id: 1,
           name: 'Layer 1',
           visible: true,
+          color: '#000'
         }
       ],
       rails: [],
@@ -94,7 +96,7 @@ export const LAYOUT_STORE_INITIAL_STATE: LayoutStoreState = {
     }
   ],
   historyIndex: 0,
-  meta: null
+  meta: null,
 }
 
 

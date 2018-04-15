@@ -43,7 +43,8 @@ const createLayer = (id, name): LayerData => {
   return {
     id: id,
     name: name,
-    visible: true
+    visible: true,
+    color: '#000',
   }
 }
 

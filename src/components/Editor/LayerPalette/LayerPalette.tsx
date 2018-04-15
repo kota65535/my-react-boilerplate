@@ -8,7 +8,7 @@ import AddLayerButton from "components/Editor/LayerPalette/AddLayerButton/AddLay
 import {LayerListItem} from "components/Editor/LayerPalette/LayerListItem/LayerListItem";
 import getLogger from "logging";
 import {getClosest} from "constants/utils";
-import {LayerNameDialog} from "components/Editor/LayerPalette/LayerNameDialog/LayerNameDialog";
+import LayerSettingDialog from "components/Editor/LayerPalette/LayerSettingDialog";
 import {ConfirmationDialog} from "components/Editor/LayerPalette/ConfirmationDialog/ConfirmationDialog";
 import Typography from "material-ui/Typography";
 
@@ -30,7 +30,7 @@ export interface LayerPaletteProps {
 export interface LayerPaletteState {
   targetLayerId: number
   addDialogOpen: boolean
-  renameDialogOpen: boolean
+  updateDialogOpen: boolean
   deleteDialogOpen: boolean
 }
 
@@ -42,14 +42,13 @@ export default class LayerPalette extends React.Component<LayerPaletteProps, Lay
     this.state = {
       targetLayerId: null,
       addDialogOpen: false,
-      renameDialogOpen: false,
+      updateDialogOpen: false,
       deleteDialogOpen: false
     }
     this.onToggleVisible = this.onToggleVisible.bind(this)
     this.onChangeActive = this.onChangeActive.bind(this)
-    this.addLayer = this.addLayer.bind(this)
     this.openDeleteDialog = this.openDeleteDialog.bind(this)
-    this.openRenameDialog = this.openRenameDialog.bind(this)
+    this.openUpdateDialog = this.openUpdateDialog.bind(this)
   }
 
   onToggleVisible = (layerId: number) => (e: React.SyntheticEvent<HTMLInputElement>) => {
@@ -77,33 +76,17 @@ export default class LayerPalette extends React.Component<LayerPaletteProps, Lay
     })
   }
 
-  addLayer = (name: string) => {
-    const newLayer = {
-      id: this.props.nextLayerId,
-      name: name,
-      visible: true
-    }
-    this.props.addLayer(newLayer)
-  }
-
-  openRenameDialog = (layerId: number) => (e: React.MouseEvent<HTMLElement>) => {
+  openUpdateDialog = (layerId: number) => (e: React.MouseEvent<HTMLElement>) => {
     this.setState({
-      renameDialogOpen: true,
+      updateDialogOpen: true,
       targetLayerId: layerId
     })
   }
 
   closeRenameDialog = () => {
     this.setState({
-      renameDialogOpen: false,
+      updateDialogOpen: false,
       targetLayerId: null
-    })
-  }
-
-  renameLayer = (name: string) => {
-    this.props.updateLayer({
-      id: this.state.targetLayerId,
-      name: name
     })
   }
 
@@ -175,7 +158,7 @@ export default class LayerPalette extends React.Component<LayerPaletteProps, Lay
                   active={activeLayerId === layer.id}
                   onClick={this.onChangeActive(layer.id)}
                   onDelete={this.openDeleteDialog(layer.id)}
-                  onRename={this.openRenameDialog(layer.id)}
+                  onRename={this.openUpdateDialog(layer.id)}
                   isDeletable={this.props.layers.length >= 2}
                 >
                   <ListItemText primary={layer.name}/>
@@ -184,17 +167,16 @@ export default class LayerPalette extends React.Component<LayerPaletteProps, Lay
             </Grid>
           )}
         </Paper>
-        <LayerNameDialog
+        <LayerSettingDialog
           title={'New Layer'}
           open={this.state.addDialogOpen}
-          onOK={this.addLayer}
           onClose={this.closeAddDialog}
         />
-        <LayerNameDialog
-          title={'Rename Layer'}
-          open={this.state.renameDialogOpen}
-          onOK={this.renameLayer}
+        <LayerSettingDialog
+          title={'Change Layer Settings'}
+          open={this.state.updateDialogOpen}
           onClose={this.closeRenameDialog}
+          layerId={this.state.targetLayerId}
         />
         <ConfirmationDialog
           title={'Delete Layer'}

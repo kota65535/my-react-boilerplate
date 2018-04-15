@@ -10,7 +10,7 @@ import withRoot from './withRoot';
 import Amplify from "aws-amplify";
 import aws_exports from './aws-exports';
 import TestCases from "components/cases/TestCases";
-import Case01 from "components/cases/Case01_PrimitiveParts";
+import 'typeface-roboto'
 
 Amplify.configure(aws_exports)
 

@@ -62,7 +62,7 @@ export class LayerListItem extends React.Component<LayerListItemProps, LayerList
           open={Boolean(this.state.anchorEl)}
           onClose={this.onMenuClose}
         >
-          <MenuItem onClick={this.onRename}>Rename</MenuItem>
+          <MenuItem onClick={this.onRename}>Setting</MenuItem>
           {isDeletable && <MenuItem onClick={this.onDelete}>Delete</MenuItem>}
         </Menu>
       </React.Fragment>

@@ -20,3 +20,4 @@ export const updateTemporaryRailGroup = createAction<Partial<RailGroupData>>(Act
 export const setIntersects = createAction<boolean>(Actions.BUILDER_SET_INTERSECTS)
 
 export const addUserRailGroup = createAction<UserRailGroupData>(Actions.BUILDER_ADD_USER_RAIL_GROUP)
+export const addUserCustomRail = createAction<any>(Actions.BUILDER_ADD_USER_CUSTOM_RAIL)

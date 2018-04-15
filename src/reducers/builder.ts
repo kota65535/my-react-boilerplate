@@ -37,6 +37,8 @@ export interface BuilderStoreState {
   userRailGroups: UserRailGroupData[]
   // 仮レールと他のレールが重なっているか否か
   intersects: boolean
+  // カスタムレール
+  userCustomRails: any
 }
 
 export const BUILDER_INITIAL_STATE: BuilderStoreState = {
@@ -54,6 +56,7 @@ export const BUILDER_INITIAL_STATE: BuilderStoreState = {
   temporaryRailGroup: null,
   userRailGroups: [],
   intersects: false,
+  userCustomRails: [],
 }
 
 export default handleActions<BuilderStoreState, any>({
@@ -223,6 +226,18 @@ export default handleActions<BuilderStoreState, any>({
       ...state,
       intersects: action.payload
     }
+  },
+
+  /**
+   *
+   * @param {BuilderStoreState} state
+   * @param {Action<boolean>} action
+   * @returns {BuilderStoreState}
+   */
+  [Actions.BUILDER_ADD_USER_CUSTOM_RAIL]: (state: BuilderStoreState, action: Action<any>): BuilderStoreState => {
+    return update(state, {
+      userCustomRails: {$push: [action.payload]},
+    })
   },
 
 }, BUILDER_INITIAL_STATE);

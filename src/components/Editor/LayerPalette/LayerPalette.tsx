@@ -152,6 +152,7 @@ export default class LayerPalette extends React.Component<LayerPaletteProps, Lay
         <Paper>
           <TitleDiv className='Layers__title'>
             <LayersIcon />
+            {/* プラスアイコンを右端に配置するためのスタイル */}
             <Typography variant="subheading" color="inherit" style={{flex: 1}}>
               Layers
             </Typography>

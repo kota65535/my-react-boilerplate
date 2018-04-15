@@ -7,6 +7,7 @@ const mapStateToProps = (state: RootState) => {
   return {
     tool: state.tools.activeTool,
     userRailGroups: state.builder.userRailGroups,
+    userCustomRails: state.builder.userCustomRails,
   }
 };
 

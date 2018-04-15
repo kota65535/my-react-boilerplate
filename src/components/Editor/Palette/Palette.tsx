@@ -7,6 +7,8 @@ import TurnoutIcon from "../ToolBar/Icon/Turnout";
 import BuilderPalette from "./BuilderPalette"
 import Rnd from "react-rnd"
 import {UserRailGroupData} from "reducers/builder";
+import CustomStraightRailDialog from "components/Editor/Palette/BuilderPalette/CustomStraightRailDialog";
+import CustomCurveRailDialog from "components/Editor/Palette/BuilderPalette/CustomCurveRailDialog";
 
 
 export interface PaletteProps {
@@ -14,20 +16,43 @@ export interface PaletteProps {
   tool: Tools
   setPaletteMode: (mode: string) => void
   userRailGroups: UserRailGroupData[]
+  userCustomRails: any
+}
+
+export interface PaletteState {
+  customDialogOpen: boolean
 }
 
 
-export default class Palette extends React.Component<PaletteProps, {}> {
+export default class Palette extends React.Component<PaletteProps, PaletteState> {
 
   constructor(props: PaletteProps) {
     super(props)
+    this.state = {
+      customDialogOpen: false
+    }
   }
 
   isActive = (tool: string) => {
     return this.props.tool === tool
   }
 
+  openCustomDialog = () => {
+    this.setState({
+      customDialogOpen: true
+    })
+  }
+
+  closeCustomDialog = () => {
+    this.setState({
+      customDialogOpen: false
+    })
+  }
+
+
   render() {
+    const customStraightRails = this.props.userCustomRails.filter(c => c.type === 'StraightRail')
+    const customCurveRails = this.props.userCustomRails.filter(c => c.type === 'CurveRail')
 
     return (
       <Rnd
@@ -36,15 +61,31 @@ export default class Palette extends React.Component<PaletteProps, {}> {
       >
         <BuilderPalette
           active={this.isActive(Tools.STRAIGHT_RAILS)}
-          icon={(<StraightRailIcon/>)}
+          icon={<StraightRailIcon/>}
           title={Tools.STRAIGHT_RAILS}
           items={builderPaletteData[Tools.STRAIGHT_RAILS]}
+          customItems={customStraightRails}
+          customDialog={
+            <CustomStraightRailDialog
+              open={this.isActive(Tools.STRAIGHT_RAILS) && this.state.customDialogOpen}
+              onClose={this.closeCustomDialog}
+            />
+          }
+          openCustomDialog={this.openCustomDialog}
         />
         <BuilderPalette
           active={this.isActive(Tools.CURVE_RAILS)}
-          icon={(<CurveRailIcon/>)}
+          icon={<CurveRailIcon/>}
           title={Tools.CURVE_RAILS}
           items={builderPaletteData[Tools.CURVE_RAILS]}
+          customItems={customCurveRails}
+          customDialog={
+            <CustomCurveRailDialog
+              open={this.isActive(Tools.CURVE_RAILS) && this.state.customDialogOpen}
+              onClose={this.closeCustomDialog}
+            />
+          }
+          openCustomDialog={this.openCustomDialog}
         />
         <BuilderPalette
           active={this.isActive(Tools.TURNOUTS)}

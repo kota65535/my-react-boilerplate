@@ -28,7 +28,7 @@ export interface WithBuilderPublicProps {
   builderConnectJoints: (pairs: JointPair[]) => void
   builderDisconnectJoint: (railId: number) => void
   builderChangeJointState: (pairs: JointPair[], state: DetectionState, isError?: boolean) => void
-  builderSelectRail: (railData: RailData) => void
+  builderSelectRail: (railId: number) => void
   builderDeselectRail: (railData: RailData) => void
   builderToggleRail: (railData: RailData) => void
   builderDeselectAllRails: () => void
@@ -405,13 +405,15 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     /**
      * レールを選択する。
-     * @param {RailData} railData
      */
-    selectRail = (railData: RailData) => {
-      this.props.updateRail(update(railData, {
-          selected: {$set: true}
-        }
-      ), true)
+    selectRail = (railId: number) => {
+      const railData = this.getRailDataById(railId)
+      if (railData) {
+        this.props.updateRail(update(railData, {
+            selected: {$set: true}
+          }
+        ), true)
+      }
     }
 
     /**
@@ -550,6 +552,9 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.props.addUserRailGroup(railGroup)
     }
 
+    private getRailDataById = (id: number) => {
+      return this.props.layout.rails.find(item => item.id === id)
+    }
   }
 
   return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithBuilder)

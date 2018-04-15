@@ -2,14 +2,14 @@ import * as React from 'react';
 import {RootState} from "store/type";
 import {setMousePosition} from "actions/builder";
 import {connect} from "react-redux";
-import {Group, Path, Point, ToolEvent} from 'paper'
+import {Path, Point, ToolEvent} from 'paper'
 import {Rectangle} from "react-paper-bindings";
 import getLogger from "logging";
 import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 import {currentLayoutData} from "selectors";
 import {LayoutData} from "reducers/layout";
-import {getRailDataById} from "components/hoc/common";
 import {DEFAULT_SELECTION_RECT_COLOR, DEFAULT_SELECTION_RECT_OPACITY} from "constants/tools";
+import {getAllRailComponents} from "components/rails/utils";
 
 const LOGGER = getLogger(__filename)
 
@@ -24,6 +24,7 @@ export interface WithSelectToolPublicProps {
 
 export interface WithSelectToolPrivateProps {
   layout: LayoutData
+  activeLayerId: number
   setMousePosition: (point: Point) => void
 }
 
@@ -44,6 +45,7 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
   const mapStateToProps = (state: RootState) => {
     return {
       layout: currentLayoutData(state),
+      activeLayerId: state.builder.activeLayerId,
     }
   }
 
@@ -120,13 +122,12 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
     mouseUp = (e: ToolEvent) => {
       if (this.selectionRect) {
         // 選択対象は現在のレイヤーのレールとする
-        window.PAPER_SCOPE.project.activeLayer.getItems().forEach((item: any) => {
-          if (!(item instanceof Group && item.data && item.data.type === 'RailPart')) {
-            return
-          }
+        const rails = getAllRailComponents().filter(rc => rc.props.layerId === this.props.activeLayerId)
 
+        rails.forEach((rail: any) => {
           // 矩形がRailPartを構成するPathを含むか、交わっているか確認する
-          let result = item.children['main'].children.map(path => {
+          const targetPaths = rail.railPart.path.children
+          let result = targetPaths.map(path => {
             let isIntersected = this.selectionRect.intersects(path)
             let isContained = this.selectionRect.contains((path as any).localToOther(this.selectionRect, path.position))
             return isIntersected || isContained
@@ -134,9 +135,8 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
 
           // 上記の条件を満たしていれば選択状態にする
           if (result) {
-            LOGGER.info(item.data.railId)
-            const railData = getRailDataById(this.props.layout, item.data.railId)
-            this.props.builderSelectRail(railData)
+            LOGGER.info('selected', rail.props.id)
+            this.props.builderSelectRail(rail.props.id)
           }
         })
         this.selectionRect.remove()

@@ -248,6 +248,22 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.props.deleteTemporaryRail()
     }
 
+    /**
+     * 仮レールを設置する。
+     * @param {RailData} railData position, angle, pivotJointIndex などの位置に関する情報を含むこと。
+     */
+    setTemporaryRailGroup = (railData: RailData) => {
+      // 仮レールを設置する
+      this.props.setTemporaryRail({
+        ...railData,
+        id: -1,
+        name: 'TemporaryRail',
+        layerId: -1,
+        enableJoints: false,
+        opacity: TEMPORARY_RAIL_OPACITY,
+        visible: true,
+      })
+    }
 
 
 

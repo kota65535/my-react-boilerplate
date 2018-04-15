@@ -11,7 +11,7 @@ import {
 } from "actions/builder";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import {default as withBuilder, WithBuilderPublicProps} from "components/hoc/withBuilder";
-import {addRail, addRailGroup} from "actions/layout";
+import {addRailGroup} from "actions/layout";
 import {nextPivotJointIndex, nextPivotJointInfo, nextRailGroupId, nextRailId,} from "selectors";
 import {JointInfo, RailBase, RailBaseProps, RailBaseState} from "components/rails/RailBase";
 import {connect} from "react-redux";
@@ -52,7 +52,6 @@ export interface WithRailBaseProps {
   deleteTemporaryRail: () => void
   setTemporaryRailGroup: (item: RailGroupDataPayload) => void
   updateTemporaryRailGroup: (item: Partial<RailGroupData>) => void
-  addRail: (item: RailData, overwrite?: boolean) => void
   addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => void
 }
 
@@ -86,7 +85,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       deleteTemporaryRail: () => dispatch(deleteTemporaryRail({})),
       setTemporaryRailGroup: (item: RailGroupDataPayload) => dispatch(setTemporaryRailGroup(item)),
       updateTemporaryRailGroup: (item: Partial<RailGroupData>) => dispatch(updateTemporaryRailGroup(item)),
-      addRail: (item: RailData, overwrite = false) => dispatch(addRail({item, overwrite})),
       addRailGroup: (item: RailGroupData, children: RailData[], overwrite?: boolean) => dispatch(addRailGroup({
         item,
         children,
@@ -181,7 +179,7 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       if (temporaryRailGroup) {
         this.addRailGroup(jointId, temporaryRails, temporaryRailGroup)
       } else if (temporaryRails.length > 0) {
-        this.addRail(jointId, temporaryRails[0])
+        this.props.builderAddRail()
       } else {
         return false
       }
@@ -303,27 +301,6 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
     }
 
 
-    /**
-     * 仮レールをもとにレールをレイアウトに追加する
-     * @param {number} jointId
-     * @param {RailData} temporaryRail
-     */
-    private addRail = (jointId: number, temporaryRail: RailData) => {
-      // 仮レールの位置にレールを設置
-      const newRailData = {
-        ...temporaryRail,
-        id: this.props.nextRailId,          // IDを新規に割り振る
-        name: '',
-        layerId: this.props.activeLayerId,  // 現在のレイヤーに置く
-        opacity: 1,
-        // opposingJoints: [],
-        enableJoints: true,                 // ジョイントを有効化する
-      }
-      LOGGER.info('newRailData', newRailData)
-
-      this.props.addRail(newRailData)
-    }
-
 
     /**
      * 仮レールグループを表示する
@@ -388,17 +365,11 @@ export default function withRailBase(WrappedComponent: React.ComponentClass<Rail
       }
 
       // 仮レールを設置する
-      this.props.setTemporaryRail({
+      this.props.builderSetTemporaryRail({
         ...railData,
-        id: -1,
-        name: 'TemporaryRail',
         position: this.railPart.getGlobalJointPosition(jointId),
         angle: this.railPart.getGlobalJointAngle(jointId),
-        layerId: -1,
         pivotJointIndex: pivotJointIndex,
-        enableJoints: false,
-        opacity: TEMPORARY_RAIL_OPACITY,
-        visible: true,
       })
       LOGGER.info('TemporaryRail', railData)
     }

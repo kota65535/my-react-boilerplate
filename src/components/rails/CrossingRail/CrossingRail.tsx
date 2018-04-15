@@ -30,7 +30,7 @@ export default class CrossingRail extends RailBase<CrossingRailProps, RailBaseSt
 
   render() {
     const {
-      position, angle, crossAngle, length, id, selected, pivotJointIndex, opacity, visible,
+      position, angle, crossAngle, length, id, selected, pivotJointIndex, opacity, visible, fillColor
     } = this.props
 
     return (
@@ -44,6 +44,7 @@ export default class CrossingRail extends RailBase<CrossingRailProps, RailBaseSt
           selected={selected}
           opacity={opacity}
           visible={visible}
+          fillColors={_.fill(Array(4),  fillColor)}
           data={{
             type: 'RailPart',
             railId: id,

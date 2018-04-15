@@ -38,18 +38,21 @@ export interface RailBaseDefaultProps {
   type: string
   // ジョイント数
   numJoints: number
+  // ピボットとなるジョイントのIndex
+  pivotJointIndex: number
   // 右クリックでPivotJointIndexを加算する数
   pivotJointChangingStride: number
+  // 対向ジョイント情報
+  opposingJoints: OpposingJoints
 
   // 選択状態
   selected: boolean
-  // ピボットとなるジョイントのIndex
-  pivotJointIndex: number
   // 透明度
   opacity: number
+  // 可視性
   visible: boolean
-  // 対向ジョイント情報
-  opposingJoints: OpposingJoints
+  // 色
+  fillColor: string
   // ジョイント表示のON/OFF
   enableJoints: boolean
 
@@ -82,6 +85,7 @@ export abstract class RailBase<P extends RailBaseProps, S extends RailBaseState>
     visible: true,
     opposingJoints: {},
     enableJoints: true,
+    fillColor: '#000',
 
     // 何もしないハンドラをセットしておく
     onRailPartLeftClick: (e: MouseEvent) => false,

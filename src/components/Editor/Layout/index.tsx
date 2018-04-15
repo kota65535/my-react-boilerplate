@@ -2,7 +2,7 @@ import * as React from 'react'
 import {connect} from "react-redux";
 import {RootState} from "store/type";
 import Layout, {LayoutProps} from 'components/Editor/Layout/Layout';
-import {currentLayoutData} from "selectors";
+import {activeLayerData, currentLayoutData} from "selectors";
 import withBuilder from "components/hoc/withBuilder";
 import {compose} from "recompose";
 import {setIntersects} from "actions/builder";
@@ -13,6 +13,7 @@ const mapStateToProps = (state: RootState) => {
     temporaryRails: state.builder.temporaryRails,
     temporaryRailGroup: state.builder.temporaryRailGroup,
     activeLayerId: state.builder.activeLayerId,
+    activeLayerData: activeLayerData(state),
   }
 }
 

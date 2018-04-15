@@ -29,7 +29,7 @@ export default class DoubleStraightRail extends RailBase<DoubleStraightRailProps
 
   render() {
     const {
-      position, angle, length, id, selected, pivotJointIndex, opacity, visible,
+      position, angle, length, id, selected, pivotJointIndex, opacity, visible, fillColor
     } = this.props
 
     return (
@@ -42,6 +42,7 @@ export default class DoubleStraightRail extends RailBase<DoubleStraightRailProps
           selected={selected}
           opacity={opacity}
           visible={visible}
+          fillColors={_.fill(Array(4),  fillColor)}
           data={{
             type: 'RailPart',
             railId: id,

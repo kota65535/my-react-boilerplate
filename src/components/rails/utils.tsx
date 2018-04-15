@@ -6,17 +6,18 @@ import RailGroupContainer from "components/rails/RailGroup";
 import Combinatorics from "js-combinatorics"
 import {Point} from "paper";
 import {JointPair} from "components/hoc/withBuilder";
+import {LayerData} from "reducers/layout";
 
 const LOGGER = getLogger(__filename)
 
 
-export const createRailOrRailGroupComponent = (railGroup: RailGroupData, rails: RailData[]) => {
+export const createRailOrRailGroupComponent = (railGroup: RailGroupData, rails: RailData[], layer: LayerData) => {
   if (railGroup) {
-    return createRailGroupComponent(railGroup, rails)
+    return createRailGroupComponent(railGroup, rails, layer)
   } else {
     return (
       <React.Fragment>
-        {rails.map(r => createRailComponent(r))}
+        {rails.map(r => createRailComponent(r, layer))}
       </React.Fragment>
     )
   }
@@ -25,8 +26,9 @@ export const createRailOrRailGroupComponent = (railGroup: RailGroupData, rails: 
 /**
  * レールコンポーネントを生成する。
  * @param {RailData} item
+ * @param {LayerData} layer
  */
-export const createRailComponent = (item: RailData) => {
+export const createRailComponent = (item: RailData, layer: LayerData) => {
   const {id: id, type: type, ...props} = item
   let RailContainer = RailContainers[type]
   if (RailContainer == null) {
@@ -37,6 +39,7 @@ export const createRailComponent = (item: RailData) => {
       key={id}
       id={id}
       {...props}
+      fillColor={layer.color}
       // data={{ id: id, type: Type }}
       // (activeTool === Tools.SELECT)
       // (this.props.selectedItem.id === selectedItem || layer.id === selectedItem)
@@ -52,7 +55,14 @@ export const createRailComponent = (item: RailData) => {
     />)
 }
 
-export const createRailGroupComponent = (item: RailGroupData, children: RailData[]) => {
+/**
+ * レールグループコンポーネントを作成する。
+ * @param {RailGroupData} item
+ * @param {RailData[]} children
+ * @param {LayerData} layer
+ * @returns {any}
+ */
+export const createRailGroupComponent = (item: RailGroupData, children: RailData[], layer: LayerData) => {
   const {id: id, type: type, ...props} = item
   if (type !== 'RailGroup') {
     throw Error(`'${type}' is not a RailGroup!`)
@@ -72,7 +82,7 @@ export const createRailGroupComponent = (item: RailGroupData, children: RailData
         delete window.RAIL_GROUP_COMPONENTS[id]
       }}
     >
-      {children.map(rail => createRailComponent(rail))}
+      {children.map(rail => createRailComponent(rail, layer))}
     </RailGroupContainer>
   )
 }

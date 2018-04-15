@@ -30,7 +30,7 @@ export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
 
   render() {
     const {
-      position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity, visible
+      position, angle, radius, centerAngle, id, selected, pivotJointIndex, opacity, visible, fillColor
     } = this.props
 
     return (
@@ -45,6 +45,7 @@ export default class CurveRail extends RailBase<CurveRailProps, RailBaseState> {
           selected={selected}
           opacity={opacity}
           visible={visible}
+          fillColors={_.fill(Array(4),  fillColor)}
           data={{
             type: 'RailPart',
             railId: id,

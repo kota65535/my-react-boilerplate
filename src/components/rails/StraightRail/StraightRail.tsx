@@ -28,7 +28,7 @@ export default class StraightRail extends RailBase<StraightRailProps, RailBaseSt
 
   render() {
     const {
-      position, angle, length, id, selected, pivotJointIndex, opacity, visible,
+      position, angle, length, id, selected, pivotJointIndex, opacity, visible, fillColor
     } = this.props
 
     return (
@@ -41,6 +41,7 @@ export default class StraightRail extends RailBase<StraightRailProps, RailBaseSt
           selected={selected}
           opacity={opacity}
           visible={visible}
+          fillColors={_.fill(Array(4),  fillColor)}
           data={{
             type: 'RailPart',
             railId: id,

@@ -10,8 +10,7 @@ import {
 } from "components/rails/utils";
 import {RailData, RailGroupData} from "components/rails";
 import getLogger from "logging";
-import {LayoutData} from "reducers/layout";
-import * as _ from "lodash";
+import {LayerData, LayoutData} from "reducers/layout";
 import {JointPair} from "components/hoc/withBuilder";
 import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
 import shallowEqualObjects from "shallow-equal/objects"
@@ -24,6 +23,7 @@ export interface LayoutProps {
   temporaryRails: RailData[]
   temporaryRailGroup: RailGroupData
   activeLayerId: number
+  activeLayerData: LayerData
 
   builderDisconnectJoint: (railId: number) => void
   builderConnectJoints: (pairs: JointPair[]) => void
@@ -105,8 +105,11 @@ export default class Layout extends React.Component<LayoutProps, {}> {
           key={-1}
           data={{id: -1, name: 'TemporaryLayer'}}
         >
-          {temporaryRails.length > 0 &&
-          createRailOrRailGroupComponent(temporaryRailGroup, temporaryRails)}
+          {
+            temporaryRails.length > 0 &&
+            createRailOrRailGroupComponent(temporaryRailGroup, temporaryRails,
+              { id: -1, name: 'Temporary', visible: true, color: this.props.activeLayerData.color})
+          }
         </Layer>
 
         {
@@ -120,14 +123,14 @@ export default class Layout extends React.Component<LayoutProps, {}> {
                 layout.rails
                   .filter(r => r.layerId === layer.id)
                   .filter(r => ! r.groupId)
-                  .map(item => createRailComponent(item))
+                  .map(item => createRailComponent(item, layer))
               }
               { // レールグループに所属しているレールを生成する
                 // レールグループ内のレールは同じレイヤーに所属していなくても良い
                 layout.railGroups
                   .map(item => {
                     const children = layout.rails.filter(c => c.groupId === item.id)
-                    return createRailGroupComponent(item, children)
+                    return createRailGroupComponent(item, children, layer)
                   })
               }
             </Layer>

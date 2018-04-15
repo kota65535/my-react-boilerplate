@@ -1,5 +1,5 @@
 import {RootState} from "store/type";
-import {LayoutData} from "reducers/layout";
+import {LayerData, LayoutData} from "reducers/layout";
 import getLogger from "logging";
 import {RailComponentClasses} from "components/rails";
 
@@ -11,6 +11,10 @@ export const currentLayoutDataString = (state: RootState) => {
 
 export const currentLayoutData = (state: RootState): LayoutData => {
   return state.layout.histories[state.layout.historyIndex]
+}
+
+export const activeLayerData = (state: RootState): LayerData => {
+  return currentLayoutData(state).layers.find(layer => layer.id === state.builder.activeLayerId)
 }
 
 export const isLayoutEmpty = (state: RootState) => {

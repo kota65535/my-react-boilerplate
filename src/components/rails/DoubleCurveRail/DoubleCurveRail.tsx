@@ -32,7 +32,7 @@ export default class DoubleCurveRail extends RailBase<DoubleCurveRailProps, Rail
 
   render() {
     const {
-      position, angle, innerRadius, outerRadius, centerAngle, id, selected, pivotJointIndex, opacity, visible
+      position, angle, innerRadius, outerRadius, centerAngle, id, selected, pivotJointIndex, opacity, visible, fillColor
     } = this.props
 
     return (
@@ -48,6 +48,7 @@ export default class DoubleCurveRail extends RailBase<DoubleCurveRailProps, Rail
           selected={selected}
           opacity={opacity}
           visible={visible}
+          fillColors={_.fill(Array(4),  fillColor)}
           data={{
             type: 'RailPart',
             railId: id,

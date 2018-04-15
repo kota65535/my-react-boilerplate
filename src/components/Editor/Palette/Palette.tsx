@@ -1,9 +1,11 @@
 import * as React from 'react'
 import builderPaletteData from "constants/builderPaletteItems.json"
 import {Tools} from "constants/tools";
-import StraightRailIcon from '../ToolBar/Icon/StraightRail'
-import CurveRailIcon from '../ToolBar/Icon/CurveRail'
-import TurnoutIcon from "../ToolBar/Icon/Turnout";
+import StraightRailIcon from '../ToolBar/Icon/StraightRailIcon'
+import CurveRailIcon from '../ToolBar/Icon/CurveRailIcon'
+import TurnoutIcon from "../ToolBar/Icon/TurnoutIcon";
+import SpecialRailIcon from "components/Editor/ToolBar/Icon/SpecialRailIcon";
+import RailGroupIcon from "components/Editor/ToolBar/Icon/RailGroupIcon";
 import BuilderPalette from "./BuilderPalette"
 import Rnd from "react-rnd"
 import {UserRailGroupData} from "reducers/builder";
@@ -89,19 +91,19 @@ export default class Palette extends React.Component<PaletteProps, PaletteState>
         />
         <BuilderPalette
           active={this.isActive(Tools.TURNOUTS)}
-          icon={(<TurnoutIcon/>)}
+          icon={<TurnoutIcon/>}
           title={Tools.TURNOUTS}
           items={builderPaletteData[Tools.TURNOUTS]}
         />
         <BuilderPalette
           active={this.isActive(Tools.SPECIAL_RAILS)}
-          icon={(<TurnoutIcon/>)}
+          icon={<SpecialRailIcon/>}
           title={Tools.SPECIAL_RAILS}
           items={builderPaletteData[Tools.SPECIAL_RAILS]}
         />
         <BuilderPalette
           active={this.isActive(Tools.RAIL_GROUPS)}
-          icon={(<TurnoutIcon/>)}
+          icon={<RailGroupIcon/>}
           title={Tools.RAIL_GROUPS}
           items={this.props.userRailGroups.map(rg => {
             return {name: rg.name, type: 'RailGroup'}

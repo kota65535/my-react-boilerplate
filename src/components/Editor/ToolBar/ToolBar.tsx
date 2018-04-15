@@ -1,7 +1,9 @@
 import * as React from 'react'
-import CurveRailIcon from './Icon/CurveRail'
-import StraightRailIcon from './Icon/StraightRail'
-import TurnoutIcon from './Icon/Turnout'
+import CurveRailIcon from './Icon/CurveRailIcon'
+import StraightRailIcon from './Icon/StraightRailIcon'
+import TurnoutIcon from './Icon/TurnoutIcon'
+import SpecialRailIcon from "components/Editor/ToolBar/Icon/SpecialRailIcon";
+import RailGroupIcon from "components/Editor/ToolBar/Icon/RailGroupIcon";
 import {AppBar, Toolbar as MuiToolbar} from "material-ui"
 import {StyledIconButton, VerticalDivider} from "./styles";
 import {Tools} from "constants/tools";
@@ -128,7 +130,7 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
                 })}
                 onClick={this.onClickBuilderItem(Tools.SPECIAL_RAILS)}
               >
-                <TurnoutIcon/>
+                <SpecialRailIcon/>
               </StyledIconButton>
             </Tooltip>
 
@@ -139,7 +141,7 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
                 })}
                 onClick={this.onClickBuilderItem(Tools.RAIL_GROUPS)}
               >
-                <TurnoutIcon/>
+                <RailGroupIcon/>
               </StyledIconButton>
             </Tooltip>
 

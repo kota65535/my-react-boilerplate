@@ -1,7 +1,7 @@
 import * as React from 'react';
 import SvgIcon from "material-ui/SvgIcon";
 
-export default function Turnout(props) {
+export default function TurnoutIcon(props) {
   return (
     <SvgIcon {...props}>
       <path d="M17.4,19c-3.5-3.5-8.3-5.5-13.2-5.5v-3c5.7,0,11.3,2.3,15.4,6.3L17.4,19z"/>

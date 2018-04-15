@@ -23,9 +23,9 @@ const LOGGER = getLogger(__filename)
 
 
 export interface WithBuilderPublicProps {
-  builderMouseDown: any
-  builderMouseMove: any
-  builderKeyDown: any
+  builderMouseDown: (e: ToolEvent|any) => void
+  builderMouseMove: (e: ToolEvent|any) => void
+  builderKeyDown: (e: ToolEvent|any) => void
   builderConnectJoints: (pairs: JointPair[]) => void
   builderDisconnectJoint: (railId: number) => void
   builderChangeJointState: (pairs: JointPair[], state: DetectionState, isError?: boolean) => void
@@ -174,19 +174,40 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
 
     keyDown(e: ToolEvent | any) {
-      switch (e.key) {
-        case 'backspace':
-          LOGGER.info('backspape pressed');
-          this.removeSelectedRails()
-          break
-        case 'c':
-          this.setState({
-            newRailGroupDialogOpen: true
-          })
-          break
+      let methodName= 'keyDown_'
+      if (e.modifiers.control) {
+        methodName = methodName.concat('Ctrl')
+      }
+      if (e.modifiers.alt) {
+        methodName = methodName.concat('Alt')
+      }
+      if (e.modifiers.shift) {
+        methodName = methodName.concat('Shift')
+      }
+      methodName = methodName.concat(_.startCase(e.key))
+
+      LOGGER.debug(methodName)
+      if (this[methodName]) {
+        this[methodName](e)
       }
     }
 
+    keyDown_Backspace = (e) => {
+      this.removeSelectedRails()
+    }
+
+    keyDown_CtrlC = (e) => {
+      const selectedRails = this.getSelectedRails()
+      if (selectedRails.length > 0) {
+        this.setState({
+          newRailGroupDialogOpen: true
+        })
+      }
+    }
+
+    keyDown_CtrlX = (e) => {
+      // this.keyDown_CtrlC(e)
+    }
 
     /**
      * 指定の名前のレールの固有Propsを返す。
@@ -444,7 +465,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
      * 全てのレールの選択を解除する。
      */
     deselectAllRails = () => {
-      this.props.layout.rails.forEach(railData => {
+      this.props.layout.rails.filter(r => r.selected).forEach(railData => {
         this.props.updateRail(update(railData, {
             selected: {$set: false}
           }
@@ -556,6 +577,10 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
 
     private getRailDataById = (id: number) => {
       return this.props.layout.rails.find(item => item.id === id)
+    }
+
+    private getSelectedRails = () => {
+      return this.props.layout.rails.filter(r => r.selected)
     }
   }
 

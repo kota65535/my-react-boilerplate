@@ -19,7 +19,6 @@ import {LayoutData} from "reducers/layout";
 import {currentLayoutData, isLayoutEmpty} from "selectors";
 import getLogger from "logging";
 import FirstRailPutter from "./FirstRailPutter";
-import {default as withDeleteTool, WithDeleteToolProps} from "components/hoc/withDeleteTool";
 import withSelectTool, {WithSelectToolPublicProps} from "components/hoc/withSelectTool";
 import {Tools} from "constants/tools";
 import {SettingsStoreState} from "reducers/settings";
@@ -44,7 +43,6 @@ type EnhancedEditorProps = EditorProps
   & WithToolsPrivateProps
   & WithMoveToolProps
   & WithBuilderPublicProps
-  & WithDeleteToolProps
   & WithSelectToolPublicProps
 
 
@@ -77,6 +75,29 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
 
   isActive = (... tools: string[]) => {
     return tools.includes(this.props.activeTool)
+  }
+
+
+  onMouseMove = (e) => {
+    this.props.builderMouseMove(e)
+    const mousePosition = this.props.moveToolMouseMove(e)
+    this.setState({mousePosition})
+  }
+
+  onMouseDown = (e) => {
+    this.props.builderMouseDown(e)
+    this.props.selectToolMouseDown(e)
+    // this.props.moveToolMouseDown(e)
+  }
+
+  onMouseDrag = (e) => {
+    this.props.selectToolMouseDrag(e)
+    // this.props.moveToolMouseDrag(e)
+  }
+
+  onMouseUp = (e) => {
+    this.props.selectToolMouseUp(e)
+    // this.props.moveToolMouseUp(e)
   }
 
 
@@ -119,19 +140,12 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
             <Tool
               active={this.isActive(
                 Tools.STRAIGHT_RAILS, Tools.CURVE_RAILS, Tools.TURNOUTS, Tools.SPECIAL_RAILS, Tools.RAIL_GROUPS)}
-              name={Tools.STRAIGHT_RAILS}
-              onMouseDown={this.props.builderMouseDown}
-              onMouseMove={(e) => {
-                this.props.builderMouseMove(e)
-                const mousePosition = this.props.moveToolMouseMove(e)
-                this.setState({mousePosition})
-              }}
+              name={'Rails'}
+              onMouseDown={this.onMouseDown}
+              onMouseMove={this.onMouseMove}
+              onMouseDrag={this.onMouseDrag}
+              onMouseUp={this.onMouseUp}
               onKeyDown={this.props.builderKeyDown}
-            />
-            <Tool
-              active={this.isActive(Tools.DELETE)}
-              name={Tools.DELETE}
-              onMouseDown={this.props.deleteToolMouseDown}
             />
             <Tool
               active={this.isActive(Tools.PAN)}
@@ -140,13 +154,6 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
               onMouseDrag={this.props.moveToolMouseDrag}
               onMouseUp={this.props.moveToolMouseUp}
               onMouseMove={this.props.moveToolMouseMove}
-            />
-            <Tool
-              active={this.isActive(Tools.SELECT)}
-              name={Tools.SELECT}
-              onMouseDown={this.props.selectToolMouseDown}
-              onMouseDrag={this.props.selectToolMouseDrag}
-              onMouseUp={this.props.selectToolMouseUp}
             />
           </GridPaper>
         </EditorBody>
@@ -162,7 +169,6 @@ export default compose<EditorProps, EditorProps|any>(
   withFullscreen,
   withTools,
   withMoveTool,
-  withDeleteTool,
   withSelectTool,
   withSnackbar(),
   connect(mapStateToProps, mapDispatchToProps)

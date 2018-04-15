@@ -11,6 +11,7 @@ import {LayoutData, LayoutMeta} from "reducers/layout";
 import {getLayoutImageFileName} from "apis/storage";
 import {UserRailGroupData} from "reducers/builder";
 import * as moment from "moment";
+import {RailItemData} from "components/rails";
 
 const LOGGER = getLogger(__filename)
 
@@ -21,6 +22,7 @@ export interface OpenDialogProps {
   setLayoutMeta: (meta: LayoutMeta) => void
   setLayoutData: (data: LayoutData) => void
   addUserRailGroup: (railGroup: UserRailGroupData) => void
+  addUserCustomRail: (item: RailItemData) => void
 }
 
 export interface OpenDialogState {
@@ -63,6 +65,7 @@ export class OpenDialog extends React.Component<OpenDialogProps, OpenDialogState
     LOGGER.info(data)
     this.props.setLayoutData(data.layout)
     data.userRailGroups.forEach(rg => this.props.addUserRailGroup(rg))
+    data.userCustomRails.forEach(cr => this.props.addUserCustomRail(cr))
     this.onClose()
   }
 

@@ -3,7 +3,9 @@ import {redo, undo} from "actions/layout";
 import {connect} from "react-redux";
 import {selectPaletteItem} from "actions/builder";
 import {canRedo, canUndo, currentLayoutData} from "selectors";
-import {ToolBar} from "components/Editor/ToolBar/ToolBar";
+import {ToolBar, ToolBarProps} from "components/Editor/ToolBar/ToolBar";
+import withBuilder from "components/hoc/withBuilder";
+import {compose} from "recompose";
 
 
 const mapStateToProps = (state: RootState) => {
@@ -25,4 +27,7 @@ const mapDispatchToProps = dispatch => {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ToolBar)
+export default compose<ToolBarProps, ToolBarProps|any>(
+  withBuilder,
+  connect(mapStateToProps, mapDispatchToProps)
+)(ToolBar)

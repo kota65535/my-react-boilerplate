@@ -4,6 +4,7 @@ import {setTool} from "../../actions/tools";
 import {PaletteItem, RootState} from "store/type";
 import {selectPaletteItem} from "actions/builder";
 import {LastPaletteItems} from "reducers/builder";
+import {Tools} from "constants/tools";
 
 export interface WithToolsPrivateProps {
   activeTool: string
@@ -50,12 +51,13 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
     }
 
     keyDown = (e: KeyboardEvent) => {
-      // switch (e.key) {
-      //   case 'Shift':
-      //     // シフトを押している間はPANツールが有効になる。離すと元に戻る
-      //     this._prevTool = this.props.activeTool
-      //     this.props.setTool(Tools.PAN)
-      //     break
+      switch (e.key) {
+        case 'Alt':
+          // シフトを押している間はPANツールが有効になる。離すと元に戻る
+          this._prevTool = this.props.activeTool
+          this.props.setTool(Tools.PAN)
+          break
+      }
       //   case 's':
       //     this.props.setTool(Tools.STRAIGHT_RAILS)
       //     this.props.selectPaletteItem(this.props.lastPaletteItems[Tools.STRAIGHT_RAILS])
@@ -76,7 +78,7 @@ export default function withTools(WrappedComponent: React.ComponentClass<WithToo
 
     keyUp = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'Shift':
+        case 'Alt':
           this.props.setTool(this._prevTool)
           break
       }

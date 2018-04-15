@@ -111,7 +111,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
      * @param  {ToolEvent} e Paper.js ToolEvent
      * @return {Object}      Object representing pan event
      */
-    getPanEventData(e: ToolEvent|any) {
+    getPanEventData = (e: ToolEvent|any) => {
       const { point, event: { touches, pageX, pageY }, tool: { view } } = e
       return {
         point: view.projectToView(point),
@@ -128,7 +128,7 @@ export default function withMoveTool(WrappedComponent: React.ComponentClass<With
      * @param  {Object}    next Next pan event data
      * @return {Object}         Next pan state data
      */
-    getPanEventState(e: ToolEvent|any, prev: any, next: any) {
+    getPanEventState = (e: ToolEvent|any, prev: any, next: any) => {
       const { x, y } = this.state
       const { point, tool: { view } } = e
       const t = point.subtract(view.viewToProject(prev.point))

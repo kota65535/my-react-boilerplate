@@ -57,8 +57,11 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
 
   class WithSelectTool extends React.Component<WithSelectToolProps, WithSelectToolState> {
 
+    public static DEBOUNCE_THRESHOLD = 5
+
     selectionRect: Path.Rectangle
     selectionRectFrom: Point
+    debounceCount: number
 
     constructor(props: WithSelectToolProps) {
       super(props)
@@ -68,6 +71,7 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
         selectionRectTo: null
       }
       this.selectionRect = null
+      this.debounceCount = 0
       this.mouseDrag = this.mouseDrag.bind(this)
       this.mouseDown = this.mouseDown.bind(this)
       this.mouseUp = this.mouseUp.bind(this)
@@ -79,14 +83,30 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
      * @param {paper.ToolEvent | any} e
      */
     mouseDown = (e: ToolEvent|any) => {
-      // Pathを毎回生成・削除する場合、PaperRendererで描画するよりも
-      // 生のPaperJSオブジェクトを操作したほうが都合が良い。
-      // 新規矩形選択を開始
       if (! e.modifiers.shift) {
         this.props.builderDeselectAllRails()
       }
-
+      // 矩形の始点を保存する
       this.selectionRectFrom = e.point
+    }
+
+
+    /**
+     * ドラッグ中は、矩形選択の開始地点からマウスカーソルに至る矩形を表示し続ける。
+     * @param {paper.ToolEvent | any} e
+     */
+    mouseDrag = (e: ToolEvent|any) => {
+      // クリックしてから一定以上ドラッグされた時に初めて矩形を表示する
+      if (this.debounceCount < WithSelectTool.DEBOUNCE_THRESHOLD) {
+        this.debounceCount += 1
+        return
+      }
+
+      // Pathを毎回生成・削除する場合、PaperRendererで描画するよりも
+      // 生のPaperJSオブジェクトを操作したほうが都合が良い。
+      if (this.selectionRect) {
+        this.selectionRect.remove()
+      }
       this.selectionRect = new Path.Rectangle({
           from: this.selectionRectFrom,
           to: e.point,
@@ -98,49 +118,36 @@ export default function withSelectTool(WrappedComponent: React.ComponentClass<Wi
 
 
     /**
-     * ドラッグ中は、矩形選択の開始地点からマウスカーソルに至る矩形を表示し続ける。
-     * @param {paper.ToolEvent | any} e
-     */
-    mouseDrag = (e: ToolEvent|any) => {
-      if (this.selectionRect) {
-        this.selectionRect.remove()
-        this.selectionRect = new Path.Rectangle({
-            from: this.selectionRectFrom,
-            to: e.point,
-            fillColor: DEFAULT_SELECTION_RECT_COLOR,
-            opacity: DEFAULT_SELECTION_RECT_OPACITY,
-          }
-        )
-      }
-    }
-
-
-    /**
      * ドラッグを終了したら、一部または全体が矩形に含まれるレールを選択状態にする。
      * @param {paper.ToolEvent} e
      */
     mouseUp = (e: ToolEvent) => {
-      if (this.selectionRect) {
-        // 選択対象は現在のレイヤーのレールとする
-        const rails = getAllRailComponents().filter(rc => rc.props.layerId === this.props.activeLayerId)
-
-        rails.forEach((rail: any) => {
-          // 矩形がRailPartを構成するPathを含むか、交わっているか確認する
-          const targetPaths = rail.railPart.path.children
-          let result = targetPaths.map(path => {
-            let isIntersected = this.selectionRect.intersects(path)
-            let isContained = this.selectionRect.contains((path as any).localToOther(this.selectionRect, path.position))
-            return isIntersected || isContained
-          }).every((e) => e)
-
-          // 上記の条件を満たしていれば選択状態にする
-          if (result) {
-            LOGGER.info('selected', rail.props.id)
-            this.props.builderSelectRail(rail.props.id)
-          }
-        })
-        this.selectionRect.remove()
+      if (! this.selectionRect) {
+        return
       }
+
+      // 選択対象は現在のレイヤーのレールとする
+      const rails = getAllRailComponents().filter(rc => rc.props.layerId === this.props.activeLayerId)
+
+      rails.forEach((rail: any) => {
+        // 矩形がRailPartを構成するPathを含むか、交わっているか確認する
+        const targetPaths = rail.railPart.path.children
+        let result = targetPaths.map(path => {
+          let isIntersected = this.selectionRect.intersects(path)
+          let isContained = this.selectionRect.contains((path as any).localToOther(this.selectionRect, path.position))
+          return isIntersected || isContained
+        }).every((e) => e)
+
+        // 上記の条件を満たしていれば選択状態にする
+        if (result) {
+          LOGGER.info('selected', rail.props.id)
+          this.props.builderSelectRail(rail.props.id)
+        }
+      })
+      // 矩形を削除する
+      this.selectionRect.remove()
+      this.selectionRect = null
+      this.debounceCount = 0
     }
 
 

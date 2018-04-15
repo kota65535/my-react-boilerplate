@@ -9,11 +9,8 @@ import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'
 import DeleteIcon from 'material-ui-icons/Delete'
 import PanToolIcon from 'material-ui-icons/PanTool'
-import TouchAppIcon from 'material-ui-icons/TouchApp'
 import AspectRatioIcon from "material-ui-icons/AspectRatio";
 import MenuIcon from "material-ui-icons/Menu";
-import FeederIcon from "./Icon/Feeder";
-import GapIcon from "./Icon/Gap";
 import {PaletteItem} from "store/type";
 import {LastPaletteItems} from "reducers/builder";
 import {LayoutData, LayoutMeta} from "reducers/layout";
@@ -22,8 +19,10 @@ import Typography from "material-ui/Typography";
 import * as classNames from "classnames"
 import MenuDrawer from "components/Editor/MenuDrawer";
 import Tooltip from "material-ui/Tooltip";
+import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 const LOGGER = getLogger(__filename)
+
 
 export interface ToolBarProps {
   activeTool: string
@@ -48,10 +47,12 @@ export interface ToolBarState {
   el: HTMLElement | undefined
 }
 
+type EnhancedToolBarProps = ToolBarProps & WithBuilderPublicProps
 
-export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
 
-  constructor(props: ToolBarProps) {
+export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState> {
+
+  constructor(props: EnhancedToolBarProps) {
     super(props)
     this.state = {
       openMenu: false,
@@ -142,26 +143,26 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
               </StyledIconButton>
             </Tooltip>
 
-            <Tooltip id="tooltip-feeders" title={Tools.FEEDERS}>
-              <StyledIconButton
-                className={classNames({
-                  'active': this.isActive(Tools.FEEDERS)
-                })}
-                onClick={this.onClickBuilderItem(Tools.FEEDERS)}
-              >
-                <FeederIcon/>
-              </StyledIconButton>
-            </Tooltip>
-            <Tooltip id="tooltip-gap" title={Tools.GAP}>
-              <StyledIconButton
-                className={classNames({
-                  'active': this.isActive(Tools.GAP)
-                })}
-                onClick={this.onClickBuilderItem(Tools.GAP)}
-              >
-                <GapIcon/>
-              </StyledIconButton>
-            </Tooltip>
+            {/*<Tooltip id="tooltip-feeders" title={Tools.FEEDERS}>*/}
+              {/*<StyledIconButton*/}
+                {/*className={classNames({*/}
+                  {/*'active': this.isActive(Tools.FEEDERS)*/}
+                {/*})}*/}
+                {/*onClick={this.onClickBuilderItem(Tools.FEEDERS)}*/}
+              {/*>*/}
+                {/*<FeederIcon/>*/}
+              {/*</StyledIconButton>*/}
+            {/*</Tooltip>*/}
+            {/*<Tooltip id="tooltip-gap" title={Tools.GAP}>*/}
+              {/*<StyledIconButton*/}
+                {/*className={classNames({*/}
+                  {/*'active': this.isActive(Tools.GAP)*/}
+                {/*})}*/}
+                {/*onClick={this.onClickBuilderItem(Tools.GAP)}*/}
+              {/*>*/}
+                {/*<GapIcon/>*/}
+              {/*</StyledIconButton>*/}
+            {/*</Tooltip>*/}
 
             <VerticalDivider/>
 
@@ -190,18 +191,9 @@ export class ToolBar extends React.Component<ToolBarProps, ToolBarState> {
                 className={classNames({
                   'active': this.isActive(Tools.DELETE)
                 })}
-                onClick={() => this.props.setTool(Tools.DELETE)}>
-                <DeleteIcon/>
-              </StyledIconButton>
-            </Tooltip>
-            <Tooltip id="tooltip-select" title={Tools.SELECT}>
-              <StyledIconButton
-                className={classNames({
-                  'active': this.isActive(Tools.SELECT)
-                })}
-                onClick={() => this.props.setTool(Tools.SELECT)}
+                onClick={this.props.builderRemoveSelectedRails}
               >
-                <TouchAppIcon/>
+                <DeleteIcon/>
               </StyledIconButton>
             </Tooltip>
             <Tooltip id="tooltip-pan" title={Tools.PAN}>

@@ -6,6 +6,7 @@ import {RailData} from "components/rails";
 import {addRail} from "actions/layout";
 import {compose} from "recompose";
 import {nextRailId} from "selectors";
+import withBuilder from "components/hoc/withBuilder";
 
 
 const mapStateToProps = (state: RootState) => {
@@ -30,6 +31,6 @@ const mapDispatchToProps = (dispatch: any) => {
 
 
 export default compose<FirstRailPutterProps, FirstRailPutterProps|any>(
-  // withBuilder,
+  withBuilder,
   connect(mapStateToProps, mapDispatchToProps),
 )(FirstRailPutter)

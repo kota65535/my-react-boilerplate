@@ -4,11 +4,11 @@ import {Rectangle, Tool} from "react-paper-bindings";
 import RectPart from "../../rails/parts/primitives/RectPart";
 import {getClosest} from "constants/utils";
 import {SettingsStoreState} from "reducers/settings";
-import RailFactory from "components/rails/RailFactory";
 import {PaletteItem} from "store/type";
 import {TEMPORARY_RAIL_OPACITY} from "constants/tools";
 import getLogger from "logging";
 import {RailData} from "components/rails";
+import {WithBuilderPublicProps} from "components/hoc/withBuilder";
 
 const LOGGER = getLogger(__filename)
 
@@ -36,7 +36,7 @@ export interface FirstRailPutterState {
   phase: Phase
 }
 
-type FirstRailPutterEnhancedProps = FirstRailPutterProps
+type FirstRailPutterEnhancedProps = FirstRailPutterProps & WithBuilderPublicProps
 
 
 export default class FirstRailPutter extends React.Component<FirstRailPutterEnhancedProps, FirstRailPutterState> {
@@ -144,7 +144,10 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterEnha
 
   private setTemporaryRail = () => {
     // マウス位置から一本目レールの角度を算出し、マーカー位置に仮レールを表示させる
-    const itemProps = RailFactory[this.props.paletteItem.name]()
+    const itemProps = this.props.builderGetRailItemProps()
+    if (! itemProps) {
+      return
+    }
     const angle = getFirstRailAngle(this.state.fixedPosition, this.props.mousePosition)
     // 角度が変わっていたら仮レールを設置する
     if (_.isEmpty(this.props.temporaryRails) || this.props.temporaryRails[0].angle !== angle) {
@@ -163,7 +166,10 @@ export default class FirstRailPutter extends React.Component<FirstRailPutterEnha
 
   private addRail = () => {
     // // パレットで選択したレール生成のためのPropsを取得
-    const itemProps = RailFactory[this.props.paletteItem.name]()
+    const itemProps = this.props.builderGetRailItemProps()
+    if (! itemProps) {
+      return
+    }
     // 仮レールの位置にレールを設置
     this.props.addRail({
       ...itemProps,

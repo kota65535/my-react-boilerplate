@@ -15,6 +15,7 @@ import {getAllRailComponents, getRailComponent} from "components/rails/utils";
 import RailGroup from "components/rails/RailGroup/RailGroup";
 import {DetectionState} from "components/rails/parts/primitives/DetectablePart";
 import NewRailGroupDialog from "components/hoc/NewRailGroupDialog/NewRailGroupDialog";
+import railItems from "constants/railItems.json"
 
 const LOGGER = getLogger(__filename)
 
@@ -32,6 +33,7 @@ export interface WithBuilderPublicProps {
   builderDeselectAllRails: () => void
   builderRemoveSelectedRails: () => void
   builderAddRail: () => void
+  builderGetRailItemProps: (name?: string) => any
 }
 
 
@@ -50,6 +52,7 @@ interface WithBuilderPrivateProps {
   removeRail: (item: RailData, overwrite?: boolean) => void
   addHistory: () => void
   addUserRailGroup: (railGroup: UserRailGroupData) => void
+  userCustomRails: any[]
 }
 
 export type WithBuilderProps = WithBuilderPublicProps & WithBuilderPrivateProps
@@ -81,6 +84,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       temporaryRails: state.builder.temporaryRails,
       nextRailId: nextRailId(state),
       nextRailGroupId: nextRailGroupId(state),
+      userCustomRails: state.builder.userCustomRails,
     }
   }
 
@@ -116,6 +120,7 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       this.deselectRail = this.deselectRail.bind(this)
       this.toggleRail = this.toggleRail.bind(this)
       this.removeSelectedRails = this.removeSelectedRails.bind(this)
+      this.getRailItemProps = this.getRailItemProps.bind(this)
     }
 
     // componentDidMount() {
@@ -164,17 +169,26 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       }
     }
 
-    onNewRailGroupDialogClose = () => {
-      this.setState({
-        newRailGroupDialogOpen: false
-      })
-    }
 
-    onNewRailGroupDialogOK = (name: string) => {
-      this.registerRailGroup(name)
-      this.deselectAllRails()
+    /**
+     * 指定の名前のレールの固有Propsを返す。
+     * プリセットのレールに無ければユーザーカスタムレールで探して返す。
+     * @param {string} name
+     * @returns {any}
+     */
+    getRailItemProps = (name?: string) => {
+      if (! name) {
+        name = this.props.paletteItem.name
+      }
+      const presetItem = railItems.items.find(item => item.name === name)
+      if (presetItem) {
+        return presetItem
+      } else if (this.props.userCustomRails[name]) {
+        return this.props.userCustomRails[name]
+      } else {
+        return null
+      }
     }
-
 
     /**
      * 選択中のレールを削除する。
@@ -190,43 +204,6 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
       })
     }
 
-
-    /**
-     * 選択中のレールを新しいレールグループとして登録する
-     */
-    registerRailGroup(name: string) {
-      // 選択中のレールコンポーネントのPropsを取得する
-      const selectedRails = this.getSelectedRailData()
-      // 空いているジョイントを探す
-      // レールグループ内のレール以外に繋がっているジョイントも空きジョイントとする
-      const openJoints = []
-      let newRails = selectedRails.map((rail, idx) => {
-        const opposingJointIds = _.keys(rail.opposingJoints).map(k => parseInt(k))
-        const openJointIds = _.without(_.range(rail.numJoints), ...opposingJointIds)
-        openJointIds.forEach(id => openJoints.push({
-          railId: idx,
-          jointId: id
-        }))
-        return update(rail, {
-          id: {$set: -2-idx},           // 仮のIDを割り当てる
-          enableJoints: {$set: false},  // ジョイントは無効にしておく
-          selected: {$set: false},      // 選択状態は解除しておく
-          railGroup: {$set: -1},        // 仮のレールグループIDを割り当てる
-        })
-      })
-
-      // レールグループデータを生成する
-      const railGroup: UserRailGroupData = {
-        type: 'RailGroup',
-        rails: newRails,
-        id: this.props.nextRailGroupId,
-        name: name,
-        position: new Point(0, 0),
-        angle: 0,
-        openJoints: openJoints
-      }
-      this.props.addUserRailGroup(railGroup)
-    }
 
 
     getSelectedRailData() {
@@ -346,14 +323,35 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
     }
 
     render() {
+      // PrivateなPropsは下位に渡さない
+      // TODO: ts-transformer-keys で型情報を使ってオミットする
+      const props = _.omit(this.props,
+        'layout',
+        'paletteItem',
+        'activeLayerId',
+        'isLayoutEmpty',
+        'setTemporaryRail',
+        'deleteTemporaryRail',
+        'nextRailId',
+        'nextRailGroupId',
+        'temporaryRails',
+        'addRail',
+        'updateRail',
+        'removeRail',
+        'addHistory',
+        'addUserRailGroup',
+      )
+
+
       return (
         <React.Fragment>
           <WrappedComponent
-            {...this.props}
+            {...props}
             builderMouseDown={this.mouseDown}
             builderMouseMove={this.mouseMove}
             builderKeyDown={this.keyDown}
             // builderAddRail={this.addRail}
+            builderGetRailItemProps={this.getRailItemProps}
             builderConnectJoints={this.connectJoints}
             builderDisconnectJoint={this.disconnectJoint}
             builderChangeJointState={this.changeJointState}
@@ -373,6 +371,56 @@ export default function withBuilder(WrappedComponent: React.ComponentClass<WithB
         </React.Fragment>
       )
     }
+
+
+    private onNewRailGroupDialogClose = () => {
+      this.setState({
+        newRailGroupDialogOpen: false
+      })
+    }
+
+    private onNewRailGroupDialogOK = (name: string) => {
+      this.registerRailGroup(name)
+      this.deselectAllRails()
+    }
+
+    /**
+     * 選択中のレールを新しいレールグループとして登録する
+     */
+    private registerRailGroup = (name: string) => {
+      // 選択中のレールコンポーネントのPropsを取得する
+      const selectedRails = this.getSelectedRailData()
+      // 空いているジョイントを探す
+      // レールグループ内のレール以外に繋がっているジョイントも空きジョイントとする
+      const openJoints = []
+      let newRails = selectedRails.map((rail, idx) => {
+        const opposingJointIds = _.keys(rail.opposingJoints).map(k => parseInt(k))
+        const openJointIds = _.without(_.range(rail.numJoints), ...opposingJointIds)
+        openJointIds.forEach(id => openJoints.push({
+          railId: idx,
+          jointId: id
+        }))
+        return update(rail, {
+          id: {$set: -2-idx},           // 仮のIDを割り当てる
+          enableJoints: {$set: false},  // ジョイントは無効にしておく
+          selected: {$set: false},      // 選択状態は解除しておく
+          railGroup: {$set: -1},        // 仮のレールグループIDを割り当てる
+        })
+      })
+
+      // レールグループデータを生成する
+      const railGroup: UserRailGroupData = {
+        type: 'RailGroup',
+        rails: newRails,
+        id: this.props.nextRailGroupId,
+        name: name,
+        position: new Point(0, 0),
+        angle: 0,
+        openJoints: openJoints
+      }
+      this.props.addUserRailGroup(railGroup)
+    }
+
   }
 
   return connect(mapStateToProps, mapDispatchToProps, null, {withRef: true})(WithBuilder)

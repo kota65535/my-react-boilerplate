@@ -156,13 +156,14 @@ class Editor extends React.Component<EnhancedEditorProps, EditorState> {
 }
 
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(compose<EditorProps, EditorProps>(
+export default compose<EditorProps, EditorProps|any>(
   withBuilder,
   withFullscreen,
   withTools,
   withMoveTool,
   withDeleteTool,
   withSelectTool,
-  withSnackbar()
-)(Editor))
+  withSnackbar(),
+  connect(mapStateToProps, mapDispatchToProps)
+)(Editor)
+

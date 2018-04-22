@@ -12,12 +12,18 @@ import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
 export interface SignUpProps {
 }
 
+export interface SignUpState extends AuthPieceState {
+  disabled: boolean
+}
 
-export default class SignUp extends AuthPiece<AuthPieceProps, AuthPieceState> {
+
+export default class SignUp extends AuthPiece<AuthPieceProps, SignUpState> {
+
   constructor(props) {
     super(props);
     this.state = {
-      inputs: {}
+      inputs: {},
+      disabled: true,
     }
 
     this._validAuthStates = [AuthState.SIGN_UP];
@@ -36,20 +42,14 @@ export default class SignUp extends AuthPiece<AuthPieceProps, AuthPieceState> {
       .catch(err => this.error(err));
   }
 
-  canSignUp() {
-    return ['email', 'password', 'confirmPassword'].map(e => this.state.inputs[e]).every(e => ! _.isEmpty(e))
-  }
 
   showComponent() {
-    // const { hide } = this.props;
-    // if (hide && hide.includes(SignUp)) { return null; }
-
     return (
       <div>
         <Grid container spacing={8}>
           <Grid item xs={12}>
             <ValidatorForm
-              onError={errors => console.log(errors)}
+              ref={(form) => this._form = form}
             >
               <TextValidator
                 autoFocus
@@ -57,32 +57,36 @@ export default class SignUp extends AuthPiece<AuthPieceProps, AuthPieceState> {
                 name="email"
                 key="email"
                 value={this.state.inputs.email}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
                 validators={['required', 'isEmail']}
                 errorMessages={['this field is required', 'email is not valid']}
-                onChange={this.handleInputChange}
                 fullWidth
               />
               <br />
               <TextValidator
                 label="Password"
-                type="password"
                 name="password"
                 key="password"
+                type="password"
                 value={this.state.inputs.password}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
                 validators={['required']}
                 errorMessages={['this field is required']}
-                onChange={this.handleInputChange}
                 fullWidth
               />
+              <br />
               <TextValidator
                 label="Confirm Password"
-                type="password"
                 name="confirmPassword"
                 key="confirmPassword"
+                type="password"
                 value={this.state.inputs.confirmPassword}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
                 validators={['isPasswordMatch', 'required']}
                 errorMessages={['password mismatch', 'this field is required']}
-                onChange={this.handleInputChange}
                 fullWidth
               />
             </ValidatorForm>
@@ -91,7 +95,9 @@ export default class SignUp extends AuthPiece<AuthPieceProps, AuthPieceState> {
         <Grid container spacing={8} style={{marginTop: '16px'}}>
           <Grid item xs={12}>
             <Button fullWidth variant="raised" color="primary"
-                    disabled={! this.canSignUp()} onClick={this.signUp}>Sign Up</Button>
+                    disabled={this.state.disabled} onClick={this.signUp}>
+              Sign Up
+            </Button>
           </Grid>
           <Grid item xs={12}>
             <Button onClick={() => this.changeState(AuthState.SIGN_IN)}>

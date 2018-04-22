@@ -5,7 +5,7 @@ import TurnoutIcon from './Icon/TurnoutIcon'
 import SpecialRailIcon from "components/Editor/ToolBar/Icon/SpecialRailIcon";
 import RailGroupIcon from "components/Editor/ToolBar/Icon/RailGroupIcon";
 import {AppBar, Toolbar as MuiToolbar} from "material-ui"
-import {StyledIconButton, StyledLoginButton, VerticalDivider} from "./styles";
+import {StyledIconButton, StyledLoginButton, StyledSignUpButton, VerticalDivider} from "./styles";
 import {Tools} from "constants/tools";
 import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'
@@ -228,13 +228,7 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
               {/*</StyledIconButton>*/}
             {/*</Tooltip>*/}
             <StyledLoginButton />
-            {/*<SignInButton*/}
-              {/*variant="raised"*/}
-              {/*color="secondary"*/}
-              {/*onClick={}*/}
-            {/*>*/}
-              {/*Sign Up*/}
-            {/*</SignInButton>*/}
+            <StyledSignUpButton />
           </MuiToolbar>
         </AppBar>
         <MenuDrawer open={this.state.openMenu} onClose={this.closeMenu}/>

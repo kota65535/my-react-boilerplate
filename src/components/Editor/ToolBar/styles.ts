@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import {theme} from "../../../withRoot";
 import IconButton from "material-ui/IconButton";
-import Button from "material-ui/Button";
 import {LoginButton} from "components/Editor/ToolBar/LoginButton/LoginButton";
+import {SignUpButton} from "components/Editor/ToolBar/SignUpButton/SignUpButton";
 
 
 export const StyledIconButton = styled(IconButton as any)`
@@ -36,7 +36,7 @@ export const StyledLoginButton = styled(LoginButton as any)`
   }
 `
 
-export const SignInButton = styled(Button as any)`
+export const StyledSignUpButton = styled(SignUpButton as any)`
   && {
     margin: 5px;
     padding: 8px 12px;

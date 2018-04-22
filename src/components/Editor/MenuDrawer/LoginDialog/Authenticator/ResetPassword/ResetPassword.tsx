@@ -30,7 +30,6 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
     authState: AuthState.FORGOT_PASSWORD
   }
 
-  _form: any
 
   constructor(props) {
     super(props);
@@ -39,6 +38,7 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
     this._validAuthStates = [AuthState.FORGOT_PASSWORD]
     this.state = {
       inputs: {},
+      disabled: true,
       success: false
     }
   }
@@ -48,7 +48,7 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
     ValidatorForm.addValidationRule('isPasswordMatch', (value) => value === this.state.inputs.password );
   }
 
-  onSubmit = () => {
+  submit = () => {
     const { code, userName } = this.props
     const { password } = this.state.inputs
     Auth.forgotPasswordSubmit(userName, code, password)
@@ -59,24 +59,6 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
         }, 3000)
       })
       .catch(err => this.error(err));
-  }
-
-  handleInputChange = (evt) => {
-    const { name, value, type, checked } = evt.target;
-    const check_type = ['radio', 'checkbox'].includes(type);
-    this.setState({
-      inputs: {
-        ...this.state.inputs as any,
-        [name]: check_type ? checked : value
-      }
-    })
-  }
-
-  canSubmit = () => {
-    if (! this._form) return false
-
-    return this._form.errors.length === 0
-      && ['password', 'confirmPassword'].map(e => this.state.inputs[e]).every(e => ! _.isEmpty(e))
   }
 
 
@@ -103,25 +85,27 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
             >
               <TextValidator
                 label="Password"
-                type="password"
                 name="password"
                 key="password"
+                type="password"
                 value={this.state.inputs.password}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
                 validators={['required']}
                 errorMessages={['this field is required']}
-                onChange={this.handleInputChange}
                 fullWidth
               />
               <br />
               <TextValidator
                 label="Confirm Password"
-                type="password"
                 name="confirmPassword"
                 key="confirmPassword"
+                type="password"
                 value={this.state.inputs.confirmPassword}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
                 validators={['isPasswordMatch', 'required']}
                 errorMessages={['password mismatch', 'this field is required']}
-                onChange={this.handleInputChange}
                 fullWidth
               />
             </ValidatorForm>
@@ -130,7 +114,7 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
         <CenteredGrid container spacing={8} style={{marginTop: '16px'}}>
           <Grid item xs={12}>
             <Button variant="raised" color="primary"
-                    disabled={! this.canSubmit()} onClick={this.onSubmit}>
+                    disabled={this.state.disabled} onClick={this.submit}>
               Change Password
             </Button>
           </Grid>
@@ -143,7 +127,7 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
   showComponent() {
     return (
       <div>
-        {this.state.success ? this.successView() : this.inputView()} )
+        {this.state.success ? this.successView() : this.inputView()}
       </div>
     )
   }

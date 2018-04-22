@@ -1,24 +1,39 @@
 import * as React from "react";
 import {Auth, JS, Logger} from 'aws-amplify';
 
-import {Button, Grid, TextField} from "material-ui";
-import AuthPiece, {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+import {Button, Grid} from "material-ui";
+import AuthPiece, {
+  AuthPieceProps,
+  AuthPieceState,
+  AuthState
+} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
 // import { FederatedButtons } from './FederatedSignIn';
+import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
 
 const logger = new Logger('SignIn');
 
-export default class SignIn extends AuthPiece<any, any> {
+
+export interface SignInProps extends AuthPieceProps {
+  federated: any
+}
+
+
+export default class SignIn extends AuthPiece<SignInProps, AuthPieceState> {
+
   constructor(props) {
     super(props);
+    this.state = {
+      inputs: {},
+      disabled: true,
+    }
 
+    this._validAuthStates = [AuthState.SIGN_IN, AuthState.SIGNED_OUT, AuthState.SIGNED_UP];
     this.checkContact = this.checkContact.bind(this);
     this.signIn = this.signIn.bind(this);
 
-    this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];
-    this.state = {};
   }
 
-  checkContact(user) {
+  checkContact = (user) => {
     Auth.verifiedContact(user)
       .then(data => {
         if (!JS.isEmpty(data.verified)) {
@@ -30,9 +45,9 @@ export default class SignIn extends AuthPiece<any, any> {
       });
   }
 
-  signIn() {
-    const { username, password } = this.state.inputs;
-    Auth.signIn(username, password)
+  signIn = () => {
+    const { email, password } = this.state.inputs;
+    Auth.signIn(email, password)
       .then(user => {
         logger.debug(user);
         if (user.challengeName === 'SMS_MFA' || user.challengeName === 'SOFTWARE_TOKEN_MFA') {
@@ -54,38 +69,49 @@ export default class SignIn extends AuthPiece<any, any> {
       });
   }
 
+
   showComponent() {
-    const { authState, hide, federated, onStateChange } = this.props;
-    if (hide && hide.includes(SignIn)) { return null; }
+    const { authState, federated, onStateChange } = this.props;
 
     return (
       <div>
         <Grid container spacing={8}>
           <Grid item xs={12}>
-            <TextField
-              autoFocus
-              fullWidth
-              onChange={this.handleInputChange}
-              label="User Name"
-              name="username"
-              key="username"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              autoFocus
-              fullWidth
-              onChange={this.handleInputChange}
-              type="password"
-              label="Password"
-              name="password"
-              key="password"
-            />
+            <ValidatorForm
+              ref={(form) => this._form = form}
+            >
+              <TextValidator
+                autoFocus
+                label="Email"
+                name="email"
+                key="email"
+                value={this.state.inputs.email}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
+                validators={['required', 'isEmail']}
+                errorMessages={['this field is required', 'email is not valid']}
+                fullWidth
+              />
+              <br />
+              <TextValidator
+                label="Password"
+                name="password"
+                key="password"
+                type="password"
+                value={this.state.inputs.password}
+                onChange={this.handleInputChange}
+                validatorListener={this.handleValidation}
+                validators={['required']}
+                errorMessages={['this field is required']}
+                fullWidth
+              />
+            </ValidatorForm>
           </Grid>
         </Grid>
         <Grid container spacing={8} style={{marginTop: '16px'}}>
           <Grid item xs={12}>
-            <Button fullWidth variant="raised" color="primary" onClick={this.signIn}>Login</Button>
+            <Button fullWidth variant="raised" color="primary"
+                    disabled={this.state.disabled} onClick={this.signIn}>Login</Button>
           </Grid>
           <Grid item xs={12}>
             <Button onClick={() => this.changeState(AuthState.FORGOT_PASSWORD)}>

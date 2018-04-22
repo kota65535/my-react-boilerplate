@@ -14,6 +14,7 @@ export interface AuthPieceProps {
 
 export interface AuthPieceState {
   inputs: InputData
+  disabled: boolean
 }
 
 interface InputData {
@@ -23,6 +24,7 @@ interface InputData {
 export enum AuthState {
   SIGN_UP = 'signUp',
   CONFIRM_SIGNUP = 'confirmSignUp',
+  SIGNED_UP = 'signedUp',
   SIGN_IN = 'signIn',
   CONFIRM_SIGNIN = 'confirmSignIn',
   SIGNED_IN = 'signedIn',
@@ -36,24 +38,20 @@ export enum AuthState {
 
 export default abstract class AuthPiece<P extends AuthPieceProps, S extends AuthPieceState> extends React.Component<P, S> {
 
+  _form: any
   _isHidden: boolean
   _validAuthStates: any[]
 
   constructor(props: P) {
     super(props);
 
+    this._form = null
     this._isHidden = true;
     this._validAuthStates = [];
     this.changeState = this.changeState.bind(this);
     this.error = this.error.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
-
-  // getInitialState(): AuthPieceState {
-  //   return {
-  //     inputs: {}
-  //   }
-  // }
 
   // extract username from authData
   // usernameFromAuthData() {
@@ -104,6 +102,12 @@ export default abstract class AuthPiece<P extends AuthPieceProps, S extends Auth
         ...this.state.inputs as any,
         [name]: check_type ? checked : value
       }
+    })
+  }
+
+  handleValidation = () => {
+    this.setState({
+      disabled: ! (this._form && this._form.isFormValid())
     })
   }
 

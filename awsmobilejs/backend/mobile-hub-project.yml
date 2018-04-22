@@ -11,7 +11,7 @@ features:
           sdk-generation-stage-name: prod
         paths:
           /: !com.amazonaws.mobilehub.v0.Function {}
-          /putUserLayout: !com.amazonaws.mobilehub.v0.Function {}
+          /confirm: !com.amazonaws.mobilehub.v0.Function {}
           '/users/{userId}/layouts': !com.amazonaws.mobilehub.v0.Function {}
           '/users/{userId}/layouts/{layoutId}': !com.amazonaws.mobilehub.v0.Function {}
   content-delivery: !com.amazonaws.mobilehub.v0.ContentDelivery 
@@ -30,16 +30,7 @@ features:
     components:
       sign-in-user-pools: !com.amazonaws.mobilehub.v0.UserPoolsIdentityProvider 
         attributes:
-          alias-attributes:
-            - email
-          mfa-configuration: OFF
-          name: userpool
-          password-policy: !com.amazonaws.mobilehub.ConvertibleMap 
-            min-length: '8'
-            require-lower-case: false
-            require-numbers: false
-            require-symbols: false
-            require-upper-case: false
+          user-pool-id: us-east-1_dCbRPrOtx
   user-files: !com.amazonaws.mobilehub.v0.UserFiles 
     attributes:
       enabled: true

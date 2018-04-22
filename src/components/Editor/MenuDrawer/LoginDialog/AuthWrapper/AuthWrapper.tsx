@@ -28,10 +28,10 @@ export default class AuthWrapper extends React.Component<AuthWrapperProps, {}> {
 
   onStateChange(state, data) {
     this.props.setAuthData(data)
-    // if (state == 'signedIn' && this.props.onSignedIn) {
-    //   LOGGER.info(data) //`
-    //   this.props.onSignedIn(data)
-    // }
+    if (state == 'signedIn' && this.props.onSignedIn) {
+      LOGGER.info(data) //`
+      this.props.onSignedIn(data)
+    }
   }
 
   render() {

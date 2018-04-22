@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {DialogActions, DialogContent, DialogTitle} from "material-ui"
+import {DialogActions, DialogContent} from "material-ui"
 import Dialog from "material-ui/Dialog";
 import AuthWrapper from "components/Editor/MenuDrawer/LoginDialog/AuthWrapper";
 import {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
@@ -39,7 +39,6 @@ export class LoginDialog extends React.Component<LoginDialogProps, {}> {
         open={this.props.open}
         onClose={this.onClose}
       >
-        <DialogTitle id="login">{"Login"}</DialogTitle>
         <DialogContent>
           <AuthWrapper onSignedIn={this.onSignedIn} authState={AuthState.SIGN_IN} />
         </DialogContent>

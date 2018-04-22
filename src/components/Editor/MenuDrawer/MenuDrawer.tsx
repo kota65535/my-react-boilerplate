@@ -15,7 +15,6 @@ import Auth from "aws-amplify/lib/Auth";
 import LayoutAPI from "apis/layout"
 import StorageAPI from "apis/storage"
 import {LayoutData, LayoutMeta} from "reducers/layout";
-import Authenticator from "components/Editor/MenuDrawer/LoginDialog/Authenticator";
 import Divider from "material-ui/Divider";
 import getLogger from "logging";
 import SettingsDialog from "components/Editor/MenuDrawer/SettingsDialog";
@@ -147,7 +146,7 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
         anchor="right"
       >
         {/*これが無いとログアウト時にフックしてくれないので必須*/}
-        <Authenticator hidden={true}/>
+        {/*<Authenticator hidden={true}/>*/}
         <div
           tabIndex={0}
           role="button"

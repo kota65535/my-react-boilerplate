@@ -1,7 +1,8 @@
 import * as React from 'react'
 import {DialogActions, DialogContent, DialogTitle} from "material-ui"
 import Dialog from "material-ui/Dialog";
-import Authenticator from "components/Editor/MenuDrawer/LoginDialog/Authenticator";
+import AuthWrapper from "components/Editor/MenuDrawer/LoginDialog/AuthWrapper";
+import {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
 
 
 export interface LoginDialogProps {
@@ -40,7 +41,7 @@ export class LoginDialog extends React.Component<LoginDialogProps, {}> {
       >
         <DialogTitle id="login">{"Login"}</DialogTitle>
         <DialogContent>
-          <Authenticator onSignedIn={this.onSignedIn}/>
+          <AuthWrapper onSignedIn={this.onSignedIn} authState={AuthState.SIGN_IN} />
         </DialogContent>
         <DialogActions>
         </DialogActions>

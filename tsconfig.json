@@ -18,7 +18,8 @@
     "suppressImplicitAnyIndexErrors": true,
 //    "noUnusedLocals": true
     "experimentalDecorators": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "noErrorTruncation": true
   },
   "exclude": [
     "node_modules",

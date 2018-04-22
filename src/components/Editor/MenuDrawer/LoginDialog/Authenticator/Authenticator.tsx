@@ -1,38 +1,133 @@
-import * as React from "react";
-import {Authenticator as AmplifyAuthenticator} from "aws-amplify-react";
-import getLogger from "logging";
+import * as React from 'react';
+import {ReactElement, ReactNode} from 'react';
+import Amplify, {Logger} from 'aws-amplify';
+// import RequireNewPassword from './RequireNewPassword';
+// import ConfirmSignUp from './ConfirmSignUp';
+// import VerifyContact from './VerifyContact';
+// import ForgotPassword from './ForgotPassword';
+// import TOTPSetup from './TOTPSetup';
+import AmplifyMessageMap from '../AmplifyMessageMap';
+import {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+import SignIn from "components/Editor/MenuDrawer/LoginDialog/Authenticator/SignIn/SignIn";
+import SignUp from "components/Editor/MenuDrawer/LoginDialog/Authenticator/SignUp/SignUp";
+import ForgotPassword from "components/Editor/MenuDrawer/LoginDialog/Authenticator/ForgotPassword/ForgotPassword";
 
-const LOGGER = getLogger(__filename)
 
-const FEDERATED = {
-  google_client_id: '658362738764-9kdasvdsndig5tsp38u7ra31fu0e7l5t.apps.googleusercontent.com',
-  facebook_app_id: '154268202060246'
-};
+const logger = new Logger('Authenticator');
+
+export interface AuthenticatorProps {
+  authState?: AuthState
+  onStateChange?: (state: AuthState, data: any) => void
+  errorMessage?: any
+  amplifyConfig?: any
+  errorRenderer?: (err: any) => ReactNode
+  federated?: any
+}
+
+export interface AuthenticatorState {
+  auth: AuthState
+  authData: any
+  error: any
+}
 
 
-export class Authenticator extends React.Component<any, any> {
+export default class Authenticator extends React.Component<AuthenticatorProps, AuthenticatorState> {
+  constructor(props: AuthenticatorProps) {
+    super(props);
 
-  constructor(props) {
-    super(props)
-    this.onStateChange = this.onStateChange.bind(this)
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleAuthEvent = this.handleAuthEvent.bind(this);
+    this.errorRenderer = this.errorRenderer.bind(this);
+
+    this.state = {
+      auth: props.authState || AuthState.SIGN_IN,
+      authData: null,
+      error: null
+    };
   }
 
-  onStateChange(state, data) {
-    this.props.setAuthData(data)
-    if (state == 'signedIn' && this.props.onSignedIn) {
-      LOGGER.info(data) //`
-      this.props.onSignedIn(data)
+  componentWillMount() {
+    const config = this.props.amplifyConfig;
+    if (config) {
+      Amplify.configure(config);
     }
   }
 
-  render() {
+  handleStateChange(state, data) {
+    logger.debug('authenticator state change ' + state, data);
+    if (state === this.state.auth) { return; }
+
+    if (state === AuthState.SIGNED_OUT) {
+      state = AuthState.SIGN_IN
+    }
+    this.setState({
+      auth: state,
+      authData: data,
+      error: null
+    });
+    if (this.props.onStateChange) {
+      this.props.onStateChange(state, data)
+    }
+  }
+
+  handleAuthEvent(state, event) {
+    if (event.type === 'error') {
+      const map = this.props.errorMessage || AmplifyMessageMap;
+      const message = (typeof map === 'string')? map : map(event.data);
+      this.setState({ error: message });
+    }
+  }
+
+  errorRenderer(err) {
     return (
-      <AmplifyAuthenticator
-        federated={FEDERATED}
-        onStateChange={this.onStateChange}
-        hideDefault={this.props.hidden}
-      />
+      <div>{err}</div>
+    )
+  }
+
+  render() {
+    const { auth, authData } = this.state;
+    const messageMap = this.props.errorMessage
+
+    let { federated } = this.props;
+    const props_children = this.props.children || [];
+    const default_children = [
+      <SignIn federated={federated}/>,
+      <SignUp />,
+      <ForgotPassword />
+
+    ];
+
+    const render_props_children = React.Children.map(props_children, (child, index) => {
+      return React.cloneElement(child as ReactElement<any>, {
+        key: 'aws-amplify-authenticator-props-children-' + index,
+        messageMap: messageMap,
+        authState: auth,
+        authData: authData,
+        onStateChange: this.handleStateChange,
+        onAuthEvent: this.handleAuthEvent
+      });
+    });
+
+    const render_default_children = React.Children.map(default_children, (child, index) => {
+      return React.cloneElement(child as ReactElement<any>, {
+        key: 'aws-amplify-authenticator-default-children-' + index,
+        messageMap: messageMap,
+        authState: auth,
+        authData: authData,
+        onStateChange: this.handleStateChange,
+        onAuthEvent: this.handleAuthEvent,
+      });
+    });
+
+    const render_children = render_default_children.concat(render_props_children);
+
+    const errorRenderer = this.props.errorRenderer || this.errorRenderer;
+    const error = this.state.error;
+    return (
+      <div>
+        {render_children}
+        {error? errorRenderer(error) : null}
+      </div>
     )
   }
 }
-

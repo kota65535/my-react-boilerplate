@@ -10,7 +10,7 @@ export enum Tools {
   PAN = 'Pan',
   UNDO = 'Undo',
   REDO = 'Redo',
-  RESET_VIEW = 'Reset View',
+  RESET_VIEW = 'Centerize View',
   DELETE = 'Delete',
 }
 

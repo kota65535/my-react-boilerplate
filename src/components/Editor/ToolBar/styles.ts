@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import {theme} from "../../../withRoot";
 import IconButton from "material-ui/IconButton";
+import Button from "material-ui/Button";
+import {LoginButton} from "components/Editor/ToolBar/LoginButton/LoginButton";
 
 
 export const StyledIconButton = styled(IconButton as any)`
@@ -22,4 +24,24 @@ export const VerticalDivider = styled.div`
   //padding: 0px 0px 0px 0px;
   margin: 0px 15px 0px 15px;
   //overflow: auto2
+`
+
+export const StyledLoginButton = styled(LoginButton as any)`
+  && {
+    margin: 5px;
+    padding: 8px 12px;
+    width: 75px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+`
+
+export const SignInButton = styled(Button as any)`
+  && {
+    margin: 5px;
+    padding: 8px 12px;
+    width: 80px;
+    height: 42px;
+    font-size: 1.0rem;
+  }
 `

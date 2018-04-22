@@ -5,14 +5,13 @@ import TurnoutIcon from './Icon/TurnoutIcon'
 import SpecialRailIcon from "components/Editor/ToolBar/Icon/SpecialRailIcon";
 import RailGroupIcon from "components/Editor/ToolBar/Icon/RailGroupIcon";
 import {AppBar, Toolbar as MuiToolbar} from "material-ui"
-import {StyledIconButton, VerticalDivider} from "./styles";
+import {StyledIconButton, StyledLoginButton, VerticalDivider} from "./styles";
 import {Tools} from "constants/tools";
 import UndoIcon from 'material-ui-icons/Undo'
 import RedoIcon from 'material-ui-icons/Redo'
 import DeleteIcon from 'material-ui-icons/Delete'
 import PanToolIcon from 'material-ui-icons/PanTool'
 import AspectRatioIcon from "material-ui-icons/AspectRatio";
-import MenuIcon from "material-ui-icons/Menu";
 import {PaletteItem} from "store/type";
 import {LastPaletteItems} from "reducers/builder";
 import {LayoutData, LayoutMeta} from "reducers/layout";
@@ -221,13 +220,21 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
 
             {/* メニューアイコンを右端に配置するため */}
             <Typography variant="title" color="inherit" style={{flex: 1}} />
-            <Tooltip id="tooltip-menu" title={"Menu"}>
-              <StyledIconButton
-                onClick={this.openMenu}
-              >
-                <MenuIcon/>
-              </StyledIconButton>
-            </Tooltip>
+            {/*<Tooltip id="tooltip-menu" title={"Menu"}>*/}
+              {/*<StyledIconButton*/}
+                {/*onClick={this.openMenu}*/}
+              {/*>*/}
+                {/*<MenuIcon/>*/}
+              {/*</StyledIconButton>*/}
+            {/*</Tooltip>*/}
+            <StyledLoginButton />
+            {/*<SignInButton*/}
+              {/*variant="raised"*/}
+              {/*color="secondary"*/}
+              {/*onClick={}*/}
+            {/*>*/}
+              {/*Sign Up*/}
+            {/*</SignInButton>*/}
           </MuiToolbar>
         </AppBar>
         <MenuDrawer open={this.state.openMenu} onClose={this.closeMenu}/>

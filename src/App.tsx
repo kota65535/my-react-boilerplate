@@ -11,6 +11,9 @@ import Amplify from "aws-amplify";
 import aws_exports from './aws-exports';
 import TestCases from "components/cases/TestCases";
 import 'typeface-roboto'
+import ResetPassword from "components/Editor/MenuDrawer/LoginDialog/Authenticator/ResetPassword/ResetPassword";
+import qs from "query-string"
+import {Redirect} from "react-router";
 
 Amplify.configure(aws_exports)
 
@@ -57,6 +60,7 @@ class App extends React.Component<WithStyles<'root'>, {}> {
 
   // コンテキストメニュー無効
   render() {
+    console.log(process.env)
     return (
       <div className='App'
            onContextMenu={(e) => {
@@ -67,7 +71,23 @@ class App extends React.Component<WithStyles<'root'>, {}> {
         <Router>
           <div>
             <Route exact path="/" render={() => <Editor width={6000} height={4000} /> }/>
-            <Route path="/tests" component={TestCases}/>
+            <Route path="/reset-password" render={({location, ...rest}) => {
+              const params =qs.parse(location.search)
+              if (params.user_name && params.confirmation_code) {
+                return <ResetPassword userName={params.user_name} code={params.confirmation_code} />
+              } else {
+                return <Redirect push to={"/"} />
+              }
+            }}
+            />
+            <Route path="/tests" render={() => {
+              if (process.env.NODE_ENV === 'development') {
+                return <TestCases/>
+              } else {
+                return <Redirect push to={"/"}/>
+              }
+            }}
+            />
           </div>
         </Router>
       </div>

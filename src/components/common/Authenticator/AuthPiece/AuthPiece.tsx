@@ -23,7 +23,7 @@ interface InputData {
 
 export enum AuthState {
   SIGN_UP = 'signUp',
-  CONFIRM_SIGNUP = 'confirmSignUp',
+  CONFIRM_EMAIL = 'confirmSignUp',
   SIGNED_UP = 'signedUp',
   SIGN_IN = 'signIn',
   CONFIRM_SIGNIN = 'confirmSignIn',

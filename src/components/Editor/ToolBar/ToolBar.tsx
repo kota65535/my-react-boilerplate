@@ -22,6 +22,8 @@ import * as classNames from "classnames"
 import MenuDrawer from "components/Editor/MenuDrawer";
 import Tooltip from "material-ui/Tooltip";
 import {WithBuilderPublicProps} from "components/hoc/withBuilder";
+import LoginDialog from "components/Editor/ToolBar/LoginDialog";
+import SignUpDialog from "components/Editor/ToolBar/SignUpDialog";
 
 const LOGGER = getLogger(__filename)
 
@@ -46,6 +48,8 @@ export interface ToolBarProps {
 
 export interface ToolBarState {
   openMenu: boolean
+  openLogin: boolean
+  openSignUp: boolean
   el: HTMLElement | undefined
 }
 
@@ -58,6 +62,8 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
     super(props)
     this.state = {
       openMenu: false,
+      openLogin: false,
+      openSignUp: false,
       el: undefined,
     }
 
@@ -86,6 +92,31 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
       openMenu: false
     })
   }
+
+  openLoginDialog = (e) => {
+    this.setState({
+      openLogin: true
+    })
+  }
+
+  closeLoginDialog = (e) => {
+    this.setState({
+      openLogin: false
+    })
+  }
+
+  openSignUpDialog = (e) => {
+    this.setState({
+      openSignUp: true
+    })
+  }
+
+  closeSignUpDialog = (e) => {
+    this.setState({
+      openSignUp: false
+    })
+  }
+
 
 
   render() {
@@ -221,20 +252,27 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
 
             {/* メニューアイコンを右端に配置するための空白 */}
             <Typography variant="title" color="inherit" style={{flex: 1}} />
+
             {/* ログインボタン */}
             {! this.props.authData &&
-              <StyledLoginButton/>
+              <StyledLoginButton onClick={this.openLoginDialog}>
+                Login
+              </StyledLoginButton>
             }
+            <LoginDialog open={this.state.openLogin} onClose={this.closeLoginDialog} />
+
             {/* サインアップボタン */}
             {! this.props.authData &&
-              <StyledSignUpButton/>
+              <StyledSignUpButton variant="raised" color="secondary" onClick={this.openSignUpDialog}>
+                Sign Up
+              </StyledSignUpButton>
             }
+            <SignUpDialog open={this.state.openSignUp} onClose={this.closeSignUpDialog} />
+
             {/* メニュー */}
             {this.props.authData &&
               <Tooltip id="tooltip-menu" title={"Menu"}>
-                <StyledIconButton
-                  onClick={this.openMenu}
-                >
+                <StyledIconButton onClick={this.openMenu} >
                   <MenuIcon/>
                 </StyledIconButton>
               </Tooltip>

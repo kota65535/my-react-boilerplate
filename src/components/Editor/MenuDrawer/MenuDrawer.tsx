@@ -10,7 +10,7 @@ import LogoutIcon from "material-ui-icons/Lock";
 import SettingsIcon from "material-ui-icons/Settings";
 import LayoutNameDialog from "components/Editor/MenuDrawer/NewLayoutDialog";
 import OpenDialog from "components/Editor/MenuDrawer/OpenDialog";
-import LoginDialog from "components/Editor/ToolBar/LoginButton/LoginDialog";
+import LoginDialog from "components/Editor/ToolBar/LoginDialog";
 import Auth from "aws-amplify/lib/Auth";
 import LayoutAPI from "apis/layout"
 import StorageAPI from "apis/storage"
@@ -20,6 +20,7 @@ import getLogger from "logging";
 import SettingsDialog from "components/Editor/MenuDrawer/SettingsDialog";
 import {UserRailGroupData} from "reducers/builder";
 import {RailItemData} from "components/rails";
+import {AuthData} from "components/common/Authenticator/AuthPiece/AuthPiece";
 
 const LOGGER = getLogger(__filename)
 
@@ -33,6 +34,8 @@ export interface MenuDrawerProps {
   layoutMeta: LayoutMeta
   userRailGroups: UserRailGroupData[]
   userCustomRails: RailItemData[]
+
+  setAuthData: (authData: AuthData) => void
 }
 
 export interface MenuDrawerState {
@@ -79,6 +82,7 @@ export class MenuDrawer extends React.Component<MenuDrawerProps, MenuDrawerState
 
   logout = async () => {
     await Auth.signOut()
+    this.props.setAuthData(null)
     this.closeMenu()
   }
 

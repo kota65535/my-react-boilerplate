@@ -2,6 +2,7 @@ import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {currentLayoutData} from "selectors";
 import {MenuDrawer} from "components/Editor/MenuDrawer/MenuDrawer";
+import {setAuthData} from "actions/tools";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -15,6 +16,7 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    setAuthData: (authData) => dispatch(setAuthData(authData))
   }
 };
 

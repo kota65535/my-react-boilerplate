@@ -11,6 +11,7 @@ import {AuthState} from "components/common/Authenticator/AuthPiece/AuthPiece";
 import SignIn from "components/common/Authenticator/SignIn/SignIn";
 import SignUp from "components/common/Authenticator/SignUp/SignUp";
 import ForgotPassword from "components/common/Authenticator/ForgotPassword/ForgotPassword";
+import ConfirmEmail from "components/common/Authenticator/ConfirmEmail/ConfirmEmail";
 
 
 const logger = new Logger('Authenticator');
@@ -93,7 +94,8 @@ export default class Authenticator extends React.Component<AuthenticatorProps, A
     const default_children = [
       <SignIn federated={federated}/>,
       <SignUp />,
-      <ForgotPassword />
+      <ForgotPassword />,
+      <ConfirmEmail />
 
     ];
 

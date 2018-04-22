@@ -1,6 +1,6 @@
 import {RootState} from "store/type";
 import {connect} from "react-redux";
-import {SignUpDialog, SignUpDialogProps} from "components/Editor/ToolBar/SignUpButton/SignUpDialog/SignUpDialog";
+import {LoginDialog, LoginDialogProps} from "components/Editor/ToolBar/LoginDialog/LoginDialog";
 import {withSnackbar} from 'material-ui-snackbar-provider'
 import {compose} from "recompose";
 
@@ -14,8 +14,8 @@ const mapDispatchToProps = dispatch => {
   }
 };
 
-export default compose<SignUpDialogProps, SignUpDialogProps|any>(
+export default compose<LoginDialogProps, LoginDialogProps|any>(
   withSnackbar(),
   connect(mapStateToProps, mapDispatchToProps),
-)(SignUpDialog)
+)(LoginDialog)
 

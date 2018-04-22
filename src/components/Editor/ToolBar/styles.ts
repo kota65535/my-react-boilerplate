@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import {theme} from "../../../withRoot";
 import IconButton from "material-ui/IconButton";
-import {LoginButton} from "components/Editor/ToolBar/LoginButton/LoginButton";
-import {SignUpButton} from "components/Editor/ToolBar/SignUpButton/SignUpButton";
+import Button from "material-ui/Button";
 
 
 export const StyledIconButton = styled(IconButton as any)`
@@ -26,7 +25,7 @@ export const VerticalDivider = styled.div`
   //overflow: auto2
 `
 
-export const StyledLoginButton = styled(LoginButton as any)`
+export const StyledLoginButton = styled(Button as any)`
   && {
     margin: 5px;
     padding: 8px 12px;
@@ -36,7 +35,7 @@ export const StyledLoginButton = styled(LoginButton as any)`
   }
 `
 
-export const StyledSignUpButton = styled(SignUpButton as any)`
+export const StyledSignUpButton = styled(Button as any)`
   && {
     margin: 5px;
     padding: 8px 12px;

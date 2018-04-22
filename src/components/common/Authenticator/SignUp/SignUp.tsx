@@ -38,7 +38,7 @@ export default class SignUp extends AuthPiece<AuthPieceProps, SignUpState> {
   signUp() {
     const { email, password } = this.state.inputs;
     Auth.signUp(email, password, email)
-      .then(() => this.changeState(AuthState.CONFIRM_SIGNUP, email))
+      .then(() => this.changeState(AuthState.CONFIRM_EMAIL, email))
       .catch(err => this.error(err));
   }
 

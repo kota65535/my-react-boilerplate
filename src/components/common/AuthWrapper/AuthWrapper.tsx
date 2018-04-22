@@ -1,8 +1,8 @@
 import * as React from "react";
 // import {Authenticator} from "aws-amplify-react";
 import getLogger from "logging";
-import Authenticator from "components/Editor/MenuDrawer/LoginDialog/Authenticator/Authenticator";
-import {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+import Authenticator from "components/common/Authenticator/Authenticator";
+import {AuthState} from "components/common/Authenticator/AuthPiece/AuthPiece";
 
 const LOGGER = getLogger(__filename)
 

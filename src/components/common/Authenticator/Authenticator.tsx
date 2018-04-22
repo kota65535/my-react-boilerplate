@@ -6,11 +6,11 @@ import Amplify, {Logger} from 'aws-amplify';
 // import VerifyContact from './VerifyContact';
 // import ForgotPassword from './ForgotPassword';
 // import TOTPSetup from './TOTPSetup';
-import AmplifyMessageMap from '../AmplifyMessageMap';
-import {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
-import SignIn from "components/Editor/MenuDrawer/LoginDialog/Authenticator/SignIn/SignIn";
-import SignUp from "components/Editor/MenuDrawer/LoginDialog/Authenticator/SignUp/SignUp";
-import ForgotPassword from "components/Editor/MenuDrawer/LoginDialog/Authenticator/ForgotPassword/ForgotPassword";
+import AmplifyMessageMap from './AmplifyMessageMap';
+import {AuthState} from "components/common/Authenticator/AuthPiece/AuthPiece";
+import SignIn from "components/common/Authenticator/SignIn/SignIn";
+import SignUp from "components/common/Authenticator/SignUp/SignUp";
+import ForgotPassword from "components/common/Authenticator/ForgotPassword/ForgotPassword";
 
 
 const logger = new Logger('Authenticator');

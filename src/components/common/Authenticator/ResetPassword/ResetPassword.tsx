@@ -4,11 +4,11 @@ import AuthPiece, {
   AuthPieceProps,
   AuthPieceState,
   AuthState
-} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+} from "components/common/Authenticator/AuthPiece/AuthPiece";
 import Grid from "material-ui/Grid";
 import Button from "material-ui/Button";
 import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
-import {CenteredGrid} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/ResetPassword/styles";
+import {CenteredGrid} from "components/common/Authenticator/ResetPassword/styles";
 import Typography from "material-ui/Typography";
 import {RouteComponentProps, withRouter} from "react-router";
 

@@ -1,11 +1,11 @@
 import * as React from 'react'
 import {DialogActions, DialogContent} from "material-ui"
 import Dialog from "material-ui/Dialog";
-import AuthWrapper from "components/Editor/MenuDrawer/LoginDialog/AuthWrapper";
-import {AuthState} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+import AuthWrapper from "components/common/AuthWrapper/index";
+import {AuthState} from "components/common/Authenticator/AuthPiece/AuthPiece";
 
 
-export interface LoginDialogProps {
+export interface SignUpDialogProps {
   open: boolean
   onClose: () => void
 
@@ -13,9 +13,9 @@ export interface LoginDialogProps {
 }
 
 
-export class LoginDialog extends React.Component<LoginDialogProps, {}> {
+export class SignUpDialog extends React.Component<SignUpDialogProps, {}> {
 
-  constructor(props: LoginDialogProps) {
+  constructor(props: SignUpDialogProps) {
     super(props)
 
     this.onClose = this.onClose.bind(this)
@@ -40,7 +40,7 @@ export class LoginDialog extends React.Component<LoginDialogProps, {}> {
         onClose={this.onClose}
       >
         <DialogContent>
-          <AuthWrapper onSignedIn={this.onSignedIn} authState={AuthState.SIGN_IN} />
+          <AuthWrapper onSignedIn={this.onSignedIn} authState={AuthState.SIGN_UP} />
         </DialogContent>
         <DialogActions>
         </DialogActions>

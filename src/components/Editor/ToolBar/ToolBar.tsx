@@ -12,6 +12,7 @@ import RedoIcon from 'material-ui-icons/Redo'
 import DeleteIcon from 'material-ui-icons/Delete'
 import PanToolIcon from 'material-ui-icons/PanTool'
 import AspectRatioIcon from "material-ui-icons/AspectRatio";
+import MenuIcon from "material-ui-icons/Menu";
 import {PaletteItem} from "store/type";
 import {LastPaletteItems} from "reducers/builder";
 import {LayoutData, LayoutMeta} from "reducers/layout";
@@ -33,7 +34,7 @@ export interface ToolBarProps {
   currentLayoutData: LayoutData
   canUndo: boolean
   canRedo: boolean
-  // authData: any
+  authData: any
   layoutMeta: LayoutMeta
 
   selectPaletteItem: (item: PaletteItem) => void
@@ -218,17 +219,26 @@ export class ToolBar extends React.Component<EnhancedToolBarProps, ToolBarState>
               </StyledIconButton>
             </Tooltip>
 
-            {/* メニューアイコンを右端に配置するため */}
+            {/* メニューアイコンを右端に配置するための空白 */}
             <Typography variant="title" color="inherit" style={{flex: 1}} />
-            {/*<Tooltip id="tooltip-menu" title={"Menu"}>*/}
-              {/*<StyledIconButton*/}
-                {/*onClick={this.openMenu}*/}
-              {/*>*/}
-                {/*<MenuIcon/>*/}
-              {/*</StyledIconButton>*/}
-            {/*</Tooltip>*/}
-            <StyledLoginButton />
-            <StyledSignUpButton />
+            {/* ログインボタン */}
+            {! this.props.authData &&
+              <StyledLoginButton/>
+            }
+            {/* サインアップボタン */}
+            {! this.props.authData &&
+              <StyledSignUpButton/>
+            }
+            {/* メニュー */}
+            {this.props.authData &&
+              <Tooltip id="tooltip-menu" title={"Menu"}>
+                <StyledIconButton
+                  onClick={this.openMenu}
+                >
+                  <MenuIcon/>
+                </StyledIconButton>
+              </Tooltip>
+            }
           </MuiToolbar>
         </AppBar>
         <MenuDrawer open={this.state.openMenu} onClose={this.closeMenu}/>

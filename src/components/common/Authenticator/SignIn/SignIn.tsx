@@ -6,7 +6,7 @@ import AuthPiece, {
   AuthPieceProps,
   AuthPieceState,
   AuthState
-} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+} from "components/common/Authenticator/AuthPiece/AuthPiece";
 // import { FederatedButtons } from './FederatedSignIn';
 import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
 

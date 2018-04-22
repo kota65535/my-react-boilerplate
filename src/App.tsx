@@ -11,7 +11,7 @@ import Amplify from "aws-amplify";
 import aws_exports from './aws-exports';
 import TestCases from "components/cases/TestCases";
 import 'typeface-roboto'
-import ResetPassword from "components/Editor/MenuDrawer/LoginDialog/Authenticator/ResetPassword/ResetPassword";
+import ResetPassword from "components/common/Authenticator/ResetPassword/ResetPassword";
 import qs from "query-string"
 import {Redirect} from "react-router";
 

@@ -14,7 +14,7 @@ const mapStateToProps = (state: RootState) => {
     currentLayoutData: currentLayoutData(state),
     canUndo: canUndo(state),
     canRedo: canRedo(state),
-    // authData: state.tools.authData,
+    authData: state.tools.authData,
     layoutMeta: state.layout.meta,
   }
 };

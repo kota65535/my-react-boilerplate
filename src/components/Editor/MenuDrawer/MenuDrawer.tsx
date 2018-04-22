@@ -10,7 +10,7 @@ import LogoutIcon from "material-ui-icons/Lock";
 import SettingsIcon from "material-ui-icons/Settings";
 import LayoutNameDialog from "components/Editor/MenuDrawer/NewLayoutDialog";
 import OpenDialog from "components/Editor/MenuDrawer/OpenDialog";
-import LoginDialog from "components/Editor/MenuDrawer/LoginDialog";
+import LoginDialog from "components/Editor/ToolBar/LoginButton/LoginDialog";
 import Auth from "aws-amplify/lib/Auth";
 import LayoutAPI from "apis/layout"
 import StorageAPI from "apis/storage"

@@ -5,7 +5,7 @@ import AuthPiece, {
   AuthPieceProps,
   AuthPieceState,
   AuthState
-} from "components/Editor/MenuDrawer/LoginDialog/Authenticator/AuthPiece/AuthPiece";
+} from "components/common/Authenticator/AuthPiece/AuthPiece";
 import {Button, Grid} from "material-ui";
 import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
 

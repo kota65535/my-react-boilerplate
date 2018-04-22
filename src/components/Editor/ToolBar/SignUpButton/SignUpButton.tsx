@@ -1,6 +1,7 @@
 import * as React from 'react'
 import getLogger from "logging";
 import Button from "material-ui/Button";
+import SignUpDialog from "components/Editor/ToolBar/SignUpButton/SignUpDialog";
 
 const LOGGER = getLogger(__filename)
 
@@ -46,7 +47,7 @@ export class SignUpButton extends React.Component<SignUpButtonProps, SignUpButto
         >
           Sign Up
         </Button>
-        {/*<SignUpDialog open={this.state.open} onClose={this.closeMenu} />*/}
+        <SignUpDialog open={this.state.open} onClose={this.closeMenu} />
       </React.Fragment>
     )
   }

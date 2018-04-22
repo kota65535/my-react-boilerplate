@@ -1,7 +1,7 @@
 import * as React from 'react'
 import getLogger from "logging";
 import Button from "material-ui/Button";
-import LoginDialog from "components/Editor/MenuDrawer/LoginDialog";
+import LoginDialog from "components/Editor/ToolBar/LoginButton/LoginDialog";
 
 const LOGGER = getLogger(__filename)
 

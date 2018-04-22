@@ -1,6 +1,6 @@
 import {RootState} from "store/type";
 import {connect} from "react-redux";
-import {LoginDialog, LoginDialogProps} from "components/Editor/MenuDrawer/LoginDialog/LoginDialog";
+import {LoginDialog, LoginDialogProps} from "components/Editor/ToolBar/LoginButton/LoginDialog/LoginDialog";
 import {withSnackbar} from 'material-ui-snackbar-provider'
 import {compose} from "recompose";
 

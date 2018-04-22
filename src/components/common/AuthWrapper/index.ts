@@ -2,7 +2,7 @@ import {RootState} from "store/type";
 import {connect} from "react-redux";
 import {withSnackbar} from 'material-ui-snackbar-provider'
 import {setAuthData} from "actions/tools";
-import AuthWrapper from "components/Editor/MenuDrawer/LoginDialog/AuthWrapper/AuthWrapper";
+import AuthWrapper from "components/common/AuthWrapper/AuthWrapper";
 
 const mapStateToProps = (state: RootState) => {
   return {}

@@ -11,6 +11,7 @@ import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
 import {CenteredGrid} from "components/common/Authenticator/ResetPassword/styles";
 import Typography from "material-ui/Typography";
 import {RouteComponentProps, withRouter} from "react-router";
+import {DialogTitle} from "material-ui";
 
 const logger = new Logger('ResetPassword');
 
@@ -56,7 +57,7 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
         this.setState({success: true})
         setTimeout(() => {
           this.props.history.push('/')
-        }, 3000)
+        }, 5000)
       })
       .catch(err => this.error(err));
   }
@@ -67,8 +68,8 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
       <div>
         <CenteredGrid container>
           <Grid item xs={12}>
-            <Typography>Successfully reset password!</Typography>
-            <Typography>Automatically jump to editor after 3 sec.</Typography>
+            <Typography>Reset password successfully!</Typography>
+            <Typography>Automatically jump to editor after 5 sec.</Typography>
           </Grid>
         </CenteredGrid>
       </div>
@@ -78,6 +79,7 @@ export class ResetPassword extends AuthPiece<ResetPasswordProps & RouteComponent
   inputView = () => {
     return (
       <div>
+        <DialogTitle>Reset Password</DialogTitle>
         <CenteredGrid container>
           <Grid item xs={12}>
             <ValidatorForm

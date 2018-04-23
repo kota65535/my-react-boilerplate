@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Auth, JS, Logger} from 'aws-amplify';
 
-import {Button, Grid} from "material-ui";
+import {Button, DialogTitle, Grid} from "material-ui";
 import AuthPiece, {
   AuthPieceProps,
   AuthPieceState,
@@ -9,6 +9,7 @@ import AuthPiece, {
 } from "components/common/Authenticator/AuthPiece/AuthPiece";
 // import { FederatedButtons } from './FederatedSignIn';
 import {TextValidator, ValidatorForm} from 'react-material-ui-form-validator';
+import {ErrorMessageGrid, MainButtonGrid, StyledDialogContent} from "components/common/Authenticator/styles";
 
 const logger = new Logger('SignIn');
 
@@ -75,56 +76,62 @@ export default class SignIn extends AuthPiece<SignInProps, AuthPieceState> {
 
     return (
       <div>
-        <Grid container spacing={8}>
-          <Grid item xs={12}>
-            <ValidatorForm
-              ref={(form) => this._form = form}
-            >
-              <TextValidator
-                autoFocus
-                label="Email"
-                name="email"
-                key="email"
-                value={this.state.inputs.email}
-                onChange={this.handleInputChange}
-                validatorListener={this.handleValidation}
-                validators={['required', 'isEmail']}
-                errorMessages={['this field is required', 'email is not valid']}
-                fullWidth
-              />
-              <br />
-              <TextValidator
-                label="Password"
-                name="password"
-                key="password"
-                type="password"
-                value={this.state.inputs.password}
-                onChange={this.handleInputChange}
-                validatorListener={this.handleValidation}
-                validators={['required']}
-                errorMessages={['this field is required']}
-                fullWidth
-              />
-            </ValidatorForm>
+        <DialogTitle>Login</DialogTitle>
+        <StyledDialogContent>
+          <Grid container spacing={8}>
+            <Grid item xs={12}>
+              <ValidatorForm
+                ref={(form) => this._form = form}
+              >
+                <TextValidator
+                  autoFocus
+                  label="Email"
+                  name="email"
+                  key="email"
+                  value={this.state.inputs.email}
+                  onChange={this.handleInputChange}
+                  validatorListener={this.handleValidation}
+                  validators={['required', 'isEmail']}
+                  errorMessages={['this field is required', 'email is not valid']}
+                  fullWidth
+                />
+                <br />
+                <TextValidator
+                  label="Password"
+                  name="password"
+                  key="password"
+                  type="password"
+                  value={this.state.inputs.password}
+                  onChange={this.handleInputChange}
+                  validatorListener={this.handleValidation}
+                  validators={['required']}
+                  errorMessages={['this field is required']}
+                  fullWidth
+                />
+              </ValidatorForm>
+            </Grid>
+            <MainButtonGrid item xs={12}>
+              <Button fullWidth variant="raised" color="primary"
+                      disabled={this.state.disabled} onClick={this.signIn}>
+                Login
+              </Button>
+            </MainButtonGrid>
+            <Grid item xs={12}>
+              <Button onClick={() => this.changeState(AuthState.FORGOT_PASSWORD)}>
+                I forgot my password
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button onClick={() => this.changeState(AuthState.SIGN_UP)}>
+                I want to create new account
+              </Button>
+            </Grid>
+            <ErrorMessageGrid item xs={12}>
+              {this.props.errorMessage}
+            </ErrorMessageGrid>
           </Grid>
-        </Grid>
-        <Grid container spacing={8} style={{marginTop: '16px'}}>
-          <Grid item xs={12}>
-            <Button fullWidth variant="raised" color="primary"
-                    disabled={this.state.disabled} onClick={this.signIn}>Login</Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button onClick={() => this.changeState(AuthState.FORGOT_PASSWORD)}>
-              I forgot my password
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button onClick={() => this.changeState(AuthState.SIGN_UP)}>
-              I want to create new account
-            </Button>
-          </Grid>
-        </Grid>
+        </StyledDialogContent>
       </div>
-    )
+  )
   }
-}
+  }

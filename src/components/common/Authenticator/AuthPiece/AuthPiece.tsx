@@ -10,6 +10,7 @@ export interface AuthPieceProps {
   authState?: any
   onAuthEvent?: any
   onStateChange?: (state: string, data: any) => void
+  errorMessage?: string
 }
 
 export interface AuthPieceState {

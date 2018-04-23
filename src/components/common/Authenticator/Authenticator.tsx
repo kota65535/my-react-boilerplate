@@ -38,7 +38,6 @@ export default class Authenticator extends React.Component<AuthenticatorProps, A
 
     this.handleStateChange = this.handleStateChange.bind(this);
     this.handleAuthEvent = this.handleAuthEvent.bind(this);
-    this.errorRenderer = this.errorRenderer.bind(this);
 
     this.state = {
       auth: props.authState || AuthState.SIGN_IN,
@@ -79,12 +78,6 @@ export default class Authenticator extends React.Component<AuthenticatorProps, A
     }
   }
 
-  errorRenderer(err) {
-    return (
-      <div>{err}</div>
-    )
-  }
-
   render() {
     const { auth, authData } = this.state;
     const messageMap = this.props.errorMessage
@@ -106,7 +99,8 @@ export default class Authenticator extends React.Component<AuthenticatorProps, A
         authState: auth,
         authData: authData,
         onStateChange: this.handleStateChange,
-        onAuthEvent: this.handleAuthEvent
+        onAuthEvent: this.handleAuthEvent,
+        errorMessage: this.state.error,
       });
     });
 
@@ -118,17 +112,15 @@ export default class Authenticator extends React.Component<AuthenticatorProps, A
         authData: authData,
         onStateChange: this.handleStateChange,
         onAuthEvent: this.handleAuthEvent,
+        errorMessage: this.state.error,
       });
     });
 
     const render_children = render_default_children.concat(render_props_children);
 
-    const errorRenderer = this.props.errorRenderer || this.errorRenderer;
-    const error = this.state.error;
     return (
       <div>
         {render_children}
-        {error? errorRenderer(error) : null}
       </div>
     )
   }

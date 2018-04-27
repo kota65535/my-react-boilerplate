@@ -4,10 +4,10 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 // import lightBlue from 'material-ui/colors/lightBlue';
 import cyan from 'material-ui/colors/cyan';
 import green from 'material-ui/colors/green';
-import Reboot from 'material-ui/Reboot';
 import {Provider} from "react-redux";
 import {configureStore} from "./store";
 import {SnackbarProvider} from 'material-ui-snackbar-provider'
+import CssBaseline from "material-ui/CssBaseline";
 
 // A theme with custom primary and secondary color.
 // It's optional.
@@ -48,12 +48,12 @@ function withRoot(Component: React.ComponentType) {
       <Provider store={store}>
         <MuiThemeProvider theme={theme}>
           {/* Reboot kickstart an elegant, consistent, and simple baseline to build upon. */}
-          <Reboot>
+          <CssBaseline>
             <SnackbarProvider snackbarProps={snackbarProps}>
               {/* the rest of your app belongs here, e.g. the router */}
               <Component {...props} />
             </SnackbarProvider>
-          </Reboot>
+          </CssBaseline>
         </MuiThemeProvider>
       </Provider>
     );
